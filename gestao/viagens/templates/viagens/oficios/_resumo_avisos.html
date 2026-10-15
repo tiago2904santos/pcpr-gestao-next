@@ -5,25 +5,15 @@
       <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para emitir com outra data, volte à folha e altere a data do ofício: a data informada ali passa a valer.</p>
     </div></div>
   {% endif %}
-  {% if prontidao and not prontidao.pode_emitir %}
-    {# O mesmo cartão de conferência da folha: cada pendência volta à folha, no cartão certo. #}
-    {% url 'viagens:editar' oficio.pk as folha_url %}
-    <div class="prontidao-documental resumo__aviso" role="status">
-      <div class="prontidao-documental__cabecalho">
-        {% icone "list-checks" %}
-        <div>
-          <p class="prontidao-documental__rotulo">Conferência do cadastro</p>
-          <p class="prontidao-documental__titulo">{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir</p>
-        </div>
-      </div>
-      <ul class="checklist">{% for p in prontidao.bloqueantes %}<li class="checklist__item"><a href="{{ folha_url }}#{{ p.secao }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ p.mensagem }}</span>{% icone "arrow-right" classe="icone--sm icone--seta" %}</a></li>{% endfor %}</ul>
-    </div>
-  {% endif %}
   {% if oficio.situacao == "cancelado" %}
-    <div class="alerta alerta--perigo resumo__aviso" role="note">{% icone "ban" %}<div class="alerta__corpo">
-      <p class="alerta__titulo">Cancelado{% if oficio.cancelado_em %} em {{ oficio.cancelado_em|date:"d/m/Y" }}{% endif %}</p>
-      <p>{{ oficio.motivo_cancelamento }}</p>
-    </div></div>
+    {% with quando=oficio.cancelado_em|date:"d/m/Y" %}
+    {% if quando %}{% include "componentes/resumo_cancelamento.html" with titulo="Cancelado em "|add:quando motivo=oficio.motivo_cancelamento only %}
+    {% else %}{% include "componentes/resumo_cancelamento.html" with titulo="Cancelado" motivo=oficio.motivo_cancelamento only %}{% endif %}
+    {% endwith %}
+  {% elif prontidao and not prontidao.pode_emitir %}
+    {# O mesmo cartão de conferência dos outros resumos: cada pendência volta à folha, no cartão certo. #}
+    {% url 'viagens:editar' oficio.pk as folha_url %}
+    {% include "componentes/resumo_conferencia.html" with pendencias=prontidao.bloqueantes base_url=folha_url falta_para="emitir" only %}
   {% endif %}
   {% if revisao and prontidao.avisos %}
     {# Não impedem a emissão, mas a decisão é agora: quem emite precisa ver. #}

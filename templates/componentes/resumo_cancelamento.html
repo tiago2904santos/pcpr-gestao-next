@@ -1,0 +1,7 @@
+{% load ui %}{% comment %}
+Aviso de cancelamento no alto do resumo (todos os documentos): quando e por quê.
+Variáveis: `titulo` ("Cancelada em 28/09/2026") e `motivo`.
+{% endcomment %}<div class="alerta alerta--perigo resumo__aviso" role="note">{% icone "ban" %}<div class="alerta__corpo">
+  <p class="alerta__titulo">{{ titulo }}</p>
+  {% if motivo %}<p>{{ motivo }}</p>{% endif %}
+</div></div>

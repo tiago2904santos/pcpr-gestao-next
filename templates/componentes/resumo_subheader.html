@@ -1,0 +1,6 @@
+{% comment %}
+Sub-header do resumo (rola com o corpo; fixos só o cabeçalho e o rodapé): os dados que
+não estão no destaque (número, destino, data, chips)
+nem nos cartões do corpo — os próprios do tipo e, por último, unidade, viagem, quem criou
+e a última atualização. Variável `r.detalhes` ([{rotulo, valor}]).
+{% endcomment %}{% for d in r.detalhes %}{% include "componentes/resumo_subheader_dado.html" with rotulo=d.rotulo valor=d.valor only %}{% endfor %}

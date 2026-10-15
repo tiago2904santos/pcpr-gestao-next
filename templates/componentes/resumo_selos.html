@@ -1,1 +1,10 @@
-{% load ui %}<div class="dialogo__linha-selos">{% for s in r.selos %}<span class="selo selo--{{ s.tom }}{% if s.tom == 'neutro' %} selo--sem-ponto{% endif %}">{{ s.texto }}</span>{% endfor %}</div>
+{% load ui viagens %}{% comment %}
+Chips ao lado do destino, no cabeçalho do resumo: primeiro a situação documental, com a
+forma do estado (○ rascunho, ✓ emitido/gerado, ✕ cancelado — as mesmas do ofício);
+depois "Assinada" para quem não vê os documentos (OS) e o tempo: a urgência de quem ainda
+não saiu (o mesmo selo da lista) ou "faltam N dias".
+{% endcomment %}<div class="dialogo__linha-selos">
+  {% if r.situacao_texto %}<span class="selo selo--{{ r.situacao|tom_situacao }} selo--situacao-{{ r.situacao }}">{{ r.situacao_texto }}</span>{% endif %}
+  {% if r.assinatura %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}{{ r.assinatura }}</span>{% endif %}
+  {% if r.urgencia %}{% include "componentes/linha_urgencia.html" with urgencia=r.urgencia.nivel dias=r.urgencia.dias acao=r.acao %}{% elif r.inicio and r.situacao != "cancelado" %}{% selo_tempo r.inicio r.fim %}{% endif %}
+</div>

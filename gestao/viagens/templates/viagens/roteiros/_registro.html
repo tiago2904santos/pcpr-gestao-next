@@ -61,15 +61,7 @@
     <pc-menu class="menu">
       <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações do roteiro #{{ r.pk }}">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
-        {% if r.situacao == "ativo" %}
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_roteiro' r.pk %}">{% icone "pencil" %}Editar roteiro</a>
-          {% if pode_criar_oficio and r.total_trechos %}<button type="submit" form="r-oficio-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
-          <button type="submit" form="r-cancelar-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>
-        {% else %}
-          <button type="submit" form="r-reativar-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar roteiro</button>
-        {% endif %}
-        <div class="menu__separador" role="separator"></div>
-        <button type="submit" form="r-excluir-{{ r.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>
+        {% include "viagens/roteiros/_menu_linha.html" with roteiro=r %}
       </div>
     </pc-menu>
     {% if r.situacao == "ativo" %}

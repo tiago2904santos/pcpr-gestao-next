@@ -151,6 +151,12 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 /* O primeiro selo é a SITUAÇÃO (único com contorno); os seguintes são circunstância (prazo,
    tipo, arquivado) e viram texto com ícone — informam sem disputar com o título. */
 .registro-hero .dialogo__linha-selos > .selo ~ .selo { --selo-borda: transparent; --selo-texto: var(--cor-texto-inverso-sutil); padding-inline: 0; }
+/* A urgência ("sai em 7 dias · gerar") é o selo da lista, que traz fundo âmbar próprio: no cabeçalho escuro vira
+   texto como as outras circunstâncias, e só o relógio guarda o tom de alerta. */
+.registro-hero .dialogo__linha-selos > .selo.selo--urgencia { background: transparent; border-color: transparent; color: var(--cor-texto-inverso); padding-inline: 0; }
+.registro-hero .selo--urgencia-aviso > .icone { color: var(--dourado-300); }
+.registro-hero .selo--urgencia-perigo > .icone { color: var(--vermelho-100); }
+.registro-hero .selo--urgencia > .selo__extra { color: var(--cor-texto-inverso-sutil); }
 
 
 /* O cabeçalho oficial também abre páginas operacionais. O modal mantém a variante original. */
@@ -612,22 +618,13 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .prontidao-documental__cabecalho { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-3); align-items: start; }
 .prontidao-documental__cabecalho > .icone { color: var(--cor-marca-texto); margin-top: var(--esp-1); }
 .prontidao-documental p { margin: 0; }
-.prontidao-documental__rotulo { color: var(--cor-texto-secundario); font-size: var(--texto-2xs); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); margin-bottom: var(--esp-2); }
+.prontidao-documental__rotulo { color: var(--cor-texto-secundario); font-size: var(--texto-2xs); font-weight: var(--peso-normal); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); margin-bottom: var(--esp-2); }
 .prontidao-documental__titulo { font-size: var(--texto-lg); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); }
 .prontidao-documental__nota { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
 .prontidao-documental .checklist { padding-left: var(--esp-4); margin: 0; }
 .prontidao-documental .checklist__item { font-size: var(--texto-sm); line-height: var(--altura-linha); }
 .prontidao-documental .checklist__item a { color: var(--cor-texto); }
 .prontidao-documental > .botao { justify-self: start; }
-/* No resumo da Viagem, a ausência de pendências é uma confirmação serena: sem o
-   contorno nem o filete de atenção usados quando ainda existe algo a resolver. */
-.prontidao-documental--pronta.prontidao-documental--resumo-neutro,
-.prontidao-documental--pronta.prontidao-documental--resumo-neutro:hover {
-  translate: none;
-  border: 0;
-  background: var(--cor-superficie-sutil);
-  box-shadow: none;
-}
 @media (min-width: 1024px) {
   .preparacao-documental { gap: var(--esp-5); }
   .prontidao-documental { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }
@@ -769,12 +766,36 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .dialogo__fechar:hover { background: var(--cor-primaria-hover); color: var(--cor-texto-inverso); }
 .dialogo--mesa .dialogo__fechar:focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .dialogo--mesa .dialogo__corpo { padding: var(--esp-8); color: var(--cor-texto); }
+/* Resumo com sub-header: a faixa escura encosta no cabeçalho, na largura toda, e rola com o
+   conteúdo (fixos ficam só o cabeçalho e o rodapé); o respiro passa para o miolo. */
+.dialogo--mesa .dialogo__corpo:has(> .resumo-subheader) { padding: 0; }
+.resumo-subheader { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-6); padding: var(--esp-3) var(--esp-8); background: var(--cor-primaria-ativa); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
+.resumo-subheader__dado { display: inline-flex; align-items: baseline; gap: var(--esp-2); min-width: 0; max-width: 28rem; }
+.resumo-subheader__rotulo { flex: none; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
+.resumo-subheader__valor { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cor-texto-inverso); font-weight: var(--peso-medio); }
+.resumo-corpo { padding: var(--esp-8); }
+@media (max-width: 1023.98px) {
+  .resumo-subheader { padding-inline: var(--esp-6); }
+  .resumo-corpo { padding: var(--esp-6); }
+}
+@media (max-width: 767.98px) {
+  .resumo-subheader { padding-inline: var(--esp-5); gap: var(--esp-2) var(--esp-4); }
+  .resumo-corpo { padding: var(--esp-5); }
+}
+@media (max-width: 599.98px) {
+  /* No celular, duas colunas: rótulo em cima, valor embaixo. */
+  .resumo-subheader { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); }
+  .resumo-subheader__dado { flex-direction: column; align-items: flex-start; gap: var(--esp-05); max-width: none; }
+  .resumo-subheader__valor { max-width: 100%; }
+}
 .dialogo--mesa .dialogo__conteudo { display: flex; flex-direction: column; overflow: hidden; }
 .dialogo--mesa .dialogo__conteudo > .registro-hero, .dialogo--mesa .dialogo__rodape { flex: none; }
 /* Uma rolagem para o conteúdo; cabeçalho e ações não recebem o trilho da scrollbar. */
 .dialogo--mesa .dialogo__conteudo > .dialogo__corpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
 .mesa-registro :is(a, button, input, textarea, summary) { scroll-margin-block: var(--esp-4); }
-.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "registro registro" "equipe equipe" "principal contexto"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
+/* O corpo do resumo segue a ordem do HTML, que é a ordem de leitura do contrato (avisos, documentos, registro, blocos
+   numerados): uma coluna, sem áreas nomeadas — seção que não se aplica não é renderizada e não deixa faixa vazia. */
+.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
 .registro__selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-secundario); }
 .dialogo--mesa .dialogo__linha-selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
 .dialogo--mesa .dialogo__linha-selos .selo--condicao { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
@@ -784,21 +805,31 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .estado-documental__titulo { margin: 0; font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
 .estado-documental__nota { margin: var(--esp-1) 0 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
 .estado-documental > .botao { flex: none; }
-.mesa-registro__principal { grid-area: principal; min-width: 0; display: grid; gap: var(--esp-6); }
-.mesa-registro__documentos { grid-area: documentos; min-width: 0; }
+.mesa-registro__principal { min-width: 0; display: grid; gap: var(--esp-6); }
+/* O porquê do registro (motivo, justificativa, observações, atividades) no alto do corpo:
+   texto corrido e maior, sem cartão — o filete dourado da identidade marca cada voz; duas
+   vozes (motivo e justificativa) dividem a linha. */
+.resumo-narrativa { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: var(--esp-5) var(--esp-8); margin-bottom: var(--esp-6); }
+.resumo-narrativa__item { min-width: 0; padding: var(--esp-1) 0 var(--esp-1) var(--esp-5); border-left: var(--filete) solid var(--cor-marca); }
+.resumo-narrativa__rotulo { display: flex; align-items: center; gap: var(--esp-1); margin: 0 0 var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-marca-texto); }
+.resumo-narrativa__texto { margin: 0; max-width: 72ch; font-size: var(--texto-lg); line-height: var(--altura-linha); color: var(--cor-texto); overflow-wrap: anywhere; }
+.resumo-narrativa__item--ausente { border-left-color: var(--cor-aviso-borda); }
+.resumo-narrativa__item--ausente .resumo-narrativa__texto { color: var(--cor-texto-secundario); }
+.resumo-narrativa__fichas { display: flex; flex-wrap: wrap; gap: var(--esp-2); margin: 0; }
+.resumo-narrativa__fichas > li { padding: var(--esp-1) var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-pilula); background: var(--cor-superficie-sutil); font-size: var(--texto-sm); color: var(--cor-texto); }
+.mesa-registro__documentos { min-width: 0; }
 /* A coluna se estica até o fim do conteúdo para a conferência poder acompanhar a rolagem (sticky); ela cabe
    na altura da tela — o que passar disso rola dentro dela — e nunca deixa um vão embaixo. */
-.mesa-registro__coluna { grid-area: contexto; min-width: 0; align-self: stretch; }
-.mesa-registro__registro { grid-area: registro; min-width: 0; }
-.mesa-registro__equipe { grid-area: equipe; min-width: 0; display: grid; gap: var(--esp-6); }
+.mesa-registro__coluna { min-width: 0; align-self: stretch; }
+.mesa-registro__equipe, .mesa-registro__bloco { min-width: 0; display: grid; gap: var(--esp-6); }
 /* Equipe e transporte: uma fileira de cartões (servidores + viatura), no mesmo desenho do cartão Registro institucional. */
 /* Cada linha se divide em colunas iguais e ocupa a largura toda (1 servidor + viatura = 2 colunas; 3 = 3; a última linha também se estica). */
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa { flex: 1 1 17rem; align-self: stretch; }
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa { background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); box-shadow: none; padding: var(--esp-3) var(--esp-4); }
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); font-size: var(--texto-xs); }
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte .avatar--escuro { background: var(--grafite-900); color: var(--neutro-0); }
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte .pessoa__nome { font-size: var(--texto-md); color: var(--cor-texto); }
+.dialogo--mesa .mesa-registro .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.dialogo--mesa .mesa-registro .equipe-transporte > .pessoa { flex: 1 1 17rem; align-self: stretch; }
+.dialogo--mesa .mesa-registro .equipe-transporte > .pessoa { background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); box-shadow: none; padding: var(--esp-3) var(--esp-4); }
+.dialogo--mesa .mesa-registro .equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); font-size: var(--texto-xs); }
+.dialogo--mesa .mesa-registro .equipe-transporte .avatar--escuro { background: var(--grafite-900); color: var(--neutro-0); }
+.dialogo--mesa .mesa-registro .equipe-transporte .pessoa__nome { font-size: var(--texto-md); color: var(--cor-texto); }
 /* Roteiro do Resumo: os trechos num cartão como os demais (registro, equipe), linhas com respiro uniforme, o fio
    ocupando o meio de verdade (antes era um traço curto perdido entre saída e chegada) e a origem tão legível quanto
    o destino. A linha sob o mouse se destaca para seguir o trecho de um lado ao outro. */
@@ -813,17 +844,8 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .mesa-registro__principal .percurso-registro__dia b { font-size: var(--texto-sm); }
 .dialogo--mesa .mesa-registro__principal .percurso-registro__ponto time { font-size: var(--texto-md); }
 .dialogo--mesa .mesa-registro__principal .percurso-registro__lugar { font-size: var(--texto-xs); }
-.mesa-registro__registro > .bloco-registro { min-width: 0; padding: var(--esp-5); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
-.dialogo--mesa .mesa-registro__registro .bloco-registro__titulo { font-size: var(--texto-xs); }
 .mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); align-content: start; position: sticky; top: var(--esp-2); scrollbar-width: thin; }
 @media (min-width: 1024px) {
-  /* Registro institucional no alto, na largura toda: quatro dados lado a lado; motivo e justificativa em linha inteira. */
-  .dialogo--mesa .mesa-registro__registro .resumo__definicoes.metadados { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-6); }
-  /* Motivo numa célula só (resumo da OS): a última coluna é um pouco mais larga para ele. */
-  .dialogo--mesa .mesa-registro__registro .resumo__definicoes.metadados:has(> .metadado--linha:not(.resumo__largo)) { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); }
-  /* Motivo e justificativa: metade da linha cada, na mesma linha, no máximo duas linhas de texto (o resto fica no title). */
-  .dialogo--mesa .mesa-registro__registro .resumo__definicoes .metadado--texto { grid-column: span 2; }
-  .dialogo--mesa .mesa-registro__registro .metadado--texto dd { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   /* Diárias ao lado do Roteiro, sempre na altura dele: a coluna estica com o roteiro e o cartão a preenche — o valor total
      cresce (número no meio) e os três dados se distribuem um por linha. */
   .mesa-registro__contexto { position: static; min-height: 100%; grid-template-rows: minmax(min-content, 1fr); }
@@ -854,10 +876,9 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__dados dd { font-size: clamp(var(--texto-sm), min(5.4cqh, 6.5cqi), 2rem); line-height: var(--altura-linha-justa); overflow: hidden; text-overflow: ellipsis; }
   /* Roteiro curto (até 5 trechos) não tem altura para as Diárias ao lado: elas descem para baixo do roteiro, na largura
      toda, com tudo numa linha só — valor total, por servidor, tipo e quantidade. */
-  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) { grid-template-areas: "documentos documentos" "registro registro" "equipe equipe" "principal principal" "contexto contexto"; }
-  /* Resumo sem documentos nem registro (ex.: roteiro): a grade não reserva essas faixas — faixa vazia ainda soma o vão. */
-  .dialogo--mesa .mesa-registro > .resumo:not(:has(> .mesa-registro__documentos, > .mesa-registro__registro)) { grid-template-areas: "equipe equipe" "principal contexto"; }
-  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))):not(:has(> .mesa-registro__documentos, > .mesa-registro__registro)) { grid-template-areas: "equipe equipe" "principal principal" "contexto contexto"; }
+  /* Percurso longo (6 trechos ou mais): as Diárias ficam ao lado dele; o resto do resumo segue na largura toda. */
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) > :not(.mesa-registro__principal, .mesa-registro__coluna) { grid-column: 1 / -1; }
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena--consulta { grid-template-columns: minmax(max-content, 1fr) minmax(0, 3fr); grid-template-rows: none; }
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: center; align-items: center; gap: var(--esp-6); }
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados > div { grid-column: auto; padding: 0; border: 0; }
@@ -937,14 +958,27 @@ strong.percurso-registro__lugar { color: var(--cor-texto); font-weight: var(--pe
    a nota "Arquivo da viagem" ao lado) — sem a coluna lateral que só servia de rótulo. */
 .estacao-documental { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
 .estacao-documental > .estacao-documental__cabecalho { margin-bottom: 0; }
+/* No resumo, o título de Documentos fica à mesma distância do conteúdo que o dos outros blocos. */
+.dialogo--mesa .mesa-registro .estacao-documental { gap: var(--esp-3); }
+.dialogo--mesa .mesa-registro .estacao-documental > .estacao-documental__cabecalho { margin-bottom: 0; }
+@media (max-width: 767.98px) { .dialogo--mesa .mesa-registro .estacao-documental > .estacao-documental__cabecalho { margin-bottom: var(--esp-3); } }
 .estacao-documental > .vazio-inline { margin: 0; }
-.estacao-documental .resumo__documentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: var(--esp-4); }
+.estacao-documental .resumo__documentos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
 .estacao-documental .resumo__documentos > li { min-width: 0; }
 /* A peça é UMA linha: documento à esquerda, estado da via e ação à direita. Só o que é
    detalhe (quem anexou, arquivo) e as notas de conferência descem para a faixa inteira. */
 .estacao-documental__peca { display: grid; grid-template-columns: minmax(0, auto) auto minmax(0, 1fr) auto; align-items: center; border: var(--borda); border-radius: var(--raio-lg); overflow: hidden; background: var(--cor-superficie); }
 .estacao-documental__peca > .peca-documental { grid-column: 1; width: auto; }
 .estacao-documental__peca > .assinatura-documental { display: contents; }
+/* Várias peças (termo: uma por servidor, o genérico, a viatura): uma lista só, linhas
+   separadas por filete — não uma pilha de cartões soltos. */
+.estacao-documental .resumo__documentos:has(> li + li) { gap: 0; border: var(--borda); border-radius: var(--raio-lg); overflow: hidden; }
+.estacao-documental .resumo__documentos:has(> li + li) > .estacao-documental__peca { border: 0; border-radius: 0; }
+.estacao-documental .resumo__documentos:has(> li + li) > .estacao-documental__peca + .estacao-documental__peca { border-top: var(--borda-sutil); }
+/* …e o estado da via começa na mesma coluna em todas. */
+@media (min-width: 768px) {
+  .estacao-documental .resumo__documentos:has(> li + li) > .estacao-documental__peca { grid-template-columns: minmax(0, 24rem) auto minmax(0, 1fr) auto; }
+}
 /* O alvo é a peça inteira, não a metade esquerda: o hover acende a linha toda e o nome do
    documento sublinha — sem a faixa dourada cobrindo meia largura. */
 .estacao-documental__peca:has(> a.peca-documental:hover) { background: var(--cor-superficie-sutil); }
@@ -1040,10 +1074,9 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .dado-copiavel .botao:hover { --botao-fundo: var(--cor-superficie-realce); color: var(--cor-texto); }
 .divulgacao--copiavel .divulgacao__corpo > .botao { align-self: start; }
 .dialogo--mesa .dialogo__rodape { padding: var(--esp-4) var(--esp-8); box-shadow: var(--sombra-3); gap: var(--esp-3); }
-.dialogo--mesa .dialogo__rodape > :first-child { margin-right: auto; }
+.dialogo--mesa .dialogo__rodape > :first-child:not(pc-menu, .botao--primario) { margin-right: auto; }
 .dialogo--mesa .dialogo__rodape > .texto-secundario { align-self: center; }
 @media (max-width: 1023.98px) {
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "registro" "equipe" "principal" "contexto"; gap: var(--esp-6); }
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-6); }
   .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: none; gap: var(--esp-6); position: static; height: auto; max-height: none; overflow: visible; }
   .mesa-registro__contexto > .bloco-registro:not(.bloco-registro--conferencia) { padding: var(--esp-5); }
@@ -1059,7 +1092,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   
   
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-5); }
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "registro" "equipe" "principal" "contexto"; gap: var(--esp-6); }
   .estado-documental { flex-wrap: wrap; align-items: flex-start; }
   .estado-documental > div { flex-basis: calc(100% - var(--esp-8)); }
   .estado-documental > .botao { margin-left: var(--esp-6); }
@@ -1067,7 +1099,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr); }
   .estacao-documental { display: block; }
   .estacao-documental__cabecalho { padding: 0; margin-bottom: var(--esp-3); }
-  .estacao-documental .resumo__documentos { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
   .estacao-documental__peca { grid-template-columns: minmax(0, 1fr); }
   .estacao-documental__peca > .peca-documental { width: 100%; }
   .estacao-documental__peca > .assinatura-documental > :is(.assinatura-documental__estado, .botao, pc-menu, .registro__texto) { grid-column: 1; justify-content: flex-start; margin: 0 var(--esp-4) var(--esp-2); }
@@ -1080,10 +1111,15 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .percurso-registro__trecho { grid-template-columns: 3.25rem minmax(0, 1fr); gap: var(--esp-3); padding: var(--esp-3) 0; }
   .percurso-registro__rota { grid-template-columns: minmax(0, 1fr) minmax(4.5rem, auto) minmax(0, 1fr); gap: var(--esp-3); }
   .percurso-registro__ponto time { font-size: var(--texto-lg); }
+  /* No resumo, a linha do meio encolhe para o nome da cidade caber sem partir no meio. */
+  .dialogo--mesa .mesa-registro__principal .percurso-registro__rota { grid-template-columns: minmax(0, 1fr) minmax(3.5rem, 0.5fr) minmax(0, 1fr); gap: var(--esp-2); }
+  .dialogo--mesa .percurso-registro__ponto { overflow-wrap: break-word; }
   .missao-registro__texto { font-size: var(--texto-lg); }
   .dialogo--mesa .dialogo__rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: var(--esp-3) var(--esp-4); gap: var(--esp-2); }
-  .dialogo--mesa .dialogo__rodape > :first-child { margin-right: 0; }
+  .dialogo--mesa .dialogo__rodape > :first-child:not(pc-menu, .botao--primario) { margin-right: 0; }
   .dialogo--mesa .dialogo__rodape > .botao--primario, .dialogo--mesa .dialogo__rodape > .dialogo__acao { grid-column: 1 / -1; }
+  /* Sem documento para ler, "Mais ações" é o único secundário: ocupa a linha. */
+  .dialogo--mesa .dialogo__rodape > pc-menu:first-child { grid-column: 1 / -1; }
   .dialogo--mesa .dialogo__rodape > form:has(> .botao--primario) { grid-column: 1 / -1; }
   .dialogo--mesa .dialogo__rodape .botao { width: 100%; }
 }
@@ -1349,8 +1385,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao),
     box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao);
 }
-.registros--operacionais > .registro.registro-operacional:is(:hover, :focus-within),
-.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa--ligacao:is(:hover, :focus-within) {
+.registros--operacionais > .registro.registro-operacional:is(:hover, :focus-within) {
   background: var(--cor-superficie);
   border-color: var(--hover-cartao-borda);
   box-shadow: var(--sombra-2);
@@ -1367,23 +1402,18 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
    lugar, ele inteiro é o alvo (o ::after do link cobre o cartão), sem sublinhado nem azul de link: o nome fica na
    cor do texto e, no hover, ganha o tom da marca, o cartão sobe e a seta desliza para a direita. Na abertura do
    resumo os cartões entram em cascata. Tudo segue os tokens de duração (0ms com movimento reduzido). */
-.dialogo--mesa .mesa-registro__principal .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
-.dialogo--mesa .mesa-registro__principal .equipe-transporte > .pessoa { flex: 1 1 17rem; align-self: stretch; background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); box-shadow: none; padding: var(--esp-3) var(--esp-4); }
-.dialogo--mesa .mesa-registro__principal .equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); font-size: var(--texto-xs); }
-.dialogo--mesa .mesa-registro__principal .equipe-transporte .avatar--escuro { background: var(--grafite-900); color: var(--neutro-0); }
-.dialogo--mesa .mesa-registro__principal .equipe-transporte .pessoa__nome { font-size: var(--texto-md); color: var(--cor-texto); }
 .dialogo--mesa .pessoa--ligacao { position: relative; cursor: pointer; }
 .dialogo--mesa .pessoa--ligacao a.pessoa__nome { color: var(--cor-texto); text-decoration: none; }
 .dialogo--mesa .pessoa--ligacao a.pessoa__nome::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .dialogo--mesa .pessoa--ligacao a.pessoa__nome:focus-visible { outline: none; }
 .dialogo--mesa .pessoa--ligacao:has(a.pessoa__nome:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
-.dialogo--mesa :is(.mesa-registro__equipe, .mesa-registro__principal) .equipe-transporte > .pessoa--ligacao:is(:hover, :focus-within) {
+.dialogo--mesa .mesa-registro .equipe-transporte > .pessoa--ligacao:is(:hover, :focus-within) {
   background: var(--cor-superficie);
   border-color: var(--hover-cartao-borda);
   box-shadow: var(--sombra-2);
   translate: 0 -1px;
 }
-.dialogo--mesa :is(.mesa-registro__equipe, .mesa-registro__principal) .pessoa--ligacao:is(:hover, :focus-within) .pessoa__nome { color: var(--hover-cartao-texto); }
+.dialogo--mesa .mesa-registro .pessoa--ligacao:is(:hover, :focus-within) .pessoa__nome { color: var(--hover-cartao-texto); }
 .dialogo--mesa .equipe-transporte > .pessoa--ligacao:active { translate: 0 0; scale: var(--escala-pressao); box-shadow: var(--sombra-1); }
 .dialogo--mesa .pessoa__seta {
   display: inline-flex; flex: none; margin-left: auto; color: var(--cor-texto-terciario); opacity: 0; translate: calc(-1 * var(--esp-2)) 0;
@@ -1647,6 +1677,9 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .prontidao-documental .checklist__item:nth-child(2) { animation-delay: 80ms; }
 .prontidao-documental .checklist__item:nth-child(n + 3) { animation-delay: 160ms; }
 .prontidao-documental .checklist__item a > .icone--seta { animation: conferencia-cutucar 2.8s var(--curva-padrao) infinite; }
+/* No resumo o cartão divide a tela com o conteúdo: o movimento chama uma vez e para (WCAG 2.2.2). */
+.resumo__aviso.prontidao-documental .prontidao-documental__cabecalho > .icone,
+.resumo__aviso.prontidao-documental .checklist__item a > .icone--seta { animation-iteration-count: 1; }
 .prontidao-documental .checklist__item a:hover > .icone--seta { animation: none; }
 @keyframes conferencia-respirar {
   0%, 55%, 100% { box-shadow: 0 0 0 0 transparent; }
@@ -1965,7 +1998,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 /* Registro institucional do resumo: motivo e justificativa numa linha, quem assina e o
    destinatário na seguinte — cada valor numa linha só, sem quebra (o texto inteiro no title). */
 .resumo__definicoes .metadado--linha { min-width: 0; }
-.dialogo--mesa .mesa-registro__registro .resumo__definicoes .metadado--linha dd,
 .resumo__definicoes .metadado--linha dd { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; -webkit-line-clamp: none; line-clamp: none; }
 
 

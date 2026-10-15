@@ -1,0 +1,15 @@
+{% load ui %}{% comment %}
+O que falta, no alto do resumo — o mesmo cartão de conferência da folha: cada item leva à
+folha, no cartão certo. Só aparece quando falta algo (a situação já está no cabeçalho).
+Variáveis: `pendencias` ([{mensagem, url}] ou, no ofício, [{mensagem, secao}] com
+`base_url`), `falta_para` ("emitir", "gerar"…).
+{% endcomment %}<section class="prontidao-documental resumo__aviso" aria-labelledby="resumo-conferencia">
+  <div class="prontidao-documental__cabecalho">
+    {% icone "list-checks" %}
+    <div>
+      <h3 class="prontidao-documental__rotulo" id="resumo-conferencia">Conferência do cadastro</h3>
+      <p class="prontidao-documental__titulo">{{ pendencias|length|pluralizar:"item falta,itens faltam" }} para {{ falta_para }}</p>
+    </div>
+  </div>
+  <ul class="checklist">{% for p in pendencias %}{% if p.url %}{% include "componentes/conferencia_item.html" with url=p.url mensagem=p.mensagem only %}{% else %}{% include "componentes/conferencia_item.html" with url=base_url|add:"#"|add:p.secao mensagem=p.mensagem only %}{% endif %}{% endfor %}</ul>
+</section>

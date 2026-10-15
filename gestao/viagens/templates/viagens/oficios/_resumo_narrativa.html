@@ -1,0 +1,15 @@
+{% comment %}
+O porquê do ofício (componentes/resumo_narrativa.html): motivo e justificativa; na
+revisão antes de emitir, também o estado da justificativa, quem assina e o destinatário —
+o que se confere antes de emitir.
+{% endcomment %}{% include "componentes/resumo_narrativa_item.html" with rotulo="Motivo" texto=oficio.motivo ausente="Motivo não informado." only %}
+{% if revisao %}
+  {% if dados.justificativa %}{% firstof "Incluída (documento à parte)." as just %}{% elif prazo.justificativa_obrigatoria %}{% firstof "" as just %}{% else %}{% firstof "Dispensada" as just %}{% endif %}
+  {% include "componentes/resumo_narrativa_item.html" with rotulo="Justificativa" texto=just ausente="Obrigatória e ausente." only %}
+  {% if dados.chefia.cargo %}{% with assina=dados.chefia.nome|default:""|add:" — "|add:dados.chefia.cargo %}{% include "componentes/resumo_narrativa_item.html" with rotulo="Assina" texto=assina only %}{% endwith %}
+  {% else %}{% include "componentes/resumo_narrativa_item.html" with rotulo="Assina" texto=dados.chefia.nome ausente="Não informado." only %}{% endif %}
+  {% if dados.destinatario.cargo %}{% with destinatario=dados.destinatario.nome|default:""|add:", "|add:dados.destinatario.cargo %}{% include "componentes/resumo_narrativa_item.html" with rotulo="Destinatário" texto=destinatario only %}{% endwith %}
+  {% else %}{% include "componentes/resumo_narrativa_item.html" with rotulo="Destinatário" texto=dados.destinatario.nome ausente="Não informado." only %}{% endif %}
+{% elif oficio.justificativa %}
+  {% include "componentes/resumo_narrativa_item.html" with rotulo="Justificativa" texto=oficio.justificativa only %}
+{% endif %}

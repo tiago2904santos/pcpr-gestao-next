@@ -12,7 +12,7 @@
   {% if c.s.via or c.pode %}
     {% if c.s.via %}
       <pc-menu class="menu" data-menu-flutuante><button type="button" class="botao botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Ações da via assinada: {{ c.titulo }}">{% icone "ellipsis-vertical" %}Ações</button><div class="menu__painel menu__painel--acima" role="menu" hidden><p class="menu__folha-titulo" aria-hidden="true">{{ c.titulo }}</p>{% include "viagens/assinados/_itens_menu.html" with s=c.s anexar_url=c.anexar_url titulo=c.titulo pode=c.pode original_url=c.original_url voltar=c.voltar %}</div></pc-menu>
-    {% else %}<a class="botao botao--sm" href="{{ c.anexar_url }}" data-anexar-assinado="{{ c.anexar_url }}" data-assinado-titulo="{{ c.titulo }}" data-assinado-voltar="{{ c.voltar }}">{% icone "file-signature" %}Anexar via assinada</a>{% endif %}
+    {% else %}<a class="botao botao--sm" href="{{ c.anexar_url }}" data-anexar-assinado="{{ c.anexar_url }}" data-assinado-titulo="{{ c.titulo }}" data-assinado-voltar="{{ c.voltar }}">{% icone "file-signature" %}Anexar via assinada<span class="sr-only"> de {{ c.titulo }}</span></a>{% endif %}
   {% elif vazio %}<p class="registro__texto">{{ vazio }}</p>{% endif %}
   {% if c.s.via %}
     <div class="assinatura-documental__detalhes"><span>Anexada por {{ c.s.via.enviado_por.nome }} · {{ c.s.via.enviado_em|date:"d/m/Y H:i" }}</span><span>{{ c.s.via.nome_original|truncatechars:48 }}</span></div>

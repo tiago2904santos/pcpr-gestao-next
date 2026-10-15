@@ -9,7 +9,7 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
 {% endcomment %}
 <div class="dialogo__rodape" id="resumo-rodape" tabindex="-1" role="group" aria-label="Ações do ofício">
   <button type="button" class="botao botao--texto" data-fechar-dialogo>{% icone "arrow-left" %}Voltar e corrigir</button>
-  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}?emissao=1" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>
+  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}?emissao=1" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta<span class="sr-only"> do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)</span></a>
   {% comment %}
   A janela já é a confirmação (número, valor e destinatário estão à vista): emitir não abre
   uma segunda janela por cima. Emitido, o ofício ainda se corrige por retificação.
@@ -30,9 +30,9 @@ documento embora) e viraram um grupo dentro de "Mais ações".
 {% endcomment %}
 <div class="dialogo__rodape" id="resumo-rodape" tabindex="-1" role="group" aria-label="Ações do ofício">
   {% if pdf_oficio_url %}
-    <a class="botao botao--texto" id="resumo-ver-pdf-{{ oficio.pk }}" href="{{ pdf_oficio_url }}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
+    <a class="botao botao--texto" id="resumo-ver-pdf-{{ oficio.pk }}" href="{{ pdf_oficio_url }}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF<span class="sr-only"> do Ofício {{ oficio.numero_formatado }} (nova aba)</span></a>
   {% elif menu.minuta %}
-    <a class="botao botao--texto" id="resumo-ver-minuta-{{ oficio.pk }}" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>
+    <a class="botao botao--texto" id="resumo-ver-minuta-{{ oficio.pk }}" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta<span class="sr-only"> do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)</span></a>
   {% elif oficio.situacao == "emitido" %}
     <span class="texto-secundario" role="status">{% if selecao_oficio.estado_geracao == "gerando" %}PDF v{{ selecao_oficio.ultima_emissao.versao }} em geração{% elif selecao_oficio.estado_geracao == "falhou" %}A geração do PDF v{{ selecao_oficio.ultima_emissao.versao }} falhou{% else %}PDF da emissão indisponível{% endif %}</span>
   {% endif %}

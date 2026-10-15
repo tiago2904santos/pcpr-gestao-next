@@ -1,0 +1,5 @@
+{% load ui %}<div class="resumo-narrativa__item{% if not texto and not fichas %} resumo-narrativa__item--ausente{% endif %}">
+  <p class="resumo-narrativa__rotulo">{% icone "text-quote" classe="icone--sm" %}{{ rotulo }}</p>
+  {% if fichas %}<ul class="resumo-narrativa__fichas" role="list">{% for f in fichas %}<li>{{ f }}</li>{% endfor %}</ul>
+  {% else %}<p class="resumo-narrativa__texto">{% if texto %}{{ texto }}{% else %}{{ ausente }}{% endif %}</p>{% endif %}
+</div>

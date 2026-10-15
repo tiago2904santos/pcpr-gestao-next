@@ -161,8 +161,14 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
     o = get_object_or_404(ordens.com_dados(policies.ordens_visiveis(request.user))
                           .annotate(via_vigente=Subquery(via)), pk=pk)
     linha = _linha_da_lista(request, o, timezone.now())
+    if o.documento_gerado_em and policies.pode_ver_documento_ordem(request.user, o):
+        # A via assinada na peça do documento, como na folha (anexar/remover voltam à lista).
+        linha["via"] = views_assinados.cartao(
+            request, assinados.Alvo("ordem", o), assinados.vigentes_do(o).get(("ordem", "")),
+            titulo=str(o), original_url=reverse("viagens:documento_ordem", args=[o.pk, "pdf"]),
+            voltar=reverse("viagens:ordens"))
     return render(request, "componentes/resumo_documento.html",
-                  {"r": resumo_listas.da_ordem(o, linha), "o": o, "l": linha})
+                  {"r": resumo_listas.da_ordem(o, linha, request.user), "o": o, "l": linha})
 
 
 @require_POST

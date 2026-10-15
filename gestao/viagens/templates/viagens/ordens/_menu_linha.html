@@ -1,18 +1,22 @@
 {% load ui %}{% comment %}
 Itens do menu ⋮ da OS — os mesmos na linha da lista e no rodapé do resumo ("Mais
 ações"). Variáveis: `o`, `l` (a linha: editavel, cancelavel, excluivel) e, no
-resumo, `no_resumo` (sem "Ver resumo"). Os formulários de reativar/excluir moram na
+resumo, `no_resumo` (sem "Ver resumo" e sem o que a
+janela já mostra: Abrir no botão principal, PDF e via nos Documentos e no rodapé). Os formulários de reativar/excluir moram na
 linha da lista (a janela abre por cima dela).
 {% endcomment %}
 {% if not no_resumo %}<button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo_ordem' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Ver resumo</button>{% endif %}
 {% if l.editavel %}
+  {% if not no_resumo %}{# No resumo, a via e o PDF estão na peça do documento e no rodapé; Abrir é o botão principal. #}
   {% if o.via_vigente %}<a class="menu__item" role="menuitem" href="{% url 'viagens:abrir_via_assinada' o.via_vigente %}" target="_blank" rel="noopener">{% icone "file-signature" %}Abrir via assinada</a>{% endif %}
   <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Documento (PDF)</a>
-  <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'docx' %}">{% icone "download" %}Documento (DOCX)</a>
-  <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "pencil" %}Abrir</a>
-{% else %}
+  {% endif %}
+  {% if not no_resumo or o.documento_gerado_em %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'docx' %}">{% icone "download" %}Documento (DOCX)</a>{% endif %}{# no resumo, o DOCX da OS não gerada fixaria a geração — lá ela tem a minuta #}
+  {% if not no_resumo %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "pencil" %}Abrir</a>{% endif %}
+{% elif not no_resumo %}
   <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "eye" %}Abrir</a>
 {% endif %}
+<a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}#historico">{% icone "history" %}Ver o histórico</a>
 {% if l.cancelavel %}
   <div class="menu__separador" role="separator"></div>
   {% if o.cancelada %}<button type="submit" form="reativar-{{ o.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar</button>

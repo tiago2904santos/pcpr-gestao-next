@@ -180,8 +180,16 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
                                   vias_assinadas__revogada_em__isnull=True), distinct=True),
                               vias_total=Count("vias_assinadas", distinct=True)), pk=pk)
     linha = _linha_da_lista(request, t, timezone.now())
+    if policies.pode_ver_documento_termo(request.user, t):
+        # A via assinada de cada documento na própria peça, como na folha.
+        vias = assinados.vigentes_do(t)
+        for d in linha["docs"]:
+            d["via"] = views_assinados.cartao(
+                request, assinados.Alvo("termo", t, d["chave"]), vias.get(("termo", d["chave"])),
+                titulo=d["titulo"], voltar=reverse("viagens:termos"),
+                original_url=reverse("viagens:documento_termo", args=[t.pk, d["chave"], "pdf"]))
     return render(request, "componentes/resumo_documento.html",
-                  {"r": resumo_listas.do_termo(t, linha), "t": t, "l": linha,
+                  {"r": resumo_listas.do_termo(t, linha, request.user), "t": t, "l": linha,
                    "ef": linha["ef"]})
 
 

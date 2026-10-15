@@ -3505,6 +3505,13 @@ fieldset.campo--escolhas > .campo__erro {
 .registro-hero .registro-hero__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
 .registro-hero__complemento { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-sm); margin: var(--esp-2) 0 0; font-variant-numeric: tabular-nums; }
 .registro-hero__complemento > .icone { color: var(--shell-filete-claro); }
+/* A data em destaque nos resumos, logo abaixo do destino: número, destino e data são o
+   que identifica a viagem; o resto fica no sub-header, que rola com o corpo. */
+.registro-hero__data { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin: var(--esp-2) 0 0; font-size: var(--texto-xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; }
+.registro-hero__data > .icone { color: var(--shell-filete-claro); }
+@media (max-width: 767.98px) {
+  .registro-hero__data { font-size: var(--texto-lg); }
+}
 .registro-hero__metadados { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); margin-top: var(--esp-3); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
 .registro-hero__metadado { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 0; color: inherit; overflow-wrap: anywhere; }
 .registro-hero__metadado > .icone { flex: none; color: var(--shell-filete-claro); }
@@ -3541,7 +3548,6 @@ fieldset.campo--escolhas > .campo__erro {
   .registro-hero--pagina .registro-hero__acoes > .botao { padding-inline: var(--esp-2); font-size: var(--texto-xs); }
 }
 @media (max-width: 1023.98px) {
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "registro" "equipe" "principal" "contexto"; gap: var(--esp-6); }
   .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
   .registro-hero__identidade { padding-right: var(--esp-5); }
   .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }

@@ -125,6 +125,16 @@ class TestFuncoesEDocumento:
                                  destinos=[_londrina()], assinante=dois)
         assert ordens.dados_do_documento(ordem)["assina"]["nome"] == dois.nome
 
+    def test_salvar_sem_assinante_mantem_o_gravado(self, c):
+        # A tela não manda mais quem assina (módulo próprio): o autosave não pode apagá-lo.
+        um, dois = Servidor.objects.all()[:2]
+        ordem, _ = ordens.salvar(c.usuarios["operador"], servidores=[um],
+                                 destinos=[_londrina()], assinante=dois)
+        ordem, _ = ordens.salvar(c.usuarios["operador"], pk=ordem.pk, servidores=[um],
+                                 destinos=[_londrina()], motivo="novo motivo")
+        ordem.refresh_from_db()
+        assert ordem.assinante_id == dois.pk
+
     def test_faltando(self, c):
         ordem, _ = ordens.salvar(c.usuarios["operador"])
         assert ordens.faltando(ordem) == ["período", "destino", "equipe", "motivo"]
