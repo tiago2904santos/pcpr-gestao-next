@@ -18,6 +18,7 @@ from .documentos_versoes import ProjecaoDocumentos, projetar_documentos
 from .dominio.assunto import OpcaoDeMarca, marcas_do_menu, resolver_assunto
 from .models import (
     Documento,
+    ModeloOS,
     Oficio,
     OrdemServico,
     PlanoTrabalho,
@@ -335,6 +336,23 @@ def pode_editar_texto(usuario, oficio: Oficio) -> bool:
 
 def pode_gerir_textos_prontos(usuario) -> bool:
     return politicas_cadastros.pode_gerir_textos(usuario)  # uma regra só (cadastros)
+
+
+# ---------------------------------------------------------------- modelos de OS
+def pode_ver_modelos_os(usuario) -> bool:
+    return usuario.has_perm("viagens.view_modeloos")
+
+
+def pode_gerir_modelos_os(usuario) -> bool:
+    """Criar, alterar e desativar modelos: o gestor (os modelos valem para todas as unidades)."""
+    return usuario.has_perm("viagens.add_modeloos") and usuario.has_perm(
+        "viagens.change_modeloos")
+
+
+def pode_excluir_modelo_os(usuario, modelo: ModeloOS) -> bool:
+    """Excluir de vez: só o gestor, nunca um modelo do sistema nem um em uso por alguma OS."""
+    return (usuario.has_perm("viagens.delete_modeloos") and not modelo.padrao_sistema
+            and not modelo.ordens.exists())
 
 
 # ---------------------------------------------------------------- roteiros

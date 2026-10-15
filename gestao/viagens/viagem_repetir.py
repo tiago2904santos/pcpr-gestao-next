@@ -105,8 +105,10 @@ def repetir(usuario, pk: int, nova_data: date, nova_cidade: Municipio | None = N
             continue
         copia_ord, _ = ordens.salvar(
             usuario, oficios=[oficios[x.pk] for x in os_.oficios.all() if x.pk in oficios],
-            tipo=os_.tipo, destinos=[cidade(d.municipio) for d in os_.destinos.all()],
+            modelo=os_.modelo, destinos=[cidade(d.municipio) for d in os_.destinos.all()],
             data_inicio=dia(os_.data_inicio), data_fim=dia(os_.data_fim),
+            data_evento_inicio=dia(os_.data_evento_inicio),
+            data_evento_fim=dia(os_.data_evento_fim), hora=os_.hora,
             servidores=list(os_.servidores.all()), motivo=os_.motivo, funcoes=os_.funcoes)
         OrdemServico.objects.filter(pk=copia_ord.pk).update(viagem=nova)
 

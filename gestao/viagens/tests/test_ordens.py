@@ -4,7 +4,7 @@ número), documento com o texto do tipo. Dados fictícios."""
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 
 import pytest
 from django.core.exceptions import PermissionDenied
@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor
 from gestao.viagens import ordens
-from gestao.viagens.models import Oficio, OrdemServico
+from gestao.viagens.models import ModeloOS, Oficio, OrdemServico
 
 from .cenarios import cenario_completo
 
@@ -24,6 +24,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def c():
     return cenario_completo()
+
+
+def _modelo(chave: str) -> ModeloOS:
+    return ModeloOS.objects.get(chave=chave)
 
 
 def _cliente(usuario) -> Client:
@@ -90,14 +94,14 @@ class TestFuncoesEDocumento:
     def test_funcoes_so_nos_tipos_que_usam_e_validas(self, c):
         um, dois = Servidor.objects.all()[:2]
         op = c.usuarios["operador"]
-        ordem, _ = ordens.salvar(op, tipo="caminhao", servidores=[um, dois],
+        ordem, _ = ordens.salvar(op, modelo=_modelo("caminhao"), servidores=[um, dois],
                                  destinos=[_londrina()],
                                  funcoes={str(um.pk): "conducao", "999999": "apoio"})
         assert ordem.funcoes == {str(um.pk): "conducao"}  # quem não está na equipe sai
         with pytest.raises(ordens.OrdemInvalida, match="função válida"):
-            ordens.salvar(op, pk=ordem.pk, tipo="caminhao", servidores=[um],
+            ordens.salvar(op, pk=ordem.pk, modelo=_modelo("caminhao"), servidores=[um],
                           funcoes={str(um.pk): "coordenacao"})
-        padrao, _ = ordens.salvar(op, tipo="padrao", servidores=[um],
+        padrao, _ = ordens.salvar(op, servidores=[um],
                                   funcoes={str(um.pk): "conducao"})
         assert padrao.funcoes == {}
 
@@ -106,12 +110,14 @@ class TestFuncoesEDocumento:
         config = ConfiguracaoInstitucional.objects.get(unidade__sigla="ASCOM")
         config.delegado_geral_nome = "Delegado-Geral Fictício"
         config.save()
-        ordem, _ = ordens.salvar(c.usuarios["operador"], tipo="caminhao", servidores=[um],
-                                 destinos=[_londrina()], data_inicio=date(2030, 3, 10),
-                                 motivo="o evento fictício", funcoes={str(um.pk): "conducao"})
+        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("caminhao"),
+                                 servidores=[um], destinos=[_londrina()],
+                                 data_inicio=date(2030, 3, 10), motivo="o evento fictício",
+                                 funcoes={str(um.pk): "conducao"})
         dados = ordens.dados_do_documento(ordem)
         assert dados["referencia"] == "Deslocamento - Caminhão de apoio"
-        assert dados["competencias"][0].startswith(f"{um.nome} – conduzir a Unidade Móvel")
+        assert dados["itens"][0][0] == "I"
+        assert dados["itens"][0][1].startswith(f"Que {um.nome} conduza a Unidade Móvel")
         assert dados["assina"]["nome"] == config.chefia_nome
         assert dados["delegado_geral"] == "Delegado-Geral Fictício"
         ordem.refresh_from_db()
@@ -166,7 +172,7 @@ class TestTelas:
         html = cli.get(reverse("viagens:nova_ordem")).content.decode()
         assert "Recebe o número" in html
         r = cli.post(reverse("viagens:nova_ordem"), {
-            "tipo": "padrao", "destinos": ["Londrina/PR"], "data_inicio": "10/03/2030",
+            "destinos": ["Londrina/PR"], "data_inicio": "10/03/2030",
             "servidores": [um.pk], "motivo": "a feira fictícia"})
         ordem = OrdemServico.objects.get()
         assert r["Location"] == reverse("viagens:editar_ordem", args=[ordem.pk])
@@ -185,7 +191,7 @@ class TestTelas:
 
     def test_funcao_se_escolhe_no_cartao_da_equipe(self, c):
         um = Servidor.objects.first()
-        ordem, _ = ordens.salvar(c.usuarios["operador"], tipo="cerimonial_antecipado",
+        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("cerimonial"),
                                  servidores=[um], destinos=[_londrina()])
         cli = _cliente(c.usuarios["operador"])
         html = cli.get(reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
@@ -196,11 +202,36 @@ class TestTelas:
         # Quem acabou de entrar na equipe já leva a função, sem gravar a equipe antes.
         outro = Servidor.objects.exclude(pk=um.pk).first()
         cli.post(reverse("viagens:editar_ordem", args=[ordem.pk]), {
-            "tipo": "cerimonial_antecipado", "destinos": ["Londrina/PR"],
+            "modelo": _modelo("cerimonial").pk, "destinos": ["Londrina/PR"],
             "servidores": [um.pk, outro.pk], f"funcao_{um.pk}": "coordenacao",
             f"funcao_{outro.pk}": "apoio"})
         ordem.refresh_from_db()
         assert ordem.funcoes == {str(um.pk): "coordenacao", str(outro.pk): "apoio"}
+
+    def test_campos_de_evento_e_hora_so_com_modelo(self, c):
+        op = c.usuarios["operador"]
+        cli = _cliente(op)
+        padrao, _ = ordens.salvar(op, destinos=[_londrina()])
+        html = cli.get(reverse("viagens:editar_ordem", args=[padrao.pk])).content.decode()
+        assert "<div data-campo-evento hidden>" in html
+        assert "<div data-campo-hora hidden>" in html
+        assert "Padrão / texto livre" in html and "Caminhão" in html
+        policial, _ = ordens.salvar(op, modelo=_modelo("operacao_policial"),
+                                    destinos=[_londrina()], hora=time(5, 0))
+        html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
+        assert "<div data-campo-evento>" in html and "<div data-campo-hora>" in html
+        assert 'name="hora"' in html and 'value="05:00"' in html
+        assert "pede o horário do briefing" in html
+        # Modelo desativado continua selecionado e a OS continua gravando.
+        ModeloOS.objects.filter(chave="operacao_policial").update(ativo=False)
+        html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
+        assert "Operação policial" in html
+        r = cli.post(reverse("viagens:autosave_ordem", args=[policial.pk]), {
+            "modelo": _modelo("operacao_policial").pk, "destinos": ["Londrina/PR"],
+            "hora": "06:30", "motivo": "x"})
+        assert r.json()["salvo"] is True
+        policial.refresh_from_db()
+        assert policial.hora == time(6, 30)
 
     def test_lista_abas_busca_e_filtro_por_oficio(self, c):
         op = c.usuarios["operador"]
@@ -265,8 +296,79 @@ class TestRevisoes:
         with pytest.raises(ordens.OrdemInvalida, match="cancelado"):
             ordens.salvar(c.usuarios["operador"], oficios=[cancelado])
 
+    def test_copia_o_evento_da_viagem_do_oficio(self, c):
+        from gestao.viagens.models import Viagem
+        oficio = _oficio(c)
+        viagem = Viagem.objects.create(unidade=oficio.unidade, titulo="Feira (teste)",
+                                       data_inicio=date(2030, 5, 5), data_fim=date(2030, 5, 6),
+                                       criado_por=c.usuarios["operador"])
+        Oficio.objects.filter(pk=oficio.pk).update(viagem=viagem)
+        oficio.refresh_from_db()
+        ordem, copiados = ordens.salvar(c.usuarios["operador"], oficios=[oficio],
+                                        modelo=_modelo("caminhao"), data_inicio=date(2030, 5, 3),
+                                        data_fim=date(2030, 5, 8))
+        assert "período do evento" in copiados
+        assert (ordem.data_evento_inicio, ordem.data_evento_fim) == (date(2030, 5, 5),
+                                                                     date(2030, 5, 6))
+
+    def test_evento_fora_do_periodo_e_recusado(self, c):
+        with pytest.raises(ordens.OrdemInvalida, match="caber"):
+            ordens.salvar(c.usuarios["operador"], modelo=_modelo("caminhao"),
+                          data_inicio=date(2030, 5, 4), data_fim=date(2030, 5, 7),
+                          data_evento_inicio=date(2030, 5, 2), data_evento_fim=date(2030, 5, 3))
+
+    def test_modelo_desativado_so_fica_em_quem_ja_tinha(self, c):
+        op = c.usuarios["operador"]
+        modelo = _modelo("microonibus")
+        ordem, _ = ordens.salvar(op, modelo=modelo, destinos=[_londrina()])
+        ModeloOS.objects.filter(pk=modelo.pk).update(ativo=False)
+        modelo.refresh_from_db()
+        ordens.salvar(op, pk=ordem.pk, modelo=modelo, destinos=[_londrina()])  # continua
+        with pytest.raises(ordens.OrdemInvalida, match="desativado"):
+            ordens.salvar(op, modelo=modelo, destinos=[_londrina()])
+
+    def test_documento_do_caminhao_sai_em_itens(self, c):
+        um, dois = Servidor.objects.all()[:2]
+        ordem, _ = ordens.salvar(
+            c.usuarios["operador"], modelo=_modelo("caminhao"), destinos=[_londrina()],
+            data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8),
+            data_evento_inicio=date(2030, 5, 5), data_evento_fim=date(2030, 5, 6),
+            servidores=[um, dois], motivo="a Feira",
+            funcoes={str(um.pk): "conducao", str(dois.pk): "apoio"})
+        dados = ordens.dados_do_documento(ordem, fixar=False)
+        numeros = [n for n, _ in dados["itens"]]
+        assert numeros == ["I", "II", "III", "IV", "V", "VI", "VII"]
+        textos = [t for _, t in dados["itens"]]
+        assert "conduza a Unidade Móvel" in textos[0] and "escolta" in textos[1]
+        assert "no dia 3 de maio de 2030" in textos[2] and "montagem" in textos[3]
+        assert "nos dias 5 e 6 de maio de 2030" in textos[4]
+        assert "desmontagem" in textos[5] and "Curitiba/PR no dia 8 de maio de 2030" in textos[6]
+        assert dados["justificativas"] and dados["finalidade"]
+        html = ordens.html_do_modelo(dados)
+        assert '<ol class="itens">' in html and "I - Que" in html and "DETERMINO" in html
+        assert ordens.faltando(ordem) == []
+
+    def test_operacao_policial_com_hora(self, c):
+        um = Servidor.objects.first()
+        op = c.usuarios["operador"]
+        ordem, _ = ordens.salvar(
+            op, modelo=_modelo("operacao_policial"), destinos=[_londrina()],
+            data_inicio=date(2030, 9, 17), data_fim=date(2030, 9, 19),
+            data_evento_inicio=date(2030, 9, 18), servidores=[um], motivo="a operação")
+        assert "horário do briefing" in ordens.faltando(ordem)
+        ordem, _ = ordens.salvar(
+            op, pk=ordem.pk, modelo=_modelo("operacao_policial"), destinos=[_londrina()],
+            data_inicio=date(2030, 9, 17), data_fim=date(2030, 9, 19),
+            data_evento_inicio=date(2030, 9, 18), servidores=[um], motivo="a operação",
+            hora=time(5, 0))
+        assert "horário do briefing" not in ordens.faltando(ordem)
+        textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+        assert len(textos) == 3
+        assert "às 05h00min no dia 18 de setembro de 2030" in textos[1]
+        assert textos[2].startswith(f"Que o policial {um.nome} efetue o retorno")
+
     def test_tipo_com_funcao_sem_funcao_e_sinalizado(self, c):
-        ordem, _ = ordens.salvar(c.usuarios["operador"], tipo="microonibus",
+        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("microonibus"),
                                  servidores=[Servidor.objects.first()], destinos=[_londrina()],
                                  data_inicio=date(2030, 1, 1), motivo="x")
         assert ordens.faltando(ordem) == ["função da equipe"]

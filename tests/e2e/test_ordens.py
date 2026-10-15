@@ -1,4 +1,4 @@
-"""E2E: ordem de serviço a partir do ofício, tipo com funções e documento."""
+"""E2E: ordem de serviço a partir do ofício, modelo com funções e documento."""
 
 from __future__ import annotations
 
@@ -30,14 +30,14 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e, largura):
     pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
     folha = pg.frame_locator("#folha-ordem")
     expect(folha.locator("body")).to_contain_text("DETERMINO")
-    # Tipo com funções: o seletor aparece na hora em cada cartão; salvar sem função avisa.
-    pg.get_by_role("combobox", name="Tipo de necessidade").click()
+    # Modelo com funções: o seletor aparece na hora em cada cartão; salvar sem função avisa.
+    pg.get_by_role("combobox", name="Modelo").click()
     pg.get_by_role("option", name=re.compile("Cerimonial")).click()
     pg.keyboard.press("Control+s")
-    # Tipo com função e ninguém com função: a tela pede para escolher.
+    # Modelo com função e ninguém com função: a tela pede para escolher.
     expect(pg.locator(".toast")).to_contain_text("escolha a função")
     primeiro = ordem.servidores.order_by("nome").first()
-    # O seletor de função fica no cartão de cada um (pílulas = rádios), com as opções do tipo.
+    # O seletor de função fica no cartão de cada um (pílulas = rádios), com as opções do modelo.
     grupo = pg.get_by_role("group", name=f"Função de {primeiro.nome}")
     expect(grupo.get_by_role("radio")).to_have_count(3)
     grupo.get_by_role("radio", name="Coordenação").check()
@@ -45,7 +45,7 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e, largura):
     pg.keyboard.press("Control+s")
     expect(pg.locator(".toast")).to_contain_text("atualizada")
     ordem.refresh_from_db()
-    assert ordem.tipo == "cerimonial_antecipado"
+    assert ordem.modelo.chave == "cerimonial"
     assert ordem.funcoes.get(str(primeiro.pk)) == "coordenacao"
     # Gravação automática: mudar o motivo grava sozinho e o status diz a hora.
     pg.get_by_role("textbox", name="Motivo", exact=True).fill("a feira fictícia de outubro")

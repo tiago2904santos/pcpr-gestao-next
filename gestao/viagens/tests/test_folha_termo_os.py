@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor
 from gestao.viagens import linha_do_tempo, ordens, termos
-from gestao.viagens.models import Oficio, OrdemServico
+from gestao.viagens.models import ModeloOS, Oficio, OrdemServico
 
 from .cenarios import cenario_completo
 
@@ -22,6 +22,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def c():
     return cenario_completo()
+
+
+def _modelo(chave: str) -> ModeloOS:
+    return ModeloOS.objects.get(chave=chave)
 
 
 def _cliente(usuario) -> Client:
@@ -96,7 +100,7 @@ class TestAutosaveDaOS:
         ordem, um = _os(c)
         r = _cliente(c.usuarios["operador"]).post(
             reverse("viagens:autosave_ordem", args=[ordem.pk]),
-            {"tipo": "padrao", "destinos": ["Londrina/PR"], "servidores": [um.pk],
+            {"destinos": ["Londrina/PR"], "servidores": [um.pk],
              "motivo": "o novo motivo"})
         assert r.json()["salvo"] is True and r.json()["em"]
         ordem.refresh_from_db()
@@ -106,7 +110,7 @@ class TestAutosaveDaOS:
         ordem, um = _os(c)
         r = _cliente(c.usuarios["operador"]).post(
             reverse("viagens:autosave_ordem", args=[ordem.pk]),
-            {"tipo": "padrao", "destinos": ["Londrina/PR"], "servidores": [um.pk],
+            {"destinos": ["Londrina/PR"], "servidores": [um.pk],
              "motivo": "outro", "data_inicio": "10/03/2030", "data_fim": "01/03/2030"})
         corpo = r.json()
         assert corpo["salvo"] is False and corpo["mensagem"].startswith("Não salvo")
@@ -118,15 +122,15 @@ class TestAutosaveDaOS:
         ordens.cancelar(c.usuarios["operador"], ordem.pk, "Evento adiado")
         r = _cliente(c.usuarios["operador"]).post(
             reverse("viagens:autosave_ordem", args=[ordem.pk]),
-            {"tipo": "padrao", "motivo": "x"})
+            {"motivo": "x"})
         assert r.json() == {"salvo": False, "mensagem": "Esta OS não pode ser alterada."}
 
     def test_consulta_nao_grava_e_outra_unidade_nem_ve(self, c):
         ordem, _ = _os(c)
         url = reverse("viagens:autosave_ordem", args=[ordem.pk])
-        r = _cliente(c.usuarios["consulta"]).post(url, {"tipo": "padrao"})
+        r = _cliente(c.usuarios["consulta"]).post(url, {})
         assert r.status_code == 200 and r.json()["salvo"] is False
-        assert _cliente(c.usuarios["outra"]).post(url, {"tipo": "padrao"}).status_code == 403
+        assert _cliente(c.usuarios["outra"]).post(url, {}).status_code == 403
 
     def test_so_post(self, c):
         ordem, _ = _os(c)
@@ -140,11 +144,11 @@ class TestHistoricoDaOS:
         um = Servidor.objects.first()
         cli = _cliente(c.usuarios["operador"])
         cli.post(reverse("viagens:nova_ordem"), {
-            "tipo": "padrao", "destinos": ["Londrina/PR"], "servidores": [um.pk],
+            "destinos": ["Londrina/PR"], "servidores": [um.pk],
             "motivo": "a feira"})
         ordem = OrdemServico.objects.get()
         url = reverse("viagens:autosave_ordem", args=[ordem.pk])
-        base = {"tipo": "padrao", "destinos": ["Londrina/PR"], "servidores": [um.pk]}
+        base = {"destinos": ["Londrina/PR"], "servidores": [um.pk]}
         cli.post(url, {**base, "motivo": "a feira fictícia"})
         cli.post(url, {**base, "motivo": "a feira fictícia", "data_inicio": "10/03/2030"})
         cli.post(reverse("viagens:cancelar_ordem", args=[ordem.pk]), {"motivo": "Adiada"})
@@ -167,7 +171,7 @@ class TestHistoricoDaOS:
         outro = Servidor.objects.exclude(pk=um.pk).first()
         _cliente(c.usuarios["operador"]).post(
             reverse("viagens:autosave_ordem", args=[ordem.pk]),
-            {"tipo": "padrao", "destinos": ["Londrina/PR", "Curitiba/PR"],
+            {"destinos": ["Londrina/PR", "Curitiba/PR"],
              "servidores": [um.pk, outro.pk], "motivo": "a feira fictícia"})
         assert linha_do_tempo.da_ordem(ordem)[0].descricao == "Alterou destinos e equipe"
 
@@ -274,7 +278,7 @@ class TestRevisaoDeSeguranca:
         ordens.salvar(c.usuarios["gestor"], pk=ordem.pk, destinos=[_londrina()],
                       servidores=[um], motivo="o motivo da gestora")
         url = reverse("viagens:autosave_ordem", args=[ordem.pk])
-        base = {"tipo": "padrao", "destinos": ["Londrina/PR"], "servidores": [um.pk]}
+        base = {"destinos": ["Londrina/PR"], "servidores": [um.pk]}
         r = _cliente(c.usuarios["operador"]).post(url, {**base, "motivo": "o meu",
                                                          "versao": versao_aberta})
         assert r.json()["salvo"] is False and "Outra pessoa" in r.json()["mensagem"]
@@ -305,10 +309,10 @@ class TestRevisaoDeUX:
         ordem, um = _os(c)
         url = reverse("viagens:autosave_ordem", args=[ordem.pk])
         base = {"destinos": ["Londrina/PR"], "servidores": [um.pk], "motivo": "a feira"}
-        r = _cliente(c.usuarios["operador"]).post(url, {**base, "tipo": "padrao"})
+        r = _cliente(c.usuarios["operador"]).post(url, base)
         assert r.json()["recarregar"] is False
         r = _cliente(c.usuarios["operador"]).post(url, {
-            **base, "tipo": "cerimonial_antecipado", f"funcao_{um.pk}": "coordenacao"})
+            **base, "modelo": _modelo("cerimonial").pk, f"funcao_{um.pk}": "coordenacao"})
         assert r.json()["salvo"] is True and r.json()["recarregar"] is False
         ordem.refresh_from_db()
         assert ordem.funcoes == {str(um.pk): "coordenacao"}

@@ -2,8 +2,10 @@
 A equipe (viagens.forms.CampoEquipe): o componente da folha do ofício
 (viagens/oficios/_equipe.html), com os escolhidos indo junto com o formulário.
 A busca não oferece quem já está na equipe (`excluir`, atualizado por multiescolha.js).
-Na OS com funções, cada cartão traz o seletor de função e, acima, o resumo por função.
-{% endcomment %}<pc-multiescolha class="equipe-campo" data-nome="{{ widget.name }}" data-variante="equipe"{% if widget.motorista %} data-motorista{% endif %}{% if widget.maximo %} data-maximo="{{ widget.maximo }}"{% endif %}{% if widget.funcoes %} data-funcoes="{{ widget.funcoes_json }}" data-campo-tipo="{{ widget.funcoes.campo_tipo }}"{% endif %}>
+Na OS com modelo que tem funções, cada cartão traz o seletor de função e, acima, o resumo
+por função; `data-com-hora` diz quais modelos pedem o horário do briefing (funcoes-equipe.js
+mostra os campos do evento e do horário conforme o modelo).
+{% endcomment %}<pc-multiescolha class="equipe-campo" data-nome="{{ widget.name }}" data-variante="equipe"{% if widget.motorista %} data-motorista{% endif %}{% if widget.maximo %} data-maximo="{{ widget.maximo }}"{% endif %}{% if widget.funcoes %} data-funcoes="{{ widget.funcoes_json }}" data-com-hora="{{ widget.com_hora_json }}" data-campo-tipo="{{ widget.funcoes.campo_tipo }}"{% endif %}>
   <div class="campo equipe__busca">
     <label class="campo__rotulo" for="{{ widget.attrs.id }}">{{ widget.rotulo }}</label>
     <div class="campo__com-acao">

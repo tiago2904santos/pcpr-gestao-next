@@ -227,7 +227,8 @@ def _copia_prevista(form: FormularioOrdem, ordem) -> dict:
 
 # Cada falta leva ao cartão onde se resolve (conferência e selos dos cartões).
 SECAO_DA_FALTA = {"período": "dados", "destino": "destinos", "equipe": "equipe",
-                  "função da equipe": "equipe", "motivo": "motivo"}
+                  "função da equipe": "equipe", "motivo": "motivo",
+                  "horário do briefing": "dados"}
 
 
 def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int = 200):
@@ -276,7 +277,7 @@ def _gravar(request: HttpRequest, form: FormularioOrdem, ordem=None) -> HttpResp
                 texto += f" Copiado dos ofícios: {', '.join(copiados)}."
             if "função da equipe" in ordens.faltando(salva):
                 messages.warning(request, f"{texto} Agora escolha a função de cada um da equipe "
-                                          "(o tipo de necessidade usa funções).")
+                                          "(o modelo usa funções).")
                 return redirect(reverse("viagens:editar_ordem", args=[salva.pk]) + "#t-equipe")
             messages.success(request, texto)
             return redirect("viagens:editar_ordem", salva.pk)
@@ -319,7 +320,7 @@ def criar_do_oficio(request: HttpRequest, oficio_pk: int) -> HttpResponse:
         messages.error(request, str(exc))
         return redirect(f"{reverse('viagens:nova_ordem')}?oficio={oficio.pk}")
     messages.success(request, f"{ordem} criada a partir do Ofício {oficio.numero_formatado}. "
-                              "Confira o tipo de necessidade e gere o documento.")
+                              "Confira o modelo e gere o documento.")
     return redirect("viagens:editar_ordem", ordem.pk)
 
 

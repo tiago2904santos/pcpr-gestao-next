@@ -5,7 +5,8 @@
  * acima dos cartões.
  *
  * - Quem entra na equipe já ganha o seletor (o servidor o desenha para os gravados).
- * - Trocar o tipo de necessidade troca as opções; a escolha que continua válida fica.
+ * - Trocar o modelo troca as opções; a escolha que continua válida fica. Também mostra o
+ *   período do evento (qualquer modelo) e o horário do briefing (modelos que o pedem).
  * - Clicar na função escolhida a desmarca (rádio nativo não desmarca sozinho).
  * As escolhas são rádios `funcao_<id>`: o formulário e o autosave as levam como qualquer campo.
  */
@@ -20,6 +21,8 @@ class FuncoesDaEquipe {
     this.multi = multi;
     /** @type {Record<string, Opcao[]>} */
     this.porTipo = JSON.parse(multi.dataset.funcoes || "{}");
+    /** @type {string[]} ids dos modelos que pedem o horário do briefing */
+    this.comHora = JSON.parse(multi.dataset.comHora || "[]");
     // O tipo do mesmo formulário (a página pode ter outro "id_tipo", como o da viatura).
     const id = CSS.escape(multi.dataset.campoTipo || "");
     this.campoTipo = /** @type {HTMLSelectElement | null} */ (
@@ -32,6 +35,7 @@ class FuncoesDaEquipe {
     this.campoTipo?.addEventListener("change", () => {
       this.opcoes = this.opcoesDoTipo();
       this.atualizar(true);
+      this.camposDoModelo();
     });
     // Desmarcar: o rádio já marcado, clicado de novo, volta para "sem função".
     multi.addEventListener("pointerdown", (evento) => {
@@ -54,6 +58,18 @@ class FuncoesDaEquipe {
       }
     });
     this.atualizar(false);
+  }
+
+  /** O período do evento aparece com qualquer modelo; o horário, só nos que o pedem. */
+  camposDoModelo() {
+    const valor = this.campoTipo?.value || "";
+    const form = this.multi.closest("form") || document;
+    for (const el of form.querySelectorAll("[data-campo-evento]")) {
+      /** @type {HTMLElement} */ (el).hidden = !valor;
+    }
+    for (const el of form.querySelectorAll("[data-campo-hora]")) {
+      /** @type {HTMLElement} */ (el).hidden = !this.comHora.includes(valor);
+    }
   }
 
   /** @returns {Opcao[]} */

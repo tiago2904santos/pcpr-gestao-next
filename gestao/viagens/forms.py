@@ -38,8 +38,10 @@ from gestao.plataforma.widgets import (
     SelecaoDeTexto,
 )
 
+from .dominio.escrita import lista_com_e
 from .dominio.numeracao import formatar_numero
 from .models import (
+    FuncaoOS,
     ModeloOS,
     Oficio,
     OrdemServico,
@@ -691,8 +693,9 @@ class CampoEquipe(EscolhaMultiplaRemota):
         self.rotulo, self.cadastrar, self.maximo = rotulo, cadastrar, maximo
         # Quem está aqui dirige (o "Quem dirige" do lote): a viatura dele entra sozinha.
         self.motorista = motorista
-        # OS com funções (caminhão, micro-ônibus, cerimonial): o seletor em cada cartão.
-        # {"campo_tipo", "por_tipo": {tipo: [opção]}, "ativas": [opção], "escolhidas"}.
+        # OS com modelo que tem funções: o seletor em cada cartão. {"campo_tipo" (id do campo
+        # Modelo), "por_tipo": {id do modelo: [opção]}, "ativas": [opção], "escolhidas",
+        # "com_hora": [ids dos modelos que pedem o horário do briefing]}.
         self.funcoes: dict[str, Any] | None = None
 
     def get_context(self, name, value, attrs):
@@ -717,36 +720,32 @@ class CampoEquipe(EscolhaMultiplaRemota):
             "rotulo": self.rotulo, "cadastrar": self.cadastrar, "maximo": self.maximo,
             "motorista": self.motorista, "funcoes": self.funcoes,
             "funcoes_json": json.dumps(self.funcoes["por_tipo"]) if self.funcoes else "",
+            "com_hora_json": json.dumps(self.funcoes["com_hora"]) if self.funcoes else "",
             "excluir": ",".join(str(e["id"]) for e in escolhidos)})
         return contexto
 
 
-# Como cada função aparece no seletor do cartão da equipe da OS: rótulo curto, ícone e o que
-# a pessoa faz (a dica; o texto que vai ao documento está em dominio/ordem_servico.py).
-# Como cada função aparece no seletor do cartão: rótulo, ícone (o que a pessoa faz) e dica
-# (resumo da atribuição que vai para a OS — dominio/ordem_servico.textos_da_os).
-APRESENTACAO_DAS_FUNCOES = {
-    "conducao": ("Condução", "car", "Dirige o veículo oficial na ida e na volta"),
-    "tecnico": ("Técnico", "wrench", "Instala, configura e opera os equipamentos"),
-    "apoio": ("Apoio", "hand-helping", "Escolta, montagem e organização"),
-    "coordenacao": ("Coordenação", "clipboard-list",
-                    "Dirige o veículo e coordena o cerimonial e o roteiro oficial"),
-    "preparacao": ("Preparação", "package-check",
-                   "Prepara a solenidade, os espaços e confere os materiais"),
-}
-# Quem conduz leva o ícone do veículo do tipo (o caminhão da Unidade Móvel, o micro-ônibus).
-APRESENTACAO_NO_TIPO = {
-    ("caminhao", "conducao"): ("Condução", "truck",
-                               "Leva a Unidade Móvel e ajuda a montar e desmontar"),
-    ("microonibus", "conducao"): ("Condução", "bus",
-                                  "Dirige o micro-ônibus na ida e na volta"),
-}
+def _opcao_de_funcao(funcao: FuncaoOS) -> dict[str, str]:
+    """Como a função aparece no seletor do cartão da equipe: rótulo, ícone e a dica (o começo
+    da atribuição que vai para o documento, sem os marcadores)."""
+    dica = re.sub(r"\{[a-z_]+\}", "…", funcao.texto).strip()
+    if len(dica) > 110:
+        dica = dica[:110].rstrip() + "…"
+    return {"valor": funcao.codigo, "rotulo": funcao.nome, "icone": funcao.icone or "star",
+            "dica": dica}
 
 
-def _opcao_de_funcao(codigo: str, tipo: str = "") -> dict[str, str]:
-    rotulo, icone, dica = (APRESENTACAO_NO_TIPO.get((tipo, codigo))
-                           or APRESENTACAO_DAS_FUNCOES[codigo])
-    return {"valor": codigo, "rotulo": rotulo, "icone": icone, "dica": dica}
+def ajuda_do_modelo(modelo: ModeloOS | None) -> str:
+    """A ajuda do campo Modelo: o que o escolhido faz com o formulário e o documento."""
+    if modelo is None:
+        return "Texto simples: quem vai, para onde, quando e para quê."
+    partes = ["Itens por dia da viagem e do evento"]
+    nomes = [f.nome for f in modelo.funcoes.all()]
+    if nomes:
+        partes.append(f"funções: {lista_com_e(nomes)}")
+    if modelo.usa_hora:
+        partes.append("pede o horário do briefing")
+    return " · ".join(partes) + "."
 
 
 class CampoOficios(EscolhaMultiplaRemota):
@@ -985,6 +984,17 @@ class FormularioOrdem(forms.Form):
                                   widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
     data_fim = forms.DateField(label="Data final", required=False, input_formats=FORMATOS_DATA,
                                widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    # O período do evento (dentro do da OS) e o horário do briefing: só com modelo
+    # (dominio/modelo_os.py). Num calendário próprio, como o período da OS.
+    data_evento_inicio = forms.DateField(
+        label="Início do evento", required=False, input_formats=FORMATOS_DATA,
+        widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    data_evento_fim = forms.DateField(
+        label="Fim do evento", required=False, input_formats=FORMATOS_DATA,
+        widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    hora = forms.TimeField(label="Horário do briefing", required=False, input_formats=["%H:%M"],
+                           widget=forms.TimeInput(attrs=_attrs("entrada", type="time"),
+                                                  format="%H:%M"))
     servidores = forms.ModelMultipleChoiceField(label="Equipe", queryset=Servidor.objects.none(),
                                                 required=False)
     motivo_modelo = forms.ModelChoiceField(
@@ -1016,21 +1026,29 @@ class FormularioOrdem(forms.Form):
         self.fields["destinos"].widget.fonte = fonte_municipios
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
             ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
-        # Funções da equipe (tipos com função): um campo por pessoa da equipe — a que está
+        # O modelo: os ativos e o que a OS já tem (desativado, continua selecionado).
+        campo_modelo = cast(forms.ModelChoiceField, self.fields["modelo"])
+        modelos_qs = ModeloOS.objects.filter(
+            Q(ativo=True) | Q(pk=ordem.modelo_id if ordem else None)).prefetch_related("funcoes")
+        campo_modelo.queryset = modelos_qs
+        modelos = list(modelos_qs)
+        if self.is_bound:
+            pedido = str(self.data.get("modelo") or "")
+            self.modelo_escolhido = next((m for m in modelos if str(m.pk) == pedido), None)
+        else:
+            self.modelo_escolhido = next(
+                (m for m in modelos if ordem and m.pk == ordem.modelo_id), None)
+        modelo = self.modelo_escolhido
+        campo_modelo.help_text = ajuda_do_modelo(modelo)
+        self.fields["motivo"].help_text = (
+            "Completa a frase “… para realizar ___.” (sem ponto final; a inicial vira "
+            "minúscula)." if modelo is None else
+            "Entra nos itens do modelo onde há {motivo} (sem ponto final; a inicial vira "
+            "minúscula).")
+        # Funções da equipe (modelo com funções): um campo por pessoa da equipe — a que está
         # na tela (pode ter acabado de entrar) ou, sem envio, a gravada. Quem escolhe é o
         # seletor no próprio cartão (viagens/widgets/equipe.html, funcoes-equipe.js).
         self.campos_de_funcao: list[tuple[str, str]] = []
-        tipo = (self.data.get("tipo") if self.is_bound else None) or (
-            ordem.tipo if ordem else "padrao")
-        from .dominio.ordem_servico import (
-            EFEITO_DO_TIPO,
-            FRASE_DO_MOTIVO,
-            FUNCOES,
-            FUNCOES_DO_TIPO,
-        )
-        self.fields["tipo"].help_text = EFEITO_DO_TIPO.get(tipo, "")
-        self.fields["motivo"].help_text = (f"Completa a frase “{FRASE_DO_MOTIVO.get(tipo, '')}” "
-                                           "(sem ponto final; a inicial vira minúscula).")
         gravadas = (ordem.funcoes or {}) if ordem else {}
         if self.is_bound:
             enviados = (self.data.getlist("servidores") if hasattr(self.data, "getlist")
@@ -1038,21 +1056,27 @@ class FormularioOrdem(forms.Form):
             ids = [str(i) for i in enviados if str(i).isdigit()]
         else:
             ids = [str(pk) for pk in atuais]
-        permitidas = FUNCOES_DO_TIPO.get(tipo) or ()
-        opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
+        permitidas = list(modelo.funcoes.all()) if modelo else []
+        opcoes = [("", "Sem função")] + [(f.codigo, f.nome) for f in permitidas]
         for sid in ids if permitidas else ():
             nome = f"funcao_{sid}"
             self.fields[nome] = forms.ChoiceField(choices=opcoes, required=False,
                                                   initial=gravadas.get(sid, ""))
             self.campos_de_funcao.append((sid, nome))
         equipe.widget.funcoes = {
-            "campo_tipo": self["tipo"].auto_id,
-            "por_tipo": {t: [_opcao_de_funcao(c, t) for c in fs]
-                         for t, fs in FUNCOES_DO_TIPO.items()},
-            "ativas": [_opcao_de_funcao(c, tipo) for c in permitidas],
+            "campo_tipo": self["modelo"].auto_id,
+            "por_tipo": {str(m.pk): [_opcao_de_funcao(f) for f in m.funcoes.all()]
+                         for m in modelos},
+            "ativas": [_opcao_de_funcao(f) for f in permitidas],
             "escolhidas": {sid: (self.data.get(f"funcao_{sid}", "") if self.is_bound
                                  else gravadas.get(sid, "")) for sid in ids},
+            "com_hora": [str(m.pk) for m in modelos if m.usa_hora],
         }
+
+    @property
+    def usa_hora(self) -> bool:
+        """O modelo escolhido pede o horário do briefing (o campo aparece)."""
+        return self.modelo_escolhido is not None and self.modelo_escolhido.usa_hora
 
     def periodo_texto(self) -> str:
         """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só a ida."""
@@ -1067,10 +1091,14 @@ class FormularioOrdem(forms.Form):
         from .ordens import versao_de
         return cls(ordem=ordem, initial={
             "versao": versao_de(ordem),
-            "oficios": [o.pk for o in ordem.oficios.all()], "tipo": ordem.tipo,
+            "oficios": [o.pk for o in ordem.oficios.all()], "modelo": ordem.modelo_id,
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,
             "data_fim": ordem.data_fim if ordem.data_fim != ordem.data_inicio else None,
+            "data_evento_inicio": ordem.data_evento_inicio,
+            "data_evento_fim": (ordem.data_evento_fim
+                                if ordem.data_evento_fim != ordem.data_evento_inicio else None),
+            "hora": ordem.hora,
             "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo},
             **kwargs)
 
@@ -1081,10 +1109,15 @@ class FormularioOrdem(forms.Form):
             self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
         if fim and not inicio:
             self.add_error("data_inicio", "Informe a data inicial.")
+        ev_ini, ev_fim = dados.get("data_evento_inicio"), dados.get("data_evento_fim")
+        if ev_ini and ev_fim and ev_fim < ev_ini:
+            self.add_error("data_evento_fim", "O fim do evento não pode ser anterior ao início.")
+        if ev_fim and not ev_ini:
+            self.add_error("data_evento_inicio", "Informe o início do evento.")
         if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
             dados["motivo"] = dados["motivo_modelo"].texto
         dados.pop("motivo_modelo", None)
-        # Sem campos de função na tela (OS nova, tipo sem função), as gravadas ficam.
+        # Sem campos de função na tela (OS nova, modelo sem função), as gravadas ficam.
         funcoes = {sid: dados.get(nome) for sid, nome in self.campos_de_funcao
                    if dados.get(nome)}
         for _sid, nome in self.campos_de_funcao:
@@ -1640,3 +1673,126 @@ class FormularioRepetir(forms.Form):
     nova_cidade = CampoMunicipio(label="Nova cidade (se mudar)", required=False,
                                  help_text="Em branco, a mesma. Números, protocolos e "
                                            "assinaturas não são copiados.")
+
+
+# ---------------------------------------------------------------- modelos de OS
+MAX_FUNCOES_DO_MODELO = 6
+
+_EXEMPLO_DA_ETAPA = {
+    "ida": "Ex.: O deslocamento {equipe} para {municipio} {data}, para apoio logístico em "
+           "{motivo}.",
+    "ida_e_antes": "Opcional — só quando a saída é a véspera do evento. Vazio: sai o texto da "
+                   "ida.",
+    "antes": "Ex.: Que a equipe realize {data} a montagem dos equipamentos no local do evento.",
+    "evento": "Ex.: Que a equipe permaneça em {destino} {data} para {motivo}.",
+    "depois": "Ex.: Que a equipe realize {data} a desmontagem e o carregamento dos materiais.",
+    "depois_e_volta": "Opcional — só quando a chegada é o dia seguinte ao evento. Vazio: sai o "
+                      "texto da volta.",
+    "volta": "Ex.: Que a equipe efetue o retorno à sede de lotação em {sede} {data}.",
+}
+ROTULO_DA_ETAPA = {
+    "ida": "Ida (dia da saída)", "ida_e_antes": "Ida e véspera no mesmo dia",
+    "antes": "Dias antes do evento", "evento": "Dias do evento",
+    "depois": "Dias depois do evento", "depois_e_volta": "Dia seguinte e volta no mesmo dia",
+    "volta": "Volta (dia da chegada)",
+}
+
+
+class FormularioModeloOS(forms.Form):
+    """Cadastro de um modelo de OS: nome, referência, um texto por etapa, justificativas,
+    finalidade e até seis funções em linhas (nome, ícone, atribuição; o código nasce do nome
+    e fica escondido depois)."""
+
+    nome = forms.CharField(label="Nome", max_length=60,
+                           help_text="Como aparece na escolha do modelo. Ex.: “Caminhão”.",
+                           widget=forms.TextInput(attrs=_attrs("entrada", autocomplete="off")))
+    referencia = forms.CharField(
+        label="Referência (Ref.:)", max_length=120,
+        help_text="Ex.: “Deslocamento - Caminhão de apoio”.",
+        widget=forms.TextInput(attrs=_attrs("entrada", autocomplete="off")))
+    justificativas = forms.CharField(
+        label="Justificativas", required=False, max_length=4000,
+        help_text="Opcional. Um parágrafo por linha; saem depois dos itens.",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=3)))
+    finalidade = forms.CharField(
+        label="Finalidade", required=False, max_length=2000,
+        help_text="Opcional. O parágrafo final (“A presente Ordem de Serviço tem por "
+                  "finalidade…”).",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=2)))
+
+    def __init__(self, *args, **kwargs):
+        from .dominio.modelo_os import ETAPAS
+        from .modelos_do_sistema import ICONES_DE_FUNCAO
+        super().__init__(*args, **kwargs)
+        for etapa in ETAPAS:
+            self.fields[etapa] = forms.CharField(
+                label=ROTULO_DA_ETAPA[etapa], required=False, max_length=2000,
+                help_text=_EXEMPLO_DA_ETAPA[etapa],
+                widget=forms.Textarea(attrs=_attrs("area-texto", rows=2)))
+        icones = [("", "Sem ícone")] + list(ICONES_DE_FUNCAO)
+        for n in range(1, MAX_FUNCOES_DO_MODELO + 1):
+            self.fields[f"funcao_codigo_{n}"] = forms.CharField(required=False, max_length=30,
+                                                                widget=forms.HiddenInput)
+            self.fields[f"funcao_nome_{n}"] = forms.CharField(
+                label="Função", required=False, max_length=40,
+                widget=forms.TextInput(attrs=_attrs("entrada", autocomplete="off",
+                                                    placeholder="Ex.: Fotógrafo")))
+            self.fields[f"funcao_icone_{n}"] = forms.ChoiceField(
+                label="Ícone", required=False, choices=icones, widget=Selecao())
+            self.fields[f"funcao_texto_{n}"] = forms.CharField(
+                label="Atribuição", required=False, max_length=2000,
+                widget=forms.Textarea(attrs=_attrs(
+                    "area-texto", rows=2,
+                    placeholder="Ex.: Que {servidores} registre em fotografia…")))
+        # Campos agrupados para o template (uma linha por função, as etapas na ordem).
+        self.etapas = [self[e] for e in ETAPAS]
+        self.linhas_de_funcao = [
+            {"n": n, "codigo": self[f"funcao_codigo_{n}"], "nome": self[f"funcao_nome_{n}"],
+             "icone": self[f"funcao_icone_{n}"], "texto": self[f"funcao_texto_{n}"]}
+            for n in range(1, MAX_FUNCOES_DO_MODELO + 1)]
+
+    @classmethod
+    def de(cls, modelo: ModeloOS) -> FormularioModeloOS:
+        from .dominio.modelo_os import ETAPAS
+        inicial = {"nome": modelo.nome, "referencia": modelo.referencia,
+                   "justificativas": modelo.justificativas, "finalidade": modelo.finalidade,
+                   **{e: getattr(modelo, e) for e in ETAPAS}}
+        for n, f in enumerate(modelo.funcoes.all(), 1):
+            inicial.update({f"funcao_codigo_{n}": f.codigo, f"funcao_nome_{n}": f.nome,
+                            f"funcao_icone_{n}": f.icone, f"funcao_texto_{n}": f.texto})
+        return cls(initial=inicial)
+
+    def funcoes(self) -> list[dict[str, str]]:
+        """As linhas preenchidas, na ordem da tela."""
+        d = self.cleaned_data
+        return [{"codigo": d.get(f"funcao_codigo_{n}", ""), "nome": d.get(f"funcao_nome_{n}", ""),
+                 "icone": d.get(f"funcao_icone_{n}", ""), "texto": d.get(f"funcao_texto_{n}", "")}
+                for n in range(1, MAX_FUNCOES_DO_MODELO + 1)
+                if (d.get(f"funcao_nome_{n}") or "").strip()
+                or (d.get(f"funcao_texto_{n}") or "").strip()]
+
+    def textos(self) -> dict[str, str]:
+        from .dominio.modelo_os import ETAPAS
+        return {e: self.cleaned_data.get(e, "") for e in ETAPAS}
+
+    def clean(self):
+        from .modelos_os import validar_textos
+        dados = super().clean() or {}
+        funcoes = self.funcoes()
+        for campo, mensagem in validar_textos(self.textos(), funcoes).items():
+            self.add_error(campo, mensagem)
+        for n in range(1, MAX_FUNCOES_DO_MODELO + 1):
+            nome, texto = dados.get(f"funcao_nome_{n}", ""), dados.get(f"funcao_texto_{n}", "")
+            if nome.strip() and not texto.strip():
+                self.add_error(f"funcao_texto_{n}", "Escreva a atribuição desta função.")
+            if texto.strip() and not nome.strip():
+                self.add_error(f"funcao_nome_{n}", "Dê um nome à função.")
+        if not any(dados.get(e, "").strip() for e in ("ida", "evento", "volta")):
+            self.add_error("evento", "Escreva ao menos o texto dos dias do evento.")
+        return dados
+
+    def dados_para_salvar(self) -> dict:
+        d = self.cleaned_data
+        return {"nome": d["nome"], "referencia": d["referencia"], "textos": self.textos(),
+                "justificativas": d.get("justificativas", ""),
+                "finalidade": d.get("finalidade", ""), "funcoes": self.funcoes()}

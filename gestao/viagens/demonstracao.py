@@ -787,31 +787,43 @@ class _Gerador:
         termo_de_dois_oficios(unidade, autor)
 
     def ordens_para_avaliar(self) -> None:
-        """Ordens de serviço (módulo 5): das últimas viagens da ASCOM (uma de caminhão, com as
-        funções da equipe), uma avulsa e uma cancelada; nome do Delegado-Geral fictício."""
+        """Ordens de serviço (módulo 5): das últimas viagens da ASCOM — uma de cada modelo
+        do sistema (caminhão com viagem 3–8 e evento 5–6; micro-ônibus; cerimonial com
+        viagem 4–7 e evento 5–6), uma padrão, uma avulsa de operação policial com o horário
+        do briefing e uma cancelada; nome do Delegado-Geral fictício."""
         from . import ordens
+        from .models import ModeloOS
         ConfiguracaoInstitucional.objects.update(delegado_geral_nome="Delegado-Geral (DEMO)")
         ascom = self.unidades[0]
         autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
         if autor is None:
             return
         recentes = list(Oficio.objects.filter(unidade=ascom, trechos__isnull=False).exclude(
-            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:4])
+            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:5])
+        modelos = {m.chave: m for m in ModeloOS.objects.exclude(chave=None)}
+        # (modelo, dias antes do evento, dias depois) — o período da OS abre em volta do evento.
+        plano = [("caminhao", 2, 2), ("microonibus", 0, 0), ("cerimonial", 1, 1), (None, 0, 0),
+                 (None, 0, 0)]
         criadas = []
-        for i, o in enumerate(recentes):
+        for (chave, antes, depois), o in zip(plano, recentes, strict=False):
             dados = ordens.dados_dos_oficios([o])
+            modelo = modelos.get(chave) if chave else None
             ano = self.hoje.year
+            evento_inicio, evento_fim = dados["inicio"], dados["fim"]
+            inicio = evento_inicio - timedelta(days=antes) if evento_inicio else None
+            fim = evento_fim + timedelta(days=depois) if evento_fim else None
             ordem = OrdemServico.objects.create(
                 unidade=ascom, ano=ano, numero=ordens.reservar_numero(ano), criado_por=autor,
-                tipo="caminhao" if i == 0 else "padrao", data_inicio=dados["inicio"],
-                data_fim=dados["fim"], motivo=dados["motivo"])
+                modelo=modelo, data_inicio=inicio, data_fim=fim,
+                data_evento_inicio=evento_inicio if modelo else None,
+                data_evento_fim=evento_fim if modelo else None, motivo=dados["motivo"])
             ordem.oficios.set([o])
             ordem.servidores.set(dados["servidores"])
             for posicao, m in enumerate(dados["destinos"]):
                 OrdemServicoDestino.objects.create(ordem=ordem, municipio=m, posicao=posicao)
-            if i == 0:
-                funcoes = ("conducao", "apoio", "tecnico")
-                ordem.funcoes = {str(s.pk): funcoes[k % 3]
+            if modelo is not None:
+                codigos = list(modelo.funcoes.values_list("codigo", flat=True))
+                ordem.funcoes = {str(s.pk): codigos[k % len(codigos)]
                                  for k, s in enumerate(dados["servidores"])}
                 ordem.save(update_fields=["funcoes"])
             criadas.append(ordem)
@@ -821,10 +833,12 @@ class _Gerador:
                 motivo_cancelamento="Viagem cancelada pela organização (DEMO).")
         avulsa = OrdemServico.objects.create(
             unidade=ascom, ano=self.hoje.year, numero=ordens.reservar_numero(self.hoje.year),
-            criado_por=autor, tipo="operacao_retorno_posterior",
-            data_inicio=self.hoje + timedelta(days=12), data_fim=self.hoje + timedelta(days=13),
+            criado_por=autor, modelo=modelos.get("operacao_policial"),
+            data_inicio=self.hoje + timedelta(days=12), data_fim=self.hoje + timedelta(days=14),
+            data_evento_inicio=self.hoje + timedelta(days=13),
+            data_evento_fim=self.hoje + timedelta(days=13), hora=time(5, 0),
             motivo="cobertura da operação (DEMO)")
-        avulsa.servidores.set(self.servidores_por_unidade[ascom.pk][:2])
+        avulsa.servidores.set(self.servidores_por_unidade[ascom.pk][:1])
         OrdemServicoDestino.objects.create(ordem=avulsa, posicao=0,
                                            municipio=Municipio.objects.get(nome="Cascavel",
                                                                            uf="PR"))
