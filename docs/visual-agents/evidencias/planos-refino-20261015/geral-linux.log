@@ -1,0 +1,42 @@
+Bytecode compiled 4391 files in 5.46s
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+...........................................................F............ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+.............
+=================================== FAILURES ===================================
+______ TestTelas.test_conjunto_padrao_vem_marcado_no_plano_sem_atividade _______
+[gw3] linux -- Python 3.13.16 /opt/venv/bin/python3
+
+self = <gestao.viagens.tests.test_planos.TestTelas object at 0x7379152850f0>
+c = Cenario(ids={'oficio_emitido': 66, 'oficio_rascunho': 67, 'oficio_vazio': 68, 'oficio_cancelado': 69, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_conjunto_padrao_vem_marcado_no_plano_sem_atividade(self, c):
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        preset = PresetAtividades.objects.create(nome="PADRÃO", padrao=True)
+        preset.atividades.add(cin)
+        html = _cliente(c.usuarios["operador"]).get(reverse("viagens:novo_plano")).content.decode()
+>       assert f'value="{cin.pk}" id="atividade-{cin.pk}" checked' in html
+E       assert 'value="1" id="atividade-1" checked' in '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n'
+
+gestao/viagens/tests/test_planos.py:282: AssertionError
+=============================== warnings summary ===============================
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  /opt/venv/lib/python3.13/site-packages/pypdf/_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED gestao/viagens/tests/test_planos.py::TestTelas::test_conjunto_padrao_vem_marcado_no_plano_sem_atividade
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/usr/local/lib/python3.13/threading.py:363: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+1 failed, 444 passed, 3 warnings in 635.95s (0:10:35)

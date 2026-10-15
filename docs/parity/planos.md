@@ -1,5 +1,21 @@
 # Planos — migração visual por unidade, 10/10/2026
 
+## Refinamento de preparação — 15/10/2026
+
+Comparação visual com Ofícios, Roteiros, Termos e OS em 360/1440 px. A preparação
+ganha índice compacto e separa Efetivo/diárias e Outros eventos em etapas próprias.
+Âncoras e regiões vivas preservadas. Coordenação administrativa e operacional em
+grupos paralelos no desktop; nomes de atividades e metas visíveis, sem truncamento,
+com nome acessível e descrição separados. Busca/conjuntos continuam nos controles
+existentes. A lista mostra a coordenação com dados já carregados pelo queryset.
+
+Regras, cálculos, efetivo por evento, autosave/versão, formulários externos,
+permissões, cancelamento, geração e documentos oficiais mantidos. Resultados
+conservam salvamento manual. Decisão visual: ADR 0038; contrato: produto
+`planos-refinamento.md`. Evidências em
+`../visual-agents/evidencias/planos-refino-20261015/`.
+Homologação visual do usuário permanece distinta da validação técnica.
+
 ## Calendário compartilhado — 14/10/2026
 
 Folha e diálogo de evento adicional usam o calendário compacto de Termos, em

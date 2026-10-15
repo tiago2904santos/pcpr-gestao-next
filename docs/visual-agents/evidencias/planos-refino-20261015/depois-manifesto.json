@@ -1,0 +1,100 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "novo",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "gerado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "incompleto",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "cancelado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "evento",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "resultados",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "novo",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "gerado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "incompleto",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "cancelado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "evento",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  },
+  {
+    "tela": "resultados",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": []
+  }
+]

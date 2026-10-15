@@ -1,0 +1,114 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "novo",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "gerado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "incompleto",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "cancelado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "evento",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "resultados",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "novo",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "gerado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "incompleto",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "cancelado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "evento",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  },
+  {
+    "tela": "resultados",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe_componentes": []
+  }
+]

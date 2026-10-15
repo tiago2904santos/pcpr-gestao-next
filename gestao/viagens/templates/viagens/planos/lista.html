@@ -1,7 +1,8 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Planos de trabalho{% endblock %}
-{% load viagens %}
-{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% load static viagens %}
+{% block estilos %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/planos.css' %}">{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta colecao-planos{% endblock %}
 {% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Planos de trabalho" complemento="Atuação, efetivo e documentos das ações itinerantes." %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
@@ -76,6 +77,7 @@ resultados e as abas); sem JavaScript, "Aplicar" envia.
           {% if p.cancelado and p.motivo_cancelamento %}<p class="registro__texto">Motivo do cancelamento: {{ p.motivo_cancelamento }}</p>{% endif %}
         </div>
         <div class="registro-operacional__recursos">
+          <span class="registro__meta-item registro__meta-item--coordenacao">{% icone "user-round" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.coordenador %}<span class="sr-only">Coordenação administrativa: </span>{{ l.coordenador.nome }}{% else %}<span class="vazio-inline">Sem coordenação</span>{% endif %}</span></span>
           <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.efetivo %}{{ l.efetivo }} no efetivo{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span></span>
           <span class="registro__meta-item" title="{{ p.oficios.all|join:', ' }}">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% for of in p.oficios.all %}{{ of }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Avulso</span>{% endfor %}</span></span>
         </div>

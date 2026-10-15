@@ -1,0 +1,99 @@
+.........F
+================================== FAILURES ===================================
+________________ test_evento_manual_diarias_menu_remocao_e_pdf ________________
+
+logado = <Page url='http://localhost:60915/viagens/planos/33/?evento=novo#eventos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 46, 'oficio_rascunho': 47, 'oficio_vazio': 48, 'oficio_cancelado': 49, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    
+    def test_evento_manual_diarias_menu_remocao_e_pdf(logado, dados_e2e):
+        pg = logado
+        plano = _completo(dados_e2e)
+        valor_principal = plano.diarias_total
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        pg.get_by_role("link", name="Acrescentar evento").click()
+        janela = pg.get_by_role("dialog", name="Novo evento", exact=True)
+        expect(janela).to_be_visible()
+        assert janela.locator("form").evaluate("e => !e.closest('#form-plano')")
+        janela.get_by_role("button", name="Programa", exact=True).click()
+        janela.get_by_role("checkbox", name="Outro", exact=True).check()
+        janela.get_by_role("button", name="Programa", exact=True).click()
+>       janela.get_by_label("Outro programa", exact=True).fill("Feira institucional sintética")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_planos_preparacao_identidade.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15919: in fill
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:212: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:590: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_frame.py:602: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001CE78C523C0>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001CE79D97920>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("dialog", name="Novo evento", exact=True).locator("#evento-periodo")
+E               - locator resolved to <input value="" type="hidden" id="evento-periodo" aria-labelledby="evento-periodo-rotulo"/>
+E               - fill("28/06/2030")
+E             - attempting fill action
+E               2 × waiting for element to be visible, enabled and editable
+E                 - element is not visible
+E               - retrying fill action
+E               - waiting 20ms
+E               2 × waiting for element to be visible, enabled and editable
+E                 - element is not visible
+E               - retrying fill action
+E                 - waiting 100ms
+E               57 × waiting for element to be visible, enabled and editable
+E                  - element is not visible
+E                - retrying fill action
+E                  - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-15 12:40:28,905 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/33/: 35 consultas (limite 25)
+2026-10-15 12:40:31,432 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/33/: 43 consultas (limite 25)
+[15/Oct/2026 12:40:32,998] - Broken pipe from ('127.0.0.1', 55409)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/33/: 35 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/33/: 43 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 55409)
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_refino_etapas_atividades_e_coordenacao[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 9 passed, 1 warning in 1360.74s (0:22:40)

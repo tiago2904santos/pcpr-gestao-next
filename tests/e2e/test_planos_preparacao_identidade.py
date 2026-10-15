@@ -1,15 +1,103 @@
 """Preparação de Planos: quantitativos, calendário, evento e geração reais."""
 
+from datetime import date
 from pathlib import Path
 
 import pytest
 from playwright.sync_api import expect
 
+from gestao.cadastros.models import Servidor
 from gestao.viagens import planos
 from gestao.viagens.tests.test_planos import _completo
 from tests.e2e.conftest import rodar_axe
 
 pytestmark = pytest.mark.e2e
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_cargo_acompanha_escolha_e_limpeza_do_coordenador(logado, dados_e2e, largura):
+    pg = logado
+    servidor = Servidor.objects.filter(unidade__sigla="ASCOM", cargo__isnull=False).first()
+    pg.set_viewport_size({"width": largura, "height": 900})
+    pg.goto("/viagens/planos/novo/")
+    for tipo in ("adm", "op"):
+        campo = pg.locator(f"#busca-coord-{tipo}")
+        ajuda = pg.locator(f"#busca-coord-{tipo}-ajuda")
+        campo.fill(servidor.nome)
+        pg.get_by_role("option").filter(has_text=servidor.nome).first.click()
+        expect(ajuda.locator("[data-meta-escolhida]")).to_have_text(servidor.cargo.nome)
+        expect(ajuda.locator("[data-meta-escolhida]")).to_be_visible()
+        expect(ajuda.locator(".coordenador__orientacao")).not_to_be_visible()
+        campo.fill("")
+        expect(ajuda.locator("[data-meta-escolhida]")).not_to_be_visible()
+        expect(ajuda.locator(".coordenador__orientacao")).to_be_visible()
+    assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+    assert pg.erros_console == []
+
+
+def test_cadastro_rapido_de_conjunto_preserva_plano(logado, dados_e2e):
+    pg = logado
+    plano = _completo(dados_e2e)
+    atividades = set(plano.atividades.values_list("pk", flat=True))
+    pg.goto(f"/viagens/planos/{plano.pk}/")
+    url = pg.url
+    pg.get_by_role("button", name="Cadastrar conjunto", exact=True).click()
+    janela = pg.get_by_role("dialog", name="Cadastrar conjunto", exact=True)
+    expect(janela).to_be_visible()
+    assert janela.locator(".atividade__meta").count() == 0
+    marcadas = janela.locator("input[name=atividades]:checked").evaluate_all(
+        "els => els.map(e => Number(e.value))")
+    assert set(marcadas) == atividades
+    janela.get_by_label("Nome do conjunto").fill("CONJUNTO DO REFINO SINTÉTICO")
+    with pg.expect_response(lambda r: r.request.method == "POST"
+                            and "/conjuntos/" in r.url) as cadastro:
+        janela.get_by_role("button", name="Cadastrar conjunto", exact=True).click()
+    assert cadastro.value.ok
+    assert "application/json" in cadastro.value.headers["content-type"]
+    expect(janela).not_to_be_visible()
+    expect(pg).to_have_url(url)
+    expect(pg.locator("#aplicar-conjunto option").filter(
+        has_text="CONJUNTO DO REFINO SINTÉTICO")).to_have_count(1)
+    plano.refresh_from_db()
+    assert set(plano.atividades.values_list("pk", flat=True)) == atividades
+    assert pg.erros_console == []
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_refino_etapas_atividades_e_coordenacao(logado, dados_e2e, largura):
+    pg = logado
+    plano = _completo(dados_e2e)
+    pg.set_viewport_size({"width": largura, "height": 900})
+    pg.goto(f"/viagens/planos/{plano.pk}/")
+    indice = pg.get_by_role("navigation", name="Seções da preparação")
+    expect(indice.get_by_role("link")).to_have_count(5)
+    indice.get_by_role("link", name="Efetivo e diárias", exact=True).click()
+    expect(pg).to_have_url(f"{pg.url.split('#')[0]}#efetivo")
+    expect(pg.locator("#efetivo #efetivo-linhas")).to_be_visible()
+    expect(pg.locator("#efetivo #diarias")).to_have_count(1)
+    assert pg.locator("#eventos").evaluate("e => !e.closest('#documento')")
+    expect(pg.locator("#eventos")).to_contain_text("apenas o evento principal")
+    grupos = pg.locator(".plano-coordenacoes > .coordenador")
+    expect(grupos).to_have_count(2)
+    if largura == 1440:
+        a, b = grupos.all()
+        assert abs(a.bounding_box()["y"] - b.bounding_box()["y"]) < 1
+    atividades = pg.locator("#atividades .atividade")
+    assert atividades.evaluate_all("""els => els.every(e => {
+        const nome = e.querySelector('.atividade__nome');
+        return nome.scrollWidth <= nome.clientWidth + 1;
+    })""")
+    expect(atividades.locator(".atividade__meta").first).to_be_visible()
+    pg.get_by_role("searchbox", name="Buscar atividade", exact=True).fill("inexistente-refino")
+    expect(pg.locator("#atividades .atividade:visible")).to_have_count(0)
+    expect(pg.locator("#atividades [data-sem-resultado]")).to_be_visible()
+    pg.get_by_role("searchbox", name="Buscar atividade", exact=True).fill("")
+    expect(pg.locator("#atividades .atividade:visible")).to_have_count(atividades.count())
+    assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+    pg.goto("/viagens/planos/")
+    expect(pg.locator(".registro__meta-item--coordenacao")).to_contain_text(
+        plano.coordenador_adm.nome)
+    assert pg.erros_console == []
 
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
@@ -73,8 +161,14 @@ def test_evento_manual_diarias_menu_remocao_e_pdf(logado, dados_e2e):
     janela.get_by_role("checkbox", name="Outro", exact=True).check()
     janela.get_by_role("button", name="Programa", exact=True).click()
     janela.get_by_label("Outro programa", exact=True).fill("Feira institucional sintética")
-    janela.locator("#evento-periodo").fill("28/06/2030")
-    janela.locator("#evento-periodo").press("Tab")
+    janela.locator("pc-data[data-periodo] .mesa-evento__botao").click()
+    foco = date.fromisoformat(janela.locator(".calendario td[tabindex='0']").get_attribute("data-data"))
+    meses = (2030 - foco.year) * 12 + 6 - foco.month
+    for _ in range(abs(meses)):
+        pg.keyboard.press("PageDown" if meses > 0 else "PageUp")
+    dia = janela.locator(".calendario td[data-data='2030-06-28']")
+    dia.click()
+    dia.click()
     janela.get_by_role("combobox", name="Destino 1", exact=True).fill("Maringá")
     janela.get_by_role("option", name="Maringá/PR", exact=True).click()
     cargo = janela.get_by_role("combobox", name="Cargo", exact=True)

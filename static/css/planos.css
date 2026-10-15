@@ -1,0 +1,45 @@
+/* Composição dos Planos: mesmos controles e tokens das folhas de Termos/OS.
+   Carregado depois dos pacotes de formulário/documento, sem alterar outros módulos. */
+.documento--plano > .secao > .secao__bloco { margin-top: 0; }
+.documento--plano .secao__cabecalho { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); }
+.documento--plano .secao__nota { flex-basis: 100%; max-width: none; order: 3; }
+.documento--plano .secao__cabecalho > .botao { margin-left: auto; }
+
+.plano-coordenacoes { display: grid; gap: var(--esp-5); }
+.plano-coordenacoes > .coordenador { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4) var(--esp-3); margin-top: 0; padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); --fundo-rotulo: var(--cor-superficie-sutil); }
+.plano-coordenacoes__titulo { grid-column: 1 / -1; margin: 0; font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.plano-coordenacoes > .coordenador > :is(.coordenador__cadastro, .coordenador__manual) { grid-column: 1 / -1; }
+/* A meta continua sincronizada pelo combobox, agora abaixo do campo. */
+.plano-coordenacoes pc-combobox:has([data-meta-escolhida]:not([hidden])) .coordenador__orientacao { display: none; }
+
+/* Opções em linhas estáveis, com meta legível e contraste discreto ao marcar. */
+:is(.documento--plano, .evento-plano) .atividades__lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
+:is(.documento--plano, .evento-plano) .atividade { display: flex; align-items: start; width: 100%; min-width: 0; padding: var(--esp-3); border-radius: var(--raio-md); }
+:is(.documento--plano, .evento-plano) .atividade[hidden] { display: none; }
+:is(.documento--plano, .evento-plano) .atividade__icone { flex: none; margin-top: var(--esp-05); }
+.atividade__texto { display: grid; min-width: 0; gap: var(--esp-1); }
+:is(.documento--plano, .evento-plano) .atividade__nome { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font-weight: var(--peso-semi); }
+.atividade__meta { font-size: var(--texto-xs); line-height: var(--altura-linha); color: var(--cor-texto-secundario); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) { background: var(--cor-superficie-realce); color: var(--cor-texto); border-color: var(--cor-marca-texto); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__icone { color: var(--cor-marca-texto); }
+:is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr); }
+.documento--plano .atividades__grupo { margin-top: 0; }
+
+.colecao-planos .registro__meta-item--coordenacao .registro__meta-texto { white-space: normal; overflow-wrap: anywhere; }
+
+/* No celular, manter Voltar/Finalizar/Ações juntos e o estado em uma linha própria. */
+@media (max-width: 767px) {
+  .pagina--plano .barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+  .pagina--plano .barra-acoes.barra-acoes--preparacao [data-status-salvamento] { grid-column: 1 / -1; order: 2; display: flex; flex-wrap: wrap; width: 100%; margin: 0; border-radius: var(--raio-md); }
+  .pagina--plano .barra-acoes__acoes > .botao--texto { width: auto; min-width: 0; padding-inline: var(--esp-2); }
+  .pagina--plano .barra-acoes__acoes:not(:has(.menu)) > .botao--primario { grid-column: 2 / -1; }
+}
+
+@media (min-width: 768px) {
+  .plano-coordenacoes > .coordenador { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :is(.documento--plano, .evento-plano) .atividades__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+}
+@media (min-width: 1024px) {
+  .plano-coordenacoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

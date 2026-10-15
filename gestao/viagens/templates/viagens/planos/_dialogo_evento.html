@@ -75,7 +75,7 @@ plano (os mesmos em todos os eventos).
         </div>
         <fieldset class="atividades__grupo">
           <legend class="sr-only">Atividades do evento</legend>
-          {% include "viagens/planos/_atividades.html" with atividades=form_evento.fields.atividades.queryset marcadas=form_evento.atividades_marcadas prefixo="evento-atividade-" %}
+          {% include "viagens/planos/_atividades.html" with atividades=form_evento.fields.atividades.queryset marcadas=form_evento.atividades_marcadas prefixo="evento-atividade-" detalhada=True %}
         </fieldset>
       </div>
     </div>

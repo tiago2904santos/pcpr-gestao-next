@@ -1,0 +1,25 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from ini)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 7 items
+
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf PASSED [ 14%]
+tests/e2e/test_planos_resultados_identidade.py::test_lancamento_zero_milhar_limpeza_e_teclado[360] PASSED [ 28%]
+tests/e2e/test_planos_resultados_identidade.py::test_lancamento_zero_milhar_limpeza_e_teclado[768] PASSED [ 42%]
+tests/e2e/test_planos_resultados_identidade.py::test_lancamento_zero_milhar_limpeza_e_teclado[1440] PASSED [ 57%]
+tests/e2e/test_planos_resultados_identidade.py::test_erro_preserva_digitado_sem_gravacao_parcial PASSED [ 71%]
+tests/e2e/test_planos_resultados_identidade.py::test_resultado_fora_do_plano_cancelado_consulta_sem_scroll PASSED [ 85%]
+tests/e2e/test_planos.py::test_plano_a_partir_do_oficio PASSED           [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 7 passed, 1 warning in 416.25s (0:06:56) ===================

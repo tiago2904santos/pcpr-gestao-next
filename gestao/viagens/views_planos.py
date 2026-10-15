@@ -152,6 +152,7 @@ def _linha_da_lista(request: HttpRequest, p: PlanoTrabalho, agora) -> dict:
     vazio = not (gerado or inicio or p.programa_id or p.programa_outros.strip()
                  or p.oficios.all() or p.destinos.all() or p.eventos.all() or p.efetivo.all())
     return {"plano": p, "periodo": dominio.periodo_curto(inicio, fim),
+            "coordenador": planos.coordenador(p, "adm"),
             "eventos": len(p.eventos.all()) + 1 if p.eventos.all() else 0,
             "efetivo": planos.efetivo_geral(p), "diarias": planos.diarias_geral(p),
             "estado": planos.estado(p, falta), "vazio": vazio, "url_folha": folha,

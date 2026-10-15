@@ -1,0 +1,196 @@
+▶ ruff
+Bytecode compiled 4391 files in 1.45s
+All checks passed!
+▶ fronteiras
+Bytecode compiled 4391 files in 1.75s
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 590 files, 3160 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (17 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de Cadastros KEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Bytecode compiled 4391 files in 1.75s
+Success: no issues found in 307 source files
+▶ bandit
+Bytecode compiled 4391 files in 2.03s
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao/viagens/management/commands/semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+Bytecode compiled 4391 files in 2.09s
+/opt/venv/lib/python3.13/site-packages/django/core/management/commands/makemigrations.py:162: RuntimeWarning: Got an error checking a consistent migration history performed for database connection 'default': connection failed: connection to server at "127.0.0.1", port 5432 failed: FATAL:  database "pcpr_planos_linux" does not exist
+  warnings.warn(
+▶ tipos JS
+▶ testes
+Bytecode compiled 4391 files in 1.10s
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+.....F..F...F........................................................... [ 34%]
+.........
+=================================== FAILURES ===================================
+_________ test_resumo_sem_copia_e_com_protocolo_no_cabecalho[consulta] _________
+[gw3] linux -- Python 3.13.16 /opt/venv/bin/python3
+
+client = <django.test.client.Client object at 0x7876ce0f2ad0>
+cenario = Cenario(ids={'oficio_emitido': 956, 'oficio_rascunho': 957, 'oficio_vazio': 958, 'oficio_cancelado': 959, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+perfil = 'consulta'
+
+    @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
+    def test_resumo_sem_copia_e_com_protocolo_no_cabecalho(client, cenario, perfil):
+        # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
+        client.force_login(cenario.usuarios[perfil])
+        resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
+        assert resposta.status_code == 200
+        html = resposta.content.decode()
+        assert "data-dados-eprotocolo" not in html
+        cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
+>       assert cabecalho is not None and "Protocolo " in cabecalho.group()
+E       assert (None is not None)
+
+gestao/viagens/tests/test_eprotocolo_http.py:73: AssertionError
+_________ test_resumo_sem_copia_e_com_protocolo_no_cabecalho[operador] _________
+[gw3] linux -- Python 3.13.16 /opt/venv/bin/python3
+
+client = <django.test.client.Client object at 0x7876ce0f0870>
+cenario = Cenario(ids={'oficio_emitido': 961, 'oficio_rascunho': 962, 'oficio_vazio': 963, 'oficio_cancelado': 964, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+perfil = 'operador'
+
+    @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
+    def test_resumo_sem_copia_e_com_protocolo_no_cabecalho(client, cenario, perfil):
+        # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
+        client.force_login(cenario.usuarios[perfil])
+        resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
+        assert resposta.status_code == 200
+        html = resposta.content.decode()
+        assert "data-dados-eprotocolo" not in html
+        cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
+>       assert cabecalho is not None and "Protocolo " in cabecalho.group()
+E       assert (None is not None)
+
+gestao/viagens/tests/test_eprotocolo_http.py:73: AssertionError
+__________ test_resumo_sem_copia_e_com_protocolo_no_cabecalho[gestor] __________
+[gw3] linux -- Python 3.13.16 /opt/venv/bin/python3
+
+client = <django.test.client.Client object at 0x7876ce223070>
+cenario = Cenario(ids={'oficio_emitido': 966, 'oficio_rascunho': 967, 'oficio_vazio': 968, 'oficio_cancelado': 969, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+perfil = 'gestor'
+
+    @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
+    def test_resumo_sem_copia_e_com_protocolo_no_cabecalho(client, cenario, perfil):
+        # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
+        client.force_login(cenario.usuarios[perfil])
+        resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
+        assert resposta.status_code == 200
+        html = resposta.content.decode()
+        assert "data-dados-eprotocolo" not in html
+        cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
+>       assert cabecalho is not None and "Protocolo " in cabecalho.group()
+E       assert (None is not None)
+
+gestao/viagens/tests/test_eprotocolo_http.py:73: AssertionError
+=============================== warnings summary ===============================
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  /opt/venv/lib/python3.13/site-packages/pypdf/_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_sem_copia_e_com_protocolo_no_cabecalho[consulta]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_sem_copia_e_com_protocolo_no_cabecalho[operador]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_sem_copia_e_com_protocolo_no_cabecalho[gestor]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/usr/local/lib/python3.13/threading.py:363: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+3 failed, 870 passed, 3 warnings in 2137.76s (0:35:37)

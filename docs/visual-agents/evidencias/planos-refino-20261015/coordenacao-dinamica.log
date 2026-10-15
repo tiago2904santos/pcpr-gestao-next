@@ -1,0 +1,8 @@
+....                                                                     [100%]
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_refino_etapas_atividades_e_coordenacao[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 5 deselected, 1 warning in 345.34s (0:05:45)
