@@ -28,7 +28,7 @@ from gestao.cadastros.services import quem_assina
 from . import policies
 from .dominio import modelo_os as dominio_modelo
 from .dominio import ordem_servico as dominio
-from .dominio.numeracao import proximo_numero
+from .dominio.numeracao import erro_numero_manual, proximo_numero
 from .modelos_do_sistema import UNIDADE_MOVEL as CHAVE_UNIDADE_MOVEL
 from .models import (
     LacunaOrdemServico,
@@ -74,13 +74,16 @@ def carregar(ordem: OrdemServico) -> OrdemServico:
 
 
 # ---------------------------------------------------------------- numeração
-def reservar_numero(ano: int) -> int:
+def reservar_numero(ano: int, pedido: int | None = None, *, excluir_pk=None) -> int:
     """Próximo número do ano; trava a linha do ano; a lacuna usada deixa de existir."""
     linha, _ = NumeracaoOrdemServico.objects.get_or_create(ano=ano)
     NumeracaoOrdemServico.objects.select_for_update().get(pk=linha.pk)
-    ocupados = OrdemServico.objects.filter(ano=ano).values_list("numero", flat=True)
+    ocupados = OrdemServico.objects.filter(ano=ano).exclude(pk=excluir_pk).values_list(
+        "numero", flat=True)
     lacunas = LacunaOrdemServico.objects.filter(ano=ano).values_list("numero", flat=True)
-    numero = proximo_numero(ocupados, 1, lacunas)
+    if pedido is not None and (erro := erro_numero_manual(pedido, ocupados)):
+        raise OrdemInvalida(erro)
+    numero = pedido if pedido is not None else proximo_numero(ocupados, 1, lacunas)
     LacunaOrdemServico.objects.filter(ano=ano, numero=numero).delete()
     return numero
 
@@ -175,6 +178,7 @@ def _funcoes_validas(modelo: ModeloOS | None, funcoes: dict,
 
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | None = None,
+           numero: int | None = None,
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
            data_evento_inicio: date | object | None = MANTER,
            data_evento_fim: date | object | None = MANTER,
@@ -190,6 +194,8 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
     (destinos, período, equipe; o motivo só se vazio) — não a cada gravação (com o autosave,
     apagar o motivo para reescrevê-lo não pode trazer de volta o do ofício). Mais de um
     ofício, só da mesma ação (vinculos.incompatibilidade)."""
+    if numero is not None and (erro := erro_numero_manual(numero, [])):
+        raise OrdemInvalida(erro)
     oficios, destinos, servidores = list(oficios), list(dict.fromkeys(destinos)), list(servidores)
     if pk:
         ordem = OrdemServico.objects.select_for_update().get(pk=pk)
@@ -199,12 +205,16 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
             raise OrdemInvalida("Outra pessoa alterou esta OS depois que você abriu a tela. "
                          "Recarregue a página para ver a versão atual (o que você "
                          "digitou continua na tela até lá).")
+        if numero is not None and numero != ordem.numero:
+            anterior = ordem.numero
+            ordem.numero = reservar_numero(ordem.ano, numero, excluir_pk=ordem.pk)
+            LacunaOrdemServico.objects.get_or_create(ano=ordem.ano, numero=anterior)
     else:
         policies.exigir(policies.pode_criar_ordem(usuario),
                         "Você não pode criar Ordens de Serviço.")
         ano = timezone.localdate().year
         ordem = OrdemServico(unidade=policies.unidade_do_usuario(usuario), ano=ano,
-                             numero=reservar_numero(ano), criado_por=usuario)
+                             numero=reservar_numero(ano, numero), criado_por=usuario)
     # Modelo desativado: fica só em quem já o tinha (as OS antigas continuam gerando).
     if modelo is not None and not modelo.ativo and modelo.pk != ordem.modelo_id:
         raise OrdemInvalida("Este modelo de OS está desativado.")

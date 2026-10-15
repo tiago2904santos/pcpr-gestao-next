@@ -37,6 +37,18 @@
       </span>
     </div>
     {% endwith %}{% endif %}
+    {% if hora %}
+    {# O horário (briefing da OS): digita-se direto na hora grande ou escolhe-se no relógio. `data-campo-hora`: o tipo de OS mostra e esconde (funcoes-equipe.js). #}
+    <div class="briefing" data-campo-hora{% if not hora_visivel %} hidden{% endif %}>
+      <label class="briefing__rotulo" for="{{ hora.id_for_label }}">{% icone "clock" classe="icone--sm" %}{{ hora_rotulo }}</label>
+      <pc-hora class="briefing__seletor">
+        <input class="briefing__entrada" type="text" name="{{ hora.html_name }}" id="{{ hora.id_for_label }}" value="{{ hora_texto }}" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" data-mascara="hora" aria-describedby="{{ hora.id_for_label }}-ajuda{% if hora.errors %} {{ hora.id_for_label }}-erro{% endif %}"{% if hora.errors %} aria-invalid="true"{% endif %}{% if not editavel %} readonly{% endif %}>
+        <button type="button" class="seletor__botao briefing__botao" hidden aria-haspopup="dialog" aria-expanded="false"{% if not editavel %} disabled{% endif %}>{% icone "clock" %}<span class="sr-only">Abrir relógio</span></button>
+      </pc-hora>
+      <span class="briefing__nota" id="{{ hora.id_for_label }}-ajuda">{% if hora_texto %}horário do briefing{% else %}defina o horário{% endif %}</span>
+      {% for erro in hora.errors %}<p class="campo__erro" id="{{ hora.id_for_label }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}
+    </div>
+    {% endif %}
     {% if not compacto %}<div class="mesa-evento__antecedencia"><strong>{% if p.inicio %}{{ p.antecedencia }}{% else %}—{% endif %}</strong><span data-antecedencia-rotulo>{{ p.rotulo_antecedencia|default:"defina o período" }}</span><span class="mesa-evento__trilho" aria-hidden="true"></span></div>{% endif %}
     {% if campo_inicio.errors or campo_fim.errors %}<div class="mesa-evento__erro" id="{{ prefixo }}-periodo-erros">{% for erro in campo_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}{% for erro in campo_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}</div>{% endif %}
   </div>

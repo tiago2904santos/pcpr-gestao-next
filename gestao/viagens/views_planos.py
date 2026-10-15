@@ -383,7 +383,8 @@ def novo(request: HttpRequest) -> HttpResponse:
         return redirect("viagens:editar_plano", plano.pk)
     if request.method == "POST":
         return _gravar(request, _formulario(request, request.POST))
-    inicial: dict = {"horario": dominio.HORARIO_PADRAO,
+    inicial: dict = {"numero": planos.proximo_numero_do_ano(timezone.localdate().year),
+                     "horario": dominio.HORARIO_PADRAO,
                      "atividades": FormularioPlano.conjunto_padrao()}
     oficio_pk = request.GET.get("oficio") or ""
     if (oficio_pk.isascii() and oficio_pk.isdecimal()
@@ -438,7 +439,7 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         return JsonResponse({"salvo": False, "mensagem": "Este plano não pode mais ser alterado."})
     except PlanoTrabalho.DoesNotExist:
         return JsonResponse({"salvo": False, "mensagem": "Este plano foi excluído."})
-    return JsonResponse({"salvo": True, "recarregar": bool(copiados),
+    return JsonResponse({"salvo": True, "recarregar": bool(copiados) or salvo.numero != plano.numero,
                          "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": planos.versao_de(salvo)}})
 

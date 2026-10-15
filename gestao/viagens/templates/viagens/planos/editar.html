@@ -28,14 +28,6 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
 
 {% include "componentes/resumo_erros.html" %}
 
-<nav class="indice-preparacao" aria-label="Seções da preparação" data-indice-preparacao>
-  <a class="indice-preparacao__item" href="#identificacao">Identificação</a>
-  <a class="indice-preparacao__item" href="#efetivo">Efetivo e diárias</a>
-  <a class="indice-preparacao__item" href="#atividades">Atividades</a>
-  {% if plano %}<a class="indice-preparacao__item" href="#eventos">Outros eventos</a>{% endif %}
-  <a class="indice-preparacao__item" href="#documento">Documento</a>
-</nav>
-
 <form method="post" novalidate id="form-plano" data-proteger{% if plano and editavel %} data-autosave="{% url 'viagens:autosave_plano' plano.pk %}"{% endif %}>
   {% csrf_token %}
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário). #}
@@ -56,6 +48,9 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
     </div>
 
     <div class="pilha" id="dados">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.numero classe="campo--sm" %}
+      </div>
       {# Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. #}
       <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}">
         {{ form.oficios }}
@@ -150,7 +145,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
           <h3 class="secao__bloco-titulo" id="t-efetivo">{% icone "users" classe="icone--sm" %}Efetivo do evento principal</h3>
           {% if editavel %}<button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>{% endif %}
         </div>
-        <pc-linhas class="linhas" id="efetivo-linhas" data-rotulo="linha do efetivo">
+        <pc-linhas class="linhas efetivo-plano" id="efetivo-linhas" data-rotulo="linha do efetivo">
           <input type="hidden" name="efetivo_presente" value="1">
           <ol class="linhas__lista" data-lista aria-label="Efetivo">
             {% for linha in linhas_efetivo %}{% include "viagens/planos/_linha_efetivo.html" with n=forloop.counter %}{% endfor %}
@@ -217,7 +212,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
       {% endif %}
       <fieldset class="atividades__grupo">
         <legend class="sr-only">Atividades — <span data-contagem>{{ atividades_marcadas|length }}</span> de {{ total }} marcadas</legend>
-        {% include "viagens/planos/_atividades.html" with atividades=form.fields.atividades.queryset marcadas=atividades_marcadas prefixo="atividade-" detalhada=True %}
+        {% include "viagens/planos/_atividades.html" with atividades=form.fields.atividades.queryset marcadas=atividades_marcadas prefixo="atividade-" %}
         <p class="vazio-inline atividades__sem-resultado" data-sem-resultado hidden>Nenhuma atividade com esse nome.</p>
       </fieldset>
       <div class="sr-only" aria-live="polite" data-anuncio></div>
@@ -295,7 +290,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
             <div class="editores__pdf" hidden><iframe title="{{ plano }} (PDF)" data-pdf-bloco></iframe></div>
             <section class="editores__item" data-pagina="plano">
               <h4 class="editores__titulo" id="folha-doc-plano"><span class="editores__numero">Plano</span>{{ plano }}</h4>
-              {% include "viagens/oficios/_editor.html" with operacional=True ferramentas_recolhiveis=True tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-plano" baixar_url=baixar_url baixar_titulo=plano|stringformat:"s" %}
+              {% include "viagens/oficios/_editor.html" with carregar_imediato=True operacional=True ferramentas_recolhiveis=True tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-plano" baixar_url=baixar_url baixar_titulo=plano|stringformat:"s" %}
             </section>
           </div>
         </div>

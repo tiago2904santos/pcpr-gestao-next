@@ -102,3 +102,9 @@ Bytecode compiled 4391 files in 1.42s
 bringing up nodes...
 bringing up nodes...
 
+........................................................................ [  2%]
+..........................
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/usr/local/lib/python3.13/threading.py:363: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+98 passed in 296.36s (0:04:56)

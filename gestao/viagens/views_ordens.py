@@ -299,7 +299,8 @@ def nova(request: HttpRequest) -> HttpResponse:
         return redirect("viagens:editar_ordem", ordem.pk)
     if request.method == "POST":
         return _gravar(request, _formulario(request, request.POST))
-    inicial: dict = {"tipo": "padrao"}
+    inicial: dict = {"tipo": "padrao",
+                     "numero": ordens.proximo_numero_do_ano(timezone.localdate().year)}
     oficio_pk = request.GET.get("oficio") or ""
     if (oficio_pk.isascii() and oficio_pk.isdecimal()
             and _oficios_escolhiveis(request).filter(pk=int(oficio_pk)).exists()):
@@ -356,7 +357,7 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     # A tela precisa ser redesenhada quando a gravação muda CAMPOS (não só valores): veio
     # algo dos ofícios recém-ligados. As funções da equipe se ajustam na tela, sem recarregar
     # (funcoes-equipe.js: o seletor acompanha o tipo e quem entra na equipe).
-    recarregar = bool(copiados)
+    recarregar = bool(copiados) or salva.numero != ordem.numero
     return JsonResponse({"salvo": True, "recarregar": recarregar,
                          "em": timezone.localtime(salva.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": ordens.versao_de(salva)}})

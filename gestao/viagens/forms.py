@@ -39,7 +39,7 @@ from gestao.plataforma.widgets import (
 )
 
 from .dominio.escrita import lista_com_e
-from .dominio.numeracao import formatar_numero
+from .dominio.numeracao import erro_numero_manual, formatar_numero
 from .models import (
     FuncaoOS,
     ModeloOS,
@@ -971,11 +971,29 @@ class FormularioTermo(forms.Form):
 
 
 # ---------------------------------------------------------------- ordens de serviço
+def _campo_numero_documental():
+    return forms.IntegerField(label="Número", required=False, min_value=1, max_value=999999,
+                              widget=forms.NumberInput(attrs=_attrs(inputmode="numeric")),
+                              help_text="Já vem sugerido; altere se a numeração da unidade pedir.")
+
+
+def _numero_documental(numero, documento, modelo):
+    numero = numero if numero is not None else getattr(documento, "numero", None)
+    if numero is not None:
+        ano = documento.ano if documento else timezone.localdate().year
+        ocupados = modelo.objects.filter(ano=ano).exclude(
+            pk=getattr(documento, "pk", None)).values_list("numero", flat=True)
+        if erro := erro_numero_manual(numero, ocupados):
+            raise forms.ValidationError(erro)
+    return numero
+
+
 class FormularioOrdem(forms.Form):
     """Cadastro da OS. Ligada a ofícios, a OS copia deles o que ficar em branco (destinos,
     período, equipe, motivo); nos tipos com função, cada um da equipe recebe a sua."""
 
     versao = forms.CharField(required=False, widget=forms.HiddenInput)
+    numero = _campo_numero_documental()
 
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False,
@@ -1090,7 +1108,7 @@ class FormularioOrdem(forms.Form):
     def de(cls, ordem, **kwargs):
         from .ordens import versao_de
         return cls(ordem=ordem, initial={
-            "versao": versao_de(ordem),
+            "versao": versao_de(ordem), "numero": ordem.numero,
             "oficios": [o.pk for o in ordem.oficios.all()], "modelo": ordem.modelo_id,
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,
@@ -1098,6 +1116,9 @@ class FormularioOrdem(forms.Form):
             "hora": ordem.hora,
             "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo},
             **kwargs)
+
+    def clean_numero(self):
+        return _numero_documental(self.cleaned_data.get("numero"), self.ordem, OrdemServico)
 
     def clean(self):
         dados = super().clean() or {}
@@ -1204,6 +1225,7 @@ class FormularioPlano(EfetivoEmLinhas, forms.Form):
     atividades em caixas (`atividades_presente` diz que o bloco estava na tela)."""
 
     versao = forms.CharField(required=False, widget=forms.HiddenInput)
+    numero = _campo_numero_documental()
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False)
     # Programas: mais de um, em caixas (como os tipos da viagem); "Outro" abre o texto ao lado.
@@ -1310,6 +1332,9 @@ class FormularioPlano(EfetivoEmLinhas, forms.Form):
         self._carregar_unidades_e_cargos(
             list(plano.efetivo.values_list("unidade_id", "cargo_id")) if plano else [])
 
+    def clean_numero(self):
+        return _numero_documental(self.cleaned_data.get("numero"), self.plano, PlanoTrabalho)
+
     def clean(self):
         dados = super().clean() or {}
         # "Outro" marcado pede o texto; desmarcado, o texto não vale.
@@ -1354,7 +1379,8 @@ class FormularioPlano(EfetivoEmLinhas, forms.Form):
         programas = list(plano.programas.values_list("pk", flat=True)) or (
             [plano.programa_id] if plano.programa_id else [])
         inicial = {
-            "versao": versao_de(plano), "oficios": [o.pk for o in plano.oficios.all()],
+            "versao": versao_de(plano), "numero": plano.numero,
+            "oficios": [o.pk for o in plano.oficios.all()],
             "programas": programas, "programa_outro": bool(plano.programa_outros),
             "programa_outros": plano.programa_outros,
             "data_inicio": plano.data_inicio,

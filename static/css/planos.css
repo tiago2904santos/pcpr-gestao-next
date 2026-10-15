@@ -12,18 +12,31 @@
 /* A meta continua sincronizada pelo combobox, agora abaixo do campo. */
 .plano-coordenacoes pc-combobox:has([data-meta-escolhida]:not([hidden])) .coordenador__orientacao { display: none; }
 
-/* Opções em linhas estáveis, com meta legível e contraste discreto ao marcar. */
+/* Escolhas compactas: somente o nome, marca de seleção e estado de foco. */
 :is(.documento--plano, .evento-plano) .atividades__lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
-:is(.documento--plano, .evento-plano) .atividade { display: flex; align-items: start; width: 100%; min-width: 0; padding: var(--esp-3); border-radius: var(--raio-md); }
+:is(.documento--plano, .evento-plano) .atividade { display: flex; align-items: center; gap: var(--esp-3); width: 100%; min-width: 0; min-height: var(--altura-controle); padding: var(--esp-3) var(--esp-4); border-radius: var(--raio-lg); background: var(--cor-superficie); border-color: var(--cor-borda); }
 :is(.documento--plano, .evento-plano) .atividade[hidden] { display: none; }
-:is(.documento--plano, .evento-plano) .atividade__icone { flex: none; margin-top: var(--esp-05); }
-.atividade__texto { display: grid; min-width: 0; gap: var(--esp-1); }
-:is(.documento--plano, .evento-plano) .atividade__nome { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font-weight: var(--peso-semi); }
-.atividade__meta { font-size: var(--texto-xs); line-height: var(--altura-linha); color: var(--cor-texto-secundario); }
-:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) { background: var(--cor-superficie-realce); color: var(--cor-texto); border-color: var(--cor-marca-texto); }
-:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__icone { color: var(--cor-marca-texto); }
+:is(.documento--plano, .evento-plano) .atividade__icone { flex: none; padding: var(--esp-1); box-sizing: content-box; border-radius: var(--raio-sm); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+:is(.documento--plano, .evento-plano) .atividade__nome { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font-weight: var(--peso-medio); }
+:is(.documento--plano, .evento-plano) .atividade:hover { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) { background: var(--grafite-900); color: var(--cor-texto-inverso); border-color: var(--grafite-900); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__icone { background: var(--cor-marca-fundo-forte); color: var(--cor-marca-texto); }
 :is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr); }
 .documento--plano .atividades__grupo { margin-top: 0; }
+
+/* Efetivo: uma composição por cartão, com quantidade em um controle próprio. */
+.efetivo-plano .linhas__lista { gap: var(--esp-3); }
+.efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); --fundo-rotulo: var(--cor-superficie-sutil); }
+.efetivo-plano__cabecalho { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
+.efetivo-plano__titulo { display: inline-flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.efetivo-plano__titulo > .icone { color: var(--cor-marca-texto); }
+.efetivo-plano .linhas__remover { align-self: center; }
+.efetivo-plano .efetivo-plano__cargo { grid-column: 1 / -1; grid-row: auto; }
+.efetivo-plano .efetivo-plano__quantidade { max-width: none; width: 100%; }
+.efetivo-plano .linhas__linha .campo__rotulo { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+.efetivo-plano .passos .entrada { text-align: center; font-weight: var(--peso-semi); padding-left: var(--esp-2); }
+.efetivo-plano .passos__botao { background: var(--cor-superficie-realce); color: var(--cor-texto); }
+.efetivo-plano .passos__botao:hover { background: var(--cor-marca-fundo-forte); }
 
 .colecao-planos .registro__meta-item--coordenacao .registro__meta-texto { white-space: normal; overflow-wrap: anywhere; }
 
@@ -36,6 +49,10 @@
 }
 
 @media (min-width: 768px) {
+  .efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 9rem; gap: var(--esp-4) var(--esp-3); }
+  .efetivo-plano .efetivo-plano__cargo { grid-column: 1; grid-row: 2; }
+  .efetivo-plano .efetivo-plano__unidade { grid-column: 2; grid-row: 2; }
+  .efetivo-plano .efetivo-plano__quantidade { grid-column: 3; grid-row: 2; }
   .plano-coordenacoes > .coordenador { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(.documento--plano, .evento-plano) .atividades__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }

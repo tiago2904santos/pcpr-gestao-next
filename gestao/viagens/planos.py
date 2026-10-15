@@ -32,7 +32,7 @@ from . import policies
 from .dominio import plano_trabalho as dominio
 from .dominio.escrita import data_por_extenso, legivel, moeda
 from .dominio.extenso import reais_por_extenso
-from .dominio.numeracao import proximo_numero
+from .dominio.numeracao import erro_numero_manual, proximo_numero
 from .models import (
     EfetivoEvento,
     EfetivoPlano,
@@ -96,14 +96,17 @@ def versao_de(plano: PlanoTrabalho) -> str:
 
 
 # ---------------------------------------------------------------- numeração
-def reservar_numero(ano: int) -> int:
+def reservar_numero(ano: int, pedido: int | None = None, *, excluir_pk=None) -> int:
     """Próximo número do ano (menor lacuna liberada por exclusão, senão o maior + 1); trava
     a linha do ano; a lacuna usada deixa de existir."""
     linha, _ = NumeracaoPlano.objects.get_or_create(ano=ano)
     NumeracaoPlano.objects.select_for_update().get(pk=linha.pk)
-    ocupados = PlanoTrabalho.objects.filter(ano=ano).values_list("numero", flat=True)
+    ocupados = PlanoTrabalho.objects.filter(ano=ano).exclude(pk=excluir_pk).values_list(
+        "numero", flat=True)
     lacunas = LacunaPlano.objects.filter(ano=ano).values_list("numero", flat=True)
-    numero = proximo_numero(ocupados, 1, lacunas)
+    if pedido is not None and (erro := erro_numero_manual(pedido, ocupados)):
+        raise PlanoInvalido(erro)
+    numero = pedido if pedido is not None else proximo_numero(ocupados, 1, lacunas)
     LacunaPlano.objects.filter(ano=ano, numero=numero).delete()
     return numero
 
@@ -405,6 +408,7 @@ def _texto_escrito(plano: PlanoTrabalho, campo: str, escrito: str | None,
 # ---------------------------------------------------------------- escrita
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
+           numero: int | None = None,
            programa: ProgramaSolicitante | None = None, programa_outros: str = "",
            programas=None,
            data_inicio: date | None = None, data_fim: date | None = None, horario: str = "",
@@ -423,6 +427,8 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
 
     `efetivo`/`atividades`/textos `None`: a tela não os mandou — ficam como estão. Os campos
     vazios recebem dos ofícios na criação e quando um ofício é ligado agora."""
+    if numero is not None and (erro := erro_numero_manual(numero, [])):
+        raise PlanoInvalido(erro)
     oficios, destinos = list(oficios), list(dict.fromkeys(destinos))
     if pk:
         plano = PlanoTrabalho.objects.select_for_update().get(pk=pk)
@@ -432,6 +438,10 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
             raise PlanoInvalido("Outra pessoa alterou este plano depois que você abriu a tela. "
                                 "Recarregue a página para ver a versão atual (o que você "
                                 "digitou continua na tela até lá).")
+        if numero is not None and numero != plano.numero:
+            anterior = plano.numero
+            plano.numero = reservar_numero(plano.ano, numero, excluir_pk=plano.pk)
+            LacunaPlano.objects.get_or_create(ano=plano.ano, numero=anterior)
     else:
         policies.exigir(policies.pode_criar_plano(usuario),
                         "Você não pode criar planos de trabalho.")
@@ -440,7 +450,7 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
             raise PlanoInvalido("Seu usuário não está lotado numa unidade.")
         ano = timezone.localdate().year
         config = configuracao(unidade)
-        plano = PlanoTrabalho(unidade=unidade, ano=ano, numero=reservar_numero(ano),
+        plano = PlanoTrabalho(unidade=unidade, ano=ano, numero=reservar_numero(ano, numero),
                               sufixo=sufixo_da_unidade(unidade), criado_por=usuario)
         if coordenador_adm is None and not coordenador_adm_nome.strip() and config:
             coordenador_adm = config.coordenador_plano  # sugerido em todo plano novo

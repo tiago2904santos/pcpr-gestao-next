@@ -29,7 +29,9 @@ def periodo_calendario(campo_inicio: BoundField | None = None,
                       fonte: str = "Informado no cadastro", editavel: bool = True,
                       dados: dict | None = None, inicio: object = None, fim: object = None,
                       id_folhas: str = "", id_descricao: str = "", vivo: bool = True,
-                      compacto: bool = False, fim_aberto: bool = False) -> dict:
+                      compacto: bool = False, fim_aberto: bool = False,
+                      hora: BoundField | None = None, hora_visivel: bool = True,
+                      hora_rotulo: str = "Briefing") -> dict:
     """Mesma peça em todos os cadastros, preservando campos, valores e erros."""
     de = campo_inicio.value() if campo_inicio is not None else inicio
     ate = campo_fim.value() if campo_fim is not None else fim
@@ -50,7 +52,13 @@ def periodo_calendario(campo_inicio: BoundField | None = None,
             return campo.as_widget(widget=HiddenInput(), attrs=attrs)
         return HiddenInput(attrs=attrs).render(f"{prefixo}-{papel}", valor)
 
-    return {"p": periodo, "rotulo": rotulo, "natureza": natureza, "prefixo": prefixo,
+    # O horário (o do briefing da OS): uma coluna do próprio cartão, com o relógio do sistema.
+    hora_valor = hora.value() if hora is not None else None
+    hora_texto = (hora_valor.strftime("%H:%M") if hasattr(hora_valor, "strftime")
+                  else (hora_valor or ""))
+    return {"hora": hora, "hora_texto": hora_texto, "hora_visivel": hora_visivel,
+            "hora_rotulo": hora_rotulo,
+            "p": periodo, "rotulo": rotulo, "natureza": natureza, "prefixo": prefixo,
             "fonte": periodo.get("fonte") or fonte, "editavel": editavel, "hoje": hoje,
             "texto": texto, "campo_inicio": campo_inicio, "campo_fim": campo_fim,
             "inicio_oculto": oculto(campo_inicio, de, "de"),

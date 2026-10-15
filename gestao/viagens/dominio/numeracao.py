@@ -28,3 +28,12 @@ def formatar_numero(numero: int | None, ano: int | None) -> str:
     if not numero or not ano:
         return "Sem número"
     return f"{numero:02d}/{ano}"
+
+
+def erro_numero_manual(numero: int, ocupados: Iterable[int]) -> str:
+    """Regra comum de Plano/OS; o serviço mantém a trava anual durante a consulta."""
+    if isinstance(numero, bool) or not isinstance(numero, int) or not 1 <= numero <= 999999:
+        return "Informe um número inteiro entre 1 e 999999."
+    if numero in ocupados:
+        return "Este número já está em uso neste ano. Escolha outro número."
+    return ""

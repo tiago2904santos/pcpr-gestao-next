@@ -1,0 +1,203 @@
+..FF...........                                                          [100%]
+================================== FAILURES ===================================
+___ test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente[caso0] ___
+
+self = <django.db.backends.utils.CursorWrapper object at 0x00000209862AE690>
+sql = 'UPDATE "viagens_planotrabalho" SET "cancelado" = %s WHERE "viagens_planotrabalho"."id" = %s'
+params = (True, 64)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x00000209862AE690>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\django\db\backends\utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INERROR] (host=127.0.0.1 port=55438 user=pcpr_test database=test_pcpr_planos_test) at 0x209862a5f10>
+query = 'UPDATE "viagens_planotrabalho" SET "cancelado" = %s WHERE "viagens_planotrabalho"."id" = %s'
+params = (True, 64), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.CheckViolation: new row for relation "viagens_planotrabalho" violates check constraint "plano_cancelado_tem_motivo"
+E           DETAIL:  Failing row contains (64, 812, 2026, ASCOM, rascunho, t, , null, null, null, , null, null, 09:00 at� 17:00, , , , , , , A Assessoria de Comunica��o Social da Pol�cia Civil do Paran..., t, , t, A realiza��o da a��o no munic�pio de ________ refor�a o co..., t, null, null, , null, null, , , , , 2026-10-15 16:42:22.392631+00, 2026-10-15 16:42:22.949712+00, null, null, null, 201, null, 101, null).
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+caso = (<module 'gestao.viagens.planos' from 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\gestao\\viagens\\plan...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usu�rio de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente(caso):
+        servico, lacunas, nome, erro, usuarios = caso
+        usuario = usuarios["operador"]
+        doc, _ = servico.salvar(usuario, numero=811)
+        outro, _ = servico.salvar(usuario, numero=812)
+        campo = "cancelado" if nome == "plano" else "cancelada"
+>       type(outro).objects.filter(pk=outro.pk).update(**{campo: True})
+
+gestao\viagens\tests\test_numero_manual.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\models\query.py:1446: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\compiler.py:2139: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\compiler.py:1643: in execute_sql
+    cursor.execute(sql, params)
+.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv\Lib\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INERROR] (host=127.0.0.1 port=55438 user=pcpr_test database=test_pcpr_planos_test) at 0x209862a5f10>
+query = 'UPDATE "viagens_planotrabalho" SET "cancelado" = %s WHERE "viagens_planotrabalho"."id" = %s'
+params = (True, 64), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: new row for relation "viagens_planotrabalho" violates check constraint "plano_cancelado_tem_motivo"
+E           DETAIL:  Failing row contains (64, 812, 2026, ASCOM, rascunho, t, , null, null, null, , null, null, 09:00 at� 17:00, , , , , , , A Assessoria de Comunica��o Social da Pol�cia Civil do Paran..., t, , t, A realiza��o da a��o no munic�pio de ________ refor�a o co..., t, null, null, , null, null, , , , , 2026-10-15 16:42:22.392631+00, 2026-10-15 16:42:22.949712+00, null, null, null, 201, null, 101, null).
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: IntegrityError
+___ test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente[caso1] ___
+
+self = <Options for OrdemServico>, field_name = 'cancelada'
+
+    def get_field(self, field_name):
+        """
+        Return a field instance given the name of a forward or reverse field.
+        """
+        try:
+            # In order to avoid premature loading of the relation tree
+            # (expensive) we prefer checking if the field is a forward field.
+            return self._forward_fields_map[field_name]
+        except KeyError:
+            # If the app registry is not ready, reverse fields are
+            # unavailable, therefore we throw a FieldDoesNotExist exception.
+            if not self.apps.models_ready:
+                raise FieldDoesNotExist(
+                    "%s has no field named '%s'. The app cache isn't ready yet, "
+                    "so if this is an auto-created related field, it won't "
+                    "be available yet." % (self.object_name, field_name)
+                )
+    
+        try:
+            # Retrieve field instance by name from cached or just-computed
+            # field map.
+>           return self.fields_map[field_name]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'cancelada'
+
+.venv\Lib\site-packages\django\db\models\options.py:691: KeyError
+
+During handling of the above exception, another exception occurred:
+
+caso = (<module 'gestao.viagens.ordens' from 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\gestao\\viagens\\orde...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usu�rio de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente(caso):
+        servico, lacunas, nome, erro, usuarios = caso
+        usuario = usuarios["operador"]
+        doc, _ = servico.salvar(usuario, numero=811)
+        outro, _ = servico.salvar(usuario, numero=812)
+        campo = "cancelado" if nome == "plano" else "cancelada"
+>       type(outro).objects.filter(pk=outro.pk).update(**{campo: True})
+
+gestao\viagens\tests\test_numero_manual.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\models\query.py:1420: in update
+    query.add_update_values(kwargs)
+.venv\Lib\site-packages\django\db\models\sql\subqueries.py:89: in add_update_values
+    field = self.get_meta().get_field(name)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Options for OrdemServico>, field_name = 'cancelada'
+
+    def get_field(self, field_name):
+        """
+        Return a field instance given the name of a forward or reverse field.
+        """
+        try:
+            # In order to avoid premature loading of the relation tree
+            # (expensive) we prefer checking if the field is a forward field.
+            return self._forward_fields_map[field_name]
+        except KeyError:
+            # If the app registry is not ready, reverse fields are
+            # unavailable, therefore we throw a FieldDoesNotExist exception.
+            if not self.apps.models_ready:
+                raise FieldDoesNotExist(
+                    "%s has no field named '%s'. The app cache isn't ready yet, "
+                    "so if this is an auto-created related field, it won't "
+                    "be available yet." % (self.object_name, field_name)
+                )
+    
+        try:
+            # Retrieve field instance by name from cached or just-computed
+            # field map.
+            return self.fields_map[field_name]
+        except KeyError:
+>           raise FieldDoesNotExist(
+                "%s has no field named '%s'" % (self.object_name, field_name)
+            )
+E           django.core.exceptions.FieldDoesNotExist: OrdemServico has no field named 'cancelada'
+
+.venv\Lib\site-packages\django\db\models\options.py:693: FieldDoesNotExist
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_numero_manual.py::test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente[caso0]
+FAILED gestao/viagens/tests/test_numero_manual.py::test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente[caso1]
+2 failed, 13 passed in 85.70s (0:01:25)

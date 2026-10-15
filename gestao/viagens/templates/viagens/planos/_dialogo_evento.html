@@ -46,7 +46,7 @@ plano (os mesmos em todos os eventos).
           <h3 class="secao__bloco-titulo">{% icone "users" classe="icone--sm" %}Efetivo do evento</h3>
           <button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-evento-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>
         </div>
-        <pc-linhas class="linhas" id="efetivo-evento-linhas" data-rotulo="linha do efetivo">
+        <pc-linhas class="linhas efetivo-plano" id="efetivo-evento-linhas" data-rotulo="linha do efetivo">
           <input type="hidden" name="efetivo_presente" value="1">
           <ol class="linhas__lista" data-lista aria-label="Efetivo do evento">
             {% for linha in linhas_efetivo_evento %}{% include "viagens/planos/_linha_efetivo.html" with n=forloop.counter form=form_evento prefixo="evento-efetivo" %}{% endfor %}
@@ -75,7 +75,7 @@ plano (os mesmos em todos os eventos).
         </div>
         <fieldset class="atividades__grupo">
           <legend class="sr-only">Atividades do evento</legend>
-          {% include "viagens/planos/_atividades.html" with atividades=form_evento.fields.atividades.queryset marcadas=form_evento.atividades_marcadas prefixo="evento-atividade-" detalhada=True %}
+          {% include "viagens/planos/_atividades.html" with atividades=form_evento.fields.atividades.queryset marcadas=form_evento.atividades_marcadas prefixo="evento-atividade-" %}
         </fieldset>
       </div>
     </div>
