@@ -113,7 +113,7 @@ abre a folha de uma OS fictícia com o modelo como está na janela, sem gravar.
           <fieldset class="grupo-campos" aria-label="Função {{ linha.n }}">
             {{ linha.codigo }}
             <div class="campos">
-              {% include "componentes/campo.html" with campo=linha.nome classe="campo--md" rotulo="Função "|add:linha.n|stringformat:"s" %}
+              {% include "componentes/campo.html" with campo=linha.nome classe="campo--md" %}
               {% include "componentes/campo.html" with campo=linha.icone classe="campo--md" %}
             </div>
             {% include "componentes/campo.html" with campo=linha.texto %}

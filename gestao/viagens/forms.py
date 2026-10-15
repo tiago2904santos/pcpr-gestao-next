@@ -1729,12 +1729,12 @@ class FormularioModeloOS(forms.Form):
                 label=ROTULO_DA_ETAPA[etapa], required=False, max_length=2000,
                 help_text=_EXEMPLO_DA_ETAPA[etapa],
                 widget=forms.Textarea(attrs=_attrs("area-texto", rows=2)))
-        icones = [("", "Sem ícone")] + list(ICONES_DE_FUNCAO)
+        icones = [("", "Sem ícone"), *ICONES_DE_FUNCAO]
         for n in range(1, MAX_FUNCOES_DO_MODELO + 1):
             self.fields[f"funcao_codigo_{n}"] = forms.CharField(required=False, max_length=30,
                                                                 widget=forms.HiddenInput)
             self.fields[f"funcao_nome_{n}"] = forms.CharField(
-                label="Função", required=False, max_length=40,
+                label=f"Função {n}", required=False, max_length=40,
                 widget=forms.TextInput(attrs=_attrs("entrada", autocomplete="off",
                                                     placeholder="Ex.: Fotógrafo")))
             self.fields[f"funcao_icone_{n}"] = forms.ChoiceField(
