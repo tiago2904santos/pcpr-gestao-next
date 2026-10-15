@@ -137,7 +137,7 @@ def da_ordem(ordem: OrdemServico) -> list[Evento]:
     oficios, servidores = _m2m(OrdemServico, "oficios"), _m2m(OrdemServico, "servidores")
     destinos = (OrdemServicoDestino._meta.db_table, "ordem_id")
     filhas = {oficios[0]: "ofícios", destinos[0]: "destinos", servidores[0]: "equipe"}
-    campos = {"modelo_id": "modelo", "data_inicio": "período", "data_fim": "período",
+    campos = {"modelo_id": "tipo de OS", "data_inicio": "período", "data_fim": "período",
               "data_evento_inicio": "período do evento", "data_evento_fim": "período do evento",
               "hora": "horário do briefing", "funcoes": "funções da equipe", "motivo": "motivo",
               "assinante_id": "quem assina", "data_documento": "data do documento"}

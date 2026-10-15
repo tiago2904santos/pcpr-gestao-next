@@ -137,14 +137,15 @@ com volta intermediária à sede (bate-volta) → "ROTEIRO POR TRECHOS", numerad
 
 Protocolo (D1): obrigatório para emitir (pendência bloqueante); opcional no rascunho.
 
-## Modelos de OS (15/10/2026)
+## Tipos de OS (15/10/2026)
 
-Os tipos de necessidade viraram **modelos cadastráveis** (`ModeloOS`, `FuncaoOS`; cadastro do
-gestor em `/viagens/ordens/modelos/`). A OS sem modelo é a **padrão** (parágrafo único, no
-código). Com modelo, o documento sai como a OS real: `Ref.:`, autoridade, `DETERMINO` e itens
-`I - …`, `II - …`: primeiro um por **função** com alguém (texto da função com `{servidores}`),
-depois um por **etapa** da viagem — ida, dias antes do evento, evento, dias depois, volta —
-distribuída nos dias pelos dois períodos da OS (`dominio/modelo_os.distribuir_etapas`):
+Cinco tipos, **fixos no código** (sem cadastro na tela): **OS padrão** (sem modelo; parágrafo
+único) e, com modelo (`ModeloOS`/`FuncaoOS`, textos em `viagens/modelos_do_sistema.py`,
+sincronizados por migração), **Operação policial, Micro-ônibus, Caminhão e Cerimonial**. O
+documento com tipo sai como a OS real: `Ref.:`, autoridade, `DETERMINO` e itens `I - …`,
+`II - …`: primeiro um por **função** com alguém, depois um por **etapa** da viagem — ida, dias
+antes do evento, evento, dias depois, volta — distribuída nos dias pelos dois períodos da OS
+(`dominio/modelo_os.distribuir_etapas`):
 
 | viagem | evento | itens de dias |
 |---|---|---|
@@ -154,15 +155,15 @@ distribuída nos dias pelos dois períodos da OS (`dominio/modelo_os.distribuir_
 | 18 | 18 | só evento |
 | 3–8 | — | a viagem inteira é evento |
 
-Marcadores dos textos: `{equipe}` (nomes com cargo), `{servidores}` (só nomes), `{destino}`
-("Londrina/PR"), `{municipio}` ("o município de Londrina/PR"), `{data}` ("no dia 4 de maio de
-2026" / "nos dias 5 e 6 …"), `{motivo}`, `{hora}` ("às 05h00min" — o modelo passa a pedir o
-horário do briefing na OS), `{sede}`. Justificativas e finalidade são opcionais no modelo.
+Nos dias antes do evento: **caminhão** — montagem; **cerimonial** — **visita técnica** (saída 4
+e evento 6 → dia 4 deslocamento, dia 5 visita técnica; saída na véspera → deslocamento e visita
+técnica no mesmo dia); micro-ônibus — organização dos materiais. Operação policial: ida,
+briefing com horário (`{hora}`, campo "Horário do briefing" na OS) e retorno.
 
-A OS ganhou `modelo`, `data_evento_inicio/fim` (copiados da Viagem do ofício ao ligar; o
-evento cabe no período da OS) e `hora`. Os quatro modelos do sistema (operação policial,
-caminhão, micro-ônibus, cerimonial — `viagens/modelos_do_sistema.py`) desativam-se, não se
-apagam; modelo em uso por alguma OS só se desativa.
+A OS tem `modelo` (o tipo), `hora` e `data_evento_inicio/fim`. O período do evento **não se
+digita**: vem do vínculo — a Viagem da OS (criada dentro da viagem) ou a do ofício ligado —
+recortado ao período da OS (ida e volta dos trechos) e refeito a cada gravação
+(`ordens.evento_do_vinculo`). Sem Viagem com datas, a viagem inteira conta como evento.
 
 ## Cadastro da OS — contrato da tela (14/10/2026)
 

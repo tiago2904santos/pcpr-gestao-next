@@ -5,8 +5,8 @@
  * acima dos cartões.
  *
  * - Quem entra na equipe já ganha o seletor (o servidor o desenha para os gravados).
- * - Trocar o modelo troca as opções; a escolha que continua válida fica. Também mostra o
- *   período do evento (qualquer modelo) e o horário do briefing (modelos que o pedem).
+ * - Trocar o tipo de OS troca as opções; a escolha que continua válida fica. Também mostra
+ *   o horário do briefing nos tipos que o pedem.
  * - Clicar na função escolhida a desmarca (rádio nativo não desmarca sozinho).
  * As escolhas são rádios `funcao_<id>`: o formulário e o autosave as levam como qualquer campo.
  */
@@ -60,13 +60,10 @@ class FuncoesDaEquipe {
     this.atualizar(false);
   }
 
-  /** O período do evento aparece com qualquer modelo; o horário, só nos que o pedem. */
+  /** O horário do briefing só aparece nos tipos que o pedem. */
   camposDoModelo() {
     const valor = this.campoTipo?.value || "";
     const form = this.multi.closest("form") || document;
-    for (const el of form.querySelectorAll("[data-campo-evento]")) {
-      /** @type {HTMLElement} */ (el).hidden = !valor;
-    }
     for (const el of form.querySelectorAll("[data-campo-hora]")) {
       /** @type {HTMLElement} */ (el).hidden = !this.comHora.includes(valor);
     }

@@ -1,19 +1,8 @@
-"""Os modelos de OS que vêm com o sistema (caminhão, micro-ônibus, cerimonial e operação
-policial): os textos da referência reescritos em etapas e funções. A migração os semeia e a
-demonstração os usa; o gestor pode editá-los e desativá-los, não apagá-los."""
+"""Os tipos de OS (além da OS padrão, que não tem modelo): operação policial, micro-ônibus,
+caminhão e cerimonial — textos por etapa da viagem e funções da equipe. São fixos: não há
+cadastro na tela; mudar um texto é mudar aqui e sincronizar numa migração (`sincronizar`)."""
 
 from __future__ import annotations
-
-# Ícones que uma função pode ter (nome no sprite, rótulo na escolha).
-ICONES_DE_FUNCAO: list[tuple[str, str]] = [
-    ("car", "Carro"), ("truck", "Caminhão"), ("bus", "Micro-ônibus"),
-    ("wrench", "Ferramenta"), ("hand-helping", "Mão que ajuda"),
-    ("clipboard-list", "Prancheta"), ("package-check", "Caixa conferida"),
-    ("camera", "Câmera"), ("video", "Filmadora"), ("mic", "Microfone"), ("headset", "Fone"),
-    ("briefcase", "Maleta"), ("hard-hat", "Capacete"), ("clipboard-check", "Conferência"),
-    ("shield-check", "Escudo"), ("star", "Estrela"), ("users", "Equipe"),
-    ("map-pin", "Local"), ("monitor", "Monitor"), ("megaphone", "Megafone"),
-]
 
 _VOLTA = "Que a equipe efetue o retorno à sede de lotação em {sede} {data}."
 
@@ -40,7 +29,7 @@ MODELOS: list[dict] = [
         "funcoes": [],
     },
     {
-        "chave": "caminhao", "nome": "Caminhão", "ordem": 20,
+        "chave": "caminhao", "nome": "Caminhão", "ordem": 30,
         "referencia": "Deslocamento - Caminhão de apoio",
         "ida": ("O deslocamento {equipe} para {municipio} {data}, para apoio logístico com "
                 "caminhão em {motivo}."),
@@ -91,7 +80,7 @@ MODELOS: list[dict] = [
         ],
     },
     {
-        "chave": "microonibus", "nome": "Micro-ônibus", "ordem": 30,
+        "chave": "microonibus", "nome": "Micro-ônibus", "ordem": 20,
         "referencia": "Deslocamento - Micro-ônibus",
         "ida": ("O deslocamento {equipe} para {municipio} {data}, para apoio logístico com "
                 "micro-ônibus em {motivo}."),
@@ -127,13 +116,13 @@ MODELOS: list[dict] = [
         "referencia": "Deslocamento - Equipe de Cerimonial",
         "ida": ("O deslocamento {equipe} para {municipio} {data}, para atuação na organização "
                 "e realização de {motivo}."),
-        "ida_e_antes": ("O deslocamento {equipe} para {municipio} {data}, com a verificação da "
-                        "estrutura do local no mesmo dia, para atuação na organização e "
+        "ida_e_antes": ("O deslocamento {equipe} para {municipio} {data}, com a visita técnica "
+                        "ao local do evento no mesmo dia, para atuação na organização e "
                         "realização de {motivo}."),
-        "antes": ("Que a equipe verifique {data} a estrutura do local, o sistema de "
-                  "sonorização, a disposição do palco, púlpito, bandeiras, autoridades e "
-                  "convidados, a decoração, os acessos e demais aspectos logísticos da "
-                  "solenidade."),
+        "antes": ("Que a equipe realize {data} a visita técnica ao local do evento, verificando "
+                  "a estrutura, o sistema de sonorização, a disposição do palco, púlpito, "
+                  "bandeiras, autoridades e convidados, a decoração, os acessos e demais "
+                  "aspectos logísticos da solenidade."),
         "evento": ("Que a equipe atue em {destino} {data} na organização e realização de "
                    "{motivo}."),
         "depois": "Que a equipe desmobilize {data} a estrutura e os materiais da solenidade.",
@@ -141,9 +130,9 @@ MODELOS: list[dict] = [
                            "o retorno à sede de lotação em {sede}."),
         "volta": _VOLTA,
         "justificativas": (
-            "O deslocamento da equipe com antecedência faz-se necessário para o deslocamento "
-            "até o município do evento e a organização dos trabalhos, em razão da "
-            "inexistência de visita técnica prévia.\n"
+            "O deslocamento da equipe com antecedência faz-se necessário para a realização da "
+            "visita técnica ao local do evento e a organização dos trabalhos antes da "
+            "solenidade.\n"
             "A permanência da equipe permitirá verificar a estrutura do local, sistema de "
             "sonorização, disposição do palco, púlpito, bandeiras, autoridades e convidados, "
             "decoração, acessos e demais aspectos logísticos, possibilitando os ajustes "
@@ -178,8 +167,7 @@ CHAVE_DO_TIPO = {"operacao_retorno_posterior": "operacao_policial", "caminhao": 
 
 
 def semear(ModeloOS, FuncaoOS) -> dict[str, int]:
-    """Cria os modelos do sistema que ainda não existem (idempotente). Recebe as classes
-    para servir à migração (`apps.get_model`) e ao código normal."""
+    """Cria os tipos que ainda não existem (idempotente; a migração 0053 o usa)."""
     pks: dict[str, int] = {}
     for dados in MODELOS:
         funcoes = dados["funcoes"]
@@ -190,4 +178,25 @@ def semear(ModeloOS, FuncaoOS) -> dict[str, int]:
             for ordem, f in enumerate(funcoes):
                 FuncaoOS.objects.create(modelo=modelo, ordem=ordem, **f)
         pks[dados["chave"]] = modelo.pk
+    return pks
+
+
+def sincronizar(ModeloOS, FuncaoOS) -> dict[str, int]:
+    """Deixa os tipos gravados iguais aos daqui (nome, ordem, textos e funções): sem
+    cadastro, o código é a fonte. Funções que saíram do tipo são apagadas só se nenhuma OS
+    as usa; as OS antigas continuam apontando para os mesmos códigos."""
+    pks = semear(ModeloOS, FuncaoOS)
+    for dados in MODELOS:
+        campos = {k: v for k, v in dados.items() if k not in ("funcoes", "chave")}
+        ModeloOS.objects.filter(pk=pks[dados["chave"]]).update(
+            ativo=True, padrao_sistema=True, **campos)
+        codigos = []
+        for ordem, f in enumerate(dados["funcoes"]):
+            FuncaoOS.objects.update_or_create(
+                modelo_id=pks[dados["chave"]], codigo=f["codigo"],
+                defaults={"nome": f["nome"], "icone": f["icone"], "texto": f["texto"],
+                          "ordem": ordem})
+            codigos.append(f["codigo"])
+        FuncaoOS.objects.filter(modelo_id=pks[dados["chave"]]).exclude(
+            codigo__in=codigos).delete()
     return pks

@@ -213,16 +213,17 @@ class TestTelas:
         cli = _cliente(op)
         padrao, _ = ordens.salvar(op, destinos=[_londrina()])
         html = cli.get(reverse("viagens:editar_ordem", args=[padrao.pk])).content.decode()
-        assert "<div data-campo-evento hidden>" in html
+        # O período do evento não se digita: vem da viagem (ordens.evento_do_vinculo).
+        assert "data-campo-evento" not in html and "Período do evento" not in html
         assert "<div data-campo-hora hidden>" in html
-        assert "Padrão / texto livre" in html and "Caminhão" in html
+        assert "OS padrão" in html and "Caminhão" in html
         policial, _ = ordens.salvar(op, modelo=_modelo("operacao_policial"),
                                     destinos=[_londrina()], hora=time(5, 0))
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
-        assert "<div data-campo-evento>" in html and "<div data-campo-hora>" in html
+        assert "<div data-campo-hora>" in html
         assert 'name="hora"' in html and 'value="05:00"' in html
         assert "pede o horário do briefing" in html
-        # Modelo desativado continua selecionado e a OS continua gravando.
+        # Tipo desativado no banco continua selecionado e a OS continua gravando.
         ModeloOS.objects.filter(chave="operacao_policial").update(ativo=False)
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
         assert "Operação policial" in html
@@ -296,7 +297,7 @@ class TestRevisoes:
         with pytest.raises(ordens.OrdemInvalida, match="cancelado"):
             ordens.salvar(c.usuarios["operador"], oficios=[cancelado])
 
-    def test_copia_o_evento_da_viagem_do_oficio(self, c):
+    def test_evento_vem_da_viagem_do_oficio_e_acompanha_a_viagem(self, c):
         from gestao.viagens.models import Viagem
         oficio = _oficio(c)
         viagem = Viagem.objects.create(unidade=oficio.unidade, titulo="Feira (teste)",
@@ -304,12 +305,40 @@ class TestRevisoes:
                                        criado_por=c.usuarios["operador"])
         Oficio.objects.filter(pk=oficio.pk).update(viagem=viagem)
         oficio.refresh_from_db()
-        ordem, copiados = ordens.salvar(c.usuarios["operador"], oficios=[oficio],
-                                        modelo=_modelo("caminhao"), data_inicio=date(2030, 5, 3),
-                                        data_fim=date(2030, 5, 8))
-        assert "período do evento" in copiados
+        op = c.usuarios["operador"]
+        ordem, copiados = ordens.salvar(op, oficios=[oficio], modelo=_modelo("caminhao"),
+                                        data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8))
         assert (ordem.data_evento_inicio, ordem.data_evento_fim) == (date(2030, 5, 5),
                                                                      date(2030, 5, 6))
+        # Não é cópia que a tela precise mostrar: vem do vínculo, sem recarregar.
+        assert "período do evento" not in copiados
+        # A viagem mudou de data: a próxima gravação da OS acompanha.
+        Viagem.objects.filter(pk=viagem.pk).update(data_inicio=date(2030, 5, 6),
+                                                   data_fim=date(2030, 5, 6))
+        oficio.refresh_from_db()  # como numa requisição nova
+        ordem, _ = ordens.salvar(op, pk=ordem.pk, oficios=[oficio], modelo=_modelo("caminhao"),
+                                 data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8))
+        assert (ordem.data_evento_inicio, ordem.data_evento_fim) == (date(2030, 5, 6),
+                                                                     date(2030, 5, 6))
+
+    def test_os_criada_na_viagem_usa_o_evento_dela_sem_gravar_antes(self, c):
+        from gestao.viagens.models import Viagem
+        op = c.usuarios["operador"]
+        viagem = Viagem.objects.create(unidade=Oficio.objects.get(
+            pk=c.ids["oficio_emitido"]).unidade, titulo="Solenidade (teste)",
+            data_inicio=date(2030, 5, 6), data_fim=date(2030, 5, 6), criado_por=op)
+        um = Servidor.objects.first()
+        ordem, _ = ordens.salvar(op, modelo=_modelo("cerimonial"), destinos=[_londrina()],
+                                 data_inicio=date(2030, 5, 4), data_fim=date(2030, 5, 7),
+                                 servidores=[um], motivo="a solenidade",
+                                 funcoes={str(um.pk): "coordenacao"})
+        OrdemServico.objects.filter(pk=ordem.pk).update(viagem=viagem)  # como em viagem.py
+        ordem = OrdemServico.objects.get(pk=ordem.pk)
+        textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+        # Saída 4, evento 6: dia 4 deslocamento, dia 5 visita técnica.
+        assert "no dia 4 de maio de 2030" in textos[1]
+        assert textos[2].startswith("Que a equipe realize no dia 5 de maio de 2030 a visita "
+                                    "técnica")
 
     def test_evento_fora_do_periodo_e_recusado(self, c):
         with pytest.raises(ordens.OrdemInvalida, match="caber"):

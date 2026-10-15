@@ -174,7 +174,7 @@ def da_ordem(o, linha: dict, usuario) -> dict:
         "assinatura": "Assinada" if getattr(o, "via_vigente", None) and documentos is None
         and not o.cancelada else "", "titulo": destinos or "Sem destino",
         "periodo": _periodo(o.data_inicio, o.data_fim),
-        "detalhes": _detalhes(o, ("Modelo", o.modelo.nome if o.modelo_id else "Padrão"),
+        "detalhes": _detalhes(o, ("Tipo", o.modelo.nome if o.modelo_id else "OS padrão"),
                               ("Documento de", f"{o.data_documento:%d/%m/%Y}"
                                if gerada and o.data_documento else "")),
         "narrativa": _narrativa(("Motivo", o.motivo)),
