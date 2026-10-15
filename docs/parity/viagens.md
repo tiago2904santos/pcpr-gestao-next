@@ -40,10 +40,17 @@ Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
   O campo **Descrição/objetivo saiu** da tela e da consulta (a coluna no banco fica, com o
   que já estava gravado; a gravação da tela não a mexe).
 - **Documentos da viagem** como a **trilha da preparação** (escolhida pelo usuário entre três
-  propostas): os cinco tipos lado a lado, na ordem roteiro → ofício → plano → OS → termos,
-  ✓ no que já tem documento (senão o número do passo), os documentos com situação e período
-  e o "Novo …" em cada passo; "Gerar documentos em conjunto" embaixo. No celular os passos
-  ficam um embaixo do outro.
+  propostas; `viagem_trilha.py`): os cinco tipos lado a lado, ligados por um fio verde no
+  trecho já percorrido; cada documento é um cartão com a folhinha na cor da situação
+  (verde emitido/gerado, âmbar rascunho, vermelho cancelado), o número, a situação e o
+  período; "Novo …" em cada passo. No celular os passos ficam um embaixo do outro.
+- **Visualizador** (`_visualizador.html`, `visualizador.js`): clicar no cartão abre um modal.
+  Documento **pronto** (ofício emitido; OS e plano gerados e sem pendência; termo com período
+  e destino) mostra a folha — o documento como sai — ao lado do resumo com as ações (no
+  celular, Documento × Resumo); com mais de uma página (ofício e justificativa, os termos de
+  cada servidor), a escolha da página. O que não está pronto, tem pendência ou é roteiro abre
+  só o resumo. Setas (e ← →) passam entre os documentos do mesmo tipo; Esc devolve o foco ao
+  cartão; Ctrl/⌘-clique ou sem JavaScript, o cartão abre a folha de edição.
 - **Vincular documentos existentes**: cada lista mostra no máximo três linhas e rola; o
   texto de cada opção fica centrado com a caixa de marcar.
 - **Conferência**: resumo com barra das etapas concluídas; etapas com pendência em cartões

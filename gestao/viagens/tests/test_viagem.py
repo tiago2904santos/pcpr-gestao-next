@@ -403,3 +403,26 @@ class TestTipoDaViagemInteligente:
         from gestao.viagens.modelos_do_sistema import MODELOS
 
         assert set(TipoViagem.TipoOS.values) == {m["chave"] for m in MODELOS}
+
+
+def test_trilha_pronto_abre_a_folha_e_o_resto_o_resumo(c):
+    """Ofício emitido: pronto, com a folha; rascunho: só o resumo; roteiro nunca tem folha."""
+    from gestao.viagens import viagem_trilha
+
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    emitido = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+    viagem.salvar_dados(op, v.pk, tipos=[], vinculos={"oficios": [emitido]})
+    passos = viagem_trilha.trilha(viagem.documentos(Viagem.objects.get(pk=v.pk)))
+    assert [p.tipo for p in passos] == ["roteiro", "oficio", "plano", "ordem", "termo"]
+    oficio = passos[1].itens[0]
+    assert oficio.pronto and oficio.estado == "ok"
+    assert f"/oficios/{emitido.pk}/documento/oficio/folha/" in oficio.paginas_json
+    assert oficio.resumo_url.endswith(f"/oficios/{emitido.pk}/resumo/")
+    for item in passos[0].itens:
+        assert not item.pronto and item.paginas_json == ""
+    Oficio.objects.filter(pk=emitido.pk).update(situacao=Oficio.Situacao.RASCUNHO)
+    passos = viagem_trilha.trilha(viagem.documentos(Viagem.objects.get(pk=v.pk)))
+    assert not passos[1].itens[0].pronto and passos[1].itens[0].paginas_json == ""
+    html = _cliente(op).get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+    assert 'data-visualizador' in html and 'data-grupo="oficio"' in html

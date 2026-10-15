@@ -27,6 +27,7 @@ from . import (
     resumo_listas,
     viagem,
     viagem_conferencia,
+    viagem_trilha,
 )
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
@@ -205,6 +206,7 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
     docs = viagem.documentos(v)
     return render(request, "viagens/viagem/editar.html", {
         "v": v, "form": form, "docs": docs, "quando": viagem.dias_para(v),
+        "trilha": viagem_trilha.trilha(docs),
         "quadro": None if v.cancelada else viagem_conferencia.quadro(v),
         "diferencas": [] if v.cancelada else viagem_conferencia.coerencia(v),
         "destinos": [d.municipio for d in v.destinos.select_related("municipio")],

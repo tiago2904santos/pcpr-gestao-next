@@ -12,26 +12,58 @@
 .viagem-identificacao__quando { min-width: 0; }
 .documento--viagem .viagem-identificacao__onde { margin-top: var(--esp-6); padding-top: var(--esp-6); border-top: var(--borda-sutil); }
 
-/* 2 Documentos da viagem: a trilha da preparação — os cinco tipos lado a lado (um embaixo
-   do outro no celular). O fio de 1px entre os passos é o fundo do quadro aparecendo no gap. */
-.viagem-trilha { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-px); list-style: none; margin: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-borda-sutil); overflow: hidden; }
-.viagem-passo { display: flex; flex-direction: column; gap: var(--esp-3); min-width: 0; padding: var(--esp-4); background: var(--cor-superficie); }
-.viagem-passo--ok { background: linear-gradient(var(--cor-superficie), var(--cor-superficie-sutil)); }
-.viagem-passo__titulo { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.viagem-passo__marca { display: inline-grid; place-items: center; flex: none; width: var(--esp-6); height: var(--esp-6); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-terciario); font-size: var(--texto-xs); letter-spacing: normal; }
-.viagem-passo--ok .viagem-passo__marca { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
-.viagem-passo__conta { margin-left: auto; padding: 0 var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); letter-spacing: normal; }
+/* 2 Documentos da viagem: a trilha da preparação. Cinco colunas ligadas por um fio (verde no
+   trecho já percorrido); cada documento é um cartão com a folhinha na cor da situação. */
+.viagem-trilha { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); list-style: none; margin: 0; padding: 0; counter-reset: passo; }
+.viagem-passo { position: relative; display: flex; flex-direction: column; gap: var(--esp-3); min-width: 0; }
+.viagem-passo__titulo { position: relative; display: flex; align-items: center; gap: var(--esp-2); min-height: var(--esp-8); font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.viagem-passo__marca { position: relative; z-index: 1; display: inline-grid; place-items: center; flex: none; width: var(--esp-8); height: var(--esp-8); border: var(--esp-px) solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-terciario); font-size: var(--texto-xs); letter-spacing: normal; }
+.viagem-passo--ok .viagem-passo__marca { border-color: var(--cor-sucesso-borda); background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.viagem-passo--ok .viagem-passo__tipo { color: var(--cor-texto); }
+.viagem-passo__conta { display: inline-grid; place-items: center; min-width: var(--esp-5); height: var(--esp-5); padding: 0 var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); letter-spacing: normal; }
+
 .viagem-passo__docs { display: grid; gap: var(--esp-2); list-style: none; margin: 0; padding: 0; }
-.viagem-passo__doc { display: grid; gap: var(--esp-2); margin-inline: calc(-1 * var(--esp-2)); padding: var(--esp-2); border-radius: var(--raio-md); color: var(--cor-texto); text-decoration: none; transition: background var(--duracao-rapida) var(--curva-padrao); }
-.viagem-passo__doc:hover { background: var(--cor-marca-fundo); }
-.viagem-passo__nome { font-size: var(--texto-md); font-weight: var(--peso-semi); overflow-wrap: anywhere; }
-.viagem-passo__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-passo__abrir { display: inline-flex; align-items: center; gap: var(--esp-1); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-passo__doc:hover .viagem-passo__abrir { color: var(--cor-marca-texto); }
-.viagem-passo__vazio { flex: 1; display: grid; place-items: center; min-height: var(--esp-12); font-size: var(--texto-sm); color: var(--cor-texto-terciario); text-align: center; }
-.viagem-passo__acao { display: grid; justify-items: start; gap: var(--esp-1); margin-top: auto; }
+.viagem-doc { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "folha texto" "folha ver"; gap: var(--esp-1) var(--esp-3); align-items: start; padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); box-shadow: var(--sombra-1); color: var(--cor-texto); text-decoration: none; transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao); }
+.viagem-doc:hover { border-color: var(--cor-marca-borda); box-shadow: var(--sombra-cartao-hover); translate: 0 calc(-1 * var(--esp-px)); }
+.viagem-doc:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
+/* A folhinha: uma página com linhas de texto e a faixa no topo com a cor da situação. */
+.viagem-doc__folha { grid-area: folha; position: relative; width: var(--esp-10); height: var(--esp-12); border: var(--borda-sutil); border-top: var(--esp-1) solid var(--cor-borda-forte); border-radius: var(--raio-xs); background: repeating-linear-gradient(to bottom, transparent 0 var(--esp-2), var(--cor-borda-sutil) var(--esp-2) calc(var(--esp-2) + var(--esp-px))) var(--esp-2) var(--esp-3) / calc(100% - 2 * var(--esp-2)) calc(100% - var(--esp-5)) no-repeat, var(--cor-superficie); box-shadow: var(--sombra-1); }
+.viagem-doc--ok .viagem-doc__folha { border-top-color: var(--cor-sucesso-solida); }
+.viagem-doc--rascunho .viagem-doc__folha { border-top-color: var(--cor-aviso-solida); }
+.viagem-doc--cancelado .viagem-doc__folha { border-top-color: var(--cor-perigo-solida); }
+.viagem-doc__texto { grid-area: texto; display: grid; gap: var(--esp-2); min-width: 0; }
+.viagem-doc__nome { font-size: var(--texto-md); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); overflow-wrap: anywhere; }
+.viagem-doc__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.viagem-doc__data { display: inline-flex; align-items: center; gap: var(--esp-1); }
+.viagem-doc__ver { grid-area: ver; display: inline-flex; align-items: center; gap: var(--esp-1); margin-top: var(--esp-1); font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--cor-texto-terciario); transition: color var(--duracao-rapida) var(--curva-padrao); }
+.viagem-doc:hover .viagem-doc__ver, .viagem-doc:focus-visible .viagem-doc__ver { color: var(--cor-marca-texto); }
+
+.viagem-passo__vazio { display: grid; justify-items: center; align-content: center; gap: var(--esp-2); min-height: calc(var(--esp-12) + 2 * var(--esp-3)); padding: var(--esp-3); border: var(--esp-px) dashed var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); text-align: center; }
+.viagem-passo__vazio-icone { color: var(--cor-texto-terciario); }
+.viagem-passo__vazio > p { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-passo__acao { display: grid; justify-items: start; gap: var(--esp-1); }
 .viagem-passo__falta { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-trilha__rodape { display: flex; justify-content: flex-end; margin-top: var(--esp-4); }
+.viagem-trilha__rodape { display: flex; justify-content: flex-end; margin-top: var(--esp-5); padding-top: var(--esp-4); border-top: var(--borda-sutil); }
+
+/* Visualizador (modal): barra com tipo, setas e modos; a folha ao lado do resumo. */
+dialog.visualizador { height: calc(100dvh - 2 * var(--esp-5)); padding: 0; }
+.visualizador__barra { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); border-bottom: var(--borda-sutil); background: var(--cor-superficie-sutil); }
+.visualizador__id { display: grid; gap: var(--esp-05); flex: 1 1 12rem; min-width: 0; }
+.visualizador__tipo { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-marca-texto); }
+.visualizador__titulo { font-size: var(--texto-lg); font-weight: var(--peso-semi); overflow-wrap: anywhere; }
+.visualizador__navegacao { display: inline-flex; align-items: center; gap: var(--esp-2); }
+.visualizador__posicao { min-width: 4.5rem; text-align: center; font-size: var(--texto-sm); font-variant-numeric: tabular-nums; color: var(--cor-texto-secundario); }
+.visualizador__select { width: auto; max-width: 16rem; }
+.visualizador__modos { display: inline-flex; padding: var(--esp-05); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie); }
+.visualizador__modo { display: inline-flex; align-items: center; gap: var(--esp-1); min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border: 0; border-radius: var(--raio-sm); background: transparent; font-size: var(--texto-sm); color: var(--cor-texto-secundario); cursor: pointer; }
+.visualizador__modo[aria-pressed="true"] { background: var(--grafite-900); color: var(--cor-texto-inverso); }
+.visualizador__fechar { position: static; }
+.visualizador__corpo { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-height: 0; }
+.visualizador__documento { min-height: 0; background: var(--cor-superficie-realce); }
+.visualizador__folha { display: block; width: 100%; height: 100%; border: 0; }
+.visualizador__resumo { min-height: 0; overflow-y: auto; }
+.visualizador[data-modo="documento"] .visualizador__resumo { display: none; }
+.visualizador[data-modo="resumo"] .visualizador__documento { display: none; }
 
 /* 3 Vincular documentos existentes: grupos recolhidos; cada lista mostra até três linhas e rola. */
 .viagem-vinculos > summary { cursor: pointer; list-style: none; }
@@ -121,7 +153,12 @@
 
 @media (min-width: 768px) {
   .viagem-etapas, .viagem-vinculo .caixas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .viagem-trilha { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+  .viagem-trilha { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--esp-3); }
+  /* O fio entre os passos: do marcador até o próximo, verde onde já há documento. */
+  .viagem-passo:not(:last-child) .viagem-passo__titulo::after { content: ""; position: absolute; left: var(--esp-8); right: calc(-1 * var(--esp-3)); top: 50%; height: var(--esp-px); background: var(--cor-borda); }
+  .viagem-passo--ok:not(:last-child) .viagem-passo__titulo::after { background: var(--cor-sucesso-borda); height: calc(2 * var(--esp-px)); }
+  .viagem-passo__tipo { position: relative; z-index: 1; padding-right: var(--esp-2); background: var(--cor-superficie); }
+  .viagem-passo__conta { position: relative; z-index: 1; }
   .viagem-conferencia__resumo { grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 16rem); grid-template-areas: "marca texto barra"; }
   .viagem-divergencia { grid-template-columns: minmax(10rem, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
   .viagem-divergencia__doc, .viagem-divergencia__aviso { grid-column: 1; }
@@ -137,4 +174,12 @@
   .pagina--viagem .barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
   .pagina--viagem .barra-acoes--preparacao [data-status-salvamento] { grid-column: 1 / -1; order: 2; display: flex; flex-wrap: wrap; margin: 0; width: 100%; border-radius: var(--raio-md); }
   .viagem-vinculo__contagem { flex-basis: 100%; margin-left: 0; }
+}
+
+@media (min-width: 1024px) {
+  /* Documento pronto: a folha à esquerda, o resumo (com as ações) à direita. */
+  .visualizador--com-documento .visualizador__corpo { grid-template-columns: minmax(0, 1.1fr) minmax(26rem, 1fr); }
+  .visualizador--com-documento .visualizador__modos { display: none; }
+  .visualizador--com-documento[data-modo] .visualizador__documento, .visualizador--com-documento[data-modo] .visualizador__resumo { display: block; }
+  .visualizador--com-documento .visualizador__resumo { border-left: var(--borda-sutil); }
 }
