@@ -2,9 +2,11 @@
 {% comment %}Mesa operacional: identidade, decisões documentais e leitura da missão.
 Contratos institucionais preservados nas parciais; a ordem é de apresentação.{% endcomment %}
 {% with destino=oficio|destinos %}
-{% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao contexto=revisao|yesno:"Revisar antes de emitir," titulo=destino|default:"Sem destino" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_resumo_data.html" rodape_template="viagens/oficios/_resumo_hero_rodape.html" id_titulo="resumo-titulo" %}
+{% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao contexto=revisao|yesno:"Revisar antes de emitir," titulo=destino|default:"Sem destino" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_resumo_data.html" id_titulo="resumo-titulo" %}
 {% endwith %}
 <div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo do ofício">
+  <div class="resumo-subheader">{% include "viagens/oficios/_resumo_subheader.html" %}</div>
+  <div class="resumo-corpo">
   {% include "viagens/oficios/_resumo_avisos.html" %}
   {% include "componentes/resumo_narrativa.html" with conteudo="viagens/oficios/_resumo_narrativa.html" %}
   <div class="mesa-registro"><div class="resumo">
@@ -33,6 +35,7 @@ Contratos institucionais preservados nas parciais; a ordem é de apresentação.
     </div>
     {% endif %}
   </div></div>
+  </div>
 </div>
 {% if documentos_historicos and not revisao %}{% include "componentes/historico_documental.html" with prefixo="oficio" identificador=oficio.pk contexto=oficio.numero_formatado conteudo="viagens/oficios/_historico_documentos.html" %}{% endif %}
 {% include "viagens/oficios/_resumo_rodape.html" %}

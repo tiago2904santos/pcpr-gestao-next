@@ -74,16 +74,17 @@ embora aplicável · **—** não se aplica. Entre parênteses, a posição.
 
 Ordem fixa das regiões; seção que não se aplica não é renderizada e não deixa vão.
 
-1. **Cabeçalho** (fora da rolagem): identidade · contexto "Resumo do/da <documento>"
-   (revisão do ofício: "Revisar antes de emitir") · título (destinos; viagem: título) ·
-   selos — o primeiro é a situação documental com forma (○ rascunho, ✓ emitido/gerado,
-   ✕ cancelado); os seguintes são circunstâncias (tipo, prazo, tempo) como texto ·
-   **faixa de fatos** (revisão de 14/10, no lugar do antigo cartão Registro): rótulo em
-   caixa-alta com ícone, valor numa linha e nota opcional, separados por filetes — o
-   período primeiro (nota: trechos, horário ou a origem do período) e, por tipo: ofício
-   equipe, data e protocolo; OS equipe e necessidade; termo equipe e evento; plano efetivo,
-   programa e coordenação; viagem destino (quando o título não o diz) e documentos;
-   roteiro sede, servidores no cálculo e "bate-volta" quando for.
+1. **Cabeçalho** (fixo, fora da rolagem): em destaque só o que identifica a viagem —
+   número, destino e data (o período do evento ou da viagem). Ao lado do destino, os chips:
+   a situação com forma (○ rascunho, ✓ emitido/gerado, ✕ cancelado) e as circunstâncias
+   (tempo até a saída ou urgência, justificativa pendente, tipo do ofício).
+   **Sub-header** (faixa escura logo abaixo, que **rola com o corpo**; fixos só o cabeçalho
+   e o rodapé): o que não está no destaque nem nos cartões, sem divisórias — ofício
+   protocolo, data do ofício e de emissão; OS necessidade e data do documento; termo evento
+   e origem do período; plano horário, programa e coordenações; viagem o nome (quando não
+   repete o destino) e a descrição; roteiro a distância; e, nos que se aplicam, unidade,
+   viagem vinculada, quem criou e a última atualização (o plano não mostra unidade, viagem
+   nem deslocamento; o roteiro não mostra servidores no cálculo — o cálculo é sempre por um).
 2. **Avisos** (topo do corpo, só quando existem): revisão (ofício), conferência com o que
    falta (cada item leva à folha, na seção), cancelamento com data e motivo.
 3. **Documentos** (quando o registro emite e quem vê pode abri-lo): peças correntes, cada

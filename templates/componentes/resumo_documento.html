@@ -1,13 +1,17 @@
 {% load ui %}{% comment %}
 Janela de resumo de um registro de viagem (OS, termo, plano, viagem, roteiro) no contrato
 comum dos resumos (docs/visual-agents/resumos/README.md), o mesmo do resumo do ofício:
-cabeçalho (número, destino e data em destaque; o resto no pé) → avisos → narrativa (o porquê) → documentos → blocos
+cabeçalho fixo (número, destino e data em destaque, chips ao lado do destino) → sub-header
+(rola com o corpo) → avisos → narrativa (o porquê) → documentos → blocos
 (cada um com o ícone do que mostra; os vínculos por último) →
 rodapé. A ordem do HTML é a ordem de leitura; o que não se aplica não é renderizado e não
 deixa vão. `r` vem de `resumo_listas.py` (as chaves estão descritas lá).
 {% endcomment %}
-{% include "componentes/registro_hero.html" with id_titulo="resumo-titulo" rotulo=r.rotulo numero=r.numero situacao=r.situacao titulo=r.titulo situacao_template="componentes/resumo_selos.html" complemento_template="componentes/resumo_data.html" rodape_template="componentes/resumo_hero_rodape.html" %}
+{% include "componentes/registro_hero.html" with id_titulo="resumo-titulo" rotulo=r.rotulo numero=r.numero situacao=r.situacao titulo=r.titulo situacao_template="componentes/resumo_selos.html" complemento_template="componentes/resumo_data.html" %}
 <div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo: {{ r.nome }}">
+  {# O sub-header rola com o conteúdo: fixos ficam só o cabeçalho e o rodapé. #}
+  {% if r.detalhes %}<div class="resumo-subheader">{% include "componentes/resumo_subheader.html" %}</div>{% endif %}
+  <div class="resumo-corpo">
   {% if r.cancelamento %}{% include "componentes/resumo_cancelamento.html" with titulo=r.cancelamento.titulo motivo=r.cancelamento.motivo only %}
   {% elif r.pendencias %}{% include "componentes/resumo_conferencia.html" with pendencias=r.pendencias falta_para=r.falta_para only %}{% endif %}
   {% include "componentes/resumo_narrativa.html" with itens=r.narrativa only %}
@@ -36,5 +40,6 @@ deixa vão. `r` vem de `resumo_listas.py` (as chaves estão descritas lá).
     {% endif %}
     {% endfor %}
   </div></div>
+  </div>
 </div>
 {% include "componentes/resumo_rodape.html" %}

@@ -766,6 +766,28 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .dialogo__fechar:hover { background: var(--cor-primaria-hover); color: var(--cor-texto-inverso); }
 .dialogo--mesa .dialogo__fechar:focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .dialogo--mesa .dialogo__corpo { padding: var(--esp-8); color: var(--cor-texto); }
+/* Resumo com sub-header: a faixa escura encosta no cabeçalho, na largura toda, e rola com o
+   conteúdo (fixos ficam só o cabeçalho e o rodapé); o respiro passa para o miolo. */
+.dialogo--mesa .dialogo__corpo:has(> .resumo-subheader) { padding: 0; }
+.resumo-subheader { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-6); padding: var(--esp-3) var(--esp-8); background: var(--cor-primaria-ativa); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
+.resumo-subheader__dado { display: inline-flex; align-items: baseline; gap: var(--esp-2); min-width: 0; max-width: 28rem; }
+.resumo-subheader__rotulo { flex: none; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
+.resumo-subheader__valor { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cor-texto-inverso); font-weight: var(--peso-medio); }
+.resumo-corpo { padding: var(--esp-8); }
+@media (max-width: 1023.98px) {
+  .resumo-subheader { padding-inline: var(--esp-6); }
+  .resumo-corpo { padding: var(--esp-6); }
+}
+@media (max-width: 767.98px) {
+  .resumo-subheader { padding-inline: var(--esp-5); gap: var(--esp-2) var(--esp-4); }
+  .resumo-corpo { padding: var(--esp-5); }
+}
+@media (max-width: 599.98px) {
+  /* No celular, duas colunas: rótulo em cima, valor embaixo. */
+  .resumo-subheader { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); }
+  .resumo-subheader__dado { flex-direction: column; align-items: flex-start; gap: var(--esp-05); max-width: none; }
+  .resumo-subheader__valor { max-width: 100%; }
+}
 .dialogo--mesa .dialogo__conteudo { display: flex; flex-direction: column; overflow: hidden; }
 .dialogo--mesa .dialogo__conteudo > .registro-hero, .dialogo--mesa .dialogo__rodape { flex: none; }
 /* Uma rolagem para o conteúdo; cabeçalho e ações não recebem o trilho da scrollbar. */

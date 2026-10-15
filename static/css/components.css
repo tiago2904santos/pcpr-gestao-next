@@ -3505,35 +3505,12 @@ fieldset.campo--escolhas > .campo__erro {
 .registro-hero .registro-hero__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
 .registro-hero__complemento { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-sm); margin: var(--esp-2) 0 0; font-variant-numeric: tabular-nums; }
 .registro-hero__complemento > .icone { color: var(--shell-filete-claro); }
-/* Cabeçalho dos resumos (com pé): em destaque só o que identifica a viagem — número,
-   destino e data; o resto (situação, protocolo, programa…) desce para o pé, uma faixa de
-   tom mais fundo na largura toda, sem divisórias. O filete dourado da identidade fica. */
-.registro-hero.registro-hero--com-rodape { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0; padding: 0; }
-.registro-hero--com-rodape > .registro-hero__identidade { margin: var(--esp-8) var(--esp-8) var(--esp-6); }
-.registro-hero--com-rodape > .registro-hero__conteudo { padding: var(--esp-8) var(--esp-16) var(--esp-6) 0; }
+/* A data em destaque nos resumos, logo abaixo do destino: número, destino e data são o
+   que identifica a viagem; o resto fica no sub-header, que rola com o corpo. */
 .registro-hero__data { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin: var(--esp-2) 0 0; font-size: var(--texto-xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; }
 .registro-hero__data > .icone { color: var(--shell-filete-claro); }
-.registro-hero__rodape { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-6); padding: var(--esp-3) var(--esp-16) var(--esp-3) var(--esp-8); background: var(--cor-primaria-ativa); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
-.registro-hero__dado { display: inline-flex; align-items: baseline; gap: var(--esp-2); min-width: 0; max-width: 28rem; }
-.registro-hero__dado-rotulo { flex: none; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
-.registro-hero__dado-valor { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cor-texto-inverso); font-weight: var(--peso-medio); }
-@media (max-width: 1023.98px) {
-  .registro-hero--com-rodape > .registro-hero__identidade { margin: var(--esp-6) var(--esp-5) var(--esp-5) var(--esp-6); }
-  .registro-hero--com-rodape > .registro-hero__conteudo { padding: var(--esp-6) var(--esp-16) var(--esp-5) 0; }
-  .registro-hero--com-rodape > .registro-hero__rodape { padding-inline: var(--esp-6) var(--esp-16); }
-}
 @media (max-width: 767.98px) {
-  .registro-hero.registro-hero--com-rodape { grid-template-columns: minmax(0, 1fr); }
-  .registro-hero--com-rodape > .registro-hero__identidade { margin: var(--esp-5) 0 0 var(--esp-5); }
-  .registro-hero--com-rodape > .registro-hero__conteudo { padding: var(--esp-2) var(--esp-5) var(--esp-4); }
-  .registro-hero--com-rodape > .registro-hero__rodape { padding-inline: var(--esp-5); gap: var(--esp-2) var(--esp-4); }
   .registro-hero__data { font-size: var(--texto-lg); }
-}
-@media (max-width: 599.98px) {
-  /* No celular o rodapé do header vira duas colunas: rótulo em cima, valor embaixo. */
-  .registro-hero--com-rodape > .registro-hero__rodape { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); }
-  .registro-hero__dado { flex-direction: column; align-items: flex-start; gap: var(--esp-05); max-width: none; }
-  .registro-hero__dado-valor { max-width: 100%; }
 }
 .registro-hero__metadados { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); margin-top: var(--esp-3); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
 .registro-hero__metadado { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 0; color: inherit; overflow-wrap: anywhere; }

@@ -97,7 +97,7 @@ def _periodo(inicio, fim) -> str:
     return periodo_do_resumo(inicio, fim) or "Sem período"
 
 
-def _detalhes(obj, *pares: tuple[str, str]) -> list[dict]:
+def _detalhes(obj, *pares: tuple[str, str], sem: tuple[str, ...] = ()) -> list[dict]:
     """O sub-header: os dados próprios do tipo e, por último, os comuns a todos (unidade,
     viagem, quem criou, última atualização). Só o que tem valor — o que falta aparece na
     conferência."""
@@ -109,7 +109,7 @@ def _detalhes(obj, *pares: tuple[str, str]) -> list[dict]:
               ("Atualizado em", f"{timezone.localtime(obj.atualizado_em):%d/%m/%Y %H:%M}"
                if obj.atualizado_em else ""))
     return [{"rotulo": rotulo, "valor": str(valor)} for rotulo, valor in (*pares, *comuns)
-            if valor]
+            if valor and rotulo not in sem]
 
 
 ICONES_DOS_BLOCOS = {
@@ -125,13 +125,6 @@ def _icones(r: dict) -> dict:
     for bloco in r["blocos"]:
         bloco.setdefault("icone", ICONES_DOS_BLOCOS.get(bloco.get("titulo", ""), ""))
     return r
-
-
-def _deslocamento(saida, chegada) -> str:
-    """"26/10 07:30 → 27/10 18:00": a saída e a volta à sede (plano)."""
-    if not saida or not chegada:
-        return ""
-    return f"{timezone.localtime(saida):%d/%m %H:%M} → {timezone.localtime(chegada):%d/%m %H:%M}"
 
 
 def _distancia(trechos) -> str:
@@ -280,9 +273,9 @@ def do_plano(p, linha: dict, usuario) -> dict:
             ("Coordenação", getattr(coordenador, "nome", "")),
             ("Coordenação operacional",
              getattr(planos_mod.coordenador(p, "op"), "nome", "")),
-            ("Deslocamento", _deslocamento(p.saida_em, p.chegada_em)),
             ("Eventos", _contagem(len(p.eventos.all()) + 1, "evento", "eventos", "")
-             if p.eventos.all() else "")),
+             if p.eventos.all() else ""),
+            sem=("Unidade", "Viagem")),
         "narrativa": [{"rotulo": "Atividades", "fichas": [a.nome for a in atividades]}]
         if atividades else [],
         "inicio": inicio, "fim": fim, "urgencia": _urgencia(linha["tempo"]),
@@ -387,7 +380,6 @@ def do_roteiro(roteiro, trechos: list, oficios: list, pode_editar: bool) -> dict
         "periodo": _periodo(inicio, fim),
         "detalhes": _detalhes(
             roteiro, ("Distância", _distancia(trechos)),
-            ("Servidores no cálculo", str(roteiro.quantidade_servidores or "")),
             ("Formato", "Bate-volta" if roteiro.bate_volta else "")),
         "narrativa": _narrativa(("Observações", roteiro.observacoes)),
         "inicio": None if cancelado else inicio, "fim": fim, "urgencia": None,

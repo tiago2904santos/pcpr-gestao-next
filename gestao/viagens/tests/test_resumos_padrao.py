@@ -147,12 +147,15 @@ class TestOficio:
                        c.ids["oficio_rascunho"])
         assert "Nenhum termo, OS ou plano feito a partir deste ofício." in html
 
-    def test_cabecalho_destaca_destino_e_data_e_o_resto_vai_para_o_pe(self, c):
+    def test_cabecalho_destaca_destino_e_data_e_o_resto_vai_para_o_subheader(self, c):
         html = _resumo(_cliente(c.usuarios["operador"]), "viagens:resumo",
                        c.ids["oficio_emitido"])
-        assert 'class="registro-hero__data"' in html
-        pe = html[html.index('class="registro-hero__rodape"'):html.index("</header>")]
-        assert "Protocolo" in pe and "Ofício de" in pe
+        cabecalho = html[:html.index("</header>")]
+        assert 'class="registro-hero__data"' in cabecalho
+        # O resto vai para o sub-header, que rola com o corpo (fora do cabeçalho fixo).
+        assert 'class="resumo-subheader"' not in cabecalho
+        sub = html[html.index('class="resumo-subheader"'):html.index('class="resumo-corpo"')]
+        assert "Protocolo" in sub and "Ofício de" in sub
         assert 'class="resumo-narrativa"' in html and "Motivo" in html
         # Sem o cartão Registro: custeio e porte de arma ficam na folha e no documento.
         assert 'id="resumo-registro"' not in html
