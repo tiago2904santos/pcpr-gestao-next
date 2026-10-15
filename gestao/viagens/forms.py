@@ -39,7 +39,15 @@ from gestao.plataforma.widgets import (
 )
 
 from .dominio.numeracao import formatar_numero
-from .models import Oficio, OrdemServico, PlanoTrabalho, Roteiro, TermoAutorizacao, Trecho
+from .models import (
+    ModeloOS,
+    Oficio,
+    OrdemServico,
+    PlanoTrabalho,
+    Roteiro,
+    TermoAutorizacao,
+    Trecho,
+)
 from .queries import trechos_de
 
 FORM_ID = "form-oficio"
@@ -966,10 +974,10 @@ class FormularioOrdem(forms.Form):
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False,
         help_text="")  # a nota do cartão explica o que vem dos ofícios
-    tipo = forms.ChoiceField(label="Tipo de necessidade", choices=OrdemServico.TIPOS,
-                             widget=Selecao(),
-                             help_text="Muda o texto do documento (referência, justificativas "
-                                       "e atribuições da equipe).")
+    modelo = forms.ModelChoiceField(
+        label="Modelo", queryset=ModeloOS.objects.none(), required=False,
+        empty_label="Padrão / texto livre", widget=Selecao(),
+        help_text="Escolhe o texto do documento e as funções da equipe.")
     destinos = CampoMunicipios(label="Destinos", required=False)
     # Período num campo só na tela (<pc-data data-periodo>, ida e volta no mesmo calendário),
     # como no termo: estes dois levam as pontas.

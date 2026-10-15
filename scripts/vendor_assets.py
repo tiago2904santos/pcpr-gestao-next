@@ -47,7 +47,8 @@ ICONES = sorted({
     # Publicações e Palestras (ASCOM)
     "newspaper", "presentation",
     # Funções da equipe na OS (condução no veículo do tipo, técnico, apoio, cerimonial)
-    "truck", "wrench", "hand-helping", "package-check",
+    "truck", "wrench", "hand-helping", "package-check", "camera", "video", "mic", "headset",
+    "briefcase", "hard-hat", "clipboard-check", "star",
 })
 
 
