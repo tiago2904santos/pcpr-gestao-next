@@ -683,6 +683,9 @@ class CampoEquipe(EscolhaMultiplaRemota):
         self.rotulo, self.cadastrar, self.maximo = rotulo, cadastrar, maximo
         # Quem está aqui dirige (o "Quem dirige" do lote): a viatura dele entra sozinha.
         self.motorista = motorista
+        # OS com funções (caminhão, micro-ônibus, cerimonial): o seletor em cada cartão.
+        # {"campo_tipo", "por_tipo": {tipo: [opção]}, "ativas": [opção], "escolhidas"}.
+        self.funcoes: dict[str, Any] | None = None
 
     def get_context(self, name, value, attrs):
         from .templatetags.viagens import larguras_de_cartoes
@@ -699,11 +702,31 @@ class CampoEquipe(EscolhaMultiplaRemota):
                 e["unidade"] = getattr(s, "unidade_id", "") or ""
         for e, largura in zip(escolhidos, larguras_de_cartoes(len(escolhidos)), strict=False):
             e["largura"] = largura
+        if self.funcoes:
+            for e in escolhidos:
+                e["funcao"] = self.funcoes["escolhidas"].get(str(e["id"]), "")
         contexto["widget"].update({
             "rotulo": self.rotulo, "cadastrar": self.cadastrar, "maximo": self.maximo,
-            "motorista": self.motorista,
+            "motorista": self.motorista, "funcoes": self.funcoes,
+            "funcoes_json": json.dumps(self.funcoes["por_tipo"]) if self.funcoes else "",
             "excluir": ",".join(str(e["id"]) for e in escolhidos)})
         return contexto
+
+
+# Como cada função aparece no seletor do cartão da equipe da OS: rótulo curto, ícone e o que
+# a pessoa faz (a dica; o texto que vai ao documento está em dominio/ordem_servico.py).
+APRESENTACAO_DAS_FUNCOES = {
+    "conducao": ("Condução", "volante", "Dirige o veículo oficial na ida e na volta"),
+    "tecnico": ("Técnico", "monitor", "Opera e confere os equipamentos"),
+    "apoio": ("Apoio", "shield-check", "Montagem, escolta e organização"),
+    "coordenacao": ("Coordenação", "flag", "Conduz e coordena o cerimonial"),
+    "preparacao": ("Preparação", "list-checks", "Prepara a solenidade e os materiais"),
+}
+
+
+def _opcao_de_funcao(codigo: str) -> dict[str, str]:
+    rotulo, icone, dica = APRESENTACAO_DAS_FUNCOES[codigo]
+    return {"valor": codigo, "rotulo": rotulo, "icone": icone, "dica": dica}
 
 
 class CampoOficios(EscolhaMultiplaRemota):
@@ -973,8 +996,10 @@ class FormularioOrdem(forms.Form):
         self.fields["destinos"].widget.fonte = fonte_municipios
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
             ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
-        # Funções da equipe (tipos com função): um campo por servidor já gravado na OS.
-        self.campos_de_funcao: list[tuple[Servidor, str]] = []
+        # Funções da equipe (tipos com função): um campo por pessoa da equipe — a que está
+        # na tela (pode ter acabado de entrar) ou, sem envio, a gravada. Quem escolhe é o
+        # seletor no próprio cartão (viagens/widgets/equipe.html, funcoes-equipe.js).
+        self.campos_de_funcao: list[tuple[str, str]] = []
         tipo = (self.data.get("tipo") if self.is_bound else None) or (
             ordem.tipo if ordem else "padrao")
         from .dominio.ordem_servico import (
@@ -986,16 +1011,28 @@ class FormularioOrdem(forms.Form):
         self.fields["tipo"].help_text = EFEITO_DO_TIPO.get(tipo, "")
         self.fields["motivo"].help_text = (f"Completa a frase “{FRASE_DO_MOTIVO.get(tipo, '')}” "
                                            "(sem ponto final; a inicial vira minúscula).")
-        permitidas = FUNCOES_DO_TIPO.get(tipo)
-        if ordem is not None and permitidas:
-            opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
-            for s in ordem.servidores.select_related("cargo").order_by("nome"):
-                nome = f"funcao_{s.pk}"
-                rotulo = s.nome  # o cargo já está no cartão da pessoa, logo acima
-                self.fields[nome] = forms.ChoiceField(
-                    label=rotulo, choices=opcoes, required=False, widget=Selecao(),
-                    initial=(ordem.funcoes or {}).get(str(s.pk), ""))
-                self.campos_de_funcao.append((s, nome))
+        gravadas = (ordem.funcoes or {}) if ordem else {}
+        if self.is_bound:
+            enviados = (self.data.getlist("servidores") if hasattr(self.data, "getlist")
+                        else self.data.get("servidores") or [])
+            ids = [str(i) for i in enviados if str(i).isdigit()]
+        else:
+            ids = [str(pk) for pk in atuais]
+        permitidas = FUNCOES_DO_TIPO.get(tipo) or ()
+        opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
+        for sid in ids if permitidas else ():
+            nome = f"funcao_{sid}"
+            self.fields[nome] = forms.ChoiceField(choices=opcoes, required=False,
+                                                  initial=gravadas.get(sid, ""))
+            self.campos_de_funcao.append((sid, nome))
+        equipe.widget.funcoes = {
+            "campo_tipo": self["tipo"].auto_id,
+            "por_tipo": {t: [_opcao_de_funcao(c) for c in fs]
+                         for t, fs in FUNCOES_DO_TIPO.items()},
+            "ativas": [_opcao_de_funcao(c) for c in permitidas],
+            "escolhidas": {sid: (self.data.get(f"funcao_{sid}", "") if self.is_bound
+                                 else gravadas.get(sid, "")) for sid in ids},
+        }
 
     def periodo_texto(self) -> str:
         """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só a ida."""
@@ -1004,16 +1041,6 @@ class FormularioOrdem(forms.Form):
             return v.strftime("%d/%m/%Y") if hasattr(v, "strftime") else (v or "")
         de, ate = texto("data_inicio"), texto("data_fim")
         return f"{de} a {ate}" if de and ate else de
-
-    @property
-    def funcoes_da_equipe(self):
-        """Os campos de função já ligados ao formulário (para o template)."""
-        return [self[nome] for _s, nome in self.campos_de_funcao]
-
-    @property
-    def tipo_com_funcao(self) -> bool:
-        from .dominio.ordem_servico import FUNCOES_DO_TIPO
-        return (self["tipo"].value() or "padrao") in FUNCOES_DO_TIPO
 
     @classmethod
     def de(cls, ordem, **kwargs):
@@ -1038,9 +1065,9 @@ class FormularioOrdem(forms.Form):
             dados["motivo"] = dados["motivo_modelo"].texto
         dados.pop("motivo_modelo", None)
         # Sem campos de função na tela (OS nova, tipo sem função), as gravadas ficam.
-        funcoes = {str(s.pk): dados.get(nome) for s, nome in self.campos_de_funcao
+        funcoes = {sid: dados.get(nome) for sid, nome in self.campos_de_funcao
                    if dados.get(nome)}
-        for _s, nome in self.campos_de_funcao:
+        for _sid, nome in self.campos_de_funcao:
             dados.pop(nome, None)
         dados["funcoes"] = funcoes if self.campos_de_funcao else None
         return dados

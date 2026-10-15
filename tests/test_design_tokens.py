@@ -73,7 +73,10 @@ def test_todos_os_tokens_usados_existem():
               "--relogio-casa", "--relogio-faixas",
               # Estrada da linha (viagem em andamento): a posição da viatura, pela classe
               # `data-progresso` que o servidor calcula (CSP não aceita style inline).
-              "--progresso-estrada"}
+              "--progresso-estrada",
+              # Funções da equipe na OS: a cor da função escolhida (pílula, cartão, resumo),
+              # definida por [data-funcao] / pelo rádio marcado no cartão.
+              "--funcao-cor", "--funcao-fundo", "--funcao-borda", "--funcao-solida"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

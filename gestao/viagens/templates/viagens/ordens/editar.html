@@ -75,19 +75,9 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-equipe">{% icone "users" classe="icone--sm" %}Equipe</h3>
-        <div class="secao__estado" id="estado-equipe" data-vivo>{% with n=form.servidores.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}<span class="texto-terciario texto-xs">sai agrupada por cargo</span></div>
+        <div class="secao__estado" id="estado-equipe" data-vivo>{% with n=form.servidores.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}<span class="texto-terciario texto-xs" data-equipe-nota>{% if form.servidores.field.widget.funcoes.ativas %}sai com a função de cada um{% else %}sai agrupada por cargo{% endif %}</span></div>
       </div>
       {% include "viagens/_campo_equipe.html" with campo=form.servidores compacta=True %}
-      {% if form.campos_de_funcao %}
-        <fieldset class="grupo-campos grupo-campos--afastado">
-          <legend>Função de cada um</legend>
-          <div class="campos">
-            {% for campo in form.funcoes_da_equipe %}{% include "componentes/campo.html" with campo=campo classe="campo--lg" %}{% endfor %}
-          </div>
-        </fieldset>
-      {% elif form.tipo_com_funcao %}
-        <p class="alerta alerta--info">{% icone "info" %}As funções aparecem aqui assim que a equipe for gravada.</p>
-      {% endif %}
     </div>
 
     <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">

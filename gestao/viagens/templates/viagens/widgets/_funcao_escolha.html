@@ -1,0 +1,13 @@
+{% load ui %}{% comment %}
+O seletor de função no cartão da pessoa (OS de caminhão, micro-ônibus e cerimonial): uma
+pílula por função, com ícone — rádios nativos (`funcao_<id>`), então o formulário e o
+autosave levam a escolha sem script. Clicar na escolhida desmarca (funcoes-equipe.js).
+O mesmo desenho é montado no navegador para quem entra na equipe ou quando o tipo muda.
+Variáveis: `sid`, `nome`, `opcoes` ([{valor, rotulo, icone, dica}]), `escolhida`.
+{% endcomment %}<fieldset class="funcao-escolha" data-funcao-escolha>
+  <legend class="sr-only">Função de {{ nome }}</legend>
+  {% for f in opcoes %}<label class="funcao-escolha__opcao" data-funcao="{{ f.valor }}" title="{{ f.dica }}">
+    <input class="funcao-escolha__radio" type="radio" name="funcao_{{ sid }}" value="{{ f.valor }}"{% if escolhida == f.valor %} checked{% endif %}>
+    {% icone f.icone classe="icone--sm" %}<span class="funcao-escolha__rotulo">{{ f.rotulo }}</span>
+  </label>{% endfor %}
+</fieldset>

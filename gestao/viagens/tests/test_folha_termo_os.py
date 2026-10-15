@@ -299,17 +299,19 @@ class TestRevisaoDeSeguranca:
 
 
 class TestRevisaoDeUX:
-    def test_trocar_para_tipo_com_funcao_pede_recarregar(self, c):
+    def test_trocar_para_tipo_com_funcao_nao_recarrega_e_grava_a_funcao(self, c):
+        # O seletor de função se ajusta na tela (funcoes-equipe.js): o autosave não recarrega
+        # e grava a função de quem acabou de entrar, sem precisar gravar a equipe antes.
         ordem, um = _os(c)
         url = reverse("viagens:autosave_ordem", args=[ordem.pk])
         base = {"destinos": ["Londrina/PR"], "servidores": [um.pk], "motivo": "a feira"}
         r = _cliente(c.usuarios["operador"]).post(url, {**base, "tipo": "padrao"})
         assert r.json()["recarregar"] is False
-        r = _cliente(c.usuarios["operador"]).post(url, {**base, "tipo": "cerimonial_antecipado"})
-        assert r.json()["recarregar"] is True  # aparecem os campos de função
         r = _cliente(c.usuarios["operador"]).post(url, {
             **base, "tipo": "cerimonial_antecipado", f"funcao_{um.pk}": "coordenacao"})
-        assert r.json()["recarregar"] is False
+        assert r.json()["salvo"] is True and r.json()["recarregar"] is False
+        ordem.refresh_from_db()
+        assert ordem.funcoes == {str(um.pk): "coordenacao"}
 
     def test_apagar_o_motivo_nao_traz_de_volta_o_do_oficio(self, c):
         oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])

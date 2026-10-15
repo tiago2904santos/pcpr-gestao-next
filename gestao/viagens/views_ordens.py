@@ -353,20 +353,12 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     except OrdemServico.DoesNotExist:
         return JsonResponse({"salvo": False, "mensagem": "Esta OS foi excluída."})
     # A tela precisa ser redesenhada quando a gravação muda CAMPOS (não só valores): veio
-    # algo dos ofícios recém-ligados, ou as funções a escolher mudaram (tipo ou equipe).
-    na_tela = {k for k in request.POST if k.startswith("funcao_")}
-    recarregar = bool(copiados) or na_tela != _campos_de_funcao(salva)
+    # algo dos ofícios recém-ligados. As funções da equipe se ajustam na tela, sem recarregar
+    # (funcoes-equipe.js: o seletor acompanha o tipo e quem entra na equipe).
+    recarregar = bool(copiados)
     return JsonResponse({"salvo": True, "recarregar": recarregar,
                          "em": timezone.localtime(salva.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": ordens.versao_de(salva)}})
-
-
-def _campos_de_funcao(ordem: OrdemServico) -> set[str]:
-    """Os campos de função que a tela da OS mostra no estado gravado."""
-    from .dominio.ordem_servico import FUNCOES_DO_TIPO
-    if not FUNCOES_DO_TIPO.get(ordem.tipo):
-        return set()
-    return {f"funcao_{s.pk}" for s in ordem.servidores.all()}
 
 
 @require_GET

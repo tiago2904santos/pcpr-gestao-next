@@ -732,6 +732,27 @@
       </div>
     </section>
 
+    <!-- FUNÇÕES DA EQUIPE NA OS (caminhão, micro-ônibus, cerimonial) -->
+    <section class="cartao" id="funcoes-equipe-lab" aria-labelledby="t-funcoes-equipe-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-funcoes-equipe-lab">Funções da equipe na OS</h2><span class="texto-secundario texto-sm">Nos tipos com função, cada cartão da equipe tem o seletor em pílulas (rádios nativos); a escolhida pinta o cartão e o resumo conta por função. Clicar na escolhida desmarca.</span></div>
+      <div class="cartao__corpo">
+        <div class="funcoes-resumo">
+          {% for f in lab_funcoes %}<span class="funcoes-resumo__item" data-funcao="{{ f.valor }}"{% if forloop.last %} data-vazia{% endif %}>{% icone f.icone classe="icone--sm" %}<span>{{ f.rotulo }}</span><strong class="funcoes-resumo__numero">{% if forloop.last %}0{% else %}1{% endif %}</strong></span>{% endfor %}
+          <span class="funcoes-resumo__pendente" data-aviso>{% icone "alert-circle" classe="icone--sm" %}1 sem função</span>
+        </div>
+        <ul class="resumo__cartoes equipe__cartoes pessoas--faixa pessoas--compactas" role="list" aria-label="Equipe de exemplo">
+          {% for nome, cargo, escolhida in lab_equipe_funcoes %}
+          <li class="pessoa equipe__cartao" data-id="lab-{{ forloop.counter }}" data-nome="{{ nome }}">
+            <span class="avatar" aria-hidden="true">{{ nome|slice:":1" }}E</span>
+            <span class="pessoa__texto"><span class="pessoa__nome">{{ nome }}</span><span class="pessoa__meta">{{ cargo }}</span></span>
+            <span class="equipe__acoes"><button type="button" class="equipe__acao equipe__acao--remover" aria-label="Remover {{ nome }} da equipe">{% icone "x" classe="icone--sm" %}</button></span>
+            {% include "viagens/widgets/_funcao_escolha.html" with sid=forloop.counter nome=nome opcoes=lab_funcoes escolhida=escolhida only %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
     <!-- 15. DIÁRIO DE BORDO: MODOS E LINHAS -->
     <section class="cartao" id="diario-bordo" aria-labelledby="t-diario-bordo">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-diario-bordo"><span class="cartao__numero">15</span>Diário de bordo: modos e linhas</h2><span class="texto-secundario texto-sm">Modos com campos próprios (só aparecem os do modo marcado) e uma linha por trecho com rota, horários, previsto e os três campos.</span></div>

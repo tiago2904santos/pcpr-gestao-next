@@ -183,18 +183,24 @@ class TestTelas:
         assert r["Location"] == reverse("viagens:editar_ordem", args=[ordem.pk])
         assert list(ordem.oficios.all()) == [oficio]
 
-    def test_funcoes_aparecem_depois_de_salvar_a_equipe(self, c):
+    def test_funcao_se_escolhe_no_cartao_da_equipe(self, c):
         um = Servidor.objects.first()
         ordem, _ = ordens.salvar(c.usuarios["operador"], tipo="cerimonial_antecipado",
                                  servidores=[um], destinos=[_londrina()])
         cli = _cliente(c.usuarios["operador"])
         html = cli.get(reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
         assert f'name="funcao_{um.pk}"' in html and "Coordenação" in html
+        # O seletor fica no cartão da pessoa (rádios), com as opções do tipo.
+        assert 'class="funcao-escolha"' in html and 'value="preparacao"' in html
+        assert "Função de cada um" not in html
+        # Quem acabou de entrar na equipe já leva a função, sem gravar a equipe antes.
+        outro = Servidor.objects.exclude(pk=um.pk).first()
         cli.post(reverse("viagens:editar_ordem", args=[ordem.pk]), {
             "tipo": "cerimonial_antecipado", "destinos": ["Londrina/PR"],
-            "servidores": [um.pk], f"funcao_{um.pk}": "coordenacao"})
+            "servidores": [um.pk, outro.pk], f"funcao_{um.pk}": "coordenacao",
+            f"funcao_{outro.pk}": "apoio"})
         ordem.refresh_from_db()
-        assert ordem.funcoes == {str(um.pk): "coordenacao"}
+        assert ordem.funcoes == {str(um.pk): "coordenacao", str(outro.pk): "apoio"}
 
     def test_lista_abas_busca_e_filtro_por_oficio(self, c):
         op = c.usuarios["operador"]

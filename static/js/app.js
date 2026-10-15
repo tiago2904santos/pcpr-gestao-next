@@ -36,6 +36,8 @@ const sobDemanda = [
   ["pc-transporte", () => import("./componentes/transporte.js")],
   ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
   ["pc-multiescolha", () => import("./componentes/multiescolha.js")],
+  // OS com funções: o seletor de função em cada cartão da equipe e o resumo por função.
+  ["pc-multiescolha[data-funcoes]", () => import("./componentes/funcoes-equipe.js")],
   [".passos", () => import("./componentes/passos.js")],
   // Ofícios vinculados: pergunta se os da mesma ação (roteiro, viagem) entram também.
   ["pc-multiescolha[data-variante='oficios']", () => import("./componentes/oficios-irmaos.js")],
