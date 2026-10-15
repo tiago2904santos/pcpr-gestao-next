@@ -64,6 +64,15 @@ class Quadro:
     def resolvidas(self) -> int:
         return sum(1 for e in self.etapas if e.pronta)
 
+    @property
+    def abertas(self) -> list[Etapa]:
+        """As etapas com o que resolver, na ordem."""
+        return [e for e in self.etapas if not e.pronta]
+
+    @property
+    def concluidas(self) -> list[Etapa]:
+        return [e for e in self.etapas if e.pronta]
+
 
 def _mais(primeira: str, resto: int) -> str:
     return f"{primeira} (e mais {resto})" if resto else primeira
@@ -83,7 +92,7 @@ def quadro(viagem: Viagem) -> Quadro:
     if not viagem.data_inicio:
         etapas["dados"].itens.append(Item("Informe o período da viagem.", f"{folha}#periodo"))
     if not viagem.destinos.exists():
-        etapas["dados"].itens.append(Item("Informe o destino da viagem.", f"{folha}#periodo"))
+        etapas["dados"].itens.append(Item("Informe o destino da viagem.", f"{folha}#destinos"))
 
     # Roteiro
     if not docs.roteiros:

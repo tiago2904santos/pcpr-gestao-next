@@ -1542,12 +1542,10 @@ class FormularioViagem(forms.Form):
         widget=CaixasDeEscolha(), help_text="O título da viagem nasce deles.")
     motivo = forms.CharField(
         label="Motivo", required=False, max_length=4000,
-        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 3,
-                                     "placeholder": "Contextualize a atividade…"}),
-        help_text="Vai para os documentos criados daqui (ofício, OS).")
-    descricao = forms.CharField(
-        label="Descrição/objetivo", required=False, max_length=4000,
-        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 2}))
+        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 4,
+                                     "placeholder": "O que a equipe vai fazer e para quê…"}),
+        help_text="Vai para o ofício e a OS criados daqui. O tipo da viagem pode já "
+                  "trazê-lo escrito.")
     # Período num campo só na tela (<pc-data data-periodo>, início e fim no mesmo
     # calendário), como no termo, na OS e no plano: estes dois levam as pontas.
     data_inicio = forms.DateField(label="Início", required=False, input_formats=FORMATOS_DATA,

@@ -4,7 +4,6 @@ Pedido explícito de recomposição de Lista, Folha e lote. Documentos antecipad
 após Dados, em cinco grupos; vínculos recolhidos e filtráveis entre os candidatos
 atuais, sem consulta remota ou mudança do limite de 40 livres/tipo. Conferência
 mostra as nove etapas reais e mantém divergências distintas de prontidão.
-Descrição/objetivo antes ausente na consulta passa a ser lida quando preenchida.
 Lote explicita período, roteiro e rascunhos, mantendo equipe/viatura compartilhadas.
 CSS exclusivo `viagens.css`; filtro reaproveita `conjuntos.js`, com Enter impedindo
 envio acidental do formulário (também válido em Planos).
@@ -33,3 +32,18 @@ Duração em dias de viagem e antecedência até início são indicadores de apr
 Não altera datas dos documentos, coerência, permissões ou geração em lote.
 Consulta/cancelada com metadados e itinerários com horários não foram redesenhados.
 Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
+
+## Folha da viagem recomposta (15/10/2026, pedido do usuário)
+
+- **Identificação** em duas colunas a partir de 1024px: tipo e motivo à esquerda (o tipo
+  pode escrever o motivo), o calendário do período à direita; destinos e mapa embaixo.
+  O campo **Descrição/objetivo saiu** da tela e da consulta (a coluna no banco fica, com o
+  que já estava gravado; a gravação da tela não a mexe).
+- **Documentos da viagem**: uma linha por tipo (tipo e contagem · documentos com situação e
+  período · "Novo …"), num quadro só, e o atalho "Gerar documentos em conjunto".
+- **Vincular documentos existentes**: cada lista mostra no máximo três linhas e rola; o
+  texto de cada opção fica centrado com a caixa de marcar.
+- **Conferência**: resumo com barra das etapas concluídas; etapas com pendência em cartões
+  com os atalhos; concluídas numa fileira de marcas; divergências com o que está no
+  documento e o que a viagem diz, lado a lado.
+

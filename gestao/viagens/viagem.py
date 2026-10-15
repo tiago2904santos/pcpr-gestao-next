@@ -193,7 +193,7 @@ def _travar(usuario, pk: int, versao: str = "") -> Viagem:
 
 @transaction.atomic
 def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
-                 descricao: str = "", data_inicio: date | None = None,
+                 descricao: str | None = None, data_inicio: date | None = None,
                  data_fim: date | None = None, destinos: list[Municipio] | None = None,
                  vinculos: dict | None = None,
                  versao: str = "") -> Viagem:
@@ -210,7 +210,9 @@ def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
         motivo = next((t.motivo for t in tipos if t.pk not in antes and t.motivo.strip()), "")
     viagem.tipos.set(tipos)
     viagem.titulo = titulo_dos_tipos([t.nome for t in tipos])
-    viagem.motivo, viagem.descricao = motivo.strip(), descricao.strip()
+    viagem.motivo = motivo.strip()
+    if descricao is not None:  # a tela não tem mais o campo: o gravado fica como está
+        viagem.descricao = descricao.strip()
     viagem.data_inicio, viagem.data_fim = data_inicio, data_fim
     viagem.save()
     viagem.destinos.all().delete()

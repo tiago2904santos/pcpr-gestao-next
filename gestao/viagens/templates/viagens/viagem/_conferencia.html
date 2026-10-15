@@ -1,46 +1,69 @@
 {% comment %}
-Conferência da viagem (módulo 8b): o que falta para ficar pronta, etapa por etapa, com o
-link para onde se resolve; e os documentos que não batem com a viagem (período, destinos,
-equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe.
+Conferência da viagem (módulo 8b), em três partes:
+1. o resumo — quantas etapas estão concluídas, numa barra, e o que isso quer dizer;
+2. as etapas: as que têm o que resolver em cartões abertos, cada pendência um atalho até
+   onde se resolve; as concluídas numa fileira compacta de marcas;
+3. os documentos que não batem com a viagem (período, destinos, equipe, viatura): o que
+   está no documento e o que a viagem diz, lado a lado, com "Aplicar em todos" — o que tem
+   via assinada não se mexe.
 {% endcomment %}
 <section class="secao{% if quadro.pronta and not diferencas %} secao--ok{% endif %}" id="conferencia" aria-labelledby="t-conferencia" data-vivo>
   <div class="secao__cabecalho">
     <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">{% if editavel %}4{% else %}3{% endif %}</span>Conferência</h2>
     <div class="secao__estado"><span class="selo {% if quadro.pronta %}selo--sucesso{% else %}selo--aviso{% endif %} selo--sem-ponto">{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas</span>{% if diferencas %}<span class="selo selo--aviso selo--sem-ponto">{{ diferencas|length|pluralizar:"divergência,divergências" }}</span>{% endif %}</div>
-    <p class="secao__nota">Acompanhe os itens da preparação e confira se os documentos estão de acordo com a viagem. Abra uma etapa para ver os detalhes.</p>
   </div>
-  {# O mesmo cartão de conferência das folhas de documento: cada pendência é um atalho até onde se resolve. #}
-  <div class="prontidao-documental prontidao-documental--etapas viagem-conferencia{% if quadro.pronta %} prontidao-documental--pronta{% endif %}">
-    <div class="prontidao-documental__cabecalho">
-      {% if quadro.pronta %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}
-      <div>
-        <p class="prontidao-documental__rotulo">Conferência da viagem</p>
-        <p class="prontidao-documental__titulo">{% if quadro.pronta and diferencas %}Etapas concluídas; confira as divergências{% elif quadro.pronta %}Tudo pronto para a viagem{% else %}{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }} para ficar pronta{% endif %}</p>
+
+  <div class="viagem-conferencia{% if quadro.pronta and not diferencas %} viagem-conferencia--pronta{% elif quadro.pronta %} viagem-conferencia--divergente{% endif %}">
+    <div class="viagem-conferencia__resumo">
+      <span class="viagem-conferencia__marca" aria-hidden="true">{% if quadro.pronta and not diferencas %}{% icone "stamp" %}{% elif quadro.pronta %}{% icone "alert-triangle" %}{% else %}{% icone "list-checks" %}{% endif %}</span>
+      <div class="viagem-conferencia__texto">
+        <p class="viagem-conferencia__titulo">{% if quadro.pronta and diferencas %}Etapas concluídas; falta acertar as divergências{% elif quadro.pronta %}Tudo pronto para a viagem{% else %}{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }} para ficar pronta{% endif %}</p>
+        <p class="viagem-conferencia__sub">{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas concluídas{% if quadro.abertas %} · {{ quadro.abertas|length|pluralizar:"etapa aberta,etapas abertas" }}{% endif %}</p>
       </div>
+      <progress class="viagem-conferencia__barra" max="{{ quadro.etapas|length }}" value="{{ quadro.resolvidas }}" aria-label="{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas concluídas"></progress>
     </div>
-    {% if quadro.pronta %}<details class="viagem-conferencia__concluidas"><summary>Ver as {{ quadro.etapas|length }} etapas concluídas{% icone "chevron-down" classe="icone--sm" %}</summary>{% endif %}
-    <ol class="viagem-etapas" aria-label="Conferência por etapa">
-      {% for e in quadro.etapas %}
-      <li><details class="viagem-etapa{% if e.pronta %} viagem-etapa--pronta{% endif %}"{% if not e.pronta %} open{% endif %}>
-        <summary><span class="viagem-etapa__marca" aria-hidden="true">{% if e.pronta %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span class="viagem-etapa__nome">{{ e.titulo }}<small>{% if e.pronta %}Concluída{% else %}{{ e.itens|length|pluralizar:"item para resolver,itens para resolver" }}{% endif %}</small></span>{% icone "chevron-down" classe="icone--sm viagem-etapa__seta" %}</summary>
-        {% if e.itens %}<ul class="checklist" aria-label="Pendências de {{ e.titulo }}">
-          {% for i in e.itens %}<li class="checklist__item">{% if i.link %}<a href="{{ i.link }}">{% else %}<span class="checklist__sem-link">{% endif %}<span>{{ i.mensagem }}</span>{% if i.link %}{% icone "arrow-right" classe="icone--sm icone--seta" %}</a>{% else %}</span>{% endif %}</li>{% endfor %}
-        </ul>{% else %}<p class="viagem-etapa__concluida">Nenhuma pendência nesta etapa.</p>{% endif %}
-      </details></li>
+
+    {% if quadro.abertas %}
+    <ol class="viagem-etapas" aria-label="Etapas com o que resolver">
+      {% for e in quadro.abertas %}
+      <li class="viagem-etapa">
+        <h3 class="viagem-etapa__nome"><span class="viagem-etapa__marca" aria-hidden="true">{% icone "circle-dot" classe="icone--sm" %}</span>{{ e.titulo }}<small>{{ e.itens|length|pluralizar:"item,itens" }}</small></h3>
+        <ul class="viagem-etapa__itens" aria-label="Pendências de {{ e.titulo }}">
+          {% for i in e.itens %}<li>{% if i.link %}<a href="{{ i.link }}"><span>{{ i.mensagem }}</span>{% icone "arrow-right" classe="icone--sm" %}</a>{% else %}<span>{{ i.mensagem }}</span>{% endif %}</li>{% endfor %}
+        </ul>
+      </li>
       {% endfor %}
     </ol>
-    {% if quadro.pronta %}</details>{% endif %}
-  </div>
-  {% if diferencas %}
-  <div class="secao__bloco" id="coerencia" aria-labelledby="t-coerencia">
-    <div class="secao__bloco-cabecalho">
-      <h3 class="secao__bloco-titulo" id="t-coerencia">{% icone "alert-triangle" classe="icone--sm" %}{{ diferencas|length|pluralizar:"informação não bate,informações não batem" }} com a viagem</h3>
-      {% if editavel %}<div class="secao__estado"><form method="post" action="{% url 'viagens:aplicar_coerencia_viagem' v.pk %}" data-confirmar="Levar o período, os destinos e a equipe da viagem para os documentos ainda sem assinatura?" data-confirmar-titulo="Aplicar em todos?" data-confirmar-rotulo="Aplicar">{% csrf_token %}<button type="submit" class="botao botao--sm">{% icone "check-circle-2" %}Aplicar em todos</button></form></div>{% endif %}
+    {% endif %}
+
+    {% if quadro.concluidas %}
+    <div class="viagem-concluidas">
+      <h3 class="viagem-concluidas__titulo">{% if quadro.abertas %}Concluídas{% else %}Todas as etapas concluídas{% endif %}</h3>
+      <ul class="viagem-concluidas__lista" aria-label="Etapas concluídas">
+        {% for e in quadro.concluidas %}<li class="viagem-concluida">{% icone "check" classe="icone--sm" %}<span>{{ e.titulo }}</span></li>{% endfor %}
+      </ul>
     </div>
-    <p class="texto-secundario texto-sm">A referência é o período e os destinos daqui e a equipe dos ofícios. Documentos com via assinada não são alterados por “Aplicar em todos”.</p>
-    <ul class="checklist">
+    {% endif %}
+  </div>
+
+  {% if diferencas %}
+  <div class="viagem-divergencias" id="coerencia" aria-labelledby="t-coerencia">
+    <div class="viagem-divergencias__cabecalho">
+      <div>
+        <h3 class="viagem-divergencias__titulo" id="t-coerencia">{% icone "alert-triangle" classe="icone--sm" %}{{ diferencas|length|pluralizar:"informação não bate,informações não batem" }} com a viagem</h3>
+        <p class="viagem-divergencias__nota">A referência é o período e os destinos daqui e a equipe dos ofícios. Documentos com via assinada não são alterados.</p>
+      </div>
+      {% if editavel %}<form method="post" action="{% url 'viagens:aplicar_coerencia_viagem' v.pk %}" data-confirmar="Levar o período, os destinos e a equipe da viagem para os documentos ainda sem assinatura?" data-confirmar-titulo="Aplicar em todos?" data-confirmar-rotulo="Aplicar">{% csrf_token %}<button type="submit" class="botao botao--sm">{% icone "check-circle-2" %}Aplicar em todos</button></form>{% endif %}
+    </div>
+    <ul class="viagem-divergencias__lista">
       {% for d in diferencas %}
-        <li class="checklist__item"><span><a href="{{ d.link }}"><strong>{{ d.documento }}</strong></a> · {{ d.campo }}: está <em>{{ d.atual }}</em>, a viagem diz <em>{{ d.esperado }}</em>{% if not d.aplicavel %} (corrija no próprio documento){% endif %}</span></li>
+      <li class="viagem-divergencia">
+        <a class="viagem-divergencia__doc" href="{{ d.link }}">{{ d.documento }}{% icone "arrow-right" classe="icone--sm" %}</a>
+        <span class="viagem-divergencia__campo">{{ d.campo|capfirst }}</span>
+        <span class="viagem-divergencia__valor"><small>No documento</small>{{ d.atual }}</span>
+        <span class="viagem-divergencia__valor viagem-divergencia__valor--viagem"><small>Na viagem</small>{{ d.esperado }}</span>
+        {% if not d.aplicavel %}<span class="selo selo--neutro selo--sem-ponto viagem-divergencia__aviso">Corrija no próprio documento</span>{% endif %}
+      </li>
       {% endfor %}
     </ul>
   </div>

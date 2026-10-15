@@ -31,8 +31,9 @@ def test_documentos_antes_dos_vinculos_e_busca_sem_gravacao(logado, dados_e2e, l
     for botao in pg.locator("#documentos button[form]").all():
         assert botao.evaluate("e => e.form.id") == botao.get_attribute("form")
         assert botao.get_attribute("form").startswith("novo-")
-    expect(pg.locator(".viagem-documentos__grade > .viagem-documento")).to_have_count(5)
-    expect(pg.locator(".viagem-etapas > li")).to_have_count(9)
+    expect(pg.locator(".viagem-docs > .viagem-docs__linha")).to_have_count(5)
+    etapas = pg.locator(".viagem-etapas > li").count() + pg.locator(".viagem-concluida").count()
+    assert etapas == 9
     expect(pg.locator(".viagem-vinculos")).not_to_have_attribute("open", "")
     pg.locator(".viagem-vinculos > summary").press("Enter")
     grupo = pg.locator('.viagem-vinculo').filter(has=pg.locator('input[name="oficios"]'))
@@ -57,6 +58,19 @@ def test_documentos_antes_dos_vinculos_e_busca_sem_gravacao(logado, dados_e2e, l
     busca.fill("")
     expect(selecionado).to_be_visible()
     expect(selecionado).to_be_checked()
+    # A lista mostra no máximo três linhas e rola; o texto fica no centro da caixa.
+    caixas = grupo.locator(".caixas")
+    linha = grupo.locator(".caixas__item").first.bounding_box()["height"]
+    assert caixas.bounding_box()["height"] <= 3 * linha + 3 * 8 + 2
+    # Com mais de três linhas de opções, o resto fica rolando dentro da lista.
+    assert caixas.evaluate("""e => {
+        const colunas = getComputedStyle(e).gridTemplateColumns.split(" ").length;
+        const linhas = Math.ceil(e.querySelectorAll(".caixas__item").length / colunas);
+        return linhas > 3 ? e.scrollHeight > e.clientHeight : e.scrollHeight <= e.clientHeight + 1;
+    }""")
+    item = grupo.locator(".caixas__item").first
+    caixa, texto = item.locator("input").bounding_box(), item.locator("span").bounding_box()
+    assert abs((caixa["y"] + caixa["height"] / 2) - (texto["y"] + texto["height"] / 2)) <= 2
     _axe_estavel(pg)
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     EVIDENCIAS.mkdir(parents=True, exist_ok=True)
@@ -65,23 +79,25 @@ def test_documentos_antes_dos_vinculos_e_busca_sem_gravacao(logado, dados_e2e, l
 
 
 @pytest.mark.parametrize("largura", [360, 1440])
-def test_conferencia_atalhos_e_leitura_do_objetivo(pagina, dados_e2e, largura):
+def test_conferencia_atalhos_e_leitura_sem_descricao(pagina, dados_e2e, largura):
     from tests.e2e.conftest import entrar
 
     pg = pagina
     v = _viagem(dados_e2e)
-    v.descricao = "Objetivo sintético preservado na consulta da viagem."
+    v.descricao = "Descrição antiga que não aparece mais."
     v.save(update_fields=["descricao"])
     entrar(pg, "consulta")
     pg.set_viewport_size({"width": largura, "height": 900})
     pg.goto(f"/viagens/viagens/{v.pk}/")
     expect(pg.locator("#form-viagem")).to_have_count(0)
-    expect(pg.locator("#dados")).to_contain_text(v.descricao)
-    expect(pg.locator(".viagem-etapas > li")).to_have_count(9)
+    expect(pg.locator("#dados")).not_to_contain_text(v.descricao)
+    etapas = pg.locator(".viagem-etapas > li").count() + pg.locator(".viagem-concluida").count()
+    assert etapas == 9
     expect(pg.locator("#documentos button[form]")).to_have_count(0)
-    etapa = pg.locator(".viagem-etapa--pronta").first
-    etapa.locator("summary").press("Enter")
-    expect(etapa).to_contain_text("Nenhuma pendência nesta etapa")
+    expect(pg.locator(".viagem-conferencia__barra")).to_be_visible()
+    if pg.locator(".viagem-etapa__itens a").count():
+        destino = pg.locator(".viagem-etapa__itens a").first.get_attribute("href")
+        assert destino and "#" in destino
     _axe_estavel(pg)
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     assert pg.erros_console == []

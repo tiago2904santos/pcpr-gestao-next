@@ -192,7 +192,7 @@ def criar(request: HttpRequest) -> HttpResponse:
 def _formulario(request: HttpRequest, v: Viagem, data=None) -> FormularioViagem:
     inicial = None if data is not None else {
         "versao": viagem.versao_de(v), "tipos": list(v.tipos.all()), "motivo": v.motivo,
-        "descricao": v.descricao, "data_inicio": v.data_inicio, "data_fim": v.data_fim,
+        "data_inicio": v.data_inicio, "data_fim": v.data_fim,
         "destinos": [d.municipio for d in v.destinos.select_related("municipio")],
         **{t: list(getattr(v, t).all()) for t in viagem.TIPOS_DE_DOCUMENTO},
         "vinculos_presentes": True}
@@ -234,7 +234,7 @@ def _gravar(request: HttpRequest, v: Viagem, form: FormularioViagem) -> Viagem:
     dados = form.cleaned_data
     return viagem.salvar_dados(
         request.user, v.pk, tipos=list(dados["tipos"]), motivo=dados["motivo"],
-        descricao=dados["descricao"], data_inicio=dados["data_inicio"],
+        data_inicio=dados["data_inicio"],
         data_fim=dados["data_fim"], destinos=dados["destinos"], vinculos=form.vinculos(),
         versao=dados["versao"])
 
