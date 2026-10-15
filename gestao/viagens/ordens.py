@@ -225,8 +225,15 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
             motivo = base["motivo"]
             copiados.append("motivo")
         if not data_evento_inicio and base["evento_inicio"]:
-            data_evento_inicio, data_evento_fim = base["evento_inicio"], base["evento_fim"]
-            copiados.append("período do evento")
+            # O evento da Viagem entra recortado ao período da OS (os trechos mandam); fora
+            # dele por inteiro, não entra — o que vem copiado nunca impede a gravação.
+            ev_ini, ev_fim = base["evento_inicio"], base["evento_fim"]
+            if data_inicio:
+                ev_ini = max(ev_ini, data_inicio)
+                ev_fim = min(ev_fim, cast("date", data_fim or data_inicio))
+            if ev_ini <= ev_fim:
+                data_evento_inicio, data_evento_fim = ev_ini, ev_fim
+                copiados.append("período do evento")
         if len(destinos) > MAX_DESTINOS or len(servidores) > MAX_SERVIDORES:
             raise OrdemInvalida("Os ofícios somam destinos ou servidores demais para uma OS: "
                                 f"no máximo {MAX_DESTINOS} destinos e {MAX_SERVIDORES} "
