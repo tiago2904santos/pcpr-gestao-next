@@ -223,12 +223,12 @@ def indice(request: HttpRequest) -> HttpResponse:
         "lab_resumo": _resumo_exemplo(),
         # Seletor de função da equipe na OS (viagens/widgets/_funcao_escolha.html).
         "lab_funcoes": [
-            {"valor": "conducao", "rotulo": "Condução", "icone": "volante",
-             "dica": "Dirige o veículo oficial na ida e na volta"},
-            {"valor": "tecnico", "rotulo": "Técnico", "icone": "monitor",
-             "dica": "Opera e confere os equipamentos"},
-            {"valor": "apoio", "rotulo": "Apoio", "icone": "shield-check",
-             "dica": "Montagem, escolta e organização"}],
+            {"valor": "conducao", "rotulo": "Condução", "icone": "bus",
+             "dica": "Dirige o micro-ônibus na ida e na volta"},
+            {"valor": "tecnico", "rotulo": "Técnico", "icone": "wrench",
+             "dica": "Instala, configura e opera os equipamentos"},
+            {"valor": "apoio", "rotulo": "Apoio", "icone": "hand-helping",
+             "dica": "Escolta, montagem e organização"}],
         "lab_equipe_funcoes": [("Ana Exemplo", "Agente de Polícia Judiciária · ASCOM", "conducao"),
                                ("Bruno Exemplo", "Investigador de Polícia · ASCOM", "tecnico"),
                                ("Carla Exemplo", "Escrivã de Polícia · ASCOM", "")],

@@ -715,17 +715,29 @@ class CampoEquipe(EscolhaMultiplaRemota):
 
 # Como cada função aparece no seletor do cartão da equipe da OS: rótulo curto, ícone e o que
 # a pessoa faz (a dica; o texto que vai ao documento está em dominio/ordem_servico.py).
+# Como cada função aparece no seletor do cartão: rótulo, ícone (o que a pessoa faz) e dica
+# (resumo da atribuição que vai para a OS — dominio/ordem_servico.textos_da_os).
 APRESENTACAO_DAS_FUNCOES = {
-    "conducao": ("Condução", "volante", "Dirige o veículo oficial na ida e na volta"),
-    "tecnico": ("Técnico", "monitor", "Opera e confere os equipamentos"),
-    "apoio": ("Apoio", "shield-check", "Montagem, escolta e organização"),
-    "coordenacao": ("Coordenação", "flag", "Conduz e coordena o cerimonial"),
-    "preparacao": ("Preparação", "list-checks", "Prepara a solenidade e os materiais"),
+    "conducao": ("Condução", "car", "Dirige o veículo oficial na ida e na volta"),
+    "tecnico": ("Técnico", "wrench", "Instala, configura e opera os equipamentos"),
+    "apoio": ("Apoio", "hand-helping", "Escolta, montagem e organização"),
+    "coordenacao": ("Coordenação", "clipboard-list",
+                    "Dirige o veículo e coordena o cerimonial e o roteiro oficial"),
+    "preparacao": ("Preparação", "package-check",
+                   "Prepara a solenidade, os espaços e confere os materiais"),
+}
+# Quem conduz leva o ícone do veículo do tipo (o caminhão da Unidade Móvel, o micro-ônibus).
+APRESENTACAO_NO_TIPO = {
+    ("caminhao", "conducao"): ("Condução", "truck",
+                               "Leva a Unidade Móvel e ajuda a montar e desmontar"),
+    ("microonibus", "conducao"): ("Condução", "bus",
+                                  "Dirige o micro-ônibus na ida e na volta"),
 }
 
 
-def _opcao_de_funcao(codigo: str) -> dict[str, str]:
-    rotulo, icone, dica = APRESENTACAO_DAS_FUNCOES[codigo]
+def _opcao_de_funcao(codigo: str, tipo: str = "") -> dict[str, str]:
+    rotulo, icone, dica = (APRESENTACAO_NO_TIPO.get((tipo, codigo))
+                           or APRESENTACAO_DAS_FUNCOES[codigo])
     return {"valor": codigo, "rotulo": rotulo, "icone": icone, "dica": dica}
 
 
@@ -1027,9 +1039,9 @@ class FormularioOrdem(forms.Form):
             self.campos_de_funcao.append((sid, nome))
         equipe.widget.funcoes = {
             "campo_tipo": self["tipo"].auto_id,
-            "por_tipo": {t: [_opcao_de_funcao(c) for c in fs]
+            "por_tipo": {t: [_opcao_de_funcao(c, t) for c in fs]
                          for t, fs in FUNCOES_DO_TIPO.items()},
-            "ativas": [_opcao_de_funcao(c) for c in permitidas],
+            "ativas": [_opcao_de_funcao(c, tipo) for c in permitidas],
             "escolhidas": {sid: (self.data.get(f"funcao_{sid}", "") if self.is_bound
                                  else gravadas.get(sid, "")) for sid in ids},
         }
