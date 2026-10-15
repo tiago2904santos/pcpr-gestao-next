@@ -4,7 +4,14 @@ cadastro na tela; mudar um texto é mudar aqui e sincronizar numa migração (`s
 
 from __future__ import annotations
 
-_VOLTA = "Que a equipe efetue o retorno à sede de lotação em {sede} {data}."
+# Concordância: "{singular|plural}" escolhe a forma pelo número de pessoas do item — na função,
+# quem a tem; na etapa, a equipe toda (dominio.modelo_os.concordar). {equipe} na função lista só
+# quem tem a função, com o cargo ("do agente de polícia judiciária Fulano").
+
+# Caminhão e micro-ônibus: depois do DETERMINO, o deslocamento de cada um com a sua função;
+# depois os dias — deslocamento, montagem, participação no evento, desmontagem e volta.
+_FUNCAO = "O deslocamento {equipe}, na função de "
+_VOLTA = "Que a equipe realize {data} o deslocamento de volta à sede de lotação em {sede}."
 
 MODELOS: list[dict] = [
     {
@@ -13,37 +20,76 @@ MODELOS: list[dict] = [
         "ida": "O deslocamento {equipe} para {municipio} {data}.",
         "ida_e_antes": "",
         "antes": "",
-        "evento": ("Que o policial {servidores} acompanhe o briefing da operação policial que "
-                   "será realizado na cidade de {destino}, {hora} {data}, e permaneça no "
-                   "município {data} para prestar assessoria de imprensa, conduzir o "
-                   "atendimento aos veículos de comunicação e prestar suporte de comunicação "
-                   "com relação à operação realizada."),
-        "depois": ("Que o policial {servidores} permaneça em {destino} {data} para a "
-                   "assessoria de imprensa pós-operação, incluindo a condução de entrevistas "
-                   "coletivas e o atendimento às demandas dos veículos de comunicação."),
+        "evento": ("Que {o policial|os policiais} {servidores} {acompanhe|acompanhem} o briefing "
+                   "da operação policial que será realizado na cidade de {destino}, {hora} "
+                   "{data}, e {permaneça|permaneçam} no município {data} para prestar "
+                   "assessoria de imprensa, conduzir o atendimento aos veículos de comunicação "
+                   "e prestar suporte de comunicação com relação à operação realizada."),
+        "depois": ("Que {o policial|os policiais} {servidores} {permaneça|permaneçam} em "
+                   "{destino} {data} para a assessoria de imprensa pós-operação, incluindo a "
+                   "condução de entrevistas coletivas e o atendimento às demandas dos veículos "
+                   "de comunicação."),
         "depois_e_volta": "",
-        "volta": ("Que o policial {servidores} efetue o retorno à sede de lotação em {sede} "
-                  "{data}."),
+        "volta": ("Que {o policial|os policiais} {servidores} {efetue|efetuem} o retorno à sede "
+                  "de lotação em {sede} {data}."),
         "justificativas": "",
         "finalidade": "",
         "funcoes": [],
     },
     {
+        "chave": "microonibus", "nome": "Micro-ônibus", "ordem": 20,
+        "referencia": "Deslocamento - Micro-ônibus",
+        "ida": ("Que a equipe realize {data} o deslocamento até {municipio}, para apoio "
+                "logístico com micro-ônibus em {motivo}."),
+        "ida_e_antes": ("Que a equipe realize {data} o deslocamento até {municipio} e a "
+                        "montagem da estrutura e dos equipamentos no local do evento, para "
+                        "apoio logístico com micro-ônibus em {motivo}."),
+        "antes": ("Que a equipe realize {data} a montagem da estrutura e dos equipamentos no "
+                  "local do evento."),
+        "evento": ("Que a equipe participe {data} do evento em {destino}, prestando o "
+                   "transporte e o apoio logístico de {motivo}."),
+        "depois": ("Que a equipe realize {data} a desmontagem da estrutura e o recolhimento "
+                   "dos materiais utilizados na atividade."),
+        "depois_e_volta": ("Que a equipe realize {data} a desmontagem da estrutura e o "
+                           "deslocamento de volta à sede de lotação em {sede}."),
+        "volta": _VOLTA,
+        "justificativas": (
+            "O micro-ônibus será utilizado para transporte e apoio logístico da equipe, "
+            "observando-se o cronograma da atividade."),
+        "finalidade": ("A presente Ordem de Serviço tem por finalidade garantir o transporte, a "
+                       "organização e o apoio logístico necessários à realização da atividade."),
+        "funcoes": [
+            {"codigo": "conducao", "nome": "Condução", "icone": "bus",
+             "texto": (_FUNCAO + "{condutor|condutores} do micro-ônibus oficial, "
+                       "{responsável|responsáveis} pelos deslocamentos de ida e retorno, "
+                       "zelando pela segurança da equipe e dos passageiros.")},
+            {"codigo": "tecnico", "nome": "Técnico", "icone": "wrench",
+             "texto": (_FUNCAO + "{técnico|técnicos}, {responsável|responsáveis} pelo suporte "
+                       "técnico à operação dos equipamentos e pelo acompanhamento da "
+                       "organização dos materiais utilizados na atividade.")},
+            {"codigo": "apoio", "nome": "Apoio", "icone": "hand-helping",
+             "texto": (_FUNCAO + "apoio, {responsável|responsáveis} pelo apoio operacional à "
+                       "equipe, auxiliando na organização, montagem, escolta e movimentação "
+                       "necessárias à realização da atividade.")},
+        ],
+    },
+    {
         "chave": "caminhao", "nome": "Caminhão", "ordem": 30,
         "referencia": "Deslocamento - Caminhão de apoio",
-        "ida": ("O deslocamento {equipe} para {municipio} {data}, para apoio logístico com "
-                "caminhão em {motivo}."),
-        "ida_e_antes": ("O deslocamento {equipe} para {municipio} {data}, com a descarga, "
-                        "montagem e conferência técnica da Unidade Móvel no mesmo dia, para "
-                        "apoio logístico com caminhão em {motivo}."),
-        "antes": ("Que a equipe realize {data} o traslado, descarga, montagem, conferência "
-                  "técnica e adequação dos materiais e equipamentos no local do evento."),
-        "evento": ("Que a equipe permaneça em {destino} {data} para a operação da Unidade "
+        "ida": ("Que a equipe realize {data} o deslocamento até {municipio}, para apoio "
+                "logístico com caminhão em {motivo}."),
+        "ida_e_antes": ("Que a equipe realize {data} o deslocamento até {municipio} e a "
+                        "montagem da Unidade Móvel no local do evento, para apoio logístico "
+                        "com caminhão em {motivo}."),
+        "antes": ("Que a equipe realize {data} a montagem da Unidade Móvel, com o traslado, a "
+                  "descarga, a conferência técnica e a adequação dos materiais e equipamentos "
+                  "no local do evento."),
+        "evento": ("Que a equipe participe {data} do evento em {destino}, operando a Unidade "
                    "Móvel durante {motivo}."),
-        "depois": ("Que a equipe realize {data} a desmontagem, conferência, acondicionamento e "
-                   "carregamento dos materiais."),
-        "depois_e_volta": ("Que a equipe realize {data} a desmontagem e o carregamento dos "
-                           "materiais e efetue o retorno à sede de lotação em {sede}."),
+        "depois": ("Que a equipe realize {data} a desmontagem da Unidade Móvel, com a "
+                   "conferência, o acondicionamento e o carregamento dos materiais."),
+        "depois_e_volta": ("Que a equipe realize {data} a desmontagem da Unidade Móvel e o "
+                           "deslocamento de volta à sede de lotação em {sede}."),
         "volta": _VOLTA,
         "justificativas": (
             "O deslocamento do caminhão com antecedência faz-se necessário para viabilizar o "
@@ -56,59 +102,28 @@ MODELOS: list[dict] = [
                        "a execução e a desmobilização do apoio logístico prestado com caminhão."),
         "funcoes": [
             {"codigo": "conducao", "nome": "Condução", "icone": "truck",
-             "texto": ("Que {servidores} conduza a Unidade Móvel (caminhão), realizando o "
-                       "deslocamento desde o local onde o veículo estiver estacionado até o "
-                       "município de destino e, ao término das atividades, o retorno ao local "
-                       "de guarda do veículo, computando-se todo o percurso. Caberá, ainda, "
-                       "prestar apoio às atividades de instalação, posicionamento, operação e "
-                       "desmontagem da estrutura da Unidade Móvel.")},
+             "texto": (_FUNCAO + "{condutor|condutores} da Unidade Móvel (caminhão), "
+                       "{responsável|responsáveis} pelo deslocamento desde o local onde o "
+                       "veículo estiver estacionado até o município de destino e, ao término "
+                       "das atividades, pelo retorno ao local de guarda do veículo, "
+                       "computando-se todo o percurso, cabendo-{lhe|lhes}, ainda, prestar apoio "
+                       "às atividades de instalação, posicionamento, operação e desmontagem da "
+                       "estrutura da Unidade Móvel.")},
             {"codigo": "tecnico", "nome": "Técnico", "icone": "wrench",
-             "texto": ("Que {servidores} preste apoio técnico na instalação, configuração, "
-                       "testes e operação dos equipamentos de informática, rede lógica, "
-                       "comunicação e demais sistemas utilizados durante os atendimentos. "
-                       "Deverá deslocar-se antecipadamente ao local do evento para verificar "
-                       "as condições de fornecimento de energia elétrica, conectividade de "
-                       "internet e infraestrutura necessária ao funcionamento da Unidade "
-                       "Móvel, considerando que, em razão da dinâmica da operação, não foi "
-                       "possível a realização de visita técnica prévia.")},
+             "texto": (_FUNCAO + "{técnico|técnicos}, {responsável|responsáveis} pelo apoio "
+                       "técnico na instalação, configuração, testes e operação dos equipamentos "
+                       "de informática, rede lógica, comunicação e demais sistemas utilizados "
+                       "durante os atendimentos, devendo verificar antecipadamente, no "
+                       "local do evento, as condições de fornecimento de energia elétrica, "
+                       "conectividade de internet e infraestrutura necessária ao funcionamento "
+                       "da Unidade Móvel, considerando que, em razão da dinâmica da operação, "
+                       "não foi possível a realização de visita técnica prévia.")},
             {"codigo": "apoio", "nome": "Apoio", "icone": "hand-helping",
-             "texto": ("Que {servidores} realize a escolta e o apoio operacional da Unidade "
-                       "Móvel durante todo o deslocamento entre {sede} e {destino}, bem como "
-                       "no retorno, computando-se todo o trajeto. Deverá auxiliar na montagem, "
-                       "organização, manutenção operacional e desmontagem dos equipamentos da "
-                       "Unidade Móvel.")},
-        ],
-    },
-    {
-        "chave": "microonibus", "nome": "Micro-ônibus", "ordem": 20,
-        "referencia": "Deslocamento - Micro-ônibus",
-        "ida": ("O deslocamento {equipe} para {municipio} {data}, para apoio logístico com "
-                "micro-ônibus em {motivo}."),
-        "ida_e_antes": "",
-        "antes": ("Que a equipe organize {data} os materiais e equipamentos no local da "
-                  "atividade."),
-        "evento": ("Que a equipe permaneça em {destino} {data} para o transporte e o apoio "
-                   "logístico de {motivo}."),
-        "depois": "Que a equipe recolha {data} os materiais utilizados na atividade.",
-        "depois_e_volta": "",
-        "volta": _VOLTA,
-        "justificativas": (
-            "O micro-ônibus será utilizado para transporte e apoio logístico da equipe, "
-            "observando-se o cronograma da atividade."),
-        "finalidade": ("A presente Ordem de Serviço tem por finalidade garantir o transporte, a "
-                       "organização e o apoio logístico necessários à realização da atividade."),
-        "funcoes": [
-            {"codigo": "conducao", "nome": "Condução", "icone": "bus",
-             "texto": ("Que {servidores} conduza o micro-ônibus oficial durante os "
-                       "deslocamentos de ida e retorno, zelando pela segurança da equipe e dos "
-                       "passageiros.")},
-            {"codigo": "tecnico", "nome": "Técnico", "icone": "wrench",
-             "texto": ("Que {servidores} preste suporte técnico à operação dos equipamentos e "
-                       "acompanhe a organização dos materiais utilizados na atividade.")},
-            {"codigo": "apoio", "nome": "Apoio", "icone": "hand-helping",
-             "texto": ("Que {servidores} preste apoio operacional à equipe, auxiliando na "
-                       "organização, montagem, escolta e movimentação necessárias à "
-                       "realização da atividade.")},
+             "texto": (_FUNCAO + "apoio, {responsável|responsáveis} pela escolta e pelo apoio "
+                       "operacional da Unidade Móvel durante todo o deslocamento entre {sede} e "
+                       "{destino}, bem como no retorno, computando-se todo o trajeto, e pelo "
+                       "auxílio na montagem, organização, manutenção operacional e desmontagem "
+                       "dos equipamentos da Unidade Móvel.")},
         ],
     },
     {
@@ -128,7 +143,7 @@ MODELOS: list[dict] = [
         "depois": "Que a equipe desmobilize {data} a estrutura e os materiais da solenidade.",
         "depois_e_volta": ("Que a equipe desmobilize {data} a estrutura da solenidade e efetue "
                            "o retorno à sede de lotação em {sede}."),
-        "volta": _VOLTA,
+        "volta": "Que a equipe efetue o retorno à sede de lotação em {sede} {data}.",
         "justificativas": (
             "O deslocamento da equipe com antecedência faz-se necessário para a realização da "
             "visita técnica ao local do evento e a organização dos trabalhos antes da "
@@ -144,19 +159,19 @@ MODELOS: list[dict] = [
                        "Civil do Paraná."),
         "funcoes": [
             {"codigo": "coordenacao", "nome": "Coordenação", "icone": "clipboard-list",
-             "texto": ("Que {servidores} conduza o veículo oficial durante o deslocamento de "
-                       "ida e retorno, bem como coordene as atividades de Cerimonial, "
-                       "supervisionando os procedimentos protocolares, a recepção das "
-                       "autoridades, a composição do dispositivo de honra e a execução do "
-                       "roteiro oficial.")},
+             "texto": ("Que {servidores} {conduza|conduzam} o veículo oficial durante o "
+                       "deslocamento de ida e retorno, bem como {coordene|coordenem} as "
+                       "atividades de Cerimonial, supervisionando os procedimentos "
+                       "protocolares, a recepção das autoridades, a composição do dispositivo "
+                       "de honra e a execução do roteiro oficial.")},
             {"codigo": "apoio", "nome": "Apoio", "icone": "hand-helping",
-             "texto": ("Que {servidores} preste apoio às atividades de Cerimonial, auxiliando "
-                       "na organização do ambiente, recepção das autoridades e execução dos "
-                       "procedimentos protocolares.")},
+             "texto": ("Que {servidores} {preste|prestem} apoio às atividades de Cerimonial, "
+                       "auxiliando na organização do ambiente, recepção das autoridades e "
+                       "execução dos procedimentos protocolares.")},
             {"codigo": "preparacao", "nome": "Preparação", "icone": "package-check",
-             "texto": ("Que {servidores} auxilie na preparação da solenidade, conferência dos "
-                       "materiais, organização dos espaços e demais atividades necessárias à "
-                       "realização do evento.")},
+             "texto": ("Que {servidores} {auxilie|auxiliem} na preparação da solenidade, "
+                       "conferência dos materiais, organização dos espaços e demais atividades "
+                       "necessárias à realização do evento.")},
         ],
     },
 ]

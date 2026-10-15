@@ -117,7 +117,8 @@ class TestFuncoesEDocumento:
         dados = ordens.dados_do_documento(ordem)
         assert dados["referencia"] == "Deslocamento - Caminhão de apoio"
         assert dados["itens"][0][0] == "I"
-        assert dados["itens"][0][1].startswith(f"Que {um.nome} conduza a Unidade Móvel")
+        assert dados["itens"][0][1].startswith("O deslocamento d")
+        assert f"{um.nome}, na função de condutor da Unidade Móvel" in dados["itens"][0][1]
         assert dados["assina"]["nome"] == config.chefia_nome
         assert dados["delegado_geral"] == "Delegado-Geral Fictício"
         ordem.refresh_from_db()
@@ -356,6 +357,27 @@ class TestRevisoes:
         with pytest.raises(ordens.OrdemInvalida, match="desativado"):
             ordens.salvar(op, modelo=modelo, destinos=[_londrina()])
 
+    def test_dois_na_mesma_funcao_vao_para_o_plural(self, c):
+        um, dois = Servidor.objects.all()[:2]
+        for chave, plural in (("caminhao", "na função de condutores da Unidade Móvel (caminhão), "
+                                           "responsáveis pelo deslocamento"),
+                              ("microonibus", "na função de condutores do micro-ônibus oficial, "
+                                              "responsáveis pelos deslocamentos")):
+            ordem, _ = ordens.salvar(
+                c.usuarios["operador"], modelo=_modelo(chave), destinos=[_londrina()],
+                data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 3),
+                servidores=[um, dois], motivo="a Feira",
+                funcoes={str(um.pk): "conducao", str(dois.pk): "conducao"})
+            textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+            assert plural in textos[0], chave
+            assert um.nome in textos[0] and dois.nome in textos[0]  # cada um com o cargo
+        ordem, _ = ordens.salvar(
+            c.usuarios["operador"], modelo=_modelo("cerimonial"), destinos=[_londrina()],
+            data_inicio=date(2030, 5, 3), servidores=[um, dois], motivo="a solenidade",
+            funcoes={str(um.pk): "apoio", str(dois.pk): "apoio"})
+        textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+        assert " prestem apoio às atividades de Cerimonial" in textos[0]
+
     def test_documento_do_caminhao_sai_em_itens(self, c):
         um, dois = Servidor.objects.all()[:2]
         ordem, _ = ordens.salvar(
@@ -368,10 +390,20 @@ class TestRevisoes:
         numeros = [n for n, _ in dados["itens"]]
         assert numeros == ["I", "II", "III", "IV", "V", "VI", "VII"]
         textos = [t for _, t in dados["itens"]]
-        assert "conduza a Unidade Móvel" in textos[0] and "escolta" in textos[1]
-        assert "no dia 3 de maio de 2030" in textos[2] and "montagem" in textos[3]
-        assert "nos dias 5 e 6 de maio de 2030" in textos[4]
-        assert "desmontagem" in textos[5] and "Curitiba/PR no dia 8 de maio de 2030" in textos[6]
+        # Depois do DETERMINO: o deslocamento de cada um com a sua função…
+        assert textos[0].startswith("O deslocamento d") and "na função de condutor " in textos[0]
+        assert "na função de apoio, responsável pela escolta" in textos[1]
+        # …e os dias: deslocamento, montagem, evento, desmontagem e volta à sede.
+        assert textos[2] == ("Que a equipe realize no dia 3 de maio de 2030 o deslocamento até "
+                             "o município de Londrina/PR, para apoio logístico com caminhão em "
+                             "a Feira.")
+        assert textos[3].startswith("Que a equipe realize no dia 4 de maio de 2030 a montagem")
+        assert textos[4].startswith("Que a equipe participe nos dias 5 e 6 de maio de 2030 do "
+                                    "evento")
+        assert textos[5].startswith("Que a equipe realize no dia 7 de maio de 2030 a "
+                                    "desmontagem")
+        assert textos[6] == ("Que a equipe realize no dia 8 de maio de 2030 o deslocamento de "
+                             "volta à sede de lotação em Curitiba/PR.")
         assert dados["justificativas"] and dados["finalidade"]
         html = ordens.html_do_modelo(dados)
         assert '<ol class="itens">' in html and "I - Que" in html and "DETERMINO" in html
