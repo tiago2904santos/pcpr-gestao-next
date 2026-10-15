@@ -8,7 +8,7 @@ para onde e quando) é reescrita aqui sobre dados simples.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, time
 from itertools import groupby
 
 from .escrita import MESES, data_por_extenso, lista_com_e
@@ -59,6 +59,12 @@ class DadosOS:
     motivo: str = ""
     equipe: list[Pessoa] = field(default_factory=list)
     funcoes: dict[int, str] = field(default_factory=dict)  # id da pessoa -> função
+    # Só os modelos cadastrados usam (dominio/modelo_os.py): o período do evento dentro da
+    # viagem, o horário do briefing e a sede ("Curitiba/PR") para o retorno.
+    evento_inicio: date | None = None
+    evento_fim: date | None = None
+    hora: time | None = None
+    sede: str = ""
 
 
 
