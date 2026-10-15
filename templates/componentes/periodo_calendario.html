@@ -45,7 +45,7 @@
         <input class="briefing__entrada" type="text" name="{{ hora.html_name }}" id="{{ hora.id_for_label }}" value="{{ hora_texto }}" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" data-mascara="hora" aria-describedby="{{ hora.id_for_label }}-ajuda{% if hora.errors %} {{ hora.id_for_label }}-erro{% endif %}"{% if hora.errors %} aria-invalid="true"{% endif %}{% if not editavel %} readonly{% endif %}>
         <button type="button" class="seletor__botao briefing__botao" hidden aria-haspopup="dialog" aria-expanded="false"{% if not editavel %} disabled{% endif %}>{% icone "clock" %}<span class="sr-only">Abrir relógio</span></button>
       </pc-hora>
-      <span class="briefing__nota" id="{{ hora.id_for_label }}-ajuda">{% if hora_texto %}horário do briefing{% else %}defina o horário{% endif %}</span>
+      <span class="briefing__nota" id="{{ hora.id_for_label }}-ajuda">horário do briefing</span>
       {% for erro in hora.errors %}<p class="campo__erro" id="{{ hora.id_for_label }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}
     </div>
     {% endif %}

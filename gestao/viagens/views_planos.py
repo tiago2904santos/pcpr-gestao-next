@@ -439,7 +439,8 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         return JsonResponse({"salvo": False, "mensagem": "Este plano não pode mais ser alterado."})
     except PlanoTrabalho.DoesNotExist:
         return JsonResponse({"salvo": False, "mensagem": "Este plano foi excluído."})
-    return JsonResponse({"salvo": True, "recarregar": bool(copiados) or salvo.numero != plano.numero,
+    recarregar = bool(copiados) or salvo.numero != plano.numero
+    return JsonResponse({"salvo": True, "recarregar": recarregar,
                          "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": planos.versao_de(salvo)}})
 

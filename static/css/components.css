@@ -3618,7 +3618,7 @@ fieldset.campo--escolhas > .campo__erro {
 .briefing[hidden] { display: none; }
 .briefing__rotulo { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
 .briefing__seletor { position: relative; display: inline-flex; align-items: center; gap: var(--esp-2); }
-.briefing__entrada { width: 4.6ch; margin: 0 0 0 calc(-1 * var(--esp-1)); padding: 0 var(--esp-1); border: 1px solid transparent; border-radius: var(--raio-sm); background: transparent; font: inherit; font-size: var(--texto-4xl); font-weight: var(--peso-medio); line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--cor-texto); transition: border-color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
+.briefing__entrada { width: 5.4ch; margin: 0 0 0 calc(-1 * var(--esp-1)); padding: 0 var(--esp-1); border: 1px solid transparent; border-radius: var(--raio-sm); background: transparent; font: inherit; font-size: var(--texto-4xl); font-weight: var(--peso-medio); line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--cor-texto); transition: border-color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
 .briefing__entrada::placeholder { color: var(--cor-texto-terciario); }
 .briefing__entrada:hover:not([readonly]) { border-color: var(--cor-borda); background: var(--cor-superficie); }
 .briefing__entrada:focus { outline: none; border-color: var(--cor-borda-forte); background: var(--cor-superficie); box-shadow: var(--sombra-foco-campo); }
