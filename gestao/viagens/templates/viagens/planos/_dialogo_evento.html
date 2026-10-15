@@ -44,7 +44,11 @@ plano (os mesmos em todos os eventos).
       <div class="secao__bloco evento-plano__bloco">
         <div class="secao__bloco-cabecalho">
           <h3 class="secao__bloco-titulo">{% icone "users" classe="icone--sm" %}Efetivo do evento</h3>
-          <button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-evento-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>
+        </div>
+        <div class="efetivo-plano__cartao">
+        <div class="efetivo-plano__cabecalho">
+          <span class="efetivo-plano__titulo">{% icone "users" classe="icone--sm" %}Grupo de servidores</span>
+          <button type="button" class="botao botao--sm botao--sutil" aria-label="Adicionar efetivo" data-adicionar-em="#efetivo-evento-linhas">{% icone "plus" classe="icone--sm" %}Adicionar</button>
         </div>
         <pc-linhas class="linhas efetivo-plano" id="efetivo-evento-linhas" data-rotulo="linha do efetivo">
           <input type="hidden" name="efetivo_presente" value="1">
@@ -54,6 +58,7 @@ plano (os mesmos em todos os eventos).
           <template data-modelo>{% include "viagens/planos/_linha_efetivo.html" with n="__n__" linha=None form=form_evento prefixo="evento-efetivo" %}</template>
           <div class="sr-only" aria-live="polite" data-anuncio></div>
         </pc-linhas>
+        </div>
       </div>
 
       {# Deslocamento e diárias do evento: um calendário marca saída e chegada; a conta sai ao salvar. #}

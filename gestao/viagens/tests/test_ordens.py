@@ -216,12 +216,12 @@ class TestTelas:
         html = cli.get(reverse("viagens:editar_ordem", args=[padrao.pk])).content.decode()
         # O período do evento não se digita: vem da viagem (ordens.evento_do_vinculo).
         assert "data-campo-evento" not in html and "Período do evento" not in html
-        assert "<div data-campo-hora hidden>" in html
+        assert "data-campo-hora hidden>" in html  # a coluna Briefing do cartão do período
         assert "OS padrão" in html and "Unidade móvel" in html
         policial, _ = ordens.salvar(op, modelo=_modelo("operacao_policial"),
                                     destinos=[_londrina()], hora=time(5, 0))
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
-        assert "<div data-campo-hora>" in html
+        assert 'class="briefing" data-campo-hora>' in html
         assert 'name="hora"' in html and 'value="05:00"' in html
         assert "pede o horário do briefing" in html
         # Tipo desativado no banco continua selecionado e a OS continua gravando.
@@ -422,9 +422,11 @@ class TestRevisoes:
             hora=time(5, 0))
         assert "horário do briefing" not in ordens.faltando(ordem)
         textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
-        assert len(textos) == 3
-        assert "às 05h00min no dia 18 de setembro de 2030" in textos[1]
-        assert textos[2].startswith(f"Que o policial {um.nome} efetue o retorno")
+        # Ida, briefing, permanência no dia da operação e volta (a OS real).
+        assert len(textos) == 4
+        assert "às 05h00min do dia 18 de setembro de 2030" in textos[1]
+        assert "durante todo o dia 18 de setembro de 2030" in textos[2]
+        assert textos[3].startswith("Que o policial efetue o retorno")
 
     def test_tipo_com_funcao_sem_funcao_e_sinalizado(self, c):
         ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("unidade_movel"),

@@ -40,6 +40,8 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
   /* Atuação: o título do evento à esquerda (sem espaços esticados) e os dados recuados. */
   .evento__titulo { text-align: left; margin-bottom: 1.5mm; }
   .evento__dados { margin-left: 1.25cm; }
+  /* Texto salvo antes das classes de recuo: os dados da atuação vinham soltos na seção. */
+  section[data-bloco="atuacao"] > p { margin: 0 0 1mm 1.25cm; text-align: left; }
   .evento__dados p { margin: 0 0 1mm; text-align: left; }
   .evento__dados .efetivo { margin: 0 0 1mm 0.75cm; }
   /* Listas (atividades, metas, recursos): recuo pendurado — a 2ª linha alinha com o texto. */

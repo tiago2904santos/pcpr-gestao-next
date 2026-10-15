@@ -1,13 +1,10 @@
 {% comment %}
-Uma linha do efetivo: unidade (opcional) e cargo — escolhidos por busca (<pc-combobox>, que
-filtra as opções enquanto se digita) — e a quantidade com − e +. `n` vira número (o modelo
-usa "__n__"); `prefixo` distingue os ids da janela do evento dos da folha.
+Uma linha do efetivo, dentro do cartão "Grupo de servidores": cargo e unidade (opcional) —
+escolhidos por busca (<pc-combobox>, que filtra as opções enquanto se digita) —, a quantidade
+com − e + e a lixeira ao lado. `n` vira número (o modelo usa "__n__"); `prefixo` distingue os
+ids da janela do evento dos da folha.
 {% endcomment %}
 {% firstof prefixo "efetivo" as px %}<li class="linhas__linha efetivo-plano__linha" data-linha>
-  <div class="efetivo-plano__cabecalho">
-    <span class="efetivo-plano__titulo">{% icone "users" classe="icone--sm" %}Grupo de servidores</span>
-    <button type="button" class="botao botao--icone botao--sutil linhas__remover" data-remover-linha aria-label="Remover a linha do efetivo {{ n }}">{% icone "trash-2" %}</button>
-  </div>
   <div class="campo efetivo-plano__unidade">
     <label class="campo__rotulo" for="{{ px }}-unidade-{{ n }}">Unidade <span class="campo__opcional">(opcional)</span></label>
     <pc-combobox class="combobox" data-placeholder="Pesquise a unidade…"><select class="selecao" name="efetivo_unidade" id="{{ px }}-unidade-{{ n }}">
@@ -30,4 +27,5 @@ usa "__n__"); `prefixo` distingue os ids da janela do evento dos da folha.
       <button type="button" class="passos__botao" data-passo="1" aria-label="Aumentar a quantidade">+</button>
     </div>
   </div>
+  <button type="button" class="botao botao--icone botao--sutil linhas__remover efetivo-plano__remover" data-remover-linha aria-label="Remover a linha do efetivo {{ n }}" title="Remover a linha">{% icone "trash-2" %}</button>
 </li>

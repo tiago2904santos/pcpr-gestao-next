@@ -973,8 +973,7 @@ class FormularioTermo(forms.Form):
 # ---------------------------------------------------------------- ordens de serviço
 def _campo_numero_documental():
     return forms.IntegerField(label="Número", required=False, min_value=1, max_value=999999,
-                              widget=forms.NumberInput(attrs=_attrs(inputmode="numeric")),
-                              help_text="Já vem sugerido; altere se a numeração da unidade pedir.")
+                              widget=forms.NumberInput(attrs=_attrs(inputmode="numeric")))
 
 
 def _numero_documental(numero, documento, modelo):

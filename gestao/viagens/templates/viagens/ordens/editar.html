@@ -51,9 +51,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     </div>
 
     <div class="pilha" id="dados">
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.numero classe="campo--sm" %}
-      </div>
       {# Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. #}
       <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}">
         {{ form.oficios }}
@@ -61,7 +58,11 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       </div>
       {# Tipo de OS seguido do calendário compartilhado, com ida e volta; se o tipo pede, o horário do briefing (funcoes-equipe.js mostra e esconde). O período do evento não se digita: vem da viagem (ordens.evento_do_vinculo). #}
       <div class="pilha">
-        {% include "componentes/campo.html" with campo=form.modelo ajuda_oculta=True %}
+        {# Número à esquerda do Tipo de OS, na mesma linha (como no plano). #}
+        <div class="campos campos--numero-ao-lado">
+          {% include "componentes/campo.html" with campo=form.numero %}
+          {% include "componentes/campo.html" with campo=form.modelo ajuda_oculta=True %}
+        </div>
         {# O horário do briefing mora no próprio cartão do período (coluna "Briefing"). #}
         {% periodo_calendario form.data_inicio form.data_fim prefixo="ordem" rotulo="Período da ordem de serviço" natureza="viagem" editavel=editavel hora=form.hora hora_visivel=form.usa_hora %}
       </div>

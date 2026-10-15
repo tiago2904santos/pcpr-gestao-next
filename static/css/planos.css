@@ -14,26 +14,36 @@
 
 /* Escolhas compactas: somente o nome, marca de seleção e estado de foco. */
 :is(.documento--plano, .evento-plano) .atividades__lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
-:is(.documento--plano, .evento-plano) .atividade { display: flex; align-items: center; gap: var(--esp-3); width: 100%; min-width: 0; min-height: var(--altura-controle); padding: var(--esp-3) var(--esp-4); border-radius: var(--raio-lg); background: var(--cor-superficie); border-color: var(--cor-borda); }
+/* Atividade: uma linha de lista de verificação — caixa à esquerda e o nome. Cantos pequenos,
+   hover discreto (só o fundo e a borda escurecem um pouco); marcada, borda grafite, nome em
+   negrito e a caixa cheia com o ✓ branco. */
+:is(.documento--plano, .evento-plano) .atividade { display: flex; align-items: center; gap: var(--esp-3); width: 100%; min-width: 0; min-height: var(--altura-controle); padding: var(--esp-2) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-sm); background: var(--cor-superficie); color: var(--cor-texto-secundario); cursor: pointer; transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
 :is(.documento--plano, .evento-plano) .atividade[hidden] { display: none; }
-:is(.documento--plano, .evento-plano) .atividade__icone { flex: none; padding: var(--esp-1); box-sizing: content-box; border-radius: var(--raio-sm); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
-:is(.documento--plano, .evento-plano) .atividade__nome { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font-weight: var(--peso-medio); }
-:is(.documento--plano, .evento-plano) .atividade:hover { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
-:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) { background: var(--grafite-900); color: var(--cor-texto-inverso); border-color: var(--grafite-900); }
-:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__icone { background: var(--cor-marca-fundo-forte); color: var(--cor-marca-texto); }
+:is(.documento--plano, .evento-plano) .atividade:hover { border-color: var(--cor-borda-forte); background: var(--cor-superficie-sutil); color: var(--cor-texto); }
+:is(.documento--plano, .evento-plano) .atividade__icone { flex: none; width: 1rem; height: 1rem; padding: 2px; box-sizing: border-box; border: 1.5px solid var(--cor-borda-forte); border-radius: var(--raio-xs); background: var(--cor-superficie); color: transparent; transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao); }
+:is(.documento--plano, .evento-plano) .atividade:hover .atividade__icone { border-color: var(--cor-texto-secundario); }
+:is(.documento--plano, .evento-plano) .atividade__nome { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; font-weight: var(--peso-normal); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) { border-color: var(--grafite-900); background: var(--cor-superficie); color: var(--cor-texto); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__nome { font-weight: var(--peso-semi); }
+:is(.documento--plano, .evento-plano) .atividade:has(.atividade__caixa:checked) .atividade__icone { border-color: var(--grafite-900); background: var(--grafite-900); color: var(--neutro-0); stroke-width: 3; animation: atividade-marcada var(--duracao-rapida) var(--curva-padrao); }
+@keyframes atividade-marcada { from { scale: 0.7; } }
 :is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr); }
 .documento--plano .atividades__grupo { margin-top: 0; }
 
-/* Efetivo: uma composição por cartão, com quantidade em um controle próprio. */
-.efetivo-plano .linhas__lista { gap: var(--esp-3); }
-.efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); --fundo-rotulo: var(--cor-superficie-sutil); }
-.efetivo-plano__cabecalho { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
+/* Efetivo: um cartão "Grupo de servidores" com o Adicionar no cabeçalho e as linhas dentro
+   (cargo, unidade, quantidade e a lixeira ao lado), separadas por um filete; o rótulo só na
+   primeira linha — nas demais ele fica para leitores de tela. */
+.efetivo-plano__cartao { display: grid; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4) var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.efetivo-plano__cabecalho { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); }
 .efetivo-plano__titulo { display: inline-flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
 .efetivo-plano__titulo > .icone { color: var(--cor-marca-texto); }
-.efetivo-plano .linhas__remover { align-self: center; }
-.efetivo-plano .efetivo-plano__cargo { grid-column: 1 / -1; grid-row: auto; }
+.efetivo-plano .linhas__lista { gap: 0; }
+.efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--esp-3); padding: var(--esp-2) 0 0; border: 0; border-radius: 0; background: transparent; }
+.efetivo-plano .efetivo-plano__linha + .efetivo-plano__linha { margin-top: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda-sutil); }
+.efetivo-plano .efetivo-plano__cargo, .efetivo-plano .efetivo-plano__unidade, .efetivo-plano .efetivo-plano__quantidade { grid-column: 1; grid-row: auto; }
 .efetivo-plano .efetivo-plano__quantidade { max-width: none; width: 100%; }
-.efetivo-plano .linhas__linha .campo__rotulo { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+.efetivo-plano .efetivo-plano__remover { grid-column: 2; grid-row: 1; align-self: end; }
+.efetivo-plano .linhas__linha .campo__rotulo { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; padding: 0; background: transparent; }
 .efetivo-plano .passos .entrada { text-align: center; font-weight: var(--peso-semi); padding-left: var(--esp-2); }
 .efetivo-plano .passos__botao { background: var(--cor-superficie-realce); color: var(--cor-texto); }
 .efetivo-plano .passos__botao:hover { background: var(--cor-marca-fundo-forte); }
@@ -49,10 +59,12 @@
 }
 
 @media (min-width: 768px) {
-  .efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 9rem; gap: var(--esp-4) var(--esp-3); }
-  .efetivo-plano .efetivo-plano__cargo { grid-column: 1; grid-row: 2; }
-  .efetivo-plano .efetivo-plano__unidade { grid-column: 2; grid-row: 2; }
-  .efetivo-plano .efetivo-plano__quantidade { grid-column: 3; grid-row: 2; }
+  .efetivo-plano .efetivo-plano__linha { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 9rem auto; gap: var(--esp-3); }
+  .efetivo-plano .efetivo-plano__cargo { grid-column: 1; grid-row: 1; }
+  .efetivo-plano .efetivo-plano__unidade { grid-column: 2; grid-row: 1; }
+  .efetivo-plano .efetivo-plano__quantidade { grid-column: 3; grid-row: 1; }
+  .efetivo-plano .efetivo-plano__remover { grid-column: 4; grid-row: 1; }
+  .efetivo-plano .efetivo-plano__linha + .efetivo-plano__linha .campo__rotulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .plano-coordenacoes > .coordenador { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(.documento--plano, .evento-plano) .atividades__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(.documento--plano, .evento-plano) .atividades__barra { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
@@ -60,3 +72,7 @@
 @media (min-width: 1024px) {
   .plano-coordenacoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Número à esquerda do Programa, na mesma linha (o horário fecha a linha). */
+.campos.campos--agenda-periodo.campos--com-numero { grid-template-columns: minmax(6rem, 8rem) minmax(0, 1.6fr) minmax(0, 1fr); }
+@media (max-width: 767.98px) { .campos.campos--agenda-periodo.campos--com-numero { grid-template-columns: minmax(0, 1fr); } }

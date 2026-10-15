@@ -846,12 +846,13 @@ def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "",
                       blocos_alterados: set[str] | None = None) -> str:
     """HTML do documento com o texto editado em vigor (o de `dados`, se `regioes` não vier);
     `folha=True` é a versão de tela. PDF, DOCX e a folha saem daqui."""
-    from .documentos.regioes import aplicar_regioes, marcar_blocos_alterados
+    from .documentos.regioes import aplicar_regioes, listas_de_marcadores, marcar_blocos_alterados
     if regioes is None:
         regioes = dados.get("regioes_editadas") or {}
     html = html_do_modelo(dados, folha=folha, nonce=nonce)
     if regioes:
-        html = aplicar_regioes(html, regioes)
+        # Texto salvo antes das listas de verdade: os "• item" voltam a ser lista com recuo.
+        html = listas_de_marcadores(aplicar_regioes(html, regioes))
     if blocos_alterados:
         html = marcar_blocos_alterados(html, blocos_alterados)
     return html

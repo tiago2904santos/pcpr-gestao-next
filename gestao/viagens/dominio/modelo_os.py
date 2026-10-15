@@ -27,9 +27,12 @@ ETAPAS = ("ida", "ida_e_antes", "antes", "evento", "depois", "depois_e_volta", "
 COMBINADAS = frozenset({"ida_e_antes", "depois_e_volta"})
 
 # O que cada texto pode usar. `{servidores}` nas etapas é "Ana Lima e Bruno Rocha" (sem cargo);
-# nas funções, só quem tem a função.
-MARCADORES_ETAPA = frozenset({"equipe", "servidores", "destino", "municipio", "data", "motivo",
-                              "hora", "sede"})
+# nas funções, só quem tem a função. `{equipe_sujeito}` é a equipe como sujeito ("os agentes de
+# polícia judiciária A e B"); `{data_do}` é "do dia 15 de outubro de 2026" e `{data_durante}`,
+# "durante todo o dia 15 de outubro de 2026" (vários dias: "dos dias…", "durante os dias…").
+# Um texto de etapa com uma linha em branco no meio sai em itens separados.
+MARCADORES_ETAPA = frozenset({"equipe", "equipe_sujeito", "servidores", "destino", "municipio",
+                              "data", "data_do", "data_durante", "motivo", "hora", "sede"})
 MARCADORES_FUNCAO = frozenset({"equipe", "servidores", "destino", "municipio", "motivo",
                                "sede"})
 
@@ -92,31 +95,33 @@ def distribuir_etapas(saida: date, chegada: date, evento_inicio: date | None = N
                       combinados: frozenset[str] = frozenset()) -> list[Etapa]:
     """Em que dias cai cada etapa. Viagem 3–8 com evento 5–6: ida 3, antes 4, evento 5–6,
     depois 7, volta 8. Saída na véspera do evento vira `ida_e_antes` (se o modelo tem o
-    texto; senão só `ida`); chegada no dia seguinte, `depois_e_volta`. Saída no 1.º dia do
-    evento não tem ida; chegada no último não tem volta. Sem evento, a viagem inteira é
-    evento. Evento fora da viagem é erro (a OS valida antes)."""
+    texto; senão só `ida`); chegada no dia seguinte, `depois_e_volta`. A ida é sempre o
+    primeiro item e a volta o último, separados — mesmo com a saída no 1.º dia do evento ou a
+    chegada no último (pedido do usuário, 15/10/2026). Sem evento informado, o evento são os
+    dias entre a ida e a volta (viagem de até dois dias: a viagem inteira). Evento fora da
+    viagem é erro (a OS valida antes)."""
     if chegada < saida:
         raise ValueError("A chegada não pode ser antes da saída.")
+    if evento_inicio is None and (chegada - saida) > _UM_DIA:
+        evento_inicio, evento_fim = saida + _UM_DIA, chegada - _UM_DIA
     ev_ini = evento_inicio or saida
     ev_fim = evento_fim or (evento_inicio or chegada)
     if ev_fim < ev_ini or ev_ini < saida or ev_fim > chegada:
         raise ValueError("O período do evento precisa caber no período da viagem.")
     etapas: list[Etapa] = []
-    if saida < ev_ini:
-        if ev_ini - saida == _UM_DIA and "ida_e_antes" in combinados:
-            etapas.append(Etapa("ida_e_antes", saida, saida))
-        else:
-            etapas.append(Etapa("ida", saida, saida))
-            if ev_ini - saida > _UM_DIA:
-                etapas.append(Etapa("antes", saida + _UM_DIA, ev_ini - _UM_DIA))
+    if saida < ev_ini and ev_ini - saida == _UM_DIA and "ida_e_antes" in combinados:
+        etapas.append(Etapa("ida_e_antes", saida, saida))
+    else:
+        etapas.append(Etapa("ida", saida, saida))
+        if ev_ini - saida > _UM_DIA:
+            etapas.append(Etapa("antes", saida + _UM_DIA, ev_ini - _UM_DIA))
     etapas.append(Etapa("evento", ev_ini, ev_fim))
-    if chegada > ev_fim:
-        if chegada - ev_fim == _UM_DIA and "depois_e_volta" in combinados:
-            etapas.append(Etapa("depois_e_volta", chegada, chegada))
-        else:
-            if chegada - ev_fim > _UM_DIA:
-                etapas.append(Etapa("depois", ev_fim + _UM_DIA, chegada - _UM_DIA))
-            etapas.append(Etapa("volta", chegada, chegada))
+    if chegada > ev_fim and chegada - ev_fim == _UM_DIA and "depois_e_volta" in combinados:
+        etapas.append(Etapa("depois_e_volta", chegada, chegada))
+    else:
+        if chegada - ev_fim > _UM_DIA:
+            etapas.append(Etapa("depois", ev_fim + _UM_DIA, chegada - _UM_DIA))
+        etapas.append(Etapa("volta", chegada, chegada))
     return etapas
 
 
@@ -135,6 +140,27 @@ def data_da_etapa(etapa: Etapa) -> str:
     if fim - ini == _UM_DIA and (ini.month, ini.year) == (fim.month, fim.year):
         return f"nos dias {ini.day} e {fim.day} de {MESES[ini.month - 1]} de {ini.year}"
     return periodo_por_extenso(ini, fim)
+
+
+def data_do(etapa: Etapa) -> str:
+    """"do dia 15 de outubro de 2026", "dos dias 15 e 16 de outubro de 2026"."""
+    texto = data_da_etapa(etapa)
+    return "do" + texto[2:] if texto.startswith("no ") else "d" + texto[1:]
+
+
+def data_durante(etapa: Etapa) -> str:
+    """"durante todo o dia 15 de outubro de 2026", "durante os dias 15 e 16 de outubro…"."""
+    texto = data_da_etapa(etapa)
+    return ("durante todo o " + texto[3:] if texto.startswith("no ")
+            else "durante os " + texto[4:])
+
+
+def sujeito(equipe_texto: str) -> str:
+    """A equipe como sujeito da frase: "dos agentes A e B" → "os agentes A e B"."""
+    for de, para in (("dos ", "os "), ("do ", "o "), ("da ", "a ")):
+        if equipe_texto.startswith(de):
+            return para + equipe_texto[len(de):]
+    return equipe_texto
 
 
 def hora_no_texto(hora: time | None) -> str:
@@ -164,6 +190,7 @@ def _limpar(texto: str) -> str:
 def _valores(dados: DadosOS) -> dict[str, str]:
     return {
         "equipe": equipe_no_texto(dados.equipe),
+        "equipe_sujeito": sujeito(equipe_no_texto(dados.equipe)),
         "servidores": lista_com_e([p.nome for p in dados.equipe]),
         "destino": lista_com_e(dados.destinos) or "destino informado",
         "municipio": municipios_no_texto(dados.destinos),
@@ -190,9 +217,13 @@ def itens_da_os(dados: DadosOS, modelo: Modelo) -> TextosModelo:
                                    combinados=modelo.combinados)
         for etapa in etapas:
             texto = (modelo.textos.get(etapa.nome) or "").strip()
-            if texto:
-                itens.append(_limpar(concordar(texto, len(dados.equipe)).format_map(
-                    {**valores, "data": data_da_etapa(etapa)})))
+            datas = {"data": data_da_etapa(etapa), "data_do": data_do(etapa),
+                     "data_durante": data_durante(etapa)}
+            # Linha em branco no texto da etapa: itens separados (briefing e permanência).
+            for parte in re.split(r"\n\s*\n", texto):
+                if parte.strip():
+                    itens.append(_limpar(concordar(parte, len(dados.equipe)).format_map(
+                        {**valores, **datas})))
     return TextosModelo(referencia=modelo.referencia, itens=itens,
                         justificativas=[j for j in modelo.justificativas if j.strip()],
                         finalidade=modelo.finalidade.strip())

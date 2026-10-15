@@ -50,8 +50,10 @@ def test_numero_ocupado_cancelado_e_invalido_nao_gravam_parcialmente(caso):
     usuario = usuarios["operador"]
     doc, _ = servico.salvar(usuario, numero=811)
     outro, _ = servico.salvar(usuario, numero=812)
-    campo = "cancelado" if nome == "plano" else "cancelada"
-    type(outro).objects.filter(pk=outro.pk).update(**{campo: True})
+    # Cancelado de verdade: o plano tem o campo `cancelado`; a OS, a situação "cancelada" —
+    # e os dois exigem o motivo (restrição do banco).
+    cancelar = ({"cancelado": True} if nome == "plano" else {"situacao": "cancelada"})
+    type(outro).objects.filter(pk=outro.pk).update(motivo_cancelamento="Teste", **cancelar)
     for pedido in (812, 0, -1, 1000000, True):
         with pytest.raises(erro):
             servico.salvar(usuario, pk=doc.pk, numero=pedido)

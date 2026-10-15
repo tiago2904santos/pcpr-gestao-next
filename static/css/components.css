@@ -3560,6 +3560,9 @@ fieldset.campo--escolhas > .campo__erro {
   .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
   .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
 }
+/* Número do documento à esquerda do campo seguinte, na mesma linha (OS: o Tipo de OS). */
+.campos.campos--numero-ao-lado { display: grid; grid-template-columns: minmax(6rem, 8rem) minmax(0, 1fr); }
+@media (max-width: 767.98px) { .campos.campos--numero-ao-lado { grid-template-columns: minmax(0, 1fr); } }
 .campos.campos--agenda-periodo { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
 .campos--agenda-periodo > .programa-plano__outro { order: 1; grid-column: 1 / -1; }
 @media (max-width: 767.98px) { .campos.campos--agenda-periodo { grid-template-columns: minmax(0, 1fr); } }

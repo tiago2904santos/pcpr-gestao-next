@@ -18,22 +18,25 @@ _VOLTA = "Que a equipe realize {data} o deslocamento de volta à sede de lotaç�
 MODELOS: list[dict] = [
     {
         "chave": "operacao_policial", "nome": "Operação policial", "ordem": 10,
-        "referencia": "Deslocamento de Operação Policial",
+        "referencia": "Diligências",
         "ida": "O deslocamento {equipe} para {municipio} {data}.",
         "ida_e_antes": "",
         "antes": "",
-        "evento": ("Que {o policial|os policiais} {servidores} {acompanhe|acompanhem} o briefing "
-                   "da operação policial que será realizado na cidade de {destino}, {hora} "
-                   "{data}, e {permaneça|permaneçam} no município {data} para prestar "
-                   "assessoria de imprensa, conduzir o atendimento aos veículos de comunicação "
-                   "e prestar suporte de comunicação com relação à operação realizada."),
+        # Dois itens (a linha em branco separa): o briefing e a permanência no dia da operação.
+        "evento": ("Que {equipe_sujeito} {acompanhe|acompanhem} o briefing da operação policial "
+                   "que será realizado na cidade de {destino}, {hora} {data_do}."
+                   "\n\n"
+                   "Que {o policial|os policiais} {permaneça|permaneçam} no município de "
+                   "{destino} {data_durante} para prestar assessoria de imprensa, conduzir o "
+                   "atendimento aos veículos de comunicação e prestar suporte de comunicação com "
+                   "relação à operação realizada."),
         "depois": ("Que {o policial|os policiais} {servidores} {permaneça|permaneçam} em "
                    "{destino} {data} para a assessoria de imprensa pós-operação, incluindo a "
                    "condução de entrevistas coletivas e o atendimento às demandas dos veículos "
                    "de comunicação."),
         "depois_e_volta": "",
-        "volta": ("Que {o policial|os policiais} {servidores} {efetue|efetuem} o retorno à sede "
-                  "de lotação em {sede} {data}."),
+        "volta": ("Que {o policial|os policiais} {efetue|efetuem} o retorno à sede de lotação "
+                  "em {sede} {data}."),
         "justificativas": "",
         "finalidade": "",
         "funcoes": [],

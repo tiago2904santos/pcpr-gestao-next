@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+from datetime import time
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
@@ -54,8 +55,8 @@ def periodo_calendario(campo_inicio: BoundField | None = None,
 
     # O horário (o do briefing da OS): uma coluna do próprio cartão, com o relógio do sistema.
     hora_valor = hora.value() if hora is not None else None
-    hora_texto = (hora_valor.strftime("%H:%M") if hasattr(hora_valor, "strftime")
-                  else (hora_valor or ""))
+    hora_texto = (hora_valor.strftime("%H:%M") if isinstance(hora_valor, time)
+                  else str(hora_valor or ""))
     return {"hora": hora, "hora_texto": hora_texto, "hora_visivel": hora_visivel,
             "hora_rotulo": hora_rotulo,
             "p": periodo, "rotulo": rotulo, "natureza": natureza, "prefixo": prefixo,

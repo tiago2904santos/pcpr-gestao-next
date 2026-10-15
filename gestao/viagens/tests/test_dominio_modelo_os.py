@@ -39,16 +39,21 @@ class TestDistribuirEtapas:
         assert nomes(m.distribuir_etapas(d(17), d(19), d(18), d(18))) == [
             ("ida", 17, 17), ("evento", 18, 18), ("volta", 19, 19)]
 
-    def test_tudo_no_mesmo_dia_so_evento(self):
+    def test_tudo_no_mesmo_dia_ainda_tem_ida_e_volta(self):
         assert nomes(m.distribuir_etapas(d(18), d(18), d(18), d(18), combinados=AMBOS)) == [
-            ("evento", 18, 18)]
+            ("ida", 18, 18), ("evento", 18, 18), ("volta", 18, 18)]
 
-    def test_saida_no_dia_do_evento_nao_tem_ida(self):
+    def test_saida_no_dia_do_evento_ainda_tem_ida(self):
         assert nomes(m.distribuir_etapas(d(5), d(7), d(5), d(6))) == [
-            ("evento", 5, 6), ("volta", 7, 7)]
+            ("ida", 5, 5), ("evento", 5, 6), ("volta", 7, 7)]
 
-    def test_sem_evento_a_viagem_inteira_e_evento(self):
-        assert nomes(m.distribuir_etapas(d(3), d(8))) == [("evento", 3, 8)]
+    def test_sem_evento_os_dias_entre_ida_e_volta(self):
+        assert nomes(m.distribuir_etapas(d(3), d(8))) == [
+            ("ida", 3, 3), ("evento", 4, 7), ("volta", 8, 8)]
+
+    def test_sem_evento_em_dois_dias_o_evento_e_a_viagem(self):
+        assert nomes(m.distribuir_etapas(d(22), d(23))) == [
+            ("ida", 22, 22), ("evento", 22, 23), ("volta", 23, 23)]
 
     def test_evento_com_fim_vazio_e_de_um_dia(self):
         assert nomes(m.distribuir_etapas(d(3), d(5), d(4))) == [
@@ -205,3 +210,46 @@ class TestConcordancia:
 
     def test_marcadores_ignoram_as_alternativas(self):
         assert m.marcadores("{o policial|os policiais} {servidores}") == {"servidores"}
+
+
+def _do_sistema(chave: str) -> m.Modelo:
+    from gestao.viagens.modelos_do_sistema import MODELOS
+    d = next(x for x in MODELOS if x["chave"] == chave)
+    return m.Modelo(nome=d["nome"], referencia=d["referencia"],
+                    textos={e: d.get(e, "") for e in m.ETAPAS})
+
+
+def test_operacao_policial_sai_como_a_os_real():
+    """O texto que o usuário mandou (15/10/2026), palavra por palavra."""
+    dados = os_.DadosOS(
+        destinos=["Maringá/PR"], inicio=date(2026, 10, 14), fim=date(2026, 10, 16),
+        equipe=[os_.Pessoa(1, "Adilson Jose Domingues", "Agente de Polícia Judiciária"),
+                os_.Pessoa(2, "Fabiano Rodrigo Teixeira Pinto", "Agente de Polícia Judiciária")],
+        evento_inicio=date(2026, 10, 15), evento_fim=date(2026, 10, 15), hora=time(4, 0),
+        sede="Curitiba/PR")
+    t = m.itens_da_os(dados, _do_sistema("operacao_policial"))
+    assert t.referencia == "Diligências"
+    assert t.itens == [
+        "O deslocamento dos agentes de polícia judiciária Adilson Jose Domingues e Fabiano "
+        "Rodrigo Teixeira Pinto para o município de Maringá/PR no dia 14 de outubro de 2026.",
+        "Que os agentes de polícia judiciária Adilson Jose Domingues e Fabiano Rodrigo Teixeira "
+        "Pinto acompanhem o briefing da operação policial que será realizado na cidade de "
+        "Maringá/PR, às 04h00min do dia 15 de outubro de 2026.",
+        "Que os policiais permaneçam no município de Maringá/PR durante todo o dia 15 de "
+        "outubro de 2026 para prestar assessoria de imprensa, conduzir o atendimento aos "
+        "veículos de comunicação e prestar suporte de comunicação com relação à operação "
+        "realizada.",
+        "Que os policiais efetuem o retorno à sede de lotação em Curitiba/PR no dia 16 de "
+        "outubro de 2026.",
+    ]
+
+
+@pytest.mark.parametrize("inicio,fim,do,durante", [
+    (date(2026, 10, 15), date(2026, 10, 15), "do dia 15 de outubro de 2026",
+     "durante todo o dia 15 de outubro de 2026"),
+    (date(2026, 10, 15), date(2026, 10, 16), "dos dias 15 e 16 de outubro de 2026",
+     "durante os dias 15 e 16 de outubro de 2026"),
+])
+def test_datas_do_e_durante(inicio, fim, do, durante):
+    etapa = m.Etapa("evento", inicio, fim)
+    assert (m.data_do(etapa), m.data_durante(etapa)) == (do, durante)

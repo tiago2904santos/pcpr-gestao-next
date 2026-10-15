@@ -50,8 +50,9 @@ CLASSES_PERMITIDAS = frozenset({
     "branco", "branco--curto", "branco--nome", "branco--cpf", "par", "assinaturas",
     # Ordem de serviço.
     "referencia", "determino", "competencias",
-    # Plano de trabalho.
-    "capa", "lista", "evento",
+    # Plano de trabalho (as classes do recuo: listas, dados da atuação, subtítulos).
+    "capa", "lista", "evento", "itens", "subtitulo", "evento__titulo", "evento__dados",
+    "efetivo", "prosa", "varios", "nova-pagina",
 })
 MAX_SPAN = 20  # mesclas de tabela aceitas no texto editado
 _ALINHAMENTO = frozenset({"left", "center", "right", "justify"})
@@ -118,6 +119,19 @@ def _estilo_saneado(valor: str, tag: str) -> str:
 def extrair_regioes(html: str) -> dict[str, str]:
     """Chave → HTML interno de cada região marcada, na ordem do documento."""
     return dict(_REGIAO.findall(html))
+
+
+_PARAGRAFO_DE_MARCADORES = re.compile(r"<p>\s*(•[^<]*(?:<br\s*/?>\s*•[^<]*)*)</p>")
+
+
+def listas_de_marcadores(html: str) -> str:
+    """Parágrafo feito só de linhas "• item" (o texto salvo antes das listas de verdade) vira
+    `<ul class="itens">` — com o recuo e o alinhamento das listas do documento."""
+    def lista(m: re.Match) -> str:
+        itens = [linha.strip().removeprefix("•").strip()
+                 for linha in re.split(r"<br\s*/?>", m.group(1))]
+        return '<ul class="itens">' + "".join(f"<li>{i}</li>" for i in itens if i) + "</ul>"
+    return _PARAGRAFO_DE_MARCADORES.sub(lista, html)
 
 
 def aplicar_regioes(html: str, regioes: dict[str, str]) -> str:

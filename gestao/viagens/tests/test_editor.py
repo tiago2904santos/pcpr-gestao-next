@@ -530,3 +530,11 @@ class TestVisoesDoEditor:
                 ).status_code
                 == 200
             )
+
+
+def test_paragrafo_de_marcadores_vira_lista_com_recuo():
+    """Texto do plano salvo antes das listas de verdade ("• item<br>• item") sai como lista."""
+    from gestao.viagens.documentos.regioes import listas_de_marcadores
+    html = '<p>• Um<br>• Dois</p><p>Sem marcador<br>• no meio</p>'
+    assert listas_de_marcadores(html) == (
+        '<ul class="itens"><li>Um</li><li>Dois</li></ul><p>Sem marcador<br>• no meio</p>')

@@ -48,22 +48,20 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
     </div>
 
     <div class="pilha" id="dados">
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.numero classe="campo--sm" %}
-      </div>
       {# Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. #}
       <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}">
         {{ form.oficios }}
         {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
       </div>
       {% comment %}
-      Programa e horário numa linha; calendário compartilhado em largura total abaixo.
+      Número, programa e horário numa linha; calendário compartilhado em largura total abaixo.
       Programa é um campo de
       várias escolhas (<pc-escolhas>): o botão diz o que está marcado e abre a lista com as
       caixas; "Outro" é a última caixa e abre, ao lado, o campo do nome (CSS :has()). Sem
       JavaScript, a lista fica à vista.
       {% endcomment %}
-      <div class="campos campos--agenda-periodo programa-plano">
+      <div class="campos campos--agenda-periodo campos--com-numero programa-plano">
+        {% include "componentes/campo.html" with campo=form.numero %}
         <div class="campo{% if form.programas.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="programas-gatilho" id="programas-rotulo">Programa</label>
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
@@ -143,7 +141,11 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
       <div class="secao__bloco secao__bloco--integrado" aria-labelledby="t-efetivo">
         <div class="secao__bloco-cabecalho">
           <h3 class="secao__bloco-titulo" id="t-efetivo">{% icone "users" classe="icone--sm" %}Efetivo do evento principal</h3>
-          {% if editavel %}<button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>{% endif %}
+        </div>
+        <div class="efetivo-plano__cartao">
+        <div class="efetivo-plano__cabecalho">
+          <span class="efetivo-plano__titulo">{% icone "users" classe="icone--sm" %}Grupo de servidores</span>
+          {% if editavel %}<button type="button" class="botao botao--sm botao--sutil" aria-label="Adicionar efetivo" data-adicionar-em="#efetivo-linhas">{% icone "plus" classe="icone--sm" %}Adicionar</button>{% endif %}
         </div>
         <pc-linhas class="linhas efetivo-plano" id="efetivo-linhas" data-rotulo="linha do efetivo">
           <input type="hidden" name="efetivo_presente" value="1">
@@ -153,6 +155,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
           <template data-modelo>{% include "viagens/planos/_linha_efetivo.html" with n="__n__" linha=None %}</template>
           <div class="sr-only" aria-live="polite" data-anuncio></div>
         </pc-linhas>
+        </div>
       </div>
       {# Deslocamento: saída e chegada na sede (um calendário marca as duas datas). #}
       <div class="secao__bloco secao__bloco--integrado">
