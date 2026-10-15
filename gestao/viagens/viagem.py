@@ -15,6 +15,7 @@ from typing import Any
 
 from django.db import transaction
 from django.db.models import Q, QuerySet
+from django.urls import reverse
 from django.utils import timezone
 
 from gestao.cadastros.models import Municipio, TipoViagem
@@ -258,6 +259,22 @@ def _sincronizar(viagem: Viagem, vinculos: dict) -> None:
             soltar = soltar.filter(pk__in=mostrados)
         soltar.update(viagem=None)
         modelo.objects.filter(pk__in=permitidos).update(viagem=viagem)
+
+
+def ao_terminar(documento, padrao: str) -> str:
+    """Para onde a folha de um documento volta ao "Finalizar": a viagem dele (a trilha de
+    documentos), quando ele é de uma viagem — direto ou por um ofício dela —; senão, `padrao`
+    (a lista do tipo)."""
+    viagem_id = getattr(documento, "viagem_id", None)
+    oficio = getattr(documento, "oficio", None)  # o termo que nasceu de um ofício
+    if not viagem_id and oficio is not None:
+        viagem_id = oficio.viagem_id
+    if not viagem_id and hasattr(documento, "oficios") and documento.pk:
+        viagem_id = (documento.oficios.exclude(viagem=None)
+                     .values_list("viagem_id", flat=True).first())
+    if viagem_id:
+        return reverse("viagens:editar_viagem", args=[viagem_id]) + "#documentos"
+    return reverse(padrao)
 
 
 # ---------------------------------------------------------------- documento novo vinculado

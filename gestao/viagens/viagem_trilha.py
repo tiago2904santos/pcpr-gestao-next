@@ -21,16 +21,25 @@ from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
 
-from . import ordens, planos, termos, viagem_solicitacao
+from . import ordens, planos, policies, termos, viagem_solicitacao
 from .dominio.escrita import lista_com_e
-from .models import AnexoViagem, Oficio, OrdemServico, PlanoTrabalho, TermoAutorizacao
+from .models import (
+    AnexoViagem,
+    Documento,
+    Oficio,
+    OrdemServico,
+    PlanoTrabalho,
+    TermoAutorizacao,
+)
 from .viagem import Documentos
 
 
 @dataclass(frozen=True)
 class Pagina:
     rotulo: str
-    url: str
+    url: str  # a folha (o documento como sai), mostrada no visualizador
+    pdf: str = ""  # baixar
+    anexar: str = ""  # anexar a via assinada (só quem pode)
 
 
 @dataclass(frozen=True)
@@ -58,8 +67,8 @@ class Item:
         """As folhas para o visualizador (vazio quando não está pronto: abre o resumo)."""
         if not self.pronto or not self.paginas:
             return ""
-        return json.dumps([{"rotulo": p.rotulo, "url": p.url} for p in self.paginas],
-                          ensure_ascii=False)
+        return json.dumps([{"rotulo": p.rotulo, "url": p.url, "pdf": p.pdf,
+                            "anexar": p.anexar} for p in self.paginas], ensure_ascii=False)
 
 
 @dataclass(frozen=True)
@@ -80,6 +89,11 @@ class Passo:
     itens: list[Item] = field(default_factory=list)
     novos: list[Novo] = field(default_factory=list)
     anexar: bool = False  # a solicitação: anexa um arquivo em vez de criar documento
+    dispensado: bool = False  # OS ou plano sem documento, com a solicitação anexada
+
+    @property
+    def feito(self) -> bool:
+        return bool(self.itens) or self.dispensado
 
 
 def _cancelado(obj) -> bool:
@@ -107,7 +121,7 @@ def _anexo(a: AnexoViagem) -> Item:
     return Item(a, "solicitacao", str(a),
                 Chip({"email": "E-mail", "oficio": "Ofício"}.get(a.tipo, "Documento")),
                 f"Anexado por {quem} em {quando}", abrir, pronto=visivel,
-                paginas=[Pagina(str(a), abrir)] if visivel else [],
+                paginas=[Pagina(str(a), abrir, pdf=f"{abrir}?baixar=1")] if visivel else [],
                 remover_url=reverse("viagens:remover_solicitacao_viagem", args=[a.pk]),
                 visualizar=visivel)
 
@@ -127,12 +141,24 @@ def _roteiro(r) -> Item:
                 reverse("viagens:resumo_roteiro", args=[r.pk]))
 
 
-def _oficio(o: Oficio) -> Item:
+def _pdf_do_oficio(o: Oficio, tipo: str) -> str:
+    """O PDF emitido mais recente (a via assinada prevalece no download)."""
+    doc = (Documento.objects.filter(oficio=o, tipo=tipo, situacao=Documento.Situacao.PRONTO)
+           .order_by("-versao").values_list("pk", flat=True).first())
+    return f"{reverse('viagens:baixar_documento', args=[doc])}?baixar=1" if doc else ""
+
+
+def _oficio(o: Oficio, usuario) -> Item:
     emitido = o.situacao == Oficio.Situacao.EMITIDO
-    paginas = [Pagina("Ofício", reverse("viagens:folha", args=[o.pk, "oficio"]))]
+    anexa = usuario is not None and policies.pode_anexar_assinado(usuario, o)
+    tipos = [("Ofício", "oficio")]
     if (o.justificativa or "").strip():
-        paginas.append(Pagina("Justificativa",
-                              reverse("viagens:folha", args=[o.pk, "justificativa"])))
+        tipos.append(("Justificativa", "justificativa"))
+    final = "?final=1" if emitido else ""  # emitido: a folha sem a marca de minuta
+    paginas = [Pagina(rotulo, reverse("viagens:folha", args=[o.pk, tipo]) + final,
+                      pdf=_pdf_do_oficio(o, tipo) if emitido else "",
+                      anexar=reverse("viagens:anexar_assinado", args=[tipo, o.pk])
+                      if anexa and emitido else "") for rotulo, tipo in tipos]
     protocolo = o.protocolo_formatado if o.protocolo else ""
     return Item(o, "oficio", str(o), _situacao(o, emitido, "Emitido"),
                 f"Protocolo {protocolo}" if protocolo else "Sem protocolo",
@@ -150,10 +176,11 @@ def _plano(p: PlanoTrabalho) -> Item:
                 f"{_plural(efetivo, 'pessoa no efetivo', 'pessoas no efetivo')}",
                 reverse("viagens:editar_plano", args=[p.pk]),
                 reverse("viagens:resumo_plano", args=[p.pk]), pronto=pronto,
-                paginas=[Pagina("Plano de trabalho", reverse("viagens:folha_plano", args=[p.pk]))])
+                paginas=[Pagina("Plano de trabalho", reverse("viagens:folha_plano", args=[p.pk]),
+                                pdf=reverse("viagens:documento_plano", args=[p.pk, "pdf"]))])
 
 
-def _ordem(o: OrdemServico) -> Item:
+def _ordem(o: OrdemServico, usuario) -> Item:
     gerada = o.documento_gerado_em is not None
     pronto = gerada and not _cancelado(o) and not ordens.faltando(o)
     tipo = o.modelo.nome if o.modelo is not None else "OS padrão"
@@ -162,13 +189,22 @@ def _ordem(o: OrdemServico) -> Item:
                 f"{tipo} · {_plural(servidores, 'servidor', 'servidores')}",
                 reverse("viagens:editar_ordem", args=[o.pk]),
                 reverse("viagens:resumo_ordem", args=[o.pk]), pronto=pronto,
-                paginas=[Pagina("Ordem de serviço", reverse("viagens:folha_ordem", args=[o.pk]))])
+                paginas=[Pagina(
+                    "Ordem de serviço", reverse("viagens:folha_ordem", args=[o.pk]),
+                    pdf=reverse("viagens:documento_ordem", args=[o.pk, "pdf"]),
+                    anexar=reverse("viagens:anexar_assinado", args=["ordem", o.pk])
+                    if usuario is not None and policies.pode_editar_ordem(usuario, o) and gerada
+                    else "")])
 
 
-def _termo(t: TermoAutorizacao) -> Item:
+def _termo(t: TermoAutorizacao, usuario) -> Item:
     ef = termos.efetivo(t)
     pronto = bool(ef.inicio and ef.destinos) and not _cancelado(t)
-    paginas = [Pagina(d["titulo"], reverse("viagens:folha_termo", args=[t.pk, d["chave"]]))
+    anexa = usuario is not None and policies.pode_editar_termo(usuario, t)
+    paginas = [Pagina(d["titulo"], reverse("viagens:folha_termo", args=[t.pk, d["chave"]]),
+                      pdf=reverse("viagens:documento_termo", args=[t.pk, d["chave"], "pdf"]),
+                      anexar=reverse("viagens:anexar_assinado_de", args=["termo", t.pk, d["chave"]])
+                      if anexa else "")
                for d in termos.documentos_do_termo(t, ef)] if pronto else []
     if _cancelado(t):
         chip = Chip("Cancelado", "perigo")
@@ -181,23 +217,28 @@ def _termo(t: TermoAutorizacao) -> Item:
                 reverse("viagens:resumo_termo", args=[t.pk]), pronto=pronto, paginas=paginas)
 
 
-def trilha(docs: Documentos, anexos=()) -> list[Passo]:
-    documentos_da_os = [_ordem(o) for o in docs.ordens] + [_plano(p) for p in docs.planos]
+def trilha(docs: Documentos, anexos=(), usuario=None) -> list[Passo]:
+    """`usuario`: quem vê — decide o "Anexar assinado" de cada documento."""
+    documentos_da_os = ([_ordem(o, usuario) for o in docs.ordens]
+                        + [_plano(p) for p in docs.planos])
+    solicitacao = [_anexo(a) for a in anexos]
     return [
         Passo(1, "solicitacao", "Solicitação", "mail",
               "O e-mail do solicitante ou o ofício que pede o evento.",
-              "Nenhuma solicitação anexada", [_anexo(a) for a in anexos], anexar=True),
+              "Nenhuma solicitação anexada", solicitacao, anexar=True),
         Passo(2, "roteiro", "Roteiro", "route", "O percurso, os trechos e as diárias.",
               "Nenhum roteiro ainda", [_roteiro(r) for r in docs.roteiros],
               [Novo("roteiro", "Novo roteiro")]),
         Passo(3, "oficio", "Ofícios", "file-text", "A equipe e o pedido de diárias.",
-              "Nenhum ofício ainda", [_oficio(o) for o in docs.oficios],
+              "Nenhum ofício ainda", [_oficio(o, usuario) for o in docs.oficios],
               [Novo("oficio", "Novo ofício")]),
         Passo(4, "os-plano", "OS ou plano de trabalho", "clipboard-list",
-              "Basta um dos dois: a ordem de serviço ou o plano de trabalho.",
-              "Nenhuma OS nem plano ainda", documentos_da_os,
-              [Novo("ordem", "Nova OS", True), Novo("plano", "Novo plano", True)]),
+              "Basta um dos dois — e nenhum é preciso quando a solicitação está anexada.",
+              "Dispensado: a solicitação está anexada." if solicitacao
+              else "Nenhuma OS nem plano ainda", documentos_da_os,
+              [Novo("ordem", "Nova OS", True), Novo("plano", "Novo plano", True)],
+              dispensado=bool(solicitacao) and not documentos_da_os),
         Passo(5, "termo", "Termos", "file-signature", "As autorizações dos servidores.",
-              "Nenhum termo ainda", [_termo(t) for t in docs.termos],
+              "Nenhum termo ainda", [_termo(t, usuario) for t in docs.termos],
               [Novo("termo", "Novo termo", True)]),
     ]

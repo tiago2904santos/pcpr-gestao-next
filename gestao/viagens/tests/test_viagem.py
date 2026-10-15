@@ -461,7 +461,8 @@ class TestSolicitacao:
         r = cli.get(reverse("viagens:abrir_solicitacao_viagem", args=[email.pk]))
         assert "attachment" in r["Content-Disposition"]
         html = cli.get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
-        assert "pedido.eml" in html and "oficio-pedido.pdf" in html and "1 de 5 passos" in html
+        assert "pedido.eml" in html and "oficio-pedido.pdf" in html
+        assert "2 de 5 passos" in html  # a solicitação e a OS/plano dispensados por ela
         cli.post(reverse("viagens:remover_solicitacao_viagem", args=[email.pk]))
         email.refresh_from_db()
         assert email.removido_em is not None
@@ -480,3 +481,41 @@ class TestSolicitacao:
         assert not AnexoViagem.objects.exists()
         r = self._anexar(_cliente(c.usuarios["consulta"]), v, "pedido.eml", self.EML)
         assert r.status_code in (403, 404) and not AnexoViagem.objects.exists()
+
+
+def test_finalizar_documento_da_viagem_volta_para_a_viagem(c):
+    """Ofício, OS, plano, termo e roteiro da viagem: "Finalizar" leva à trilha da viagem; sem
+    viagem, à lista do tipo."""
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    viagem.salvar_dados(op, v.pk, tipos=[], data_inicio=timezone.localdate(),
+                        destinos=[_londrina()])
+    ordem = OrdemServico.objects.get(pk=viagem.novo_documento(op, v.pk, "ordem").pk)
+    folha = reverse("viagens:editar_viagem", args=[v.pk]) + "#documentos"
+    assert viagem.ao_terminar(ordem, "viagens:ordens") == folha
+    solta, _ = ordens.salvar(op, destinos=[_londrina()])
+    assert viagem.ao_terminar(solta, "viagens:ordens") == reverse("viagens:ordens")
+    termo = termos.salvar(op, oficio=Oficio.objects.get(pk=c.ids["oficio_emitido"]))
+    Oficio.objects.filter(pk=c.ids["oficio_emitido"]).update(viagem=v)
+    termo.refresh_from_db()
+    assert viagem.ao_terminar(termo, "viagens:termos") == folha  # pelo ofício da viagem
+    cli = _cliente(op)
+    r = cli.post(reverse("viagens:finalizar_termo", args=[termo.pk]))
+    assert r.status_code == 302 and r["Location"] == folha
+
+
+def test_solicitacao_anexada_dispensa_os_e_plano(c, settings, tmp_path):
+    from gestao.viagens import viagem_conferencia, viagem_solicitacao
+    from gestao.viagens.models import AnexoViagem
+
+    settings.MEDIA_ROOT = tmp_path
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    falta = "Crie a ordem de serviço ou o plano de trabalho (ou anexe a solicitação)."
+    assert falta in [i.mensagem for e in viagem_conferencia.quadro(v).etapas for i in e.itens]
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    viagem_solicitacao.anexar(op, v.pk, SimpleUploadedFile("pedido.pdf", b"%PDF-1.4\n"),
+                              AnexoViagem.Tipo.OFICIO)
+    assert falta not in [i.mensagem for e in viagem_conferencia.quadro(v).etapas for i in e.itens]
+    html = _cliente(op).get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+    assert "Dispensado: a solicitação está anexada." in html

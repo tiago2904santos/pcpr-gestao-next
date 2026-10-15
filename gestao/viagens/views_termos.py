@@ -36,6 +36,7 @@ from . import (
     termos,
     views_assinados,
 )
+from . import viagem as viagem_mod
 from .forms import FormularioTermo
 from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho, Viajante
 from .views import POR_PAGINA, _migalhas
@@ -519,7 +520,7 @@ def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
     editor); a tela volta à lista."""
     termo = _termo_visivel(request, pk)
     messages.success(request, f"{termo} salvo.")
-    return redirect("viagens:termos")
+    return redirect(viagem_mod.ao_terminar(termo, "viagens:termos"))
 
 
 @require_POST

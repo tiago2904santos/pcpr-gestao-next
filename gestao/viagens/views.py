@@ -37,6 +37,7 @@ from gestao.cadastros.models import Municipio, Servidor
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from . import exportacao, itinerario, linha_lista, policies, queries, rotas, services
+from . import viagem as viagem_mod
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, buscar_recurso, html_do_documento
 from .dominio import busca as dominio_busca
@@ -614,9 +615,9 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                     return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
                 # A revisão é a janela de resumo aberta sobre a própria folha.
                 return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?revisar=1")
-            if acao == "finalizar":  # "Finalizar" do rodapé: salvo, volta à lista
+            if acao == "finalizar":  # "Finalizar" do rodapé: salvo, volta à viagem ou à lista
                 messages.success(request, f"Ofício {oficio.numero_formatado} salvo.")
-                return redirect("viagens:oficios")
+                return redirect(viagem_mod.ao_terminar(oficio, "viagens:oficios"))
             # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
             # não de um toast: o operador salva dezenas de vezes por dia.
             return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")

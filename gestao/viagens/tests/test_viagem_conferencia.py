@@ -51,7 +51,7 @@ def test_quadro_da_viagem_vazia_lista_as_etapas_na_ordem(c):
                                                  "Informe o destino da viagem."]
     assert dados.itens[0].link.endswith("#dados") and not q.pronta
     # OS ou plano: basta um dos dois.
-    assert "Crie a ordem de serviço ou o plano de trabalho." in [
+    assert "Crie a ordem de serviço ou o plano de trabalho (ou anexe a solicitação)." in [
         i.mensagem for e in q.etapas for i in e.itens]
 
 

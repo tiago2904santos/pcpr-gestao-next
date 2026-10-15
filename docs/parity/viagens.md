@@ -49,15 +49,18 @@ Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
   "Protocolo …"; roteiro "Usado no Ofício … e no Ofício …"; plano "N atividades · N pessoas no
   efetivo"; OS "tipo · N servidores"; termo "N servidores · pelo Ofício …"; anexo "Anexado por
   … em …".
-- **Visualizador** (`_visualizador.html`, `visualizador.js`): clicar no cartão abre um modal.
-  Documento **pronto** (ofício emitido; OS e plano gerados e sem pendência; termo com período
-  e destino) mostra a folha — o documento como sai — ao lado do resumo com as ações (no
-  celular, Documento × Resumo); com mais de uma página (ofício e justificativa, os termos de
-  cada servidor), a escolha da página. O que não está pronto, tem pendência ou é roteiro abre
-  só o resumo. Setas (e ← →) passam entre os documentos do mesmo tipo; Esc devolve o foco ao
-  cartão; Ctrl/⌘-clique ou sem JavaScript, o cartão abre a folha de edição. O anexo da
-  solicitação (PDF ou imagem) abre sozinho, na largura toda, com "Abrir em nova aba"; o
-  e-mail (.eml/.msg) baixa.
+- **Visualizador** (`_visualizador.html`, `visualizador.js`), simples: o documento flutua
+  sobre a página escurecida (a folha sem a mesa cinza; o ofício emitido sem a marca de
+  minuta, `?final=1`), setas nas laterais (e ← →) para o anterior e o próximo do mesmo passo,
+  e no topo o nome e as **ações rápidas** — Imprimir, Baixar (o PDF), Baixar todos (o ZIP da
+  viagem), Anexar assinado (a janela da via assinada, para quem pode) e Editar — e Fechar
+  (também Esc ou clique no véu). Documento ainda não pronto (ou o roteiro) flutua como o
+  resumo, com as ações dele no rodapé. O anexo da solicitação (PDF ou imagem) flutua como é.
+- **Solicitação dispensa OS e plano**: com a solicitação anexada, o passo "OS ou plano de
+  trabalho" fica ✓ ("Dispensado: a solicitação está anexada.") e a conferência não o pede.
+- **"Finalizar" volta para a viagem**: ofício, OS, plano, termo e roteiro de uma viagem
+  (direto ou por um ofício dela) voltam à trilha da viagem (`viagem.ao_terminar`); sem
+  viagem, à lista do tipo, como antes.
 - **Vincular documentos existentes**: cada lista mostra no máximo três linhas e rola; o
   texto de cada opção fica centrado com a caixa de marcar.
 - **Conferência**: resumo com barra das etapas concluídas; etapas com pendência em cartões

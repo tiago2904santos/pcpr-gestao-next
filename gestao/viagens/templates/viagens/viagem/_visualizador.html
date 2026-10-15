@@ -1,36 +1,38 @@
 {% comment %}
-Visualizador dos documentos da viagem (visualizador.js), aberto pelos cartões da trilha.
-Barra: o tipo e o número, "1 de 2" com as setas entre os documentos do mesmo tipo (também
-← e →), a página quando o documento tem mais de uma (ofício e justificativa; os termos) e,
-no celular, Documento × Resumo. Corpo: a folha do documento pronto (o documento como sai)
-ao lado do resumo com as ações; o que não está pronto (ou o roteiro) abre só o resumo.
+Visualizador dos documentos da viagem (visualizador.js), aberto pelos cartões da trilha: o
+documento flutuando sobre a página escurecida, as setas para o anterior e o próximo do mesmo
+passo (também ← e →) e, no topo, o nome e as ações rápidas — imprimir, baixar, baixar todos
+(o ZIP da viagem), anexar a via assinada, editar — e fechar (também Esc). O que ainda não
+está pronto (ou o roteiro) flutua como o resumo, com as ações dele no rodapé.
 {% endcomment %}
-<dialog id="dialogo-documento" class="dialogo dialogo--resumo dialogo--mesa visualizador" aria-labelledby="visualizador-titulo" data-visualizador>
-  <div class="visualizador__barra">
+<dialog id="dialogo-documento" class="visualizador" aria-labelledby="visualizador-titulo" data-visualizador>
+  <header class="visualizador__topo">
     <div class="visualizador__id">
       <span class="visualizador__tipo" data-v-tipo></span>
       <h2 class="visualizador__titulo" id="visualizador-titulo" data-v-titulo>Documento</h2>
-    </div>
-    <div class="visualizador__navegacao" data-v-navegacao hidden>
-      <button type="button" class="botao botao--icone botao--sm" data-v-anterior aria-label="Documento anterior">{% icone "chevron-left" %}</button>
       <span class="visualizador__posicao" data-v-posicao aria-live="polite"></span>
-      <button type="button" class="botao botao--icone botao--sm" data-v-proximo aria-label="Próximo documento">{% icone "chevron-right" %}</button>
     </div>
     <div class="visualizador__pagina" data-v-pagina hidden>
-      <label class="sr-only" for="visualizador-pagina">Página do documento</label>
-      <select class="selecao visualizador__select" id="visualizador-pagina" data-v-paginas></select>
+      <label class="sr-only" for="visualizador-pagina">Qual documento</label>
+      <select class="visualizador__select" id="visualizador-pagina" data-v-paginas></select>
     </div>
-    <div class="visualizador__modos" role="group" aria-label="Mostrar" data-v-modos hidden>
-      <button type="button" class="visualizador__modo" data-v-modo="documento" aria-pressed="true">{% icone "file-text" classe="icone--sm" %}Documento</button>
-      <button type="button" class="visualizador__modo" data-v-modo="resumo" aria-pressed="false">{% icone "list-checks" classe="icone--sm" %}Resumo</button>
+    <div class="visualizador__acoes" role="toolbar" aria-label="Ações do documento">
+      <button type="button" class="visualizador__acao" data-v-imprimir hidden>{% icone "printer" classe="icone--sm" %}<span>Imprimir</span></button>
+      <a class="visualizador__acao" data-v-baixar hidden>{% icone "download" classe="icone--sm" %}<span>Baixar</span></a>
+      <button type="submit" form="baixar-tudo" class="visualizador__acao" data-v-todos hidden>{% icone "files" classe="icone--sm" %}<span>Baixar todos</span></button>
+      <button type="button" class="visualizador__acao" data-v-anexar hidden>{% icone "file-signature" classe="icone--sm" %}<span>Anexar assinado</span></button>
+      <a class="visualizador__acao visualizador__acao--principal" data-v-editar hidden>{% icone "pencil" classe="icone--sm" %}<span>Editar</span></a>
+      <button type="button" class="visualizador__acao visualizador__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
     </div>
-    <a class="botao botao--sm" data-v-nova-aba target="_blank" rel="noopener" hidden>{% icone "external-link" classe="icone--sm" %}Abrir em nova aba</a>
-    <button type="button" class="botao botao--icone botao--sutil visualizador__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
-  </div>
-  <div class="visualizador__corpo" data-v-corpo>
+  </header>
+  <div class="visualizador__palco">
+    <button type="button" class="visualizador__seta visualizador__seta--anterior" data-v-anterior aria-label="Documento anterior">{% icone "chevron-left" %}</button>
     <div class="visualizador__documento" data-v-documento hidden>
       <iframe class="visualizador__folha" data-v-folha title="Documento"></iframe>
     </div>
-    <div class="visualizador__resumo dialogo__conteudo" id="visualizador-resumo" data-v-resumo data-corpo-dialogo>{% include "viagens/oficios/_resumo_carregando.html" %}</div>
+    <div class="visualizador__cartao dialogo--resumo" data-v-cartao hidden>
+      <div class="dialogo__conteudo" id="visualizador-resumo" data-v-resumo data-corpo-dialogo>{% include "viagens/oficios/_resumo_carregando.html" %}</div>
+    </div>
+    <button type="button" class="visualizador__seta visualizador__seta--proximo" data-v-proximo aria-label="Próximo documento">{% icone "chevron-right" %}</button>
   </div>
 </dialog>

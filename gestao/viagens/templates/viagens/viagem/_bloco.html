@@ -4,8 +4,8 @@ o título e o que o passo é, o botão de criar (Termo, OS e plano nascem com pe
 destinos: sem eles, o botão fica parado e diz por quê; a solicitação anexa um arquivo) e a
 lista dos documentos — título, chip da situação e subtexto.
 {% endcomment %}
-<li class="viagem-passo{% if passo.itens %} viagem-passo--ok{% endif %}" aria-labelledby="t-passo-{{ passo.chave }}">
-  <span class="viagem-passo__marca" aria-hidden="true">{% if passo.itens %}{% icone "check" classe="icone--sm" %}{% else %}{{ passo.numero }}{% endif %}</span>
+<li class="viagem-passo{% if passo.feito %} viagem-passo--ok{% endif %}" aria-labelledby="t-passo-{{ passo.chave }}">
+  <span class="viagem-passo__marca" aria-hidden="true">{% if passo.feito %}{% icone "check" classe="icone--sm" %}{% else %}{{ passo.numero }}{% endif %}</span>
   <div class="viagem-passo__corpo">
     <div class="viagem-passo__cabecalho">
       <div class="viagem-passo__rotulo">
@@ -38,7 +38,7 @@ lista dos documentos — título, chip da situação e subtexto.
       </li>{% endfor %}
     </ul>
     {% else %}
-    <p class="viagem-lista__vazio">{% icone passo.icone classe="icone--sm" %}{{ passo.vazio }}</p>
+    <p class="viagem-lista__vazio{% if passo.dispensado %} viagem-lista__vazio--dispensado{% endif %}">{% if passo.dispensado %}{% icone "check" classe="icone--sm" %}{% else %}{% icone passo.icone classe="icone--sm" %}{% endif %}{{ passo.vazio }}</p>
     {% endif %}
     {% if editavel and not pode_semear %}{% for novo in passo.novos %}{% if novo.precisa_semente and forloop.first %}<a class="viagem-passo__falta" id="sem-semente-{{ passo.chave }}" href="#periodo">Para criar, informe o período e o destino da viagem.</a>{% endif %}{% endfor %}{% endif %}
   </div>

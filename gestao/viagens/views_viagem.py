@@ -207,8 +207,9 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
     docs = viagem.documentos(v)
     return render(request, "viagens/viagem/editar.html", {
         "v": v, "form": form, "docs": docs, "quando": viagem.dias_para(v),
-        "trilha": (trilha := viagem_trilha.trilha(docs, viagem_solicitacao.ativos(v))),
-        "trilha_feitos": sum(1 for passo in trilha if passo.itens),
+        "trilha": (trilha := viagem_trilha.trilha(docs, viagem_solicitacao.ativos(v),
+                                                 request.user)),
+        "trilha_feitos": sum(1 for passo in trilha if passo.feito),
         "tipos_de_solicitacao": AnexoViagem.Tipo.choices,
         "quadro": None if v.cancelada else viagem_conferencia.quadro(v),
         "diferencas": [] if v.cancelada else viagem_conferencia.coerencia(v),

@@ -145,9 +145,12 @@ def quadro(viagem: Viagem) -> Quadro:
     # OS ou plano de trabalho: basta um dos dois; o que existir tem de estar completo.
     ativas = [o for o in docs.ordens if not o.cancelada]
     ativos = [p for p in docs.planos if not p.cancelado]
-    if not ativas and not ativos:
-        etapas["ordem"].itens.append(Item("Crie a ordem de serviço ou o plano de trabalho.",
-                                          f"{folha}#documentos"))
+    # Com a solicitação anexada (e-mail ou ofício de quem pediu), nenhum dos dois é preciso.
+    solicitada = viagem.anexos.filter(removido_em__isnull=True).exists()
+    if not ativas and not ativos and not solicitada:
+        etapas["ordem"].itens.append(Item(
+            "Crie a ordem de serviço ou o plano de trabalho (ou anexe a solicitação).",
+            f"{folha}#documentos"))
     for os_ in ativas:
         falta = ordens.faltando(os_)
         if falta:
