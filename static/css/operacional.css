@@ -2007,7 +2007,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
    da equipe ganha um selo com a placa (✓) e, embaixo, a escolha da viatura num seletor
    segmentado que desce ao passar o mouse (ou com o foco) e recolhe ao sair — termo.js
    monta e mede o realce (`--escala-x`/`--escala-w`). */
-.transporte-termo { display: grid; gap: var(--esp-2); margin: 0; padding: 0; list-style: none; }
+.transporte-termo { display: grid; gap: var(--esp-2); margin: var(--esp-3) 0 0; padding: 0; list-style: none; }  /* o campo acima é display: contents: a pilha não dá o espaço */
 .transporte-termo__viatura { animation: atencao-entrar var(--duracao-lenta) var(--curva-expressiva) backwards; }
 .transporte-termo__viatura + .transporte-termo__viatura { animation-delay: 60ms; }
 .transporte-termo__conta { color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
@@ -2019,22 +2019,31 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 @keyframes frota-conta { 0% { scale: 1; } 40% { scale: 1.15; color: var(--cor-marca-texto); } 100% { scale: 1; } }
 
 /* O selo do cartão: a viatura escolhida, ou o aviso de que falta escolher. */
-.lotacao-selo { display: inline-flex; flex: none; align-items: center; gap: var(--esp-1); margin-left: auto; padding: 2px var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); font-variant-numeric: tabular-nums; color: var(--cor-texto); white-space: nowrap; transition: opacity var(--duracao-rapida) var(--curva-padrao); }
-.lotacao-selo > .icone { width: 0.75rem; height: 0.75rem; color: var(--cor-sucesso); }
-.lotacao-selo--falta { background: var(--cor-aviso-fundo); box-shadow: inset 0 0 0 1px var(--cor-aviso-borda); color: var(--cor-aviso); letter-spacing: 0; }
-.lotacao-selo--falta > .icone { color: var(--cor-aviso); }
-.pessoas--compactas > .equipe__cartao--lotacao { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.lotacao-selo { display: inline-flex; flex: none; align-items: center; gap: var(--esp-2); height: 1.75rem; margin-left: auto; padding: 0 var(--esp-3) 0 var(--esp-1); border: 1px solid var(--cor-borda-forte); border-radius: var(--raio-pilula); background: var(--cor-superficie); font-size: var(--texto-sm); font-weight: var(--peso-medio); line-height: 1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; color: var(--cor-texto); white-space: nowrap; }
+.lotacao-selo > .icone { flex: none; width: 1.125rem; height: 1.125rem; padding: 3px; border-radius: var(--raio-pilula); background: var(--cor-sucesso); color: var(--cor-texto-inverso); stroke-width: 3; }
+.lotacao-selo--falta { border-color: var(--cor-aviso-borda); background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.lotacao-selo--falta > .icone { background: var(--cor-aviso); }
+.pessoas--compactas > .equipe__cartao--lotacao { grid-template-columns: auto minmax(0, 1fr) auto; }
+/* Selo e × dividem a mesma célula: parado, a placa; com o mouse ou o foco do teclado, o × (a gaveta
+   já mostra a escolha) — só opacidade, nada muda de lugar. */
+.equipe__cartao--lotacao > .lotacao-selo, .equipe__cartao--lotacao > .equipe__acoes { grid-row: 1; grid-column: 3; justify-self: end; transition: opacity var(--duracao-rapida) var(--curva-padrao); }
+.equipe__cartao--lotacao > .equipe__acoes { opacity: 0; pointer-events: none; }
+.equipe__cartao--lotacao:is(:hover, :has(:focus-visible)) > .equipe__acoes { opacity: 1; pointer-events: auto; }
+.equipe__cartao--lotacao:is(:hover, :has(:focus-visible)) > .lotacao-selo { opacity: 0; }
 .equipe__cartao--lotacao > .equipe__acoes { margin-left: 0; }
-.equipe__cartao--lotacao:is(:hover, :focus-within) > .lotacao-selo { display: none; }  /* a gaveta já mostra a escolha: o nome usa o espaço */
 
-/* A gaveta: fechada não ocupa altura; com o mouse ou o foco no cartão, desce. */
-.lotacao-gaveta { display: grid; flex: 1 0 100%; grid-column: 1 / -1; grid-template-rows: 0fr; margin-top: calc(-1 * var(--esp-3)); opacity: 0; translate: 0 calc(-1 * var(--esp-1)); transition: grid-template-rows var(--duracao-media) var(--curva-expressiva), margin-top var(--duracao-media) var(--curva-expressiva), opacity var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-media) var(--curva-expressiva); }
-.lotacao-gaveta__dentro { min-height: 0; overflow: hidden; }
-.equipe__cartao--lotacao:is(:hover, :focus-within) > .lotacao-gaveta { grid-template-rows: 1fr; margin-top: 0; opacity: 1; translate: 0 0; }
+/* A gaveta: desce por cima, presa à borda de baixo do cartão, com o mouse em cima ou com
+   o foco do teclado (:focus-visible — o clique do mouse não a deixa presa aberta). Não muda a altura de nada
+   — só opacidade, deslocamento e recorte, que o navegador anima sem refazer a página). O
+   cartão aberto perde os cantos de baixo e a gaveta continua a borda dele. */
+.equipe__cartao--lotacao { transition: border-radius var(--duracao-rapida) var(--curva-saida), border-color var(--duracao-rapida) var(--curva-padrao); }
+.equipe__cartao--lotacao:is(:hover, :has(:focus-visible)) { z-index: 3; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.lotacao-gaveta { position: absolute; top: 100%; right: -1px; left: -1px; z-index: 3; padding: var(--esp-2); border: 1px solid var(--hover-cartao-borda); border-top: 0; border-radius: 0 0 var(--raio-lg) var(--raio-lg); background: var(--cor-superficie); box-shadow: var(--sombra-2); opacity: 0; visibility: hidden; pointer-events: none; translate: 0 calc(-1 * var(--esp-2)); clip-path: inset(0 0 100% 0 round 0 0 var(--raio-lg) var(--raio-lg)); transition: opacity var(--duracao-rapida) var(--curva-saida), translate var(--duracao-rapida) var(--curva-saida), clip-path var(--duracao-rapida) var(--curva-saida), visibility 0s linear var(--duracao-rapida); }
+.equipe__cartao--lotacao:is(:hover, :has(:focus-visible)) > .lotacao-gaveta { opacity: 1; visibility: visible; pointer-events: auto; translate: 0 0; clip-path: inset(0 0 0 0 round 0 0 var(--raio-lg) var(--raio-lg)); transition: opacity var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-media) var(--curva-padrao), clip-path var(--duracao-media) var(--curva-padrao), visibility 0s; }
 .lotacao-gaveta__escala { display: flex; width: 100%; }
 .lotacao-gaveta__escala > label { flex: 1 1 0; min-width: 0; }
-@media (hover: none) { .lotacao-gaveta { grid-template-rows: 1fr; margin-top: 0; opacity: 1; translate: 0 0; } .lotacao-selo { display: none; } }
-@media (prefers-reduced-motion: reduce) { .lotacao-gaveta { transition: none; } }
+@media (hover: none) { .lotacao-gaveta { position: static; grid-column: 1 / -1; padding: 0; border: 0; box-shadow: none; opacity: 1; visibility: visible; pointer-events: auto; translate: none; clip-path: none; } .lotacao-selo { display: none; } .equipe__cartao--lotacao > .equipe__acoes { opacity: 1; pointer-events: auto; } }
+@media (prefers-reduced-motion: reduce) { .lotacao-gaveta, .equipe__cartao--lotacao:is(:hover, :has(:focus-visible)) > .lotacao-gaveta { translate: none; clip-path: none; } }
 
 /* Seletor segmentado com realce que desliza (a função do servidor na OS, reinterpretada). */
 .escala { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: var(--raio-md); background: var(--cor-superficie-realce); isolation: isolate; }
@@ -2046,7 +2055,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .escala > input[value=""]:checked + label { background: var(--cor-superficie); color: var(--cor-texto); box-shadow: inset 0 0 0 1px var(--cor-borda-forte); }
 .escala > input:focus-visible + label { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
 .escala > input:disabled + label { cursor: default; }
-.escala__realce { position: absolute; top: 3px; bottom: 3px; left: 0; z-index: 0; width: var(--escala-w, 0); border-radius: calc(var(--raio-md) - 3px); background: var(--grafite-900); box-shadow: var(--sombra-1); opacity: 0; translate: var(--escala-x, 0) 0; transition: translate var(--duracao-media) var(--curva-expressiva), width var(--duracao-media) var(--curva-expressiva), background-color var(--duracao-rapida) var(--curva-padrao); }
+.escala__realce { position: absolute; top: 3px; bottom: 3px; left: 0; z-index: 0; width: var(--escala-w, 0); border-radius: calc(var(--raio-md) - 3px); background: var(--grafite-900); box-shadow: var(--sombra-1); opacity: 0; translate: var(--escala-x, 0) 0; transition: translate var(--duracao-media) var(--curva-padrao), width var(--duracao-media) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
 .escala--viva .escala__realce { opacity: 1; }
 .escala--viva > input:checked + label, .escala--viva > input[value=""]:checked + label { background: transparent; box-shadow: none; }
 .escala--viva:has(input[value=""]:checked) .escala__realce { background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda-forte); }

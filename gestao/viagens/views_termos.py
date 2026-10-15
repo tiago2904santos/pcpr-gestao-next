@@ -21,6 +21,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
+from gestao.cadastros.models import Servidor
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 from gestao.plataforma.periodos import apresentar_periodo, frase_periodo
 
@@ -247,6 +248,8 @@ def _trajeto(inicio, fim, ida, volta) -> dict | None:
     não deixa estilo em linha; o CSS tem uma regra por degrau)."""
     if not ida or not volta or (ida, volta) == (inicio, fim) or volta < ida:
         return None
+    if inicio < ida or fim > volta:  # evento fora da viagem: a estrada não o mostraria
+        return None
     total = (volta - ida).days + 1
 
     def degrau(x: float) -> int:
@@ -272,7 +275,8 @@ def _viaturas_da_tela(ef) -> dict:
                     getattr(g.viatura.combustivel, "nome", ""), g.viatura.get_tipo_display(),
                     getattr(g.viatura.unidade, "sigla", "")) if p)}
                for g in ef.viaturas]
-    lotacao, sem = {}, []
+    lotacao: dict[str, str] = {}
+    sem: list[Servidor] = []
     for s in ef.servidores:
         v = ef.viatura_de(s)
         alvo = next((c for c in colunas if v is not None and c["viatura"].pk == v.pk), None)

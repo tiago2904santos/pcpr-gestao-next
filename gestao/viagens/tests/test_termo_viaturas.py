@@ -124,6 +124,8 @@ class TestTela:
         # Viagem igual ao evento (ou sem viagem): não há trajeto.
         assert _trajeto(d(2026, 10, 20), d(2026, 10, 21), d(2026, 10, 20), d(2026, 10, 21)) is None
         assert _trajeto(d(2026, 10, 20), d(2026, 10, 21), None, None) is None
+        # Evento fora da viagem (dado incoerente): a estrada não o mostraria certo.
+        assert _trajeto(d(2026, 10, 13), d(2026, 10, 13), d(2026, 10, 17), d(2026, 10, 18)) is None
 
     def test_trocar_de_viatura_pela_tela(self, c):
         op, o1, o2, v1, v2, _ = _dois_com_viaturas(c)
