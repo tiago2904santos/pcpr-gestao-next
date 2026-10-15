@@ -94,21 +94,16 @@ def proximo_numero_do_ano(ano: int) -> int:
 # ---------------------------------------------------------------- cópia do ofício
 def dados_dos_oficios(oficios: list[Oficio]) -> dict:
     """Destinos (na ordem, sem repetir), período (primeira saída a última chegada), equipe,
-    o motivo do primeiro ofício e o período do evento (da Viagem do primeiro ofício que tem
-    uma) — o que a OS em branco copia."""
+    o motivo do primeiro ofício — o que a OS em branco copia."""
     prefetch_related_objects(
         oficios, Prefetch("trechos", queryset=Trecho.objects.select_related("destino")
                           .order_by("ordem")),
-        Prefetch("viajantes", queryset=Viajante.objects.select_related("servidor")), "viagem")
+        Prefetch("viajantes", queryset=Viajante.objects.select_related("servidor")))
     destinos: list[Municipio] = []
     servidores: list[Servidor] = []
     inicio = fim = None
-    evento_inicio = evento_fim = None
     motivo = ""
     for o in oficios:
-        if evento_inicio is None and o.viagem is not None and o.viagem.data_inicio:
-            evento_inicio = o.viagem.data_inicio
-            evento_fim = o.viagem.data_fim or o.viagem.data_inicio
         trechos = list(o.trechos.all())
         for t in trechos:
             if t.destino_id != o.sede_id and t.destino not in destinos:
@@ -123,7 +118,23 @@ def dados_dos_oficios(oficios: list[Oficio]) -> dict:
                 servidores.append(v.servidor)
         motivo = motivo or (o.motivo or "").strip()
     return {"destinos": destinos, "inicio": inicio, "fim": fim, "servidores": servidores,
-            "motivo": motivo, "evento_inicio": evento_inicio, "evento_fim": evento_fim}
+            "motivo": motivo}
+
+
+def evento_do_vinculo(viagem, oficios, inicio: date | None,
+                      fim: date | None) -> tuple[date | None, date | None]:
+    """O período do evento pelo vínculo da OS: a Viagem dela ou, sem ela, a do primeiro
+    ofício ligado que tem uma — recortado ao período da OS (ida e volta dos trechos). Sem
+    Viagem com datas, ou com o evento todo fora do período, não há evento (a viagem inteira
+    conta como evento no documento)."""
+    if viagem is None:
+        viagem = next((o.viagem for o in oficios if o.viagem_id), None)
+    if viagem is None or not viagem.data_inicio:
+        return None, None
+    ev_ini, ev_fim = viagem.data_inicio, viagem.data_fim or viagem.data_inicio
+    if inicio:
+        ev_ini, ev_fim = max(ev_ini, inicio), min(ev_fim, fim or inicio)
+    return (ev_ini, ev_fim) if ev_ini <= ev_fim else (None, None)
 
 
 # ---------------------------------------------------------------- escrita
@@ -146,7 +157,8 @@ def _funcoes_validas(modelo: ModeloOS | None, funcoes: dict,
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | None = None,
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
-           data_evento_inicio: date | None = None, data_evento_fim: date | None = None,
+           data_evento_inicio: date | object | None = MANTER,
+           data_evento_fim: date | object | None = MANTER,
            hora: time | None = None,
            servidores=(), motivo: str = "", funcoes: dict | None = None,
            assinante: Servidor | object | None = MANTER,
@@ -198,10 +210,6 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
         raise OrdemInvalida("A data final não pode ser anterior à inicial.")
     if data_fim and not data_inicio:
         raise OrdemInvalida("Informe a data inicial.")
-    if data_evento_fim and not data_evento_inicio:
-        raise OrdemInvalida("Informe o início do evento.")
-    if data_evento_inicio and data_evento_fim and data_evento_fim < data_evento_inicio:
-        raise OrdemInvalida("O fim do evento não pode ser anterior ao início.")
     copiados: list[str] = []
     if oficios and (not pk or any(o.pk not in ja_ligados for o in oficios)):
         # Um ofício a mais: a OS une o que eles trazem ao que já tem — os destinos e a equipe
@@ -224,28 +232,29 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
         if not motivo.strip() and base["motivo"]:
             motivo = base["motivo"]
             copiados.append("motivo")
-        if not data_evento_inicio and base["evento_inicio"]:
-            # O evento da Viagem entra recortado ao período da OS (os trechos mandam); fora
-            # dele por inteiro, não entra — o que vem copiado nunca impede a gravação.
-            ev_ini, ev_fim = base["evento_inicio"], base["evento_fim"]
-            if data_inicio:
-                ev_ini = max(ev_ini, data_inicio)
-                ev_fim = min(ev_fim, cast("date", data_fim or data_inicio))
-            if ev_ini <= ev_fim:
-                data_evento_inicio, data_evento_fim = ev_ini, ev_fim
-                copiados.append("período do evento")
         if len(destinos) > MAX_DESTINOS or len(servidores) > MAX_SERVIDORES:
             raise OrdemInvalida("Os ofícios somam destinos ou servidores demais para uma OS: "
                                 f"no máximo {MAX_DESTINOS} destinos e {MAX_SERVIDORES} "
                                 "servidores. Escolha-os à mão.")
     data_fim = data_fim or data_inicio
-    data_evento_fim = data_evento_fim or data_evento_inicio
-    # O evento cabe no período da OS: é o que separa ida, montagem, evento, desmontagem e
-    # volta no documento (dominio.modelo_os.distribuir_etapas).
-    if data_evento_inicio and data_inicio and (
-            data_evento_inicio < data_inicio
-            or cast("date", data_evento_fim) > cast("date", data_fim)):
-        raise OrdemInvalida("O período do evento precisa caber no período da OS.")
+    if data_evento_inicio is MANTER and data_evento_fim is MANTER:
+        # A tela não tem o campo: o período do evento vem do vínculo (a Viagem da OS ou a do
+        # ofício), refeito a cada gravação — os trechos dão a ida e a volta.
+        data_evento_inicio, data_evento_fim = evento_do_vinculo(
+            ordem.viagem if pk else None, oficios, data_inicio, data_fim)
+    else:
+        data_evento_inicio = cast("date | None", None if data_evento_inicio is MANTER
+                                  else data_evento_inicio)
+        data_evento_fim = cast("date | None", None if data_evento_fim is MANTER
+                               else data_evento_fim) or data_evento_inicio
+        if data_evento_inicio and data_evento_fim and data_evento_fim < data_evento_inicio:
+            raise OrdemInvalida("O fim do evento não pode ser anterior ao início.")
+        # O evento cabe no período da OS: é o que separa ida, visita técnica ou montagem,
+        # evento, desmontagem e volta no documento (dominio.modelo_os.distribuir_etapas).
+        if data_evento_inicio and data_inicio and (
+                data_evento_inicio < data_inicio
+                or cast("date", data_evento_fim) > cast("date", data_fim)):
+            raise OrdemInvalida("O período do evento precisa caber no período da OS.")
     ordem.modelo = modelo
     ordem.data_inicio, ordem.data_fim = data_inicio, data_fim
     ordem.data_evento_inicio, ordem.data_evento_fim = data_evento_inicio, data_evento_fim
@@ -372,6 +381,10 @@ def sede_da_unidade(unidade) -> str:
 
 def dados_do_dominio(ordem: OrdemServico) -> dominio.DadosOS:
     carregar(ordem)
+    evento = (ordem.data_evento_inicio, ordem.data_evento_fim)
+    if evento[0] is None:  # ainda não gravada depois de entrar na viagem: o vínculo diz
+        evento = evento_do_vinculo(ordem.viagem, list(ordem.oficios.all()), ordem.data_inicio,
+                                   ordem.data_fim)
     return dominio.DadosOS(
         tipo=dominio.PADRAO,
         destinos=[f"{d.municipio.nome}/{d.municipio.uf}" for d in ordem.destinos.all()],
@@ -379,7 +392,7 @@ def dados_do_dominio(ordem: OrdemServico) -> dominio.DadosOS:
         equipe=[dominio.Pessoa(s.pk, s.nome, getattr(s.cargo, "nome", ""))
                 for s in ordem.servidores.all()],
         funcoes={int(k): v for k, v in (ordem.funcoes or {}).items() if str(k).isdecimal()},
-        evento_inicio=ordem.data_evento_inicio, evento_fim=ordem.data_evento_fim,
+        evento_inicio=evento[0], evento_fim=evento[1],
         hora=ordem.hora, sede=sede_da_unidade(ordem.unidade))
 
 

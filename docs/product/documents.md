@@ -160,8 +160,10 @@ e evento 6 → dia 4 deslocamento, dia 5 visita técnica; saída na véspera →
 técnica no mesmo dia); micro-ônibus — organização dos materiais. Operação policial: ida,
 briefing com horário (`{hora}`, campo "Horário do briefing" na OS) e retorno.
 
-A OS tem `modelo` (o tipo), `data_evento_inicio/fim` (copiados da Viagem do ofício ao ligar,
-recortados ao período da OS) e `hora`.
+A OS tem `modelo` (o tipo), `hora` e `data_evento_inicio/fim`. O período do evento **não se
+digita**: vem do vínculo — a Viagem da OS (criada dentro da viagem) ou a do ofício ligado —
+recortado ao período da OS (ida e volta dos trechos) e refeito a cada gravação
+(`ordens.evento_do_vinculo`). Sem Viagem com datas, a viagem inteira conta como evento.
 
 ## Cadastro da OS — contrato da tela (14/10/2026)
 

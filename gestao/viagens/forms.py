@@ -984,14 +984,7 @@ class FormularioOrdem(forms.Form):
                                   widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
     data_fim = forms.DateField(label="Data final", required=False, input_formats=FORMATOS_DATA,
                                widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
-    # O período do evento (dentro do da OS) e o horário do briefing: só com modelo
-    # (dominio/modelo_os.py). Num calendário próprio, como o período da OS.
-    data_evento_inicio = forms.DateField(
-        label="Início do evento", required=False, input_formats=FORMATOS_DATA,
-        widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
-    data_evento_fim = forms.DateField(
-        label="Fim do evento", required=False, input_formats=FORMATOS_DATA,
-        widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    # O horário do briefing: só nos tipos que o pedem (`{hora}` no texto).
     hora = forms.TimeField(label="Horário do briefing", required=False, input_formats=["%H:%M"],
                            widget=forms.TimeInput(attrs=_attrs("entrada", type="time"),
                                                   format="%H:%M"))
@@ -1095,9 +1088,6 @@ class FormularioOrdem(forms.Form):
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,
             "data_fim": ordem.data_fim if ordem.data_fim != ordem.data_inicio else None,
-            "data_evento_inicio": ordem.data_evento_inicio,
-            "data_evento_fim": (ordem.data_evento_fim
-                                if ordem.data_evento_fim != ordem.data_evento_inicio else None),
             "hora": ordem.hora,
             "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo},
             **kwargs)
@@ -1109,11 +1099,6 @@ class FormularioOrdem(forms.Form):
             self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
         if fim and not inicio:
             self.add_error("data_inicio", "Informe a data inicial.")
-        ev_ini, ev_fim = dados.get("data_evento_inicio"), dados.get("data_evento_fim")
-        if ev_ini and ev_fim and ev_fim < ev_ini:
-            self.add_error("data_evento_fim", "O fim do evento não pode ser anterior ao início.")
-        if ev_fim and not ev_ini:
-            self.add_error("data_evento_inicio", "Informe o início do evento.")
         if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
             dados["motivo"] = dados["motivo_modelo"].texto
         dados.pop("motivo_modelo", None)
