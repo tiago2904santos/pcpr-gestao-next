@@ -4,8 +4,9 @@
   documento por viatura e o de cada servidor sai com a viatura em que ele vai.
 - A data do termo é a do evento (plano de trabalho → OS → viagem, só com início e fim); sem
   nenhum, o período da viagem.
-- A tela: calendário de mesa (sem campo de texto) e "Quem vai em cada viatura" com um
-  seletor por servidor (`viatura_do_<id>`). Dados fictícios.
+- A tela: calendário de mesa (sem campo de texto), o trajeto da viagem em volta do evento
+  e o transporte do ofício, com a escolha da viatura em cada cartão da equipe
+  (`viatura_do_<id>`). Dados fictícios.
 """
 
 from __future__ import annotations
@@ -100,14 +101,29 @@ class TestDataDoEvento:
 
 class TestTela:
     def test_calendario_sem_campo_e_seletor_por_servidor(self, c):
-        op, o1, o2, _, _, _ = _dois_com_viaturas(c)
+        op, o1, o2, v1, v2, _ = _dois_com_viaturas(c)
         termo = termos.salvar(op, oficios=[o1, o2])
         html = _cliente(op).get(reverse("viagens:editar_termo", args=[termo.pk])).content.decode()
         assert 'class="mesa-evento' in html and 'type="hidden" id="termo-periodo"' in html
         assert "Alterar a data</label>" not in html
-        assert "Quem vai em cada viatura" in html and "data-escala" in html
-        servidor = termos.efetivo(termo).servidores[0]
-        assert f'name="viatura_do_{servidor.pk}"' in html
+        # Transporte como no ofício: uma linha por viatura; a escolha de cada servidor é
+        # montada nos cartões da equipe (termo.js) a partir de data-opcoes e data-lotacao.
+        assert html.count("transporte-termo__viatura") == 2
+        ef = termos.efetivo(termo)
+        servidor = ef.servidores[0]
+        assert f"&quot;{v1.pk}&quot;" in html and f"&quot;{v2.pk}&quot;" in html  # data-opcoes
+        assert f"&quot;{servidor.pk}&quot;: &quot;{ef.viatura_de(servidor).pk}&quot;" in html
+
+    def test_trajeto_da_viagem_em_volta_do_evento(self):
+        from datetime import date as d
+
+        from gestao.viagens.views_termos import _trajeto
+        t = _trajeto(d(2026, 10, 20), d(2026, 10, 21), d(2026, 10, 19), d(2026, 10, 23))
+        assert t["dias"] == 5 and (t["de"], t["largura"]) == (20, 40)
+        assert (t["antes"], t["depois"]) == (1, 2)
+        # Viagem igual ao evento (ou sem viagem): não há trajeto.
+        assert _trajeto(d(2026, 10, 20), d(2026, 10, 21), d(2026, 10, 20), d(2026, 10, 21)) is None
+        assert _trajeto(d(2026, 10, 20), d(2026, 10, 21), None, None) is None
 
     def test_trocar_de_viatura_pela_tela(self, c):
         op, o1, o2, v1, v2, _ = _dois_com_viaturas(c)

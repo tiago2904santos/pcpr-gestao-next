@@ -56,6 +56,8 @@ def test_todos_os_tokens_usados_existem():
               "--itin-trilho", "--itin-centro",
               # Seletor segmentado do termo: posição e largura do realce (termo.js).
               "--escala-x", "--escala-w",
+              # Trajeto do termo: posição e largura do evento na estrada (degraus de 5%).
+              "--trajeto-de", "--trajeto-largura",
               # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
               # por editores.js); colunas da grade de filtros (com valor padrão no var()).
               "--largura-indice", "--altura-barra", "--filtros-colunas",

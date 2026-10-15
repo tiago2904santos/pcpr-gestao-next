@@ -236,32 +236,53 @@ def _periodo_da_tela(ef) -> dict:
         return {}
     fim = ef.fim or ef.inicio
     ida, volta = ef.viagem_inicio, ef.viagem_fim or ef.viagem_inicio
-    viagem = ""
-    if ida and (ida, volta) != (ef.inicio, fim):
-        viagem = (ida.strftime("%d/%m") if ida == volta
-                  else f"{ida:%d/%m} a {volta:%d/%m}")
     return {**apresentar_periodo(ef.inicio, fim, timezone.localdate()),
-            "fonte": ef.fonte_periodo, "viagem": viagem,
+            "fonte": ef.fonte_periodo, "trajeto": _trajeto(ef.inicio, fim, ida, volta),
             "do_evento": ef.fonte_periodo.startswith("Período do evento")}
 
 
+def _trajeto(inicio, fim, ida, volta) -> dict | None:
+    """A viagem em volta do evento, quando ela vai além dele: ida e volta nas pontas de um
+    trilho e o trecho do evento na posição dele — `de` e `largura` em degraus de 5% (a CSP
+    não deixa estilo em linha; o CSS tem uma regra por degrau)."""
+    if not ida or not volta or (ida, volta) == (inicio, fim) or volta < ida:
+        return None
+    total = (volta - ida).days + 1
+
+    def degrau(x: float) -> int:
+        return max(0, min(100, round(x * 20) * 5))
+
+    de = min(95, degrau(max(0, (inicio - ida).days) / total))
+    ate = degrau(min(total, (fim - ida).days + 1) / total)
+    return {"ida": ida, "volta": volta, "dias": total, "de": de,
+            "largura": min(100 - de, max(5, ate - de)),
+            "antes": max(0, (inicio - ida).days), "depois": max(0, (volta - fim).days)}
+
+
 def _viaturas_da_tela(ef) -> dict:
-    """O bloco Transporte: as viaturas (com quem vai em cada uma) e, na ordem da equipe, a
-    viatura de cada servidor — com uma viatura só, todos vão nela; sem nenhuma, "sem"."""
+    """O bloco Transporte (o do ofício): uma linha por viatura, com a linha de detalhe e
+    quantos vão nela. `lotacao` ({servidor: viatura}) e `opcoes` (as placas) vão para os
+    cartões da equipe, que com mais de uma viatura ganham a escolha de viatura (termo.js).
+    Com uma viatura só, todos vão nela; quem não está em nenhuma fica sem marca."""
+    import json
     if ef is None:
         return {}
-    colunas = [{"viatura": g.viatura, "herdada": "viatura" in ef.herdados, "pessoas": []}
+    colunas = [{"viatura": g.viatura, "herdada": "viatura" in ef.herdados, "pessoas": [],
+                "meta": " · ".join(p for p in (
+                    getattr(g.viatura.combustivel, "nome", ""), g.viatura.get_tipo_display(),
+                    getattr(g.viatura.unidade, "sigla", "")) if p)}
                for g in ef.viaturas]
-    pessoas: list[dict] = []
-    sem: list = []
+    lotacao, sem = {}, []
     for s in ef.servidores:
         v = ef.viatura_de(s)
         alvo = next((c for c in colunas if v is not None and c["viatura"].pk == v.pk), None)
         (alvo["pessoas"] if alvo else sem).append(s)
-        pessoas.append({"servidor": s, "viatura": alvo["viatura"].pk if alvo else None})
-    return {"colunas": colunas, "sem": sem if colunas else [], "pessoas": pessoas,
-            "destinos": [{"pk": c["viatura"].pk, "nome": c["viatura"].placa_formatada}
-                         for c in colunas]}
+        if alvo:
+            lotacao[str(s.pk)] = str(alvo["viatura"].pk)
+    opcoes = [{"pk": str(c["viatura"].pk), "placa": c["viatura"].placa_formatada}
+              for c in colunas]
+    return {"colunas": colunas, "sem": sem if len(colunas) > 1 else [],
+            "lotacao_json": json.dumps(lotacao), "opcoes_json": json.dumps(opcoes)}
 
 
 def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int = 200):

@@ -94,48 +94,35 @@ delas são parte do contrato e não mudam.
     </div>
 
     {% comment %}
-    Transporte: as viaturas do termo em cartões (placa, modelo, quantos vão nela, "×" tira) e
-    "Adicionar viatura". Com mais de uma, "Quem vai em cada viatura": uma linha por servidor
-    com a escolha da viatura num seletor segmentado (como a função na OS) — um clique troca, o
-    realce desliza (termo.js) e a gravação automática guarda `viatura_do_<id>`. Com mais de
-    um ofício, cada um já traz a sua viatura com a equipe dele.
+    Transporte: o bloco do ofício — "Selecionar viatura" e, embaixo, uma linha por viatura
+    (o cartão de recurso do ofício), a terceira linha dizendo quantos vão nela. Com mais de
+    uma, cada cartão da equipe ganha a escolha da viatura (termo.js, a partir de
+    `data-lotacao` e `data-opcoes`): um selo discreto com a placa e, ao passar o mouse, o
+    seletor que desce do cartão. O "×" tira a viatura (`viaturas` desmarcado).
     {% endcomment %}
-    <div class="secao__bloco{% if embarque.colunas|length > 1 %} secao__bloco--largo{% endif %}" id="transporte" aria-labelledby="t-transporte" data-vivo>
+    <div class="secao__bloco" id="transporte" aria-labelledby="t-transporte" data-vivo data-lotacao="{{ embarque.lotacao_json }}" data-opcoes="{% if embarque.colunas|length > 1 %}{{ embarque.opcoes_json }}{% else %}[]{% endif %}">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
-        {% if embarque.colunas %}<div class="secao__estado"><span class="selo selo--sucesso selo--situacao-emitido">{{ embarque.colunas|length|pluralizar:"viatura,viaturas" }}</span>{% if embarque.sem %}<span class="selo selo--aviso selo--situacao-rascunho">{{ embarque.sem|length|pluralizar:"servidor,servidores" }} sem viatura</span>{% endif %}</div>{% endif %}
+        <div class="secao__estado">{% if embarque.colunas %}<span class="selo selo--sucesso selo--situacao-emitido">{{ embarque.colunas|length|pluralizar:"viatura,viaturas" }}</span>{% endif %}{% if embarque.sem %}<span class="selo selo--aviso selo--situacao-rascunho" data-sem-viatura>{{ embarque.sem|length|pluralizar:"servidor,servidores" }} sem viatura</span>{% elif embarque.colunas|length > 1 %}<span class="texto-terciario texto-xs">passe o mouse na pessoa para trocar</span>{% endif %}</div>
       </div>
-      {% if editavel %}{% include "viagens/_campo_viatura.html" with campo=form.adicionar_viatura cadastrar=True rotulo="Adicionar viatura" %}{% endif %}
-      {% if embarque.colunas %}
-      <ul class="frota" role="list">
-        {% for c in embarque.colunas %}
-        <li class="frota__viatura">
-          <span class="frota__icone" aria-hidden="true">{% icone "car" %}</span>
-          <span class="frota__nome"><strong>{{ c.viatura.placa_formatada }}</strong><small>{{ c.viatura.modelo|default:"Viatura" }}{% if c.herdada %} · do ofício{% endif %}</small></span>
-          <span class="frota__conta" data-frota-conta="{{ c.viatura.pk }}">{% if embarque.colunas|length > 1 %}{{ c.pessoas|length }}{% else %}{{ embarque.pessoas|length }}{% endif %}</span>
-          {% if editavel %}<label class="frota__remover" title="Tirar esta viatura do termo"><input type="checkbox" name="viaturas" value="{{ c.viatura.pk }}" checked data-remover-viatura>{% icone "x" classe="icone--sm" %}<span class="sr-only">Tirar a viatura {{ c.viatura }} do termo</span></label>{% else %}<input type="hidden" name="viaturas" value="{{ c.viatura.pk }}">{% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-      {% if embarque.colunas|length > 1 %}
-      <div class="lotacao" role="group" aria-labelledby="t-lotacao">
-        <p class="lotacao__titulo" id="t-lotacao">Quem vai em cada viatura</p>
-        <ul class="lotacao__lista" role="list">
-          {% for p in embarque.pessoas %}
-          <li class="lotacao__pessoa{% if not p.viatura %} lotacao__pessoa--sem{% endif %}">
-            <span class="lotacao__avatar" aria-hidden="true">{{ p.servidor.iniciais }}</span>
-            <span class="lotacao__nome"><span>{{ p.servidor.nome }}</span><small>{{ p.servidor.cargo.nome|default:"" }}</small></span>
-            <span class="escala" role="radiogroup" aria-label="Viatura de {{ p.servidor.nome }}" data-escala>
-              <span class="escala__realce" aria-hidden="true"></span>
-              {% for d in embarque.destinos %}<input type="radio" name="viatura_do_{{ p.servidor.pk }}" id="vd-{{ p.servidor.pk }}-{{ d.pk }}" value="{{ d.pk }}"{% if p.viatura == d.pk %} checked{% endif %}><label for="vd-{{ p.servidor.pk }}-{{ d.pk }}">{{ d.nome }}</label>{% endfor %}
-              <input type="radio" name="viatura_do_{{ p.servidor.pk }}" id="vd-{{ p.servidor.pk }}-0" value=""{% if not p.viatura %} checked{% endif %}><label for="vd-{{ p.servidor.pk }}-0" class="escala__nenhuma">Nenhuma</label>
+      <div class="pilha">
+        {% if editavel %}{% include "viagens/_campo_viatura.html" with campo=form.adicionar_viatura cadastrar=True rotulo="Selecionar viatura" %}{% endif %}
+        {% if embarque.colunas %}
+        <ul class="transporte-termo" role="list" aria-label="Viaturas do termo">
+          {% for c in embarque.colunas %}
+          <li class="pessoa recurso-selecionado transporte-termo__viatura" data-viatura="{{ c.viatura.pk }}">
+            <span class="avatar avatar--escuro" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+            <span class="pessoa__texto">
+              <strong class="pessoa__nome" title="{{ c.viatura }}">{{ c.viatura.placa_formatada }} · {{ c.viatura.modelo|default:"Viatura" }}</strong>
+              <span class="pessoa__meta" title="{{ c.meta }}">{{ c.meta|default:"Cadastro sem detalhes adicionais" }}</span>
+              <span class="recurso-selecionado__origem transporte-termo__conta"><span data-frota-conta="{{ c.viatura.pk }}">{% if embarque.colunas|length > 1 %}{{ c.pessoas|length|pluralizar:"servidor,servidores" }}{% else %}Toda a equipe{% endif %}</span>{% if c.herdada %} · do ofício{% endif %}</span>
             </span>
+            {% if editavel %}<label class="equipe__acao equipe__acao--remover transporte-termo__remover" title="Tirar esta viatura do termo"><input type="checkbox" name="viaturas" value="{{ c.viatura.pk }}" checked data-remover-viatura>{% icone "x" classe="icone--sm" %}<span class="sr-only">Tirar a viatura {{ c.viatura }} do termo</span></label>{% else %}<input type="hidden" name="viaturas" value="{{ c.viatura.pk }}">{% endif %}
           </li>
           {% endfor %}
         </ul>
+        {% else %}<p class="vazio-inline">Sem viatura: os termos saem sem os dados do veículo.</p>{% endif %}
       </div>
-      {% elif embarque.pessoas %}<p class="frota__todos">{% icone "users" classe="icone--sm" %}Toda a equipe vai nesta viatura.</p>{% endif %}
-      {% else %}<p class="vazio-inline">Sem viatura: os termos saem sem os dados do veículo.</p>{% endif %}
     </div>
     </div>
   </section>

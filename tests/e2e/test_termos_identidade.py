@@ -22,9 +22,9 @@ def test_relacoes_visiveis_destinos_e_acoes(logado, dados_e2e, largura):
     oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
     termo = termos.salvar(dados_e2e.usuarios["operador"], oficio=oficio)
     pg.goto(f"/viagens/termos/{termo.pk}/")
-    cartao = pg.locator("#transporte .frota__viatura")
+    cartao = pg.locator("#transporte .transporte-termo__viatura")
     expect(cartao).to_be_visible()
-    expect(cartao.locator(".frota__nome strong")).to_contain_text(oficio.viatura.placa_formatada)
+    expect(cartao.locator(".pessoa__nome")).to_contain_text(oficio.viatura.placa_formatada)
     expect(pg.locator("[data-destino] [data-alca] .itin__ordem").first).to_have_text("1")
     # A antiga grade de seis colunas não pode esmagar os cartões compactos.
     equipe = pg.locator(".campo-equipe--compacta .equipe__cartoes")

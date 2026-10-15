@@ -97,15 +97,55 @@ document.addEventListener("change", (evento) => {
   }
 });
 
-// Quem vai em cada viatura (termos/editar.html): o seletor segmentado de cada servidor é
-// um grupo de rádios `viatura_do_<id>` — a gravação automática guarda a troca. Aqui só o
-// realce que desliza até a opção marcada e a conta de cada viatura, que muda na hora (o
-// bloco só é redesenhado quando o foco sai dele).
+// Quem vai em cada viatura (termos/editar.html): com mais de uma viatura, cada cartão da
+// equipe ganha um selo com a placa (ou "Escolha a viatura") e, embaixo, um seletor
+// segmentado — rádios `viatura_do_<id>` que a gravação automática guarda — que só desce
+// com o mouse ou o foco no cartão (CSS). As opções e a escolha de cada um vêm de
+// #transporte (`data-opcoes`, `data-lotacao`), que se refaz depois de gravar; o que a
+// pessoa marcou na tela vence o que veio do servidor.
+
+/** @returns {{opcoes: {pk: string, placa: string}[], lotacao: Record<string, string>}} */
+function lerTransporte() {
+  const bloco = /** @type {HTMLElement | null} */ (document.getElementById("transporte"));
+  try {
+    return { opcoes: JSON.parse(bloco?.dataset.opcoes || "[]"),
+             lotacao: JSON.parse(bloco?.dataset.lotacao || "{}") };
+  } catch {
+    return { opcoes: [], lotacao: {} };
+  }
+}
+
+/** Ícone do sprite (o mesmo arquivo dos ícones da página). @param {string} nome */
+function icone(nome) {
+  const uso = document.querySelector("svg.icone use")?.getAttribute("href") || "";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "icone icone--sm");
+  svg.setAttribute("aria-hidden", "true");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", `${uso.split("#")[0]}#i-${nome}`);
+  svg.append(use);
+  return svg;
+}
+
+/** O selo do cartão: a placa escolhida, ou o aviso. @param {HTMLElement} cartao */
+function atualizarSelo(cartao) {
+  const selo = cartao.querySelector("[data-lotacao-selo]");
+  if (!selo) return;
+  const marcado = /** @type {HTMLInputElement | null} */ (cartao.querySelector("[data-escala] input:checked"));
+  const placa = marcado?.nextElementSibling?.textContent || "";
+  selo.replaceChildren(icone(placa ? "check" : "alert-circle"),
+    document.createTextNode(placa || "Escolha a viatura"));
+  selo.classList.toggle("lotacao-selo--falta", !placa);
+}
+
 /** @param {HTMLElement} escala @param {boolean} animar */
 function posicionarRealce(escala, animar) {
   const marcado = /** @type {HTMLInputElement | null} */ (escala.querySelector("input:checked"));
   const rotulo = /** @type {HTMLElement | null} */ (marcado?.nextElementSibling ?? null);
-  if (!rotulo || !rotulo.offsetWidth) return;
+  if (!rotulo || !rotulo.offsetWidth) {
+    escala.classList.remove("escala--viva");
+    return;
+  }
   escala.classList.toggle("escala--parada", !animar);
   escala.style.setProperty("--escala-x", `${rotulo.offsetLeft}px`);
   escala.style.setProperty("--escala-w", `${rotulo.offsetWidth}px`);
@@ -117,12 +157,69 @@ function prepararEscalas() {
   document.querySelectorAll("[data-escala]").forEach((e) => posicionarRealce(/** @type {HTMLElement} */ (e), false));
 }
 
+function decorarEquipe() {
+  const { opcoes, lotacao } = lerTransporte();
+  const chave = opcoes.map((o) => o.pk).join(",");
+  document.querySelectorAll("#form-termo .equipe__cartao[data-servidor]").forEach((no) => {
+    const cartao = /** @type {HTMLElement} */ (no);
+    const id = cartao.dataset.servidor || "";
+    const atual = /** @type {HTMLElement | null} */ (cartao.querySelector(".lotacao-gaveta"));
+    if (atual && atual.dataset.opcoes === chave) return;
+    const antes = /** @type {HTMLInputElement | null} */ (atual?.querySelector("input:checked"))?.value;
+    atual?.remove();
+    cartao.querySelector("[data-lotacao-selo]")?.remove();
+    cartao.classList.toggle("equipe__cartao--lotacao", opcoes.length > 1);
+    if (opcoes.length < 2) return;
+    const escolhida = antes ?? lotacao[id] ?? "";
+    const nome = cartao.dataset.nome || "";
+
+    const selo = document.createElement("span");
+    selo.className = "lotacao-selo";
+    selo.dataset.lotacaoSelo = "";
+    cartao.querySelector(".pessoa__texto")?.after(selo);
+
+    const gaveta = document.createElement("div");
+    gaveta.className = "lotacao-gaveta";
+    gaveta.dataset.opcoes = chave;
+    const escala = document.createElement("span");
+    escala.className = "escala lotacao-gaveta__escala";
+    escala.dataset.escala = "";
+    escala.setAttribute("role", "radiogroup");
+    escala.setAttribute("aria-label", `Viatura de ${nome}`);
+    const realce = document.createElement("span");
+    realce.className = "escala__realce";
+    realce.setAttribute("aria-hidden", "true");
+    escala.append(realce);
+    for (const o of opcoes) {
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `viatura_do_${id}`;
+      radio.id = `vd-${id}-${o.pk}`;
+      radio.value = o.pk;
+      radio.checked = o.pk === escolhida;
+      const rotulo = document.createElement("label");
+      rotulo.htmlFor = radio.id;
+      rotulo.textContent = o.placa;
+      escala.append(radio, rotulo);
+    }
+    const dentro = document.createElement("div");
+    dentro.className = "lotacao-gaveta__dentro";
+    dentro.append(escala);
+    gaveta.append(dentro);
+    cartao.append(gaveta);
+    atualizarSelo(cartao);
+    posicionarRealce(escala, false);
+  });
+}
+
+/** Quantos vão em cada viatura, na hora (o bloco só se refaz depois de gravar). */
 function recontarFrota() {
   document.querySelectorAll("[data-frota-conta]").forEach((conta) => {
     const id = /** @type {HTMLElement} */ (conta).dataset.frotaConta || "";
-    const n = String(document.querySelectorAll(`[data-escala] input[value="${CSS.escape(id)}"]:checked`).length);
-    if (conta.textContent === n) return;
-    conta.textContent = n;
+    const n = document.querySelectorAll(`[data-escala] input[value="${CSS.escape(id)}"]:checked`).length;
+    const texto = `${n} ${n === 1 ? "servidor" : "servidores"}`;
+    if (conta.textContent === texto) return;
+    conta.textContent = texto;
     conta.classList.remove("frota__conta--mudou");
     void (/** @type {HTMLElement} */ (conta)).offsetWidth; // reinicia o pulo
     conta.classList.add("frota__conta--mudou");
@@ -134,11 +231,25 @@ document.addEventListener("change", (evento) => {
   const escala = /** @type {HTMLElement | null} */ (alvo.closest?.("[data-escala]") ?? null);
   if (!escala) return;
   posicionarRealce(escala, true);
+  const cartao = /** @type {HTMLElement | null} */ (escala.closest(".equipe__cartao"));
+  if (cartao) atualizarSelo(cartao);
   recontarFrota();
 });
-prepararEscalas();
+// A gaveta desce ao passar o mouse: o realce é medido quando ela fica visível.
+document.addEventListener("pointerover", (evento) => {
+  const cartao = /** @type {HTMLElement} */ (evento.target).closest?.(".equipe__cartao--lotacao");
+  const escala = /** @type {HTMLElement | null} */ (cartao?.querySelector("[data-escala]") ?? null);
+  if (escala && !escala.classList.contains("escala--viva")) posicionarRealce(escala, false);
+});
+// Pessoa nova na equipe (o cartão nasce no cliente) e bloco refeito depois de gravar.
+const listaEquipe = document.querySelector("#form-termo .equipe__cartoes");
+if (listaEquipe) new MutationObserver(() => decorarEquipe()).observe(listaEquipe, { childList: true });
+decorarEquipe();
 document.fonts?.ready.then(prepararEscalas);
 window.addEventListener("resize", prepararEscalas);
-document.addEventListener("pcpr:pagina-refeita", () => requestAnimationFrame(prepararEscalas));
+document.addEventListener("pcpr:pagina-refeita", () => requestAnimationFrame(() => {
+  decorarEquipe();
+  prepararEscalas();
+}));
 
 export {};

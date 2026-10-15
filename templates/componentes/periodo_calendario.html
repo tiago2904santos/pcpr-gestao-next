@@ -27,8 +27,17 @@
       <p class="mesa-evento__frase">{{ p.frase|default:"Defina o período" }}</p>
       <p class="mesa-evento__fonte">{% icone "route" classe="icone--sm" %}<span data-periodo-fonte>{% if p.inicio %}{{ fonte }}{% else %}Escolha o início e o fim nas folhas do calendário{% endif %}</span></p>
     </div>
+    {% if p.trajeto %}{% with t=p.trajeto %}
+    <div class="trajeto" role="img" aria-label="Viagem de {{ t.ida|date:'d/m' }} a {{ t.volta|date:'d/m' }}, {{ t.dias }} dias; o {{ natureza }} {% if t.antes %}começa {{ t.antes }} dia{{ t.antes|pluralize }} depois da ida{% else %}começa na ida{% endif %}{% if t.depois %} e a volta é {{ t.depois }} dia{{ t.depois|pluralize }} depois{% endif %}">
+      <span class="trajeto__rotulo">{% icone "car" classe="icone--sm" %}Viagem <strong>{{ t.dias }} dias</strong></span>
+      <span class="trajeto__linha" aria-hidden="true">
+        <span class="trajeto__ponta"><small>ida</small>{{ t.ida|date:"d/m" }}</span>
+        <span class="trajeto__trilho"><span class="trajeto__evento" data-de="{{ t.de }}" data-largura="{{ t.largura }}"><span class="trajeto__marca">{{ natureza }}</span></span><span class="trajeto__carro">{% icone "car" classe="icone--sm" %}</span></span>
+        <span class="trajeto__ponta trajeto__ponta--volta"><small>volta</small>{{ t.volta|date:"d/m" }}</span>
+      </span>
+    </div>
+    {% endwith %}{% endif %}
     {% if not compacto %}<div class="mesa-evento__antecedencia"><strong>{% if p.inicio %}{{ p.antecedencia }}{% else %}—{% endif %}</strong><span data-antecedencia-rotulo>{{ p.rotulo_antecedencia|default:"defina o período" }}</span><span class="mesa-evento__trilho" aria-hidden="true"></span></div>{% endif %}
-    {% if p.viagem %}<p class="mesa-evento__viagem">{% icone "car" classe="icone--sm" %}<span>Viagem <strong>{{ p.viagem }}</strong></span></p>{% endif %}
     {% if campo_inicio.errors or campo_fim.errors %}<div class="mesa-evento__erro" id="{{ prefixo }}-periodo-erros">{% for erro in campo_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}{% for erro in campo_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}</div>{% endif %}
   </div>
 </div>

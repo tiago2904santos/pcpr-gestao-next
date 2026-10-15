@@ -44,3 +44,27 @@ A publicação deste commit deve disparar a primeira execução de **Publicar ma
 na VPS**. O resultado será comparado ao SHA em `/srv/pcpr/app/versao-main.txt`,
 à saúde HTTPS e à página publicada. Não foi repetida a suíte inteira do produto:
 mudança de infraestrutura, CI paralelo e validações específicas acima.
+
+### Resultado da execução real
+
+Commit de configuração: `e0e945ee1f41b06ddaaa5deab44f5a86b9f84771`.
+O push disparou automaticamente o workflow
+[38666563836](https://github.com/tiago2904santos/pcpr-gestao-next/actions/runs/38666563836),
+que concluiu com **success em 2min17s**, sem comando manual de atualização na VPS.
+Histórico do servidor: publicação concluída em 15/10/2026 01:38:46 UTC.
+
+Em resposta à dúvida do usuário sobre merges pelo GitHub, conferidos separadamente:
+API `commits/main` do GitHub, `FETCH_HEAD` da VPS e `versao-main.txt` ativo:
+os três apontaram para `e0e945ee1f41b06ddaaa5deab44f5a86b9f84771`.
+Origem do cache da VPS: `https://github.com/tiago2904santos/pcpr-gestao-next.git`.
+O merge anterior `303aab8` está incluído nesse commit; não há leitura do repositório
+da estação Windows. A diferença temporária era o build/troca em andamento, não
+dependência do main local. Merges na interface GitHub também geram push no main.
+
+Web saudável e worker executando a imagem `pcpr-gestao:vps-e0e945ee...`; contêiner
+de banco preservado. Login DEMO e resumo da OS #2 conferidos no HTTPS publicado,
+zero erros JS e nenhum cadastro gravado. Captura em 1440 × 900:
+`../visual-agents/evidencias/deploy-automatico-20261014/1440/resumo-os-vps-main-github.png`.
+Credencial privada temporária removida da estação após o teste; permanece apenas
+no GitHub Secret para o workflow. Nenhuma outra chave SSH foi revogada/alterada.
+Evidência final e captura registradas localmente, sem outro push só para testes.

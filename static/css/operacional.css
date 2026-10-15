@@ -2001,38 +2001,40 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .resumo__definicoes .metadado--linha dd { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; -webkit-line-clamp: none; line-clamp: none; }
 
 
-/* =============== Termo: viaturas e quem vai em cada uma =============== */
-/* As viaturas em cartões (placa, modelo, quantos vão nela, "×"); com mais de uma, uma linha
-   por servidor com a viatura num seletor segmentado — o realce desliza para a escolhida
-   (termo.js mede a opção e põe `--escala-x`/`--escala-w`; sem JS, a opção marcada é que
-   ganha o fundo). Com mais de uma viatura o bloco usa a linha toda. */
-.secao__grupo > .secao__bloco.secao__bloco--largo { grid-column: 1 / -1; }
-.frota { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--esp-2); margin: var(--esp-3) 0 0; padding: 0; list-style: none; }
-.frota__viatura { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--esp-3); padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); animation: atencao-entrar var(--duracao-lenta) var(--curva-expressiva) backwards; transition: border-color var(--duracao-rapida) var(--curva-padrao); }
-.frota__viatura:hover { border-color: var(--cor-borda-forte); }
-.frota__icone { display: grid; place-items: center; width: var(--altura-controle); height: var(--altura-controle); border-radius: var(--raio-md); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
-.frota__nome { display: grid; gap: 1px; min-width: 0; }
-.frota__nome strong { font-size: var(--texto-md); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
-.frota__nome small { overflow: hidden; font-size: var(--texto-xs); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto-secundario); }
-.frota__conta { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 1.75rem; height: 1.75rem; padding: 0 var(--esp-2); justify-content: center; border-radius: var(--raio-pilula); background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; color: var(--cor-texto); transition: background-color var(--duracao-rapida) var(--curva-padrao); }
-.frota__conta--mudou { animation: frota-conta var(--duracao-lenta) var(--curva-expressiva); }
-.frota__remover { position: relative; display: grid; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); color: var(--cor-texto-secundario); cursor: pointer; transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
-.frota__remover:hover { background: var(--cor-perigo-fundo); color: var(--cor-perigo); }
-.frota__remover > input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
-.frota__remover:has(> input:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
-.frota__todos { display: inline-flex; align-items: center; gap: var(--esp-2); margin: var(--esp-2) 0 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-@keyframes frota-conta { 0% { scale: 1; } 40% { scale: 1.2; background: var(--cor-marca-fundo); } 100% { scale: 1; } }
+/* =============== Termo: transporte e quem vai em cada viatura =============== */
+/* O bloco Transporte do ofício: "Selecionar viatura" e uma linha por viatura (o cartão de
+   recurso), a terceira linha dizendo quantos vão nela. Com mais de uma viatura, cada cartão
+   da equipe ganha um selo com a placa (✓) e, embaixo, a escolha da viatura num seletor
+   segmentado que desce ao passar o mouse (ou com o foco) e recolhe ao sair — termo.js
+   monta e mede o realce (`--escala-x`/`--escala-w`). */
+.transporte-termo { display: grid; gap: var(--esp-2); margin: 0; padding: 0; list-style: none; }
+.transporte-termo__viatura { animation: atencao-entrar var(--duracao-lenta) var(--curva-expressiva) backwards; }
+.transporte-termo__viatura + .transporte-termo__viatura { animation-delay: 60ms; }
+.transporte-termo__conta { color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
+.transporte-termo__conta > [data-frota-conta] { color: var(--cor-texto); font-weight: var(--peso-semi); }
+.transporte-termo__remover { position: relative; display: grid; place-items: center; cursor: pointer; }
+.transporte-termo__remover > input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.transporte-termo__remover:has(> input:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
+.frota__conta--mudou { display: inline-block; animation: frota-conta var(--duracao-lenta) var(--curva-expressiva); }
+@keyframes frota-conta { 0% { scale: 1; } 40% { scale: 1.15; color: var(--cor-marca-texto); } 100% { scale: 1; } }
 
-.lotacao { display: grid; gap: var(--esp-2); margin-top: var(--esp-4); }
-.lotacao__titulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.lotacao__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr)); gap: var(--esp-2) var(--esp-4); margin: 0; padding: 0; list-style: none; }
-.lotacao__pessoa { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-3); padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
-.lotacao__pessoa:hover { border-color: var(--hover-cartao-borda); box-shadow: var(--sombra-1); }
-.lotacao__pessoa:has(input[value=""]:checked) { border-style: dashed; background: var(--cor-superficie-sutil); }
-.lotacao__avatar { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); font-size: var(--texto-2xs); font-weight: var(--peso-semi); }
-.lotacao__nome { display: grid; min-width: 0; }
-.lotacao__nome > span { overflow: hidden; font-size: var(--texto-sm); font-weight: var(--peso-medio); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto); }
-.lotacao__nome > small { overflow: hidden; font-size: var(--texto-2xs); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto-secundario); }
+/* O selo do cartão: a viatura escolhida, ou o aviso de que falta escolher. */
+.lotacao-selo { display: inline-flex; flex: none; align-items: center; gap: var(--esp-1); margin-left: auto; padding: 2px var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); font-variant-numeric: tabular-nums; color: var(--cor-texto); white-space: nowrap; transition: opacity var(--duracao-rapida) var(--curva-padrao); }
+.lotacao-selo > .icone { width: 0.75rem; height: 0.75rem; color: var(--cor-sucesso); }
+.lotacao-selo--falta { background: var(--cor-aviso-fundo); box-shadow: inset 0 0 0 1px var(--cor-aviso-borda); color: var(--cor-aviso); letter-spacing: 0; }
+.lotacao-selo--falta > .icone { color: var(--cor-aviso); }
+.pessoas--compactas > .equipe__cartao--lotacao { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.equipe__cartao--lotacao > .equipe__acoes { margin-left: 0; }
+.equipe__cartao--lotacao:is(:hover, :focus-within) > .lotacao-selo { display: none; }  /* a gaveta já mostra a escolha: o nome usa o espaço */
+
+/* A gaveta: fechada não ocupa altura; com o mouse ou o foco no cartão, desce. */
+.lotacao-gaveta { display: grid; flex: 1 0 100%; grid-column: 1 / -1; grid-template-rows: 0fr; margin-top: calc(-1 * var(--esp-3)); opacity: 0; translate: 0 calc(-1 * var(--esp-1)); transition: grid-template-rows var(--duracao-media) var(--curva-expressiva), margin-top var(--duracao-media) var(--curva-expressiva), opacity var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-media) var(--curva-expressiva); }
+.lotacao-gaveta__dentro { min-height: 0; overflow: hidden; }
+.equipe__cartao--lotacao:is(:hover, :focus-within) > .lotacao-gaveta { grid-template-rows: 1fr; margin-top: 0; opacity: 1; translate: 0 0; }
+.lotacao-gaveta__escala { display: flex; width: 100%; }
+.lotacao-gaveta__escala > label { flex: 1 1 0; min-width: 0; }
+@media (hover: none) { .lotacao-gaveta { grid-template-rows: 1fr; margin-top: 0; opacity: 1; translate: 0 0; } .lotacao-selo { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lotacao-gaveta { transition: none; } }
 
 /* Seletor segmentado com realce que desliza (a função do servidor na OS, reinterpretada). */
 .escala { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: var(--raio-md); background: var(--cor-superficie-realce); isolation: isolate; }
@@ -2050,4 +2052,3 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .escala--viva:has(input[value=""]:checked) .escala__realce { background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda-forte); }
 .escala--parada .escala__realce { transition: none; }
 @media (prefers-reduced-motion: reduce) { .escala__realce { transition: none; } }
-@media (max-width: 1023.98px) { .lotacao__lista { grid-template-columns: minmax(0, 1fr); } .lotacao__pessoa { grid-template-columns: auto minmax(0, 1fr); } .escala { grid-column: 1 / -1; justify-self: start; } }
