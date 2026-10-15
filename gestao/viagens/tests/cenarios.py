@@ -29,7 +29,7 @@ from gestao.cadastros.models import (
 )
 from gestao.identidade.models import Usuario
 from gestao.identidade.papeis import sincronizar_papeis
-from gestao.viagens.modelos_do_sistema import semear as semear_modelos_os
+from gestao.viagens.modelos_do_sistema import sincronizar as sincronizar_tipos_de_os
 
 NOMES = [
     "Ana Beatriz Correia Lima", "Bruno Henrique Martins", "Carla Regina Duarte",
@@ -69,9 +69,9 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
     garantir_municipios()
     garantir_catalogos_do_plano()
     sincronizar_papeis()
-    # Os modelos de OS do sistema vêm da migração; o banco transacional do E2E é limpo entre
-    # testes, então o cenário os garante de novo (idempotente).
-    semear_modelos_os(ModeloOS, FuncaoOS)
+    # Os tipos de OS vêm das migrações; o banco transacional do E2E é limpo entre testes,
+    # então o cenário os garante de novo (idempotente).
+    sincronizar_tipos_de_os(ModeloOS, FuncaoOS)
     c = Cenario()
     ascom = Unidade.objects.create(sigla="ASCOM", nome="Assessoria de Comunicação Social")
     dpc = Unidade.objects.create(sigla="DPC", nome="Divisão de Polícia da Capital")

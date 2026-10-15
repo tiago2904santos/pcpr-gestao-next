@@ -44,8 +44,8 @@ erDiagram
 | AssinaturaConfiguracao / AssinaturaSubstituicao | assinante por tipo, substituto por período | — | — (chefia fixa na configuração) |
 | Viagem, EquipePrevista | agregado da viagem | cancelar cascateia | — |
 | TermoAutorizacao | ofício/viagem, destinos, datas, servidores, viatura | — | — |
-| OrdemServico | número/ano, viagem, ofícios, destinos, servidores, modelo (ModeloOS), período do evento, horário, funções | numeração anual com lacunas; evento cabe no período | — |
-| ModeloOS, FuncaoOS | nome, referência, texto por etapa, funções (código, nome, ícone, atribuição) | nome único; função única por modelo; do sistema não se apaga | — |
+| OrdemServico | número/ano, viagem, ofícios, destinos, servidores, tipo (ModeloOS; nulo = OS padrão), período do evento, horário, funções | numeração anual com lacunas; evento cabe no período | — |
+| ModeloOS, FuncaoOS | os tipos de OS fixos: nome, referência, texto por etapa, funções (código, nome, ícone, atribuição) | sincronizados do código por migração; sem cadastro na tela | — |
 | PlanoTrabalho (+EventoPlano, Efetivo, Atividade, Resultado) | número/ano/sufixo, status, programa, destinos, metas | — | — |
 | PrestacaoContas, PrestacaoServidor, PrestacaoDocumentoAnexo, RelatorioTecnico, DiarioBordo(+Trecho), LinkDiarioCampo, LancamentoDiarioCampo, ImportacaoProcesso, CarimboSolicitacao | prestação por ofício/servidor | lançamentos idempotentes por `cliente_id`; remoção lógica | — |
 

@@ -270,11 +270,6 @@ def indice(request: HttpRequest) -> HttpResponse:
         apoio.append({"titulo": "Textos prontos", "icone": "text-quote",
                       "texto": "Motivos, justificativas e trechos reaproveitados.",
                       "url": reverse("cadastros:textos")})
-    if policies.pode_ver_modelos_os(usuario):
-        apoio.append({"titulo": "Modelos de OS", "icone": "layers",
-                      "texto": "Funções da equipe e texto por etapa de cada tipo de ordem de "
-                               "serviço.",
-                      "url": reverse("viagens:modelos_os")})
     if not visiveis and not apoio and not plano:
         raise PermissionDenied
     return render(request, "cadastros/indice.html", {

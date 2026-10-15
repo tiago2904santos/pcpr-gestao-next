@@ -47,7 +47,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado" id="estado-destinos" data-vivo>{% for p in pendencias %}<span class="selo selo--aviso selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-      <p class="secao__nota">Ligar ofícios une nos campos os destinos, o período, a equipe e o período do evento deles (e o motivo, se estiver em branco) — confira e ajuste. Mais de um ofício, só da mesma viagem ou do mesmo roteiro. O modelo escolhe o texto do documento e as funções da equipe.</p>
+      <p class="secao__nota">Ligar ofícios une nos campos os destinos, o período, a equipe e o período do evento deles (e o motivo, se estiver em branco) — confira e ajuste. Mais de um ofício, só da mesma viagem ou do mesmo roteiro. O tipo de OS escolhe o texto do documento e as funções da equipe.</p>
     </div>
 
     <div class="pilha" id="dados">
@@ -56,7 +56,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {{ form.oficios }}
         {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
       </div>
-      {# Modelo seguido do calendário compartilhado, com ida e volta; com modelo, o período do evento (dentro do da OS) e, se o modelo pede, o horário do briefing (funcoes-equipe.js mostra e esconde). #}
+      {# Tipo de OS seguido do calendário compartilhado, com ida e volta; fora da OS padrão, o período do evento (dentro do da OS) e, se o tipo pede, o horário do briefing (funcoes-equipe.js mostra e esconde). #}
       <div class="pilha">
         {% include "componentes/campo.html" with campo=form.modelo ajuda_oculta=True %}
         {% periodo_calendario form.data_inicio form.data_fim prefixo="ordem" rotulo="Período da ordem de serviço" natureza="viagem" editavel=editavel %}

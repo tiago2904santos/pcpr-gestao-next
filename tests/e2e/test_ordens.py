@@ -30,14 +30,14 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e, largura):
     pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
     folha = pg.frame_locator("#folha-ordem")
     expect(folha.locator("body")).to_contain_text("DETERMINO")
-    # Modelo com funções: o seletor aparece na hora em cada cartão; salvar sem função avisa.
-    pg.get_by_role("combobox", name="Modelo").click()
+    # Tipo com funções: o seletor aparece na hora em cada cartão; salvar sem função avisa.
+    pg.get_by_role("combobox", name="Tipo de OS").click()
     pg.get_by_role("option", name=re.compile("Cerimonial")).click()
     pg.keyboard.press("Control+s")
-    # Modelo com função e ninguém com função: a tela pede para escolher.
+    # Tipo com função e ninguém com função: a tela pede para escolher.
     expect(pg.locator(".toast")).to_contain_text("escolha a função")
     primeiro = ordem.servidores.order_by("nome").first()
-    # O seletor de função fica no cartão de cada um (pílulas = rádios), com as opções do modelo.
+    # O seletor de função fica no cartão de cada um (pílulas = rádios), com as opções do tipo.
     grupo = pg.get_by_role("group", name=f"Função de {primeiro.nome}")
     expect(grupo.get_by_role("radio")).to_have_count(3)
     grupo.get_by_role("radio", name="Coordenação").check()

@@ -215,14 +215,14 @@ class TestTelas:
         html = cli.get(reverse("viagens:editar_ordem", args=[padrao.pk])).content.decode()
         assert "<div data-campo-evento hidden>" in html
         assert "<div data-campo-hora hidden>" in html
-        assert "Padrão / texto livre" in html and "Caminhão" in html
+        assert "OS padrão" in html and "Caminhão" in html
         policial, _ = ordens.salvar(op, modelo=_modelo("operacao_policial"),
                                     destinos=[_londrina()], hora=time(5, 0))
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
         assert "<div data-campo-evento>" in html and "<div data-campo-hora>" in html
         assert 'name="hora"' in html and 'value="05:00"' in html
         assert "pede o horário do briefing" in html
-        # Modelo desativado continua selecionado e a OS continua gravando.
+        # Tipo desativado no banco continua selecionado e a OS continua gravando.
         ModeloOS.objects.filter(chave="operacao_policial").update(ativo=False)
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
         assert "Operação policial" in html

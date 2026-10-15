@@ -83,11 +83,6 @@ def _pk_da_lotacao(usuario) -> int | None:
         return None
 
 
-def pode_ver_modelos_os(usuario) -> bool:
-    """O cadastro de modelos de OS é do contexto Viagens; o índice só aponta para ele."""
-    return usuario.has_perm("viagens.view_modeloos")
-
-
 # ---------------------------------------------------------------- textos prontos
 def pode_ver_textos(usuario) -> bool:
     return usuario.has_perm("cadastros.view_modelotexto")

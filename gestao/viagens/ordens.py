@@ -15,7 +15,7 @@ Toda gravação passa por aqui; a auditoria é do banco (trigger).
 
 from __future__ import annotations
 
-from datetime import date, time, timedelta
+from datetime import date, time
 from typing import cast
 
 from django.db import transaction
@@ -392,44 +392,6 @@ def textos_do_documento(ordem: OrdemServico) -> dict:
     return {"referencia": t.referencia, "determinacao": "", "competencias": [],
             "itens": [(dominio_modelo.romano(n), texto) for n, texto in enumerate(t.itens, 1)],
             "justificativas": t.justificativas, "finalidade": t.finalidade}
-
-
-def dados_de_exemplo(modelo: dominio_modelo.Modelo, unidade) -> dict:
-    """O documento de uma OS fictícia com este modelo (o "Ver exemplo" do cadastro): viagem
-    de três dias antes a dois depois de um evento de dois dias, três pessoas com as funções
-    do modelo, e o cabeçalho da unidade (ou os traços, sem configuração). Nada é gravado."""
-    hoje = timezone.localdate()
-    equipe = [dominio.Pessoa(1, "Ana Exemplo", "Agente de Polícia Judiciária"),
-              dominio.Pessoa(2, "Bruno Exemplo", "Investigador de Polícia"),
-              dominio.Pessoa(3, "Carla Exemplo", "Escrivão de Polícia")]
-    codigos = [f.codigo for f in modelo.funcoes]
-    dados = dominio.DadosOS(
-        destinos=["Londrina/PR"], inicio=hoje + timedelta(days=3), fim=hoje + timedelta(days=8),
-        evento_inicio=hoje + timedelta(days=5), evento_fim=hoje + timedelta(days=6),
-        hora=time(5, 0), motivo="a Feira de Exemplo", equipe=equipe,
-        funcoes={p.id: codigos[(p.id - 1) % len(codigos)] for p in equipe} if codigos else {},
-        sede=sede_da_unidade(unidade) or "Curitiba/PR")
-    t = dominio_modelo.itens_da_os(dados, modelo)
-    config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).select_related(
-        "sede").first()
-    nome, cargo = ("", "")
-    if config is not None:
-        nome, cargo, _ = quem_assina(config, "ordem_servico", hoje)
-    return {
-        "titulo": f"Exemplo — {modelo.nome}", "numero": f"000/{hoje.year}",
-        "sigla": unidade.sigla or unidade.nome,
-        "unidade_nome": config.nome_extenso if config else unidade.nome,
-        "cabecalho_unidade": (config.nome_extenso if config else unidade.nome).upper(),
-        "rodape": config.rodape if config else "",
-        "assina": {"nome": nome, "cargo": cargo},
-        "delegado_geral": config.delegado_geral_nome if config else "",
-        "sede": config.sede.nome if config and config.sede_id else "",
-        "data_extenso": dominio.data_por_extenso(hoje), "previa": True,
-        "regioes_editadas": {}, "referencia": t.referencia, "determinacao": "",
-        "competencias": [],
-        "itens": [(dominio_modelo.romano(n), texto) for n, texto in enumerate(t.itens, 1)],
-        "justificativas": t.justificativas, "finalidade": t.finalidade,
-    }
 
 
 @transaction.atomic

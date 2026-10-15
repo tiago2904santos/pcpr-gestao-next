@@ -277,7 +277,7 @@ def _gravar(request: HttpRequest, form: FormularioOrdem, ordem=None) -> HttpResp
                 texto += f" Copiado dos ofícios: {', '.join(copiados)}."
             if "função da equipe" in ordens.faltando(salva):
                 messages.warning(request, f"{texto} Agora escolha a função de cada um da equipe "
-                                          "(o modelo usa funções).")
+                                          "(o tipo de OS usa funções).")
                 return redirect(reverse("viagens:editar_ordem", args=[salva.pk]) + "#t-equipe")
             messages.success(request, texto)
             return redirect("viagens:editar_ordem", salva.pk)
