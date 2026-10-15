@@ -83,7 +83,7 @@ def quadro(viagem: Viagem) -> Quadro:
     folha = reverse("viagens:editar_viagem", args=[viagem.pk])
     etapas = {c: Etapa(c, t) for c, t in (
         ("dados", "Dados da viagem"), ("roteiro", "Roteiro"), ("oficios", "Ofícios"),
-        ("equipe", "Equipe"), ("ordem", "Ordem de serviço"), ("plano", "Plano de trabalho"),
+        ("equipe", "Equipe"), ("ordem", "OS ou plano de trabalho"),
         ("termos", "Termos"), ("assinaturas", "Assinaturas"), ("protocolo", "Protocolo"))}
 
     # Dados
@@ -142,24 +142,22 @@ def quadro(viagem: Viagem) -> Quadro:
                 f"Cadastro da viatura {viatura} incompleto ({viatura.faltando_texto}).",
                 reverse("cadastros:viaturas") + f"?editar={viatura.pk}"))
 
-    # Ordem de serviço
+    # OS ou plano de trabalho: basta um dos dois; o que existir tem de estar completo.
     ativas = [o for o in docs.ordens if not o.cancelada]
-    if not ativas:
-        etapas["ordem"].itens.append(Item("Crie a ordem de serviço.", f"{folha}#documentos"))
+    ativos = [p for p in docs.planos if not p.cancelado]
+    if not ativas and not ativos:
+        etapas["ordem"].itens.append(Item("Crie a ordem de serviço ou o plano de trabalho.",
+                                          f"{folha}#documentos"))
     for os_ in ativas:
         falta = ordens.faltando(os_)
         if falta:
             etapas["ordem"].itens.append(Item(f"{os_}: falta {', '.join(falta)}.",
                                               reverse("viagens:editar_ordem", args=[os_.pk])))
 
-    # Plano de trabalho
-    ativos = [p for p in docs.planos if not p.cancelado]
-    if not ativos:
-        etapas["plano"].itens.append(Item("Crie o plano de trabalho.", f"{folha}#documentos"))
     for p in ativos:
         pend = planos.pendencias(p)
         if pend:
-            etapas["plano"].itens.append(Item(_mais(f"{p}: {pend[0].mensagem}", len(pend) - 1),
+            etapas["ordem"].itens.append(Item(_mais(f"{p}: {pend[0].mensagem}", len(pend) - 1),
                                               reverse("viagens:editar_plano", args=[p.pk])))
 
     # Termos: cada servidor dos ofícios (fora da unidade emissora) com termo.

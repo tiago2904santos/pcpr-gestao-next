@@ -78,6 +78,38 @@ class Viagem(models.Model):
         return self.situacao == self.Situacao.CANCELADA
 
 
+class AnexoViagem(models.Model):
+    """O pedido que originou a viagem: o e-mail do solicitante ou o ofício que solicita o
+    evento (o 1º passo da trilha "Documentos da viagem"). PDF, imagem ou o próprio e-mail
+    (.eml/.msg), conferidos pelo conteúdo. Remover só marca (o arquivo fica)."""
+
+    class Tipo(models.TextChoices):
+        EMAIL = "email", "E-mail do solicitante"
+        OFICIO = "oficio", "Ofício de solicitação"
+        OUTRO = "outro", "Outro documento"
+
+    viagem = models.ForeignKey(Viagem, on_delete=models.CASCADE, related_name="anexos")
+    tipo = models.CharField(max_length=10, choices=Tipo.choices, default=Tipo.EMAIL)
+    arquivo = models.FileField(upload_to="viagens/solicitacoes/%Y/")
+    nome_original = models.CharField(max_length=255, blank=True)
+    sha256 = models.CharField(max_length=64)
+    tamanho = models.PositiveIntegerField()
+    enviado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name="+")
+    enviado_em = models.DateTimeField(auto_now_add=True)
+    removido_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["enviado_em", "pk"]
+        verbose_name = "anexo da viagem"
+        verbose_name_plural = "anexos da viagem"
+        constraints = [models.CheckConstraint(condition=~Q(sha256=""),
+                                              name="anexo_viagem_tem_hash")]
+
+    def __str__(self) -> str:
+        return self.nome_original or self.get_tipo_display()
+
+
 class ViagemDestino(models.Model):
     """Destinos da viagem na ordem da visita (o primeiro é o principal)."""
 

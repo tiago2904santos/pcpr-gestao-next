@@ -1,22 +1,23 @@
 {% comment %}
-Documentos da viagem como a trilha da preparação (viagem_trilha.py): os cinco tipos lado a
-lado, na ordem em que se prepara a viagem, ligados por um fio. Cada documento é um cartão
-com a folhinha (a cor diz a situação); clicar abre o visualizador (_visualizador.html): o
-documento pronto ao lado do resumo, ou só o resumo. Sem JavaScript, o cartão leva à folha
-de edição. No celular, os passos ficam um embaixo do outro.
+Documentos da viagem como a trilha da preparação, de cima para baixo (viagem_trilha.py):
+1 Solicitação, 2 Roteiro, 3 Ofícios, 4 OS ou plano de trabalho (basta um), 5 Termos. Cada
+passo tem o título, o que ele é e o botão de criar (ou anexar) alinhados no topo, e a lista
+dos documentos: o título com o chip da situação e um subtexto do que ele tem. Clicar abre o
+visualizador (_visualizador.html); sem JavaScript, a folha de edição.
 Região viva do hub: os botões usam os formulários externos de cada tipo (`novo-…`).
 {% endcomment %}
 <section class="secao viagem-documentos" id="documentos" aria-labelledby="t-docs" data-vivo>
   <div class="secao__cabecalho">
     <h2 class="secao__titulo" id="t-docs"><span class="secao__numero">2</span>Documentos da viagem</h2>
-    <div class="secao__estado"><span class="selo {% if docs.tipos_com_documento == 5 %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ docs.tipos_com_documento }} de 5 com documento</span></div>
-    <p class="secao__nota">Clique num documento para vê-lo com o resumo e as ações. Os novos nascem em rascunho e já vinculados: termo, OS e plano com o período e os destinos; ofício e OS também com o motivo.</p>
+    <div class="secao__estado"><span class="selo {% if trilha_feitos == trilha|length %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ trilha_feitos }} de {{ trilha|length }} passos</span></div>
+    <p class="secao__nota">Na ordem em que se prepara a viagem. Clique num documento para vê-lo com o resumo e as ações. Os novos nascem em rascunho e já vinculados à viagem.</p>
   </div>
-  <ol class="viagem-trilha" aria-label="Documentos por etapa da preparação">
+  <ol class="viagem-trilha" aria-label="Passos da preparação">
     {% for passo in trilha %}{% include "viagens/viagem/_bloco.html" %}{% endfor %}
   </ol>
   {% if editavel %}
   <div class="viagem-trilha__rodape">
+    <p>Vai preparar uma equipe inteira? O ofício, o transporte e os documentos dela saem de uma vez.</p>
     <a class="botao" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "layers" %}Gerar documentos em conjunto{% icone "arrow-right" classe="icone--sm" %}</a>
   </div>
   {% endif %}

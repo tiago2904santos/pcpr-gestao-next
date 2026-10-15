@@ -9,6 +9,7 @@
  *   a escolha da página.
  * - Não pronto, com pendência ou roteiro: só o resumo (o fragmento das listas, por HTMX, com
  *   as ações no rodapé).
+ * - Anexo da solicitação (sem `data-resumo`): só o arquivo, na largura toda.
  * - Setas (e ← →) passam entre os documentos do mesmo tipo (`data-grupo`).
  */
 
@@ -33,6 +34,7 @@ function ligar(dialogo) {
   const documento = $("[data-v-documento]");
   const folha = /** @type {HTMLIFrameElement} */ ($("[data-v-folha]"));
   const resumo = $("[data-v-resumo]");
+  const novaAba = /** @type {HTMLAnchorElement} */ ($("[data-v-nova-aba]"));
   const carregando = resumo.innerHTML;
 
   /** @type {HTMLAnchorElement[]} */
@@ -40,6 +42,8 @@ function ligar(dialogo) {
   let indice = 0;
 
   const escala = () => {
+    // Anexo (PDF ou imagem do solicitante) vem como é; só a folha do documento é reduzida.
+    if (d.classList.contains("visualizador--sem-resumo")) return;
     const doc = folha.contentDocument;
     if (!doc?.documentElement || !documento.clientWidth) return;
     const fator = Math.min(1, (documento.clientWidth - 2) / (A4_LARGURA_PX + MARGEM_DA_MESA_PX));
@@ -69,11 +73,16 @@ function ligar(dialogo) {
     let lista = [];
     try { lista = dados.paginas ? JSON.parse(dados.paginas) : []; } catch { lista = []; }
     const temDocumento = lista.length > 0;
-    d.classList.toggle("visualizador--com-documento", temDocumento);
+    const temResumo = Boolean(dados.resumo);
+    d.classList.toggle("visualizador--com-documento", temDocumento && temResumo);
+    d.classList.toggle("visualizador--sem-resumo", !temResumo);
     documento.hidden = !temDocumento;
-    modos.hidden = !temDocumento;
+    modos.hidden = !(temDocumento && temResumo);
     caixaPagina.hidden = lista.length < 2;
     paginas.replaceChildren(...lista.map((p) => new Option(p.rotulo, p.url)));
+    // Anexo (sem resumo e sem rodapé de ações): abrir o arquivo numa aba própria.
+    novaAba.hidden = temResumo || !temDocumento;
+    if (temDocumento) novaAba.href = lista[0].url;
     if (temDocumento) {
       folha.title = `${dados.titulo}: documento`;
       folha.src = lista[0].url;
@@ -83,9 +92,9 @@ function ligar(dialogo) {
       mostrarModo("resumo");
     }
 
-    resumo.innerHTML = carregando;
+    resumo.innerHTML = temResumo ? carregando : "";
     const htmx = /** @type {any} */ (window).htmx;
-    if (htmx && dados.resumo) {
+    if (htmx && temResumo) {
       htmx.ajax("GET", dados.resumo, { target: resumo, swap: "innerHTML" });
     }
   };

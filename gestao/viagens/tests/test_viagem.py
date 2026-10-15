@@ -162,7 +162,7 @@ def test_criar_pela_tela_e_folha(c):
     html = cli.get(r["Location"]).content.decode()
     assert "Identificação" in html and "Documentos da viagem" in html
     assert "Falta o tipo" in html and "Nenhum ofício ainda" in html
-    assert html.count('class="viagem-passo__vazio"') == 5
+    assert html.count('class="viagem-lista__vazio"') == 5
     assert html.index('id="documentos"') < html.index('id="vinculos"')
 
 
@@ -414,15 +414,69 @@ def test_trilha_pronto_abre_a_folha_e_o_resto_o_resumo(c):
     emitido = Oficio.objects.get(pk=c.ids["oficio_emitido"])
     viagem.salvar_dados(op, v.pk, tipos=[], vinculos={"oficios": [emitido]})
     passos = viagem_trilha.trilha(viagem.documentos(Viagem.objects.get(pk=v.pk)))
-    assert [p.tipo for p in passos] == ["roteiro", "oficio", "plano", "ordem", "termo"]
-    oficio = passos[1].itens[0]
-    assert oficio.pronto and oficio.estado == "ok"
+    assert [p.chave for p in passos] == ["solicitacao", "roteiro", "oficio", "os-plano", "termo"]
+    oficio = passos[2].itens[0]
+    assert oficio.pronto
     assert f"/oficios/{emitido.pk}/documento/oficio/folha/" in oficio.paginas_json
     assert oficio.resumo_url.endswith(f"/oficios/{emitido.pk}/resumo/")
-    for item in passos[0].itens:
+    assert oficio.subtexto.startswith("Protocolo ") and oficio.chip.texto == "Emitido"
+    for item in passos[1].itens:
         assert not item.pronto and item.paginas_json == ""
     Oficio.objects.filter(pk=emitido.pk).update(situacao=Oficio.Situacao.RASCUNHO)
     passos = viagem_trilha.trilha(viagem.documentos(Viagem.objects.get(pk=v.pk)))
-    assert not passos[1].itens[0].pronto and passos[1].itens[0].paginas_json == ""
+    assert not passos[2].itens[0].pronto and passos[2].itens[0].paginas_json == ""
+    assert passos[2].itens[0].chip.texto == "Rascunho"
     html = _cliente(op).get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
     assert 'data-visualizador' in html and 'data-grupo="oficio"' in html
+
+
+class TestSolicitacao:
+    """O e-mail do solicitante ou o ofício que pede o evento, anexado na folha da viagem."""
+
+    EML = b"Received: from x\r\nFrom: a@b.gov.br\r\nSubject: Pedido\r\n\r\nCorpo."
+    PDF = b"%PDF-1.4\n%sintetico\n"
+
+    def _anexar(self, cli, v, nome, conteudo, tipo="email"):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        return cli.post(reverse("viagens:anexar_solicitacao_viagem", args=[v.pk]),
+                        {"tipo": tipo, "arquivo": SimpleUploadedFile(nome, conteudo)})
+
+    def test_anexa_abre_e_remove(self, c, settings, tmp_path):
+        from gestao.viagens.models import AnexoViagem
+
+        settings.MEDIA_ROOT = tmp_path
+        op = c.usuarios["operador"]
+        cli = _cliente(op)
+        v = viagem.criar(op)
+        r = self._anexar(cli, v, "pedido.eml", self.EML)
+        assert r.status_code == 302 and r["Location"].endswith("#documentos")
+        self._anexar(cli, v, "oficio-pedido.pdf", self.PDF, tipo="oficio")
+        email, oficio = AnexoViagem.objects.filter(viagem=v).order_by("pk")
+        assert (email.tipo, oficio.tipo, email.tamanho) == ("email", "oficio", len(self.EML))
+        # PDF abre na tela (e no visualizador); o e-mail baixa.
+        r = cli.get(reverse("viagens:abrir_solicitacao_viagem", args=[oficio.pk]))
+        assert r["Content-Type"] == "application/pdf" and "inline" in r["Content-Disposition"]
+        assert r["X-Frame-Options"] == "SAMEORIGIN"
+        r = cli.get(reverse("viagens:abrir_solicitacao_viagem", args=[email.pk]))
+        assert "attachment" in r["Content-Disposition"]
+        html = cli.get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+        assert "pedido.eml" in html and "oficio-pedido.pdf" in html and "1 de 5 passos" in html
+        cli.post(reverse("viagens:remover_solicitacao_viagem", args=[email.pk]))
+        email.refresh_from_db()
+        assert email.removido_em is not None
+        assert cli.get(reverse("viagens:abrir_solicitacao_viagem",
+                               args=[email.pk])).status_code == 404
+
+    def test_recusa_conteudo_que_nao_confere_e_quem_nao_edita(self, c, settings, tmp_path):
+        from gestao.viagens.models import AnexoViagem
+
+        settings.MEDIA_ROOT = tmp_path
+        op = c.usuarios["operador"]
+        v = viagem.criar(op)
+        r = self._anexar(_cliente(op), v, "falso.pdf", b"nao sou pdf")
+        assert r.status_code == 302 and not AnexoViagem.objects.exists()
+        r = self._anexar(_cliente(op), v, "script.exe", b"MZ")
+        assert not AnexoViagem.objects.exists()
+        r = self._anexar(_cliente(c.usuarios["consulta"]), v, "pedido.eml", self.EML)
+        assert r.status_code in (403, 404) and not AnexoViagem.objects.exists()

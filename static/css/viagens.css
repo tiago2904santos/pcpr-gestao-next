@@ -12,38 +12,45 @@
 .viagem-identificacao__quando { min-width: 0; }
 .documento--viagem .viagem-identificacao__onde { margin-top: var(--esp-6); padding-top: var(--esp-6); border-top: var(--borda-sutil); }
 
-/* 2 Documentos da viagem: a trilha da preparação. Cinco colunas ligadas por um fio (verde no
-   trecho já percorrido); cada documento é um cartão com a folhinha na cor da situação. */
-.viagem-trilha { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); list-style: none; margin: 0; padding: 0; counter-reset: passo; }
-.viagem-passo { position: relative; display: flex; flex-direction: column; gap: var(--esp-3); min-width: 0; }
-.viagem-passo__titulo { position: relative; display: flex; align-items: center; gap: var(--esp-2); min-height: var(--esp-8); font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.viagem-passo__marca { position: relative; z-index: 1; display: inline-grid; place-items: center; flex: none; width: var(--esp-8); height: var(--esp-8); border: var(--esp-px) solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-terciario); font-size: var(--texto-xs); letter-spacing: normal; }
+/* 2 Documentos da viagem: a trilha da preparação, de cima para baixo. O marcador de cada
+   passo fica numa coluna à esquerda, ligado ao próximo por um fio (verde no trecho já
+   percorrido); à direita, o cabeçalho do passo (título, o que é, criar) e a lista. */
+.viagem-trilha { display: grid; gap: 0; list-style: none; margin: 0; padding: 0; }
+.viagem-passo { position: relative; display: grid; grid-template-columns: var(--esp-8) minmax(0, 1fr); gap: var(--esp-4); padding-bottom: var(--esp-6); }
+.viagem-passo:last-child { padding-bottom: 0; }
+.viagem-passo:not(:last-child)::before { content: ""; position: absolute; left: calc(var(--esp-4) - var(--esp-px)); top: var(--esp-8); bottom: 0; width: calc(2 * var(--esp-px)); background: var(--cor-borda-sutil); }
+.viagem-passo--ok:not(:last-child)::before { background: var(--cor-sucesso-borda); }
+.viagem-passo__marca { position: relative; z-index: 1; display: grid; place-items: center; width: var(--esp-8); height: var(--esp-8); border: var(--esp-px) solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-secundario); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
 .viagem-passo--ok .viagem-passo__marca { border-color: var(--cor-sucesso-borda); background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
-.viagem-passo--ok .viagem-passo__tipo { color: var(--cor-texto); }
-.viagem-passo__conta { display: inline-grid; place-items: center; min-width: var(--esp-5); height: var(--esp-5); padding: 0 var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); letter-spacing: normal; }
+.viagem-passo__corpo { display: grid; gap: var(--esp-3); min-width: 0; }
+.viagem-passo__cabecalho { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--esp-2) var(--esp-4); min-height: var(--esp-8); }
+.viagem-passo__rotulo { display: grid; gap: var(--esp-05); min-width: 0; padding-top: var(--esp-1); }
+.viagem-passo__titulo { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-md); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-passo__conta { display: inline-grid; place-items: center; min-width: var(--esp-5); height: var(--esp-5); padding: 0 var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
+.viagem-passo__descricao { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-passo__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.viagem-passo__falta { width: fit-content; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
 
-.viagem-passo__docs { display: grid; gap: var(--esp-2); list-style: none; margin: 0; padding: 0; }
-.viagem-doc { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "folha texto" "folha ver"; gap: var(--esp-1) var(--esp-3); align-items: start; padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); box-shadow: var(--sombra-1); color: var(--cor-texto); text-decoration: none; transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao); }
-.viagem-doc:hover { border-color: var(--cor-marca-borda); box-shadow: var(--sombra-cartao-hover); translate: 0 calc(-1 * var(--esp-px)); }
-.viagem-doc:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
-/* A folhinha: uma página com linhas de texto e a faixa no topo com a cor da situação. */
-.viagem-doc__folha { grid-area: folha; position: relative; width: var(--esp-10); height: var(--esp-12); border: var(--borda-sutil); border-top: var(--esp-1) solid var(--cor-borda-forte); border-radius: var(--raio-xs); background: repeating-linear-gradient(to bottom, transparent 0 var(--esp-2), var(--cor-borda-sutil) var(--esp-2) calc(var(--esp-2) + var(--esp-px))) var(--esp-2) var(--esp-3) / calc(100% - 2 * var(--esp-2)) calc(100% - var(--esp-5)) no-repeat, var(--cor-superficie); box-shadow: var(--sombra-1); }
-.viagem-doc--ok .viagem-doc__folha { border-top-color: var(--cor-sucesso-solida); }
-.viagem-doc--rascunho .viagem-doc__folha { border-top-color: var(--cor-aviso-solida); }
-.viagem-doc--cancelado .viagem-doc__folha { border-top-color: var(--cor-perigo-solida); }
-.viagem-doc__texto { grid-area: texto; display: grid; gap: var(--esp-2); min-width: 0; }
-.viagem-doc__nome { font-size: var(--texto-md); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); overflow-wrap: anywhere; }
-.viagem-doc__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-doc__data { display: inline-flex; align-items: center; gap: var(--esp-1); }
-.viagem-doc__ver { grid-area: ver; display: inline-flex; align-items: center; gap: var(--esp-1); margin-top: var(--esp-1); font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--cor-texto-terciario); transition: color var(--duracao-rapida) var(--curva-padrao); }
-.viagem-doc:hover .viagem-doc__ver, .viagem-doc:focus-visible .viagem-doc__ver { color: var(--cor-marca-texto); }
-
-.viagem-passo__vazio { display: grid; justify-items: center; align-content: center; gap: var(--esp-2); min-height: calc(var(--esp-12) + 2 * var(--esp-3)); padding: var(--esp-3); border: var(--esp-px) dashed var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); text-align: center; }
-.viagem-passo__vazio-icone { color: var(--cor-texto-terciario); }
-.viagem-passo__vazio > p { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
-.viagem-passo__acao { display: grid; justify-items: start; gap: var(--esp-1); }
-.viagem-passo__falta { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-trilha__rodape { display: flex; justify-content: flex-end; margin-top: var(--esp-5); padding-top: var(--esp-4); border-top: var(--borda-sutil); }
+/* A lista de cada passo: uma linha por documento — título e chip, subtexto embaixo, "Ver". */
+.viagem-lista { list-style: none; margin: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: hidden; }
+.viagem-lista__item { display: flex; align-items: center; }
+.viagem-lista__item + .viagem-lista__item { border-top: var(--borda-sutil); }
+.viagem-lista__link { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "linha ver" "sub ver"; gap: var(--esp-1) var(--esp-4); align-items: center; flex: 1; min-width: 0; padding: var(--esp-3) var(--esp-4); color: var(--cor-texto); text-decoration: none; transition: background var(--duracao-rapida) var(--curva-padrao); }
+.viagem-lista__link:hover { background: var(--cor-superficie-sutil); }
+.viagem-lista__link:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: calc(-1 * var(--foco-espessura)); }
+.viagem-lista__linha { grid-area: linha; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); min-width: 0; }
+.viagem-lista__nome { font-size: var(--texto-md); font-weight: var(--peso-semi); overflow-wrap: anywhere; }
+.viagem-lista__sub { grid-area: sub; font-size: var(--texto-sm); color: var(--cor-texto-secundario); overflow-wrap: anywhere; }
+.viagem-lista__ver { grid-area: ver; display: inline-flex; align-items: center; gap: var(--esp-1); font-size: var(--texto-sm); font-weight: var(--peso-medio); color: var(--cor-texto-terciario); }
+.viagem-lista__link:hover .viagem-lista__ver, .viagem-lista__link:focus-visible .viagem-lista__ver { color: var(--cor-marca-texto); }
+.viagem-lista__remover { flex: none; margin-right: var(--esp-2); }
+.viagem-lista__vazio { display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); border: var(--esp-px) dashed var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-lista__vazio > .icone { color: var(--cor-texto-terciario); }
+.viagem-trilha__rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); margin-top: var(--esp-6); padding: var(--esp-4); border-radius: var(--raio-lg); background: var(--cor-marca-fundo); }
+.viagem-trilha__rodape > p { flex: 1 1 18rem; font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-solicitacao__tipos { display: grid; gap: var(--esp-2); }
+.viagem-solicitacao__tipo { padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); }
+.viagem-solicitacao__tipo:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
 
 /* Visualizador (modal): barra com tipo, setas e modos; a folha ao lado do resumo. */
 dialog.visualizador { height: calc(100dvh - 2 * var(--esp-5)); padding: 0; }
@@ -64,6 +71,7 @@ dialog.visualizador { height: calc(100dvh - 2 * var(--esp-5)); padding: 0; }
 .visualizador__resumo { min-height: 0; overflow-y: auto; }
 .visualizador[data-modo="documento"] .visualizador__resumo { display: none; }
 .visualizador[data-modo="resumo"] .visualizador__documento { display: none; }
+.visualizador--sem-resumo .visualizador__resumo { display: none; }
 
 /* 3 Vincular documentos existentes: grupos recolhidos; cada lista mostra até três linhas e rola. */
 .viagem-vinculos > summary { cursor: pointer; list-style: none; }
@@ -153,12 +161,6 @@ dialog.visualizador { height: calc(100dvh - 2 * var(--esp-5)); padding: 0; }
 
 @media (min-width: 768px) {
   .viagem-etapas, .viagem-vinculo .caixas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .viagem-trilha { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--esp-3); }
-  /* O fio entre os passos: do marcador até o próximo, verde onde já há documento. */
-  .viagem-passo:not(:last-child) .viagem-passo__titulo::after { content: ""; position: absolute; left: var(--esp-8); right: calc(-1 * var(--esp-3)); top: 50%; height: var(--esp-px); background: var(--cor-borda); }
-  .viagem-passo--ok:not(:last-child) .viagem-passo__titulo::after { background: var(--cor-sucesso-borda); height: calc(2 * var(--esp-px)); }
-  .viagem-passo__tipo { position: relative; z-index: 1; padding-right: var(--esp-2); background: var(--cor-superficie); }
-  .viagem-passo__conta { position: relative; z-index: 1; }
   .viagem-conferencia__resumo { grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 16rem); grid-template-areas: "marca texto barra"; }
   .viagem-divergencia { grid-template-columns: minmax(10rem, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
   .viagem-divergencia__doc, .viagem-divergencia__aviso { grid-column: 1; }
@@ -166,6 +168,7 @@ dialog.visualizador { height: calc(100dvh - 2 * var(--esp-5)); padding: 0; }
   .viagem-divergencia__valor { grid-row: 1 / span 2; }
   .viagem-divergencia:has(.viagem-divergencia__aviso) .viagem-divergencia__valor { grid-row: 1 / span 3; }
   .viagem-divergencia__aviso { grid-row: 3; }
+  .viagem-solicitacao__tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .viagem-lote__contexto { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .viagem-lote__opcoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .viagem-lote__opcoes > :is(legend, .campo__ajuda) { grid-column: 1 / -1; }

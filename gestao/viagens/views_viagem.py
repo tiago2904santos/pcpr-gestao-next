@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -27,13 +27,14 @@ from . import (
     resumo_listas,
     viagem,
     viagem_conferencia,
+    viagem_solicitacao,
     viagem_trilha,
 )
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
-from .models import Viagem
+from .models import AnexoViagem, Viagem
 from .views import POR_PAGINA, _migalhas
-from .views_editor import primeiro_erro
+from .views_editor import moldura_do_pdf, primeiro_erro
 
 ABAS = [("", "Todas", "todas"), ("futuras", "Que vão acontecer", "futuras"),
         ("atuais", "Em andamento e realizadas", "atuais"),
@@ -206,7 +207,9 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
     docs = viagem.documentos(v)
     return render(request, "viagens/viagem/editar.html", {
         "v": v, "form": form, "docs": docs, "quando": viagem.dias_para(v),
-        "trilha": viagem_trilha.trilha(docs),
+        "trilha": (trilha := viagem_trilha.trilha(docs, viagem_solicitacao.ativos(v))),
+        "trilha_feitos": sum(1 for passo in trilha if passo.itens),
+        "tipos_de_solicitacao": AnexoViagem.Tipo.choices,
         "quadro": None if v.cancelada else viagem_conferencia.quadro(v),
         "diferencas": [] if v.cancelada else viagem_conferencia.coerencia(v),
         "destinos": [d.municipio for d in v.destinos.select_related("municipio")],
@@ -451,3 +454,50 @@ def repetir(request: HttpRequest, pk: int) -> HttpResponse:
                               "documentos antes de emitir.")
     return redirect("viagens:editar_viagem", nova.pk)
 
+
+# ---------------------------------------------------------------- solicitação (anexos)
+def _de_volta(v: Viagem) -> str:
+    return reverse("viagens:editar_viagem", args=[v.pk]) + "#documentos"
+
+
+@require_POST
+def anexar_solicitacao(request: HttpRequest, pk: int) -> HttpResponse:
+    """O e-mail do solicitante ou o ofício que pede o evento (1º passo da trilha)."""
+    v = _viagem_visivel(request, pk)
+    try:
+        viagem_solicitacao.anexar(request.user, v.pk, request.FILES.get("arquivo"),
+                                  request.POST.get("tipo", ""))
+    except viagem_solicitacao.AnexoInvalido as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Solicitação anexada à viagem.")
+    return redirect(_de_volta(v))
+
+
+@require_POST
+def remover_solicitacao(request: HttpRequest, anexo_pk: int) -> HttpResponse:
+    anexo = get_object_or_404(AnexoViagem.objects.select_related("viagem"), pk=anexo_pk)
+    if not policies.pode_ver_viagem(request.user, anexo.viagem):
+        raise Http404
+    viagem_solicitacao.remover(request.user, anexo.pk)
+    messages.success(request, f"“{anexo}” removido da viagem.")
+    return redirect(_de_volta(anexo.viagem))
+
+
+@require_GET
+@moldura_do_pdf
+def abrir_solicitacao(request: HttpRequest, anexo_pk: int) -> FileResponse:
+    """PDF e imagem abrem na tela (e no visualizador); o e-mail baixa."""
+    anexo = get_object_or_404(AnexoViagem.objects.select_related("viagem"), pk=anexo_pk,
+                              removido_em__isnull=True)
+    if not policies.pode_ver_viagem(request.user, anexo.viagem):
+        raise Http404
+    ext = viagem_solicitacao.extensao(anexo.arquivo.name or "")
+    resposta = FileResponse(
+        anexo.arquivo.open("rb"),
+        content_type=viagem_solicitacao.TIPOS.get(ext, "application/octet-stream"),
+        as_attachment=ext not in viagem_solicitacao.VISIVEIS or request.GET.get("baixar") == "1",
+        filename=anexo.nome_original or f"solicitacao{ext}")
+    resposta["Cache-Control"] = "no-store"
+    resposta["X-Content-Type-Options"] = "nosniff"
+    return resposta

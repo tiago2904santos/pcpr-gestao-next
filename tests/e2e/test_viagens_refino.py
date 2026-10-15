@@ -33,7 +33,7 @@ def test_documentos_antes_dos_vinculos_e_busca_sem_gravacao(logado, dados_e2e, l
         assert botao.get_attribute("form").startswith("novo-")
     expect(pg.locator(".viagem-trilha > .viagem-passo")).to_have_count(5)
     etapas = pg.locator(".viagem-etapas > li").count() + pg.locator(".viagem-concluida").count()
-    assert etapas == 9
+    assert etapas == 8
     expect(pg.locator(".viagem-vinculos")).not_to_have_attribute("open", "")
     pg.locator(".viagem-vinculos > summary").press("Enter")
     grupo = pg.locator('.viagem-vinculo').filter(has=pg.locator('input[name="oficios"]'))
@@ -92,7 +92,7 @@ def test_conferencia_atalhos_e_leitura_sem_descricao(pagina, dados_e2e, largura)
     expect(pg.locator("#form-viagem")).to_have_count(0)
     expect(pg.locator("#dados")).not_to_contain_text(v.descricao)
     etapas = pg.locator(".viagem-etapas > li").count() + pg.locator(".viagem-concluida").count()
-    assert etapas == 9
+    assert etapas == 8
     expect(pg.locator("#documentos button[form]")).to_have_count(0)
     expect(pg.locator(".viagem-conferencia__barra")).to_be_visible()
     if pg.locator(".viagem-etapa__itens a").count():

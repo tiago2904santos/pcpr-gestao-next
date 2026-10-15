@@ -68,3 +68,27 @@ def test_documento_pronto_abre_a_folha(logado, dados_e2e):
     expect(pg.frame_locator("[data-v-folha]").locator("body")).to_contain_text("Ofício")
     expect(pg.locator("#visualizador-resumo #resumo-rodape")).to_be_visible()
     assert pg.erros_console == []
+
+
+def test_solicitacao_anexada_abre_no_visualizador(logado, dados_e2e, tmp_path, settings):
+    pg = logado
+    v = _viagem(dados_e2e)
+    pdf = tmp_path / "oficio-pedido.pdf"
+    pdf.write_bytes(b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n")
+    pg.set_viewport_size({"width": 1440, "height": 900})
+    pg.goto(f"/viagens/viagens/{v.pk}/")
+    pg.get_by_role("button", name="Anexar e-mail ou ofício").click()
+    pg.get_by_label("Ofício de solicitação").check()
+    pg.set_input_files("#solicitacao-arquivo", str(pdf))
+    pg.locator("#dialogo-solicitacao button[type=submit]").click()
+    cartao = pg.locator('a[data-visualizar][data-grupo="solicitacao"]')
+    expect(cartao).to_contain_text("oficio-pedido.pdf")
+    expect(cartao).to_contain_text("Ofício")
+    with pg.expect_response(lambda r: "/viagens/solicitacao/" in r.url) as resposta:
+        cartao.click()
+    assert resposta.value.status == 200
+    assert resposta.value.headers.get("x-frame-options") == "SAMEORIGIN"
+    expect(pg.locator("[data-v-nova-aba]")).to_be_visible()
+    expect(pg.locator("#visualizador-resumo")).to_be_hidden()
+    pg.keyboard.press("Escape")
+    assert pg.erros_console == []
