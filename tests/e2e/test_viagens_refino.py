@@ -31,7 +31,7 @@ def test_documentos_antes_dos_vinculos_e_busca_sem_gravacao(logado, dados_e2e, l
     for botao in pg.locator("#documentos button[form]").all():
         assert botao.evaluate("e => e.form.id") == botao.get_attribute("form")
         assert botao.get_attribute("form").startswith("novo-")
-    expect(pg.locator(".viagem-documentos__grade > .viagem-documento")).to_have_count(5)
+    expect(pg.locator(".viagem-trilha > .viagem-passo")).to_have_count(5)
     etapas = pg.locator(".viagem-etapas > li").count() + pg.locator(".viagem-concluida").count()
     assert etapas == 9
     expect(pg.locator(".viagem-vinculos")).not_to_have_attribute("open", "")

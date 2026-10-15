@@ -39,8 +39,11 @@ Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
   ofício e da OS** (bloco "Motivo" com o texto pronto e a caixa de texto), período e destinos.
   O campo **Descrição/objetivo saiu** da tela e da consulta (a coluna no banco fica, com o
   que já estava gravado; a gravação da tela não a mexe).
-- **Documentos da viagem** continua com os cartões por tipo (a versão em linhas foi
-  descartada a pedido do usuário).
+- **Documentos da viagem** como a **trilha da preparação** (escolhida pelo usuário entre três
+  propostas): os cinco tipos lado a lado, na ordem roteiro → ofício → plano → OS → termos,
+  ✓ no que já tem documento (senão o número do passo), os documentos com situação e período
+  e o "Novo …" em cada passo; "Gerar documentos em conjunto" embaixo. No celular os passos
+  ficam um embaixo do outro.
 - **Vincular documentos existentes**: cada lista mostra no máximo três linhas e rola; o
   texto de cada opção fica centrado com a caixa de marcar.
 - **Conferência**: resumo com barra das etapas concluídas; etapas com pendência em cartões

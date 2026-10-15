@@ -62,6 +62,11 @@ class Documentos:
     def total(self) -> int:
         return sum(len(getattr(self, t)) for t in TIPOS_DE_DOCUMENTO)
 
+    @property
+    def tipos_com_documento(self) -> int:
+        """Quantos dos cinco tipos já têm documento (a trilha da folha da viagem)."""
+        return sum(1 for t in TIPOS_DE_DOCUMENTO if getattr(self, t))
+
 
 def documentos(viagem: Viagem) -> Documentos:
     """Os documentos da viagem. Roteiros e termos também contam quando chegam por um ofício
