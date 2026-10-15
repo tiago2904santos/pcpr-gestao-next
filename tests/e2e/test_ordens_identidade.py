@@ -28,7 +28,8 @@ def test_preparacao_e_lista_operacional(logado, dados_e2e, largura):
         """e => [...e.children].every(c => c.getBoundingClientRect().height < 80 &&
         c.getBoundingClientRect().width >= e.getBoundingClientRect().width * 0.4)"""
     )
-    calendario = pg.locator("pc-data[data-periodo] button.seletor__botao")
+    # O primeiro calendário é o período da OS (o do evento vem depois, só com modelo).
+    calendario = pg.locator("pc-data[data-periodo] button.seletor__botao").first
     calendario.focus()
     calendario.press("Enter")
     expect(calendario).to_have_attribute("aria-expanded", "true")

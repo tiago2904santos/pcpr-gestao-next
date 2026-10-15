@@ -6,8 +6,7 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import expect
 
-from gestao.viagens.modelos_do_sistema import semear
-from gestao.viagens.models import FuncaoOS, ModeloOS
+from gestao.viagens.models import ModeloOS
 
 from .conftest import entrar, rodar_axe
 
@@ -17,7 +16,6 @@ pytestmark = pytest.mark.e2e
 @pytest.mark.parametrize("largura", [360, 1440])
 def test_gestor_cria_modelo_com_funcoes(pagina, dados_e2e, largura):
     pg = pagina
-    semear(ModeloOS, FuncaoOS)  # o banco transacional do E2E pode ter sido limpo
     pg.set_viewport_size({"width": largura, "height": 900})
     entrar(pg, "gestor")
     pg.goto("/viagens/ordens/modelos/")
