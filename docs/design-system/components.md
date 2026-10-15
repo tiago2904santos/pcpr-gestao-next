@@ -723,3 +723,24 @@ não são duplicados. O nome acessível permanece “Entrar no módulo”.
 Consumidor inicial: `painel/inicio.html`. Os estilos `modulo__corpo` e
 `modulo__numeros` também atendem aos catálogos e ao painel de Eventos; a
 validação de compatibilidade não declara essas páginas migradas.
+
+### Calendário de período compacto
+
+`{% periodo_calendario campo_inicio campo_fim prefixo="identificador" %}` usa
+`componentes/periodo_calendario.html` e o `pc-data` existente. Recebe `rotulo`,
+`natureza` (evento/viagem), `fonte`, `editavel`, `dados` efetivos opcionais e IDs
+de regiões vivas. Prefixos são únicos na página, inclusive em diálogos.
+Folhas nativas clicáveis, duração inclusiva entre elas, frase próxima e antecedência
+na direita; canto dobra em hover/foco. Sem JS, oferece dois campos de texto.
+Valores/nomes/IDs/erros dos campos originais são preservados. Ao escolher, a tela
+atualiza imediatamente sem trocar gatilho ou calendário. A leitura de Termos
+continua usando o período efetivo/herdado fornecido pelo módulo.
+
+Consumidores: Viagem, OS, Plano, evento adicional, Termos, Solicitações de Eventos,
+Palestras e UI Lab. Antecedência é contagem até o início, não avaliação de prazo
+institucional. UI Lab demonstra futuro, um dia/hoje, iniciado, vazio, consulta e erro.
+
+`compacto=True` reduz folhas/tipografia e omite antecedência para diálogos menores.
+`fim_aberto=True` mantém fim ausente como vigência até encerramento, mostra a folha
+aberta e oferece “Sem data final” no seletor. Não converte ausência de fim em um dia.
+Primeiro consumidor da combinação: Nova substituição na Configuração da chefia.

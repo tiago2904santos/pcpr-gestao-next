@@ -9,12 +9,57 @@
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 
 from django import template
+from django.forms import BoundField, HiddenInput
 from django.templatetags.static import static
+from django.utils import timezone
 from django.utils.html import format_html
 
+from ..periodos import apresentar_periodo, frase_periodo, ler_data
+
 register = template.Library()
+
+
+@register.inclusion_tag("componentes/periodo_calendario.html")
+def periodo_calendario(campo_inicio: BoundField | None = None,
+                      campo_fim: BoundField | None = None, *, prefixo: str,
+                      rotulo: str = "Período do evento", natureza: str = "evento",
+                      fonte: str = "Informado no cadastro", editavel: bool = True,
+                      dados: dict | None = None, inicio: object = None, fim: object = None,
+                      id_folhas: str = "", id_descricao: str = "", vivo: bool = True,
+                      compacto: bool = False, fim_aberto: bool = False) -> dict:
+    """Mesma peça em todos os cadastros, preservando campos, valores e erros."""
+    de = campo_inicio.value() if campo_inicio is not None else inicio
+    ate = campo_fim.value() if campo_fim is not None else fim
+    hoje = timezone.localdate()
+    periodo = dados or apresentar_periodo(ler_data(de), ler_data(ate), hoje)
+    inicio_lido, fim_lido = ler_data(de), ler_data(ate)
+    if fim_aberto and inicio_lido and not ate:
+        periodo = {**periodo, "aberto": True, "fim": None, "um_dia": False,
+                   "dias_evento": None,
+                   "frase": f"A partir de {frase_periodo(inicio_lido, inicio_lido)}"}
+    texto = f"{inicio_lido:%d/%m/%Y}" if inicio_lido else ""
+    if inicio_lido and fim_lido:
+        texto += f" a {fim_lido:%d/%m/%Y}"
+
+    def oculto(campo: BoundField | None, valor: object, papel: str) -> Any:
+        attrs: dict[str, str | bool] = {f"data-periodo-{papel}": ""}
+        if campo is not None:
+            return campo.as_widget(widget=HiddenInput(), attrs=attrs)
+        return HiddenInput(attrs=attrs).render(f"{prefixo}-{papel}", valor)
+
+    return {"p": periodo, "rotulo": rotulo, "natureza": natureza, "prefixo": prefixo,
+            "fonte": periodo.get("fonte") or fonte, "editavel": editavel, "hoje": hoje,
+            "texto": texto, "campo_inicio": campo_inicio, "campo_fim": campo_fim,
+            "inicio_oculto": oculto(campo_inicio, de, "de"),
+            "fim_oculto": oculto(campo_fim, ate, "ate"), "vivo": vivo,
+            "compacto": compacto, "fim_aberto": fim_aberto,
+            "inicio_texto": f"{inicio_lido:%d/%m/%Y}" if inicio_lido else de or "",
+            "fim_texto": f"{fim_lido:%d/%m/%Y}" if fim_lido else ate or "",
+            "id_folhas": id_folhas or f"{prefixo}-periodo-folhas",
+            "id_descricao": id_descricao or f"{prefixo}-periodo-resumo"}
 
 
 @register.simple_tag

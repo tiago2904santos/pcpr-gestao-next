@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 
+from gestao.plataforma.periodos import antecedencia_do_inicio as antecedencia_do_inicio
+
 
 class SituacaoPrazo(StrEnum):
     INDEFINIDA = "indefinida"      # sem data de saída ainda

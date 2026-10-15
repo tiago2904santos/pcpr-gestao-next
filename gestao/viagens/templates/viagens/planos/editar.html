@@ -54,12 +54,13 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
         {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
       </div>
       {% comment %}
-      Programa · período · horário numa linha só, com a mesma altura. Programa é um campo de
+      Programa e horário numa linha; calendário compartilhado em largura total abaixo.
+      Programa é um campo de
       várias escolhas (<pc-escolhas>): o botão diz o que está marcado e abre a lista com as
       caixas; "Outro" é a última caixa e abre, ao lado, o campo do nome (CSS :has()). Sem
       JavaScript, a lista fica à vista.
       {% endcomment %}
-      <div class="campos campos--agenda programa-plano">
+      <div class="campos campos--agenda-periodo programa-plano">
         <div class="campo{% if form.programas.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="programas-gatilho" id="programas-rotulo">Programa</label>
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
@@ -72,19 +73,9 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
           {% for e in form.programas.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
         </div>
         {% include "componentes/campo.html" with campo=form.programa_outros classe="programa-plano__outro" rotulo="Outro programa" %}
-        <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="plano-periodo">Período do evento</label>
-          <pc-data class="seletor" data-periodo>
-            <input class="entrada" type="text" id="plano-periodo" value="{{ form.periodo_texto }}" placeholder="Início e fim" autocomplete="off" aria-describedby="plano-periodo-ajuda">
-            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
-            {{ form.data_inicio }}{{ form.data_fim }}
-          </pc-data>
-          <p class="campo__ajuda sr-only" id="plano-periodo-ajuda">Marque o início e o fim no mesmo calendário. Um dia só: marque só o início. Confira abaixo a saída e a chegada na sede.</p>
-          {% for e in form.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-          {% for e in form.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-        </div>
         {% include "componentes/campo.html" with campo=form.horario ajuda_oculta=True acao_dialogo=editavel|yesno:"dialogo-horario," acao_rotulo="Cadastrar horário" %}
       </div>
+      {% periodo_calendario form.data_inicio form.data_fim prefixo="plano" rotulo="Período do evento" natureza="evento" editavel=editavel %}
     </div>
 
     {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}

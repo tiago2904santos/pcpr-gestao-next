@@ -141,13 +141,4 @@ document.fonts?.ready.then(prepararEscalas);
 window.addEventListener("resize", prepararEscalas);
 document.addEventListener("pcpr:pagina-refeita", () => requestAnimationFrame(prepararEscalas));
 
-// Data do evento: clicar nas folhas do calendário é o mesmo que o botão do calendário.
-document.addEventListener("click", (evento) => {
-  const folhas = /** @type {HTMLElement} */ (evento.target).closest?.("[data-abre-calendario]");
-  if (!folhas) return;
-  const botao = /** @type {HTMLButtonElement | null} */ (
-    folhas.closest(".mesa-evento")?.querySelector(".mesa-evento__botao") ?? null);
-  if (botao && !botao.disabled && botao.getAttribute("aria-expanded") !== "true") botao.click();
-});
-
 export {};

@@ -1,5 +1,12 @@
 # Ordens de Serviço — propagação visual, 10/10/2026
 
+## Calendário compartilhado — 14/10/2026
+
+Período substituído pela peça compacta aprovada em Termos, em largura total após
+Tipo. Mantidos nomes/IDs de início/fim, erros, vínculo de ofícios, versão e autosave.
+Duração em dias de viagem e antecedência ao início são indicadores separados.
+Interação no PREVIEW validada sem gravações: `../visual-agents/periodo-propagacao-20261014.md`.
+
 Contrato vigente em `docs/product/propagacao-identidade.md`, comportamento e lacunas
 em `docs/migration/ordens.md`. Referência funcional antiga consultada somente leitura.
 

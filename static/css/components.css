@@ -3560,7 +3560,79 @@ fieldset.campo--escolhas > .campo__erro {
   .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
   .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
 }
+.campos.campos--agenda-periodo { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.campos--agenda-periodo > .programa-plano__outro { order: 1; grid-column: 1 / -1; }
+@media (max-width: 767.98px) { .campos.campos--agenda-periodo { grid-template-columns: minmax(0, 1fr); } }
 .registro-hero a.registro-hero__metadado { color: var(--cor-texto-inverso-sutil); text-underline-offset: var(--esp-1); }
 .registro-hero a.registro-hero__metadado:hover { color: var(--cor-texto-inverso); }
 .registro-hero .identidade-documental__complemento { color: var(--cor-texto-inverso-sutil); }
 .registro-hero__metadado--vazio { font-style: italic; }
+/* =============== Termo: Data do evento (calendário de mesa) =============== */
+/* As próprias folhas abrem o período. Calendário, descrição e duração ocupam a linha;
+   o canto inferior direito dobra sobre a folha, revelando o papel de baixo. */
+.mesa-evento { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: var(--esp-3); padding: var(--esp-1) var(--esp-5); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: linear-gradient(110deg, var(--cor-superficie-sutil), var(--cor-superficie)); transition: border-color var(--duracao-rapida) var(--curva-padrao); }
+.mesa-evento:hover { border-color: var(--cor-borda-forte); }
+.mesa-evento--evento { box-shadow: inset 3px 0 0 var(--cor-marca); }
+.mesa-evento--vazia { border-style: dashed; background: var(--cor-superficie); }
+.mesa-evento__vivo { display: grid; grid-template-columns: minmax(0, 1fr) 11rem; align-items: center; gap: var(--esp-2) var(--esp-5); min-width: 0; }
+.mesa-evento__folhas { display: flex; align-items: center; justify-content: flex-start; gap: var(--esp-2); width: max-content; padding-bottom: var(--esp-1); }
+.mesa-evento__folha { position: relative; display: grid; gap: var(--esp-1); width: 3.5rem; flex: none; }
+.mesa-evento__extremo { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.mesa-evento__folha::before { content: ""; position: absolute; inset: calc(var(--esp-4) + 3px) 3px -3px; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-realce); transform: rotate(2deg); }
+.mesa-evento__pagina { position: relative; display: grid; justify-items: center; overflow: hidden; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); box-shadow: var(--sombra-1); transform-origin: top left; transition: transform var(--duracao-media) var(--curva-expressiva), box-shadow var(--duracao-media) var(--curva-padrao); }
+.mesa-evento__pagina::after { content: ""; position: absolute; right: 0; bottom: 0; width: 1.2rem; height: 1.2rem; background: linear-gradient(135deg, var(--cor-superficie-realce) 40%, var(--cor-superficie) 50%, var(--cor-borda) 54%, var(--cor-superficie-realce) 65%); clip-path: polygon(100% 0, 0 100%, 100% 100%); transform: scale(0.18); transform-origin: bottom right; transition: transform var(--duracao-lenta) var(--curva-expressiva); }
+.mesa-evento__folha:last-child .mesa-evento__pagina::after { transition-delay: 60ms; }
+.mesa-evento__botao:not(:disabled):is(:hover, :focus-visible, [aria-expanded="true"]) .mesa-evento__pagina { transform: translateY(-2px) rotate(-1deg); box-shadow: var(--sombra-2); }
+.mesa-evento__botao:not(:disabled):is(:hover, :focus-visible, [aria-expanded="true"]) .mesa-evento__pagina::after { transform: scale(1); }
+.mesa-evento__mes { display: flex; align-items: center; justify-content: center; gap: var(--esp-1); width: 100%; padding: 2px 0; background: var(--cor-primaria); color: var(--cor-texto-inverso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-align: center; text-transform: uppercase; }
+.mesa-evento__mes small { display: none; }
+.mesa-evento--evento .mesa-evento__mes { background: linear-gradient(90deg, var(--cor-primaria), color-mix(in srgb, var(--cor-primaria) 82%, var(--cor-marca))); }
+.mesa-evento__dia { padding-top: 2px; font-size: var(--texto-xl); font-weight: var(--peso-forte); line-height: 1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__semana { padding: 2px 0 var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); text-transform: capitalize; }
+.mesa-evento__folha--vazia .mesa-evento__pagina { border-style: dashed; box-shadow: none; }
+.mesa-evento__folha--vazia .mesa-evento__mes { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.mesa-evento__folha--vazia .mesa-evento__dia { color: var(--cor-texto-terciario); }
+.mesa-evento__ate { position: relative; display: grid; place-items: center; flex: none; min-width: 4rem; margin-top: var(--esp-5); }
+.mesa-evento__ate::before { content: ""; position: absolute; inset: 50% calc(-1 * var(--esp-2)) auto; height: 1px; background: var(--cor-marca-borda); }
+.mesa-evento__duracao { position: relative; padding: 1px var(--esp-2); border: 1px solid var(--cor-marca-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-marca-texto); font-size: var(--texto-2xs); font-weight: var(--peso-semi); white-space: nowrap; }
+.mesa-evento__antecedencia { display: grid; gap: var(--esp-1); padding-left: var(--esp-5); border-left: var(--borda-sutil); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.mesa-evento__antecedencia strong { font-size: var(--texto-4xl); font-weight: var(--peso-medio); line-height: 1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__trilho { height: var(--esp-2); margin-top: var(--esp-1); background: repeating-linear-gradient(90deg, var(--cor-marca-borda) 0 2px, transparent 2px var(--esp-2)); mask-image: linear-gradient(90deg, var(--cor-texto), transparent); }
+.mesa-evento__texto { display: grid; gap: var(--esp-1); min-width: 0; }
+.mesa-evento__rotulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.mesa-evento__frase { margin: 0; font-size: var(--texto-xl); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); text-wrap: balance; color: var(--cor-texto); }
+.mesa-evento--vazia .mesa-evento__frase { color: var(--cor-texto-secundario); }
+.mesa-evento__fonte { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.mesa-evento--evento .mesa-evento__fonte { color: var(--cor-marca-texto); font-weight: var(--peso-medio); }
+.mesa-evento__viagem { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: var(--esp-2); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.mesa-evento__viagem strong { font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__erro { grid-column: 1 / -1; margin: 0; }
+.mesa-evento__seletor { position: relative; display: block; min-width: 0; }
+.mesa-evento__botao.seletor__botao { position: static; display: grid; gap: var(--esp-2); width: 100%; height: auto; padding: var(--esp-1); border: 0; border-radius: var(--raio-md); background: transparent; color: var(--cor-texto); translate: none; cursor: pointer; }
+.mesa-evento__botao.seletor__botao:is(:hover, [aria-expanded="true"]) { background: transparent; color: var(--cor-texto); }
+.mesa-evento__botao.seletor__botao:disabled { opacity: 1; cursor: default; }
+.mesa-evento.mesa-evento--compacta { padding: var(--esp-1) var(--esp-3); gap: var(--esp-2); }
+.mesa-evento--compacta .mesa-evento__botao.seletor__botao { padding: 0; }
+.mesa-evento--compacta .mesa-evento__folhas { padding-bottom: 0; }
+.mesa-evento--compacta .mesa-evento__vivo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-1); }
+.mesa-evento--compacta .mesa-evento__folha { width: 2.75rem; }
+.mesa-evento--compacta .mesa-evento__semana,
+.mesa-evento--compacta .mesa-evento__extremo { display: none; }
+.mesa-evento--compacta .mesa-evento__dia { padding-bottom: var(--esp-1); }
+.mesa-evento--compacta .mesa-evento__ate { min-width: var(--esp-8); margin-top: 0; }
+.mesa-evento--compacta .mesa-evento__duracao { padding-inline: var(--esp-1); font-size: var(--texto-2xs); }
+.mesa-evento--compacta .mesa-evento__frase { font-size: var(--texto-sm); text-wrap: pretty; }
+.mesa-evento--compacta .mesa-evento__fonte { font-size: var(--texto-2xs); }
+.mesa-evento--compacta .mesa-evento__fonte > .icone { display: none; }
+.mesa-evento--compacta .mesa-evento__trilho { display: none; }
+@media (prefers-reduced-motion: reduce) { .mesa-evento__pagina, .mesa-evento__pagina::after { transition: none; } }
+@media (max-width: 1023.98px) {
+  .mesa-evento { grid-template-columns: max-content minmax(0, 1fr); gap: var(--esp-3); }
+  .mesa-evento__vivo { grid-template-columns: minmax(0, 1fr); }
+  .mesa-evento__antecedencia { display: flex; align-items: baseline; gap: var(--esp-2); padding: 0; border: 0; }
+  .mesa-evento__trilho { display: none; }
+}
+@media (max-width: 599.98px) {
+  .mesa-evento { grid-template-columns: minmax(0, 1fr); padding: var(--esp-4); }
+  .mesa-evento__seletor { justify-self: center; }
+}

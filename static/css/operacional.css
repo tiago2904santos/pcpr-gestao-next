@@ -2000,56 +2000,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .resumo__definicoes .metadado--linha { min-width: 0; }
 .resumo__definicoes .metadado--linha dd { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; -webkit-line-clamp: none; line-clamp: none; }
 
-/* =============== Termo: Data do evento (calendário de mesa) =============== */
-/* A linha toda: as folhas do primeiro e do último dia (mês na faixa grafite, o dia, o dia da
-   semana) ligadas por um fio dourado com a duração; a data por extenso e de onde veio; a ida
-   e a volta quando a viagem vai além do evento; e o botão do calendário. Passar o mouse
-   levanta de leve a folha da frente (a de trás aparece embaixo). */
-.mesa-evento { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: linear-gradient(135deg, var(--cor-superficie) 0%, var(--cor-superficie-sutil) 100%); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
-.mesa-evento:hover { border-color: var(--cor-borda-forte); }
-.mesa-evento--evento { box-shadow: inset 3px 0 0 var(--cor-marca); }
-.mesa-evento--vazia { border-style: dashed; background: var(--cor-superficie); }
-.mesa-evento__vivo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-5); min-width: 0; }
-.mesa-evento__folhas { display: flex; align-items: center; padding-bottom: 3px; }
-.mesa-evento__folhas[data-abre-calendario] { cursor: pointer; }
-.mesa-evento__folha { position: relative; display: grid; width: 3.5rem; perspective: 14rem; }
-/* A folha de trás: aparece quando a da frente levanta. */
-.mesa-evento__folha::before { content: ""; position: absolute; inset: 3px 2px -3px; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-realce); }
-.mesa-evento__pagina { position: relative; display: grid; justify-items: center; overflow: hidden; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); box-shadow: var(--sombra-1); transform-origin: 50% 0; transition: transform var(--duracao-media) var(--curva-expressiva), box-shadow var(--duracao-media) var(--curva-padrao); animation: mesa-folha var(--duracao-lenta) var(--curva-expressiva) backwards; }
-.mesa-evento__folha + .mesa-evento__ate + .mesa-evento__folha .mesa-evento__pagina { animation-delay: 90ms; transition-delay: 50ms; }
-.mesa-evento:has(.mesa-evento__folhas[data-abre-calendario]:hover) .mesa-evento__pagina,
-.mesa-evento:has(.mesa-evento__botao:is(:hover, [aria-expanded="true"])) .mesa-evento__pagina { transform: rotateX(32deg) translateY(-2px); box-shadow: var(--sombra-2); }
-.mesa-evento__mes { width: 100%; padding: 2px 0; background: var(--cor-primaria); color: var(--cor-texto-inverso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-align: center; text-transform: uppercase; }
-.mesa-evento--evento .mesa-evento__mes { background: linear-gradient(90deg, var(--cor-primaria), color-mix(in srgb, var(--cor-primaria) 82%, var(--cor-marca))); }
-.mesa-evento__dia { padding-top: 2px; font-size: var(--texto-xl); font-weight: var(--peso-forte); line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
-.mesa-evento__semana { padding-bottom: var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); text-transform: capitalize; }
-.mesa-evento__folha--vazia .mesa-evento__pagina { border-style: dashed; box-shadow: none; }
-.mesa-evento__folha--vazia .mesa-evento__mes { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
-.mesa-evento__folha--vazia .mesa-evento__dia { color: var(--cor-texto-terciario); }
-.mesa-evento__ate { position: relative; display: grid; place-items: center; width: 4rem; }
-.mesa-evento__ate::before { content: ""; position: absolute; inset: 50% 0 auto; height: 2px; translate: 0 -50%; background: linear-gradient(90deg, var(--cor-marca-borda), var(--cor-marca), var(--cor-marca-borda)); }
-.mesa-evento__duracao { position: relative; padding: 1px var(--esp-2); border: 1px solid var(--cor-marca-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-marca-texto); font-size: var(--texto-2xs); font-weight: var(--peso-semi); white-space: nowrap; }
-.mesa-evento__texto { display: grid; gap: 2px; min-width: 0; }
-.mesa-evento__rotulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.mesa-evento__frase { margin: 0; overflow: hidden; font-size: var(--texto-xl); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto); }
-.mesa-evento--vazia .mesa-evento__frase { color: var(--cor-texto-secundario); }
-.mesa-evento__fonte { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.mesa-evento--evento .mesa-evento__fonte { color: var(--cor-marca-texto); font-weight: var(--peso-medio); }
-.mesa-evento__viagem { display: inline-flex; align-items: center; gap: var(--esp-2); margin: 0; padding: var(--esp-1) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); font-size: var(--texto-xs); color: var(--cor-texto-secundario); white-space: nowrap; }
-.mesa-evento__viagem strong { font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
-.mesa-evento__erro { grid-column: 1 / -1; margin: 0; }
-.mesa-evento__seletor { position: relative; display: block; }
-.mesa-evento__botao.seletor__botao { position: static; width: var(--altura-controle); height: var(--altura-controle); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); color: var(--cor-texto); translate: none; perspective: 8rem; box-shadow: var(--sombra-1); }
-.mesa-evento__botao.seletor__botao:hover { border-color: var(--cor-borda-forte); background: var(--cor-superficie-realce); }
-.mesa-evento__botao.seletor__botao[aria-expanded="true"] { border-color: var(--grafite-900); }
-.mesa-evento__botao > .icone { transform-origin: 50% 15%; transition: transform var(--duracao-media) var(--curva-expressiva); }
-.mesa-evento__botao:hover > .icone, .mesa-evento:has(.mesa-evento__folhas[data-abre-calendario]:hover) .mesa-evento__botao > .icone { transform: rotateX(30deg) translateY(-1px); }
-@keyframes mesa-folha { from { opacity: 0; transform: rotateX(-60deg); } }
-@media (prefers-reduced-motion: reduce) { .mesa-evento__pagina, .mesa-evento__botao > .icone { animation: none; transition: none; } }
-@media (max-width: 1023.98px) {
-  .mesa-evento__vivo { grid-template-columns: auto minmax(0, 1fr); }
-  .mesa-evento__viagem { grid-column: 1 / -1; justify-self: start; }
-}
 
 /* =============== Termo: viaturas e quem vai em cada uma =============== */
 /* As viaturas em cartões (placa, modelo, quantos vão nela, "×"); com mais de uma, uma linha

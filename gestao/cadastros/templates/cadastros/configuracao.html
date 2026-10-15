@@ -197,10 +197,7 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
         {% if form_sub.servidor.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form_sub.servidor.errors|join:" " }}</span></p>{% endif %}
       </div>
       {% include "componentes/campo.html" with campo=form_sub.tipo %}
-      <div class="grade grade--2">
-        {% include "componentes/campo.html" with campo=form_sub.inicio %}
-        {% include "componentes/campo.html" with campo=form_sub.fim %}
-      </div>
+      {% periodo_calendario form_sub.inicio form_sub.fim prefixo="substituicao" rotulo="Período da substituição" natureza="substituição" fonte="Fim em branco: até ser encerrada." compacto=True fim_aberto=True vivo=False %}
       {% include "componentes/campo.html" with campo=form_sub.motivo %}
     </div>
     <div class="dialogo__rodape">

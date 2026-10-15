@@ -21,8 +21,8 @@ plano (os mesmos em todos os eventos).
     <div class="dialogo__corpo pilha evento-plano">
       {% if form_evento.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_evento.non_field_errors|join:" " }}</p></div></div>{% endif %}
 
-      {# Programa · período · horário (a mesma linha da folha). #}
-      <div class="campos campos--agenda programa-plano">
+      {# Programa e horário; calendário em largura total abaixo, como na folha. #}
+      <div class="campos campos--agenda-periodo programa-plano">
         <div class="campo{% if form_evento.programas.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="evento-programas-gatilho" id="evento-programas-rotulo">Programa</label>
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
@@ -34,19 +34,9 @@ plano (os mesmos em todos os eventos).
           </pc-escolhas>
         </div>
         {% include "componentes/campo.html" with campo=form_evento.programa_outros classe="programa-plano__outro" rotulo="Outro programa" %}
-        <div class="campo{% if form_evento.data_inicio.errors or form_evento.data_fim.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="evento-periodo">Período do evento</label>
-          <pc-data class="seletor" data-periodo>
-            <input class="entrada" type="text" id="evento-periodo" value="{{ form_evento.periodo_texto }}" placeholder="Início e fim" autocomplete="off" aria-describedby="evento-periodo-ajuda">
-            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
-            {{ form_evento.data_inicio }}{{ form_evento.data_fim }}
-          </pc-data>
-          <p class="campo__ajuda sr-only" id="evento-periodo-ajuda">Marque o início e o fim no mesmo calendário. Um dia só: marque só o início.</p>
-          {% for e in form_evento.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-          {% for e in form_evento.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-        </div>
         {% include "componentes/campo.html" with campo=form_evento.horario ajuda_oculta=True acao_dialogo="dialogo-horario" acao_rotulo="Cadastrar horário" %}
       </div>
+      {% periodo_calendario form_evento.data_inicio form_evento.data_fim prefixo="evento" rotulo="Período do evento" natureza="evento" %}
 
       {% campo_destinos form_evento.destinos unidade=plano.unidade operacional=True %}
 

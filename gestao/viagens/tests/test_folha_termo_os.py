@@ -83,7 +83,6 @@ class TestFolhaDaOS:
         for ancora in ("identificacao", "dados", "destinos", "equipe", "motivo",
                        "documento", "conferencia", "previa", "historico"):
             assert f'id="{ancora}"' in html
-        # Quem assina terá módulo próprio: a tela da OS não tem mais o bloco.
         assert 'id="assinatura"' not in html
         # Cada pendência da conferência é um atalho até o cartão (ícone + texto no link).
         assert re.search(r'href="#equipe">.*?Falta equipe', html)

@@ -68,38 +68,10 @@ delas são parte do contrato e não mudam.
       OS ou da viagem dos ofícios (termos.periodo_do_evento); sem nenhum, o período da viagem.
       Um calendário de mesa (as folhas do primeiro e do último dia, ligadas pela duração), a
       data por extenso, de onde veio e, quando a viagem é mais longa, a ida e a volta. Alterar:
-      o botão do calendário (ou clicar nas folhas) abre o seletor — sem campo de texto. As
-      folhas ficam numa região viva própria: o botão, fora dela, guarda o foco sem travar a
-      atualização depois da gravação.
+      as próprias folhas são o botão que abre o seletor. As folhas e a descrição têm
+      regiões vivas próprias; o botão permanece estável para conservar o foco.
       {% endcomment %}
-      <div class="mesa-evento{% if periodo_evento.do_evento %} mesa-evento--evento{% elif not periodo_evento %} mesa-evento--vazia{% endif %}">
-        <div class="mesa-evento__vivo" id="periodo-evento" data-vivo>
-          <div class="mesa-evento__folhas"{% if editavel %} data-abre-calendario{% endif %} aria-hidden="true">
-            {% if periodo_evento %}
-            <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">{{ periodo_evento.inicio|date:"M" }}</span><strong class="mesa-evento__dia">{{ periodo_evento.inicio|date:"d" }}</strong><span class="mesa-evento__semana">{{ periodo_evento.inicio|date:"D" }}</span></span></span>
-            {% if not periodo_evento.um_dia %}
-            <span class="mesa-evento__ate"><span class="mesa-evento__duracao">{{ periodo_evento.dias_evento }} dias</span></span>
-            <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">{{ periodo_evento.fim|date:"M" }}</span><strong class="mesa-evento__dia">{{ periodo_evento.fim|date:"d" }}</strong><span class="mesa-evento__semana">{{ periodo_evento.fim|date:"D" }}</span></span></span>
-            {% endif %}
-            {% else %}
-            <span class="mesa-evento__folha mesa-evento__folha--vazia"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">—</span><strong class="mesa-evento__dia">?</strong><span class="mesa-evento__semana">&nbsp;</span></span></span>
-            {% endif %}
-          </div>
-          <div class="mesa-evento__texto">
-            <p class="mesa-evento__rotulo" id="termo-periodo-rotulo">Data do evento</p>
-            <p class="mesa-evento__frase">{% if periodo_evento %}{{ periodo_evento.frase }}{% else %}Falta a data do evento{% endif %}</p>
-            <p class="mesa-evento__fonte">{% if periodo_evento.do_evento %}{% icone "badge-check" classe="icone--sm" %}{% elif periodo_evento %}{% icone "route" classe="icone--sm" %}{% endif %}{% if periodo_evento %}{{ periodo_evento.fonte }}{% else %}Vincule um ofício ou escolha as datas no calendário{% endif %}</p>
-          </div>
-          {% if periodo_evento.viagem %}<p class="mesa-evento__viagem">{% icone "car" classe="icone--sm" %}<span>Viagem <strong>{{ periodo_evento.viagem }}</strong></span></p>{% endif %}
-          {% for e in form.data_inicio.errors %}<p class="campo__erro mesa-evento__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-          {% for e in form.data_fim.errors %}<p class="campo__erro mesa-evento__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-        </div>
-        <pc-data class="mesa-evento__seletor" data-periodo>
-          <input type="hidden" id="termo-periodo" value="{{ form.periodo_texto }}" aria-labelledby="termo-periodo-rotulo">
-          <button type="button" class="seletor__botao mesa-evento__botao" hidden aria-haspopup="dialog" aria-expanded="false" title="Alterar a data do evento"{% if not editavel %} disabled{% endif %}>{% icone "calendar-days" %}</button>
-          {{ form.data_inicio }}{{ form.data_fim }}
-        </pc-data>
-      </div>
+      {% periodo_calendario form.data_inicio form.data_fim prefixo="termo" rotulo="Data do evento" natureza="evento" editavel=editavel dados=periodo_evento id_folhas="periodo-evento-folhas" id_descricao="periodo-evento" %}
     </div>
 
     {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}

@@ -26,6 +26,7 @@ from urllib.parse import urlencode
 from django.urls import reverse
 from django.utils import timezone
 
+from gestao.cadastros.models import Servidor
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from . import planos as planos_mod
@@ -51,7 +52,7 @@ def _servidores(servidores) -> list[dict]:
 
 def _equipe_das_ordens(ordens) -> list[dict]:
     """Servidores das OS da viagem, uma única vez mesmo quando estão em mais de uma OS."""
-    unicos: dict[int, object] = {}
+    unicos: dict[int, Servidor] = {}
     for ordem in ordens:
         for servidor in ordem.servidores.all():
             unicos.setdefault(servidor.pk, servidor)

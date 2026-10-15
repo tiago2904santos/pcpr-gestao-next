@@ -62,9 +62,8 @@ histórico.
       <legend class="sr-only">Dados da solicitação</legend>
       <div class="campos">
         {% include "componentes/campo.html" with campo=form.data_solicitacao classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.data_inicio_evento classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.data_fim_evento classe="campo--md" %}
       </div>
+      {% periodo_calendario form.data_inicio_evento form.data_fim_evento prefixo="solicitacao-evento" rotulo="Período do evento" natureza="evento" editavel=editavel %}
       <div class="campos">
         <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">Município</label>

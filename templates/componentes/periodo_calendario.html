@@ -1,0 +1,35 @@
+{% load ui %}
+<div class="mesa-evento{% if compacto %} mesa-evento--compacta{% endif %}{% if p.do_evento %} mesa-evento--evento{% elif not p.inicio %} mesa-evento--vazia{% endif %}" data-resumo-periodo data-hoje="{{ hoje|date:'Y-m-d' }}" data-natureza="{{ natureza }}"{% if fim_aberto %} data-fim-aberto{% endif %}>
+  <pc-data class="mesa-evento__seletor" data-periodo{% if fim_aberto %} data-fim-aberto{% endif %}>
+    <input type="hidden" id="{{ prefixo }}-periodo" value="{{ texto }}" aria-labelledby="{{ prefixo }}-periodo-rotulo"{% if not editavel %} readonly{% endif %}>
+    <button type="button" class="seletor__botao mesa-evento__botao" aria-haspopup="dialog" aria-expanded="false" title="Alterar {{ rotulo|lower }}"{% if not editavel %} disabled{% endif %}{% if campo_inicio.errors or campo_fim.errors %} aria-invalid="true" aria-describedby="{{ prefixo }}-periodo-erros"{% endif %}>
+      <span class="mesa-evento__folhas" id="{{ id_folhas }}"{% if vivo %} data-vivo{% endif %} aria-hidden="true">
+        {% if p.inicio %}
+          <span class="mesa-evento__folha"><span class="mesa-evento__extremo">{% if p.um_dia %}Dia{% else %}Início{% endif %}</span><span class="mesa-evento__pagina"><span class="mesa-evento__mes">{{ p.inicio|date:"M" }} <small>{{ p.inicio|date:"Y" }}</small></span><strong class="mesa-evento__dia">{{ p.inicio|date:"d" }}</strong><span class="mesa-evento__semana">{{ p.inicio|date:"D" }}</span></span></span>
+          {% if p.aberto %}
+            <span class="mesa-evento__ate"><span class="mesa-evento__duracao">até encerrar</span></span>
+            <span class="mesa-evento__folha mesa-evento__folha--vazia"><span class="mesa-evento__extremo">Fim</span><span class="mesa-evento__pagina"><span class="mesa-evento__mes">—</span><strong class="mesa-evento__dia">∞</strong><span class="mesa-evento__semana">aberto</span></span></span>
+          {% elif not p.um_dia and p.fim %}
+            <span class="mesa-evento__ate">{% if p.dias_evento %}<span class="mesa-evento__duracao">{{ p.dias_evento }} dia{{ p.dias_evento|pluralize }} de {{ natureza }}</span>{% endif %}</span>
+            <span class="mesa-evento__folha"><span class="mesa-evento__extremo">Fim</span><span class="mesa-evento__pagina"><span class="mesa-evento__mes">{{ p.fim|date:"M" }} <small>{{ p.fim|date:"Y" }}</small></span><strong class="mesa-evento__dia">{{ p.fim|date:"d" }}</strong><span class="mesa-evento__semana">{{ p.fim|date:"D" }}</span></span></span>
+          {% endif %}
+        {% else %}
+          <span class="mesa-evento__folha mesa-evento__folha--vazia"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">—</span><strong class="mesa-evento__dia">?</strong><span class="mesa-evento__semana">&nbsp;</span></span></span>
+        {% endif %}
+      </span>
+      <span class="sr-only">{% icone "calendar-days" %}</span>
+    </button>
+    {{ inicio_oculto }}{{ fim_oculto }}
+  </pc-data>
+  <div class="mesa-evento__vivo" id="{{ id_descricao }}"{% if vivo %} data-vivo{% endif %}>
+    <div class="mesa-evento__texto">
+      <p class="mesa-evento__rotulo" id="{{ prefixo }}-periodo-rotulo">{{ rotulo }}</p>
+      <p class="mesa-evento__frase">{{ p.frase|default:"Defina o período" }}</p>
+      <p class="mesa-evento__fonte">{% icone "route" classe="icone--sm" %}<span data-periodo-fonte>{% if p.inicio %}{{ fonte }}{% else %}Escolha o início e o fim nas folhas do calendário{% endif %}</span></p>
+    </div>
+    {% if not compacto %}<div class="mesa-evento__antecedencia"><strong>{% if p.inicio %}{{ p.antecedencia }}{% else %}—{% endif %}</strong><span data-antecedencia-rotulo>{{ p.rotulo_antecedencia|default:"defina o período" }}</span><span class="mesa-evento__trilho" aria-hidden="true"></span></div>{% endif %}
+    {% if p.viagem %}<p class="mesa-evento__viagem">{% icone "car" classe="icone--sm" %}<span>Viagem <strong>{{ p.viagem }}</strong></span></p>{% endif %}
+    {% if campo_inicio.errors or campo_fim.errors %}<div class="mesa-evento__erro" id="{{ prefixo }}-periodo-erros">{% for erro in campo_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}{% for erro in campo_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endfor %}</div>{% endif %}
+  </div>
+</div>
+<noscript><div class="campos"><label class="campo">Início<input class="entrada" name="{% if campo_inicio %}{{ campo_inicio.html_name }}{% else %}{{ prefixo }}-de{% endif %}" value="{{ inicio_texto }}" placeholder="dd/mm/aaaa"{% if not editavel %} disabled{% endif %}></label><label class="campo">Fim<input class="entrada" name="{% if campo_fim %}{{ campo_fim.html_name }}{% else %}{{ prefixo }}-ate{% endif %}" value="{{ fim_texto }}" placeholder="dd/mm/aaaa"{% if not editavel %} disabled{% endif %}></label></div></noscript>

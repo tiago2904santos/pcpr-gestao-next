@@ -1005,27 +1005,16 @@
       </div>
     </section>
     <section class="cartao" id="termo-lab" aria-labelledby="t-termo-lab">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-termo-lab"><span class="cartao__numero">23</span>Data do evento e lotação das viaturas</h2><span class="texto-secundario texto-sm">Termo de autorização. Calendário de mesa (.mesa-evento): as folhas do primeiro e do último dia, a duração, de onde vem a data e a ida/volta quando a viagem é maior; sem campo de texto — o botão do calendário (ou as folhas) abre o seletor, e a folha da frente levanta de leve ao passar o mouse. Lotação (.frota + .lotacao): viaturas em cartões e, com mais de uma, um seletor segmentado (.escala) por servidor, com o realce que desliza até a escolhida (termo.js; sem JS, a opção marcada ganha o fundo).</span></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-termo-lab"><span class="cartao__numero">23</span>Data do evento e lotação das viaturas</h2><span class="texto-secundario texto-sm">Termo de autorização. Calendário de mesa (.mesa-evento): as folhas do primeiro e do último dia, a duração, de onde vem a data e a ida/volta quando a viagem é maior; as próprias folhas abrem o seletor, com dobra no canto ao passar o mouse ou focar. Duração e antecedência são contagens diferentes; abaixo, estados vazio, hoje, iniciado, consulta e erro. Lotação (.frota + .lotacao): viaturas em cartões e, com mais de uma, um seletor segmentado (.escala) por servidor, com o realce que desliza até a escolhida (termo.js; sem JS, a opção marcada ganha o fundo).</span></div>
       <div class="pilha">
-        <div class="mesa-evento mesa-evento--evento">
-          <div class="mesa-evento__vivo">
-            <div class="mesa-evento__folhas" aria-hidden="true">
-              <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">out</span><strong class="mesa-evento__dia">20</strong><span class="mesa-evento__semana">ter</span></span></span>
-              <span class="mesa-evento__ate"><span class="mesa-evento__duracao">2 dias</span></span>
-              <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">out</span><strong class="mesa-evento__dia">21</strong><span class="mesa-evento__semana">qua</span></span></span>
-            </div>
-            <div class="mesa-evento__texto">
-              <p class="mesa-evento__rotulo" id="lab-mesa-rotulo">Data do evento</p>
-              <p class="mesa-evento__frase">20 a 21 de outubro de 2026</p>
-              <p class="mesa-evento__fonte">{% icone "badge-check" classe="icone--sm" %}Período do evento — Plano de Trabalho 02/2026/ASCOM</p>
-            </div>
-            <p class="mesa-evento__viagem">{% icone "car" classe="icone--sm" %}<span>Viagem <strong>20/10 a 09/11</strong></span></p>
-          </div>
-          <pc-data class="mesa-evento__seletor" data-periodo>
-            <input type="hidden" id="lab-mesa" value="20/10/2026 a 21/10/2026" aria-labelledby="lab-mesa-rotulo">
-            <button type="button" class="seletor__botao mesa-evento__botao" hidden aria-haspopup="dialog" aria-expanded="false" title="Alterar a data do evento">{% icone "calendar-days" %}</button>
-            <input type="hidden" data-periodo-de value="20/10/2026"><input type="hidden" data-periodo-ate value="21/10/2026">
-          </pc-data>
+        {% periodo_calendario prefixo="lab-periodo-futuro" inicio=lab_dia.mais7 fim=lab_dia.mais9 fonte="Exemplo de evento futuro" vivo=False %}
+        <div class="pilha" id="periodo-estados-lab">
+          {% periodo_calendario prefixo="lab-periodo-hoje" inicio=lab_hoje fim=lab_hoje fonte="Um dia, começa hoje" vivo=False %}
+          {% periodo_calendario prefixo="lab-periodo-passado" inicio=lab_dia.menos2 fim=lab_dia.mais4 fonte="Evento já iniciado" vivo=False %}
+          {% periodo_calendario prefixo="lab-periodo-vazio" vivo=False %}
+          {% periodo_calendario prefixo="lab-periodo-consulta" inicio=lab_dia.mais30 fim=lab_dia.mais32 editavel=False fonte="Consulta, sem edição" vivo=False %}
+          {% periodo_calendario lab_periodo_erro.inicio lab_periodo_erro.fim prefixo="lab-periodo-erro" fonte="Valor inválido preservado" vivo=False %}
+          {% periodo_calendario prefixo="lab-periodo-compacto" inicio=lab_hoje compacto=True fim_aberto=True natureza="substituição" fonte="Fim em branco: até ser encerrada." vivo=False %}
         </div>
         <ul class="frota" role="list">
           <li class="frota__viatura"><span class="frota__icone" aria-hidden="true">{% icone "car" %}</span><span class="frota__nome"><strong>ZZA6A38</strong><small>Renault Duster · do ofício</small></span><span class="frota__conta">1</span></li>

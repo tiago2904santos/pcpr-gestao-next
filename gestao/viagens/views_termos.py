@@ -22,6 +22,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
+from gestao.plataforma.periodos import apresentar_periodo, frase_periodo
 
 from . import (
     assinados,
@@ -225,16 +226,7 @@ def _formulario(request: HttpRequest, *args, termo=None, **kwargs) -> Formulario
 
 def _periodo_em_frase(inicio, fim) -> str:
     """"20 a 21 de outubro de 2026", "30 de outubro a 2 de novembro de 2026"."""
-    meses = termos.MESES
-    if fim == inicio:
-        return f"{inicio.day} de {meses[inicio.month - 1]} de {inicio.year}"
-    if (inicio.month, inicio.year) == (fim.month, fim.year):
-        return f"{inicio.day} a {fim.day} de {meses[fim.month - 1]} de {fim.year}"
-    if inicio.year == fim.year:
-        return (f"{inicio.day} de {meses[inicio.month - 1]} a {fim.day} de "
-                f"{meses[fim.month - 1]} de {fim.year}")
-    return (f"{inicio.day} de {meses[inicio.month - 1]} de {inicio.year} a {fim.day} de "
-            f"{meses[fim.month - 1]} de {fim.year}")
+    return frase_periodo(inicio, fim)
 
 
 def _periodo_da_tela(ef) -> dict:
@@ -248,9 +240,8 @@ def _periodo_da_tela(ef) -> dict:
     if ida and (ida, volta) != (ef.inicio, fim):
         viagem = (ida.strftime("%d/%m") if ida == volta
                   else f"{ida:%d/%m} a {volta:%d/%m}")
-    return {"inicio": ef.inicio, "fim": fim, "dias_evento": (fim - ef.inicio).days + 1,
-            "um_dia": fim == ef.inicio, "fonte": ef.fonte_periodo,
-            "frase": _periodo_em_frase(ef.inicio, fim), "viagem": viagem,
+    return {**apresentar_periodo(ef.inicio, fim, timezone.localdate()),
+            "fonte": ef.fonte_periodo, "viagem": viagem,
             "do_evento": ef.fonte_periodo.startswith("Período do evento")}
 
 
