@@ -35,6 +35,8 @@ const sobDemanda = [
   ["pc-escolhas", () => import("./componentes/escolhas.js")],
   ["pc-transporte", () => import("./componentes/transporte.js")],
   ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
+  // Viagem: escolher o tipo escreve o motivo dele, se o motivo está em branco.
+  ["[data-motivos-dos-tipos]", () => import("./componentes/motivo-do-tipo.js")],
   ["pc-multiescolha", () => import("./componentes/multiescolha.js")],
   // OS com funções: o seletor de função em cada cartão da equipe e o resumo por função.
   ["pc-multiescolha[data-funcoes]", () => import("./componentes/funcoes-equipe.js")],

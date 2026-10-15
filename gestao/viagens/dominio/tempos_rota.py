@@ -9,6 +9,9 @@ from __future__ import annotations
 from decimal import Decimal
 
 VELOCIDADE_MEDIA_KMH = 74.0
+# Unidade móvel pesada (micro-ônibus, ônibus, caminhão): velocidade média menor na estrada.
+# A van anda como uma viatura.
+VELOCIDADE_VEICULO_LENTO_KMH = 60.0
 DISTANCIA_FIXA_KM = 12.0
 PESO_DA_API = 0.15
 PASSO_MIN = 15
@@ -44,3 +47,9 @@ def tempo_adicional_sugerido(tempo_viagem_min: Numero) -> int:
     # A viagem persistida é inteira; Decimal também funciona sem dividir Decimal por float.
     minutos = float(tempo_viagem_min) if isinstance(tempo_viagem_min, Decimal) else tempo_viagem_min
     return max(PASSO_MIN, arredondar_a_15(minutos / 6.0))
+
+
+def tempo_de_veiculo_lento(tempo_viagem_min: Numero) -> int:
+    """O tempo de estrada de uma viatura refeito para o veículo lento, no passo de 15 min."""
+    return arredondar_a_15(float(tempo_viagem_min) * VELOCIDADE_MEDIA_KMH
+                           / VELOCIDADE_VEICULO_LENTO_KMH)

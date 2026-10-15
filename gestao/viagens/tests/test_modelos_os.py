@@ -1,4 +1,4 @@
-"""Tipos de OS fixos: OS padrão (sem modelo), operação policial, micro-ônibus, caminhão e
+"""Tipos de OS fixos: OS padrão (sem modelo), operação policial, unidade móvel e
 cerimonial — nomes, ordem e textos vêm do código (`modelos_do_sistema`); não há cadastro na
 tela. No cerimonial, os dias entre a saída e o evento são de visita técnica."""
 
@@ -36,15 +36,15 @@ class TestTiposFixos:
         campo = form.fields["modelo"]
         assert campo.label == "Tipo de OS" and campo.empty_label == "OS padrão"
         assert [m.nome for m in campo.queryset] == [
-            "Operação policial", "Micro-ônibus", "Caminhão", "Cerimonial"]
+            "Operação policial", "Unidade móvel", "Cerimonial"]
 
     def test_funcoes_de_cada_tipo(self):
-        assert [f.codigo for f in _modelo("caminhao").funcoes.all()] == [
+        assert [f.codigo for f in _modelo("unidade_movel").funcoes.all()] == [
             "conducao", "tecnico", "apoio"]
         assert [f.codigo for f in _modelo("cerimonial").funcoes.all()] == [
             "coordenacao", "apoio", "preparacao"]
         assert _modelo("operacao_policial").usa_hora
-        assert _modelo("caminhao").para_dominio().combinados == {"ida_e_antes",
+        assert _modelo("unidade_movel").para_dominio().combinados == {"ida_e_antes",
                                                                    "depois_e_volta"}
 
     def test_sincronizar_desfaz_mudanca_no_banco_e_mantem_funcao_em_uso(self, c):
@@ -88,3 +88,27 @@ class TestCerimonialComVisitaTecnica:
         itens = self._ordem(c, saida=5, evento=6)
         assert "no dia 5 de maio de 2030, com a visita técnica ao local do evento no mesmo " \
                "dia" in itens[1]
+
+
+class TestUnidadeMovel:
+    def test_micro_onibus_e_caminhao_viram_unidade_movel(self, c):
+        """Banco com os dois tipos antigos (antes da 0056): as OS passam para "Unidade
+        móvel" e os antigos somem."""
+        from gestao.viagens.modelos_do_sistema import juntar
+        from gestao.viagens.models import OrdemServico
+
+        destino = _modelo("unidade_movel")
+        antigos = []
+        for chave, nome in (("caminhao", "Caminhão"), ("microonibus", "Micro-ônibus")):
+            antigo = ModeloOS.objects.create(chave=chave, nome=nome, referencia="x")
+            FuncaoOS.objects.create(modelo=antigo, codigo="conducao", nome="Condução",
+                                    texto="x")
+            ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=antigo,
+                                     destinos=[Municipio.objects.get(nome="Londrina", uf="PR")])
+            antigos.append(ordem.pk)
+        juntar(ModeloOS, OrdemServico)
+        sincronizar(ModeloOS, FuncaoOS)
+        assert set(OrdemServico.objects.filter(pk__in=antigos).values_list(
+            "modelo__chave", flat=True)) == {"unidade_movel"}
+        assert not ModeloOS.objects.filter(chave__in=["caminhao", "microonibus"]).exists()
+        assert _modelo("unidade_movel").pk == destino.pk

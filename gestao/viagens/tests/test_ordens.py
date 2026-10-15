@@ -94,12 +94,12 @@ class TestFuncoesEDocumento:
     def test_funcoes_so_nos_tipos_que_usam_e_validas(self, c):
         um, dois = Servidor.objects.all()[:2]
         op = c.usuarios["operador"]
-        ordem, _ = ordens.salvar(op, modelo=_modelo("caminhao"), servidores=[um, dois],
+        ordem, _ = ordens.salvar(op, modelo=_modelo("unidade_movel"), servidores=[um, dois],
                                  destinos=[_londrina()],
                                  funcoes={str(um.pk): "conducao", "999999": "apoio"})
         assert ordem.funcoes == {str(um.pk): "conducao"}  # quem não está na equipe sai
         with pytest.raises(ordens.OrdemInvalida, match="função válida"):
-            ordens.salvar(op, pk=ordem.pk, modelo=_modelo("caminhao"), servidores=[um],
+            ordens.salvar(op, pk=ordem.pk, modelo=_modelo("unidade_movel"), servidores=[um],
                           funcoes={str(um.pk): "coordenacao"})
         padrao, _ = ordens.salvar(op, servidores=[um],
                                   funcoes={str(um.pk): "conducao"})
@@ -110,14 +110,15 @@ class TestFuncoesEDocumento:
         config = ConfiguracaoInstitucional.objects.get(unidade__sigla="ASCOM")
         config.delegado_geral_nome = "Delegado-Geral Fictício"
         config.save()
-        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("caminhao"),
+        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("unidade_movel"),
                                  servidores=[um], destinos=[_londrina()],
                                  data_inicio=date(2030, 3, 10), motivo="o evento fictício",
                                  funcoes={str(um.pk): "conducao"})
         dados = ordens.dados_do_documento(ordem)
-        assert dados["referencia"] == "Deslocamento - Caminhão de apoio"
+        assert dados["referencia"] == "Deslocamento - Unidade Móvel"
         assert dados["itens"][0][0] == "I"
-        assert dados["itens"][0][1].startswith(f"Que {um.nome} conduza a Unidade Móvel")
+        assert dados["itens"][0][1].startswith("O deslocamento d")
+        assert f"{um.nome}, na função de condutor da Unidade Móvel" in dados["itens"][0][1]
         assert dados["assina"]["nome"] == config.chefia_nome
         assert dados["delegado_geral"] == "Delegado-Geral Fictício"
         ordem.refresh_from_db()
@@ -216,7 +217,7 @@ class TestTelas:
         # O período do evento não se digita: vem da viagem (ordens.evento_do_vinculo).
         assert "data-campo-evento" not in html and "Período do evento" not in html
         assert "<div data-campo-hora hidden>" in html
-        assert "OS padrão" in html and "Caminhão" in html
+        assert "OS padrão" in html and "Unidade móvel" in html
         policial, _ = ordens.salvar(op, modelo=_modelo("operacao_policial"),
                                     destinos=[_londrina()], hora=time(5, 0))
         html = cli.get(reverse("viagens:editar_ordem", args=[policial.pk])).content.decode()
@@ -306,7 +307,7 @@ class TestRevisoes:
         Oficio.objects.filter(pk=oficio.pk).update(viagem=viagem)
         oficio.refresh_from_db()
         op = c.usuarios["operador"]
-        ordem, copiados = ordens.salvar(op, oficios=[oficio], modelo=_modelo("caminhao"),
+        ordem, copiados = ordens.salvar(op, oficios=[oficio], modelo=_modelo("unidade_movel"),
                                         data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8))
         assert (ordem.data_evento_inicio, ordem.data_evento_fim) == (date(2030, 5, 5),
                                                                      date(2030, 5, 6))
@@ -316,7 +317,7 @@ class TestRevisoes:
         Viagem.objects.filter(pk=viagem.pk).update(data_inicio=date(2030, 5, 6),
                                                    data_fim=date(2030, 5, 6))
         oficio.refresh_from_db()  # como numa requisição nova
-        ordem, _ = ordens.salvar(op, pk=ordem.pk, oficios=[oficio], modelo=_modelo("caminhao"),
+        ordem, _ = ordens.salvar(op, pk=ordem.pk, oficios=[oficio], modelo=_modelo("unidade_movel"),
                                  data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8))
         assert (ordem.data_evento_inicio, ordem.data_evento_fim) == (date(2030, 5, 6),
                                                                      date(2030, 5, 6))
@@ -342,13 +343,13 @@ class TestRevisoes:
 
     def test_evento_fora_do_periodo_e_recusado(self, c):
         with pytest.raises(ordens.OrdemInvalida, match="caber"):
-            ordens.salvar(c.usuarios["operador"], modelo=_modelo("caminhao"),
+            ordens.salvar(c.usuarios["operador"], modelo=_modelo("unidade_movel"),
                           data_inicio=date(2030, 5, 4), data_fim=date(2030, 5, 7),
                           data_evento_inicio=date(2030, 5, 2), data_evento_fim=date(2030, 5, 3))
 
     def test_modelo_desativado_so_fica_em_quem_ja_tinha(self, c):
         op = c.usuarios["operador"]
-        modelo = _modelo("microonibus")
+        modelo = _modelo("unidade_movel")
         ordem, _ = ordens.salvar(op, modelo=modelo, destinos=[_londrina()])
         ModeloOS.objects.filter(pk=modelo.pk).update(ativo=False)
         modelo.refresh_from_db()
@@ -356,10 +357,29 @@ class TestRevisoes:
         with pytest.raises(ordens.OrdemInvalida, match="desativado"):
             ordens.salvar(op, modelo=modelo, destinos=[_londrina()])
 
-    def test_documento_do_caminhao_sai_em_itens(self, c):
+    def test_dois_na_mesma_funcao_vao_para_o_plural(self, c):
+        um, dois = Servidor.objects.all()[:2]
+        for chave, plural in (("unidade_movel", "na função de condutores da Unidade Móvel, "
+                                                "responsáveis pelo deslocamento"),):
+            ordem, _ = ordens.salvar(
+                c.usuarios["operador"], modelo=_modelo(chave), destinos=[_londrina()],
+                data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 3),
+                servidores=[um, dois], motivo="a Feira",
+                funcoes={str(um.pk): "conducao", str(dois.pk): "conducao"})
+            textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+            assert plural in textos[0], chave
+            assert um.nome in textos[0] and dois.nome in textos[0]  # cada um com o cargo
+        ordem, _ = ordens.salvar(
+            c.usuarios["operador"], modelo=_modelo("cerimonial"), destinos=[_londrina()],
+            data_inicio=date(2030, 5, 3), servidores=[um, dois], motivo="a solenidade",
+            funcoes={str(um.pk): "apoio", str(dois.pk): "apoio"})
+        textos = [t for _, t in ordens.dados_do_documento(ordem, fixar=False)["itens"]]
+        assert " prestem apoio às atividades de Cerimonial" in textos[0]
+
+    def test_documento_da_unidade_movel_sai_em_itens(self, c):
         um, dois = Servidor.objects.all()[:2]
         ordem, _ = ordens.salvar(
-            c.usuarios["operador"], modelo=_modelo("caminhao"), destinos=[_londrina()],
+            c.usuarios["operador"], modelo=_modelo("unidade_movel"), destinos=[_londrina()],
             data_inicio=date(2030, 5, 3), data_fim=date(2030, 5, 8),
             data_evento_inicio=date(2030, 5, 5), data_evento_fim=date(2030, 5, 6),
             servidores=[um, dois], motivo="a Feira",
@@ -368,10 +388,20 @@ class TestRevisoes:
         numeros = [n for n, _ in dados["itens"]]
         assert numeros == ["I", "II", "III", "IV", "V", "VI", "VII"]
         textos = [t for _, t in dados["itens"]]
-        assert "conduza a Unidade Móvel" in textos[0] and "escolta" in textos[1]
-        assert "no dia 3 de maio de 2030" in textos[2] and "montagem" in textos[3]
-        assert "nos dias 5 e 6 de maio de 2030" in textos[4]
-        assert "desmontagem" in textos[5] and "Curitiba/PR no dia 8 de maio de 2030" in textos[6]
+        # Depois do DETERMINO: o deslocamento de cada um com a sua função…
+        assert textos[0].startswith("O deslocamento d") and "na função de condutor " in textos[0]
+        assert "na função de apoio, responsável pela escolta" in textos[1]
+        # …e os dias: deslocamento, montagem, evento, desmontagem e volta à sede.
+        assert textos[2] == ("Que a equipe realize no dia 3 de maio de 2030 o deslocamento até "
+                             "o município de Londrina/PR, para apoio logístico com a Unidade "
+                             "Móvel em a Feira.")
+        assert textos[3].startswith("Que a equipe realize no dia 4 de maio de 2030 a montagem")
+        assert textos[4].startswith("Que a equipe participe nos dias 5 e 6 de maio de 2030 do "
+                                    "evento")
+        assert textos[5].startswith("Que a equipe realize no dia 7 de maio de 2030 a "
+                                    "desmontagem")
+        assert textos[6] == ("Que a equipe realize no dia 8 de maio de 2030 o deslocamento de "
+                             "volta à sede de lotação em Curitiba/PR.")
         assert dados["justificativas"] and dados["finalidade"]
         html = ordens.html_do_modelo(dados)
         assert '<ol class="itens">' in html and "I - Que" in html and "DETERMINO" in html
@@ -397,7 +427,7 @@ class TestRevisoes:
         assert textos[2].startswith(f"Que o policial {um.nome} efetue o retorno")
 
     def test_tipo_com_funcao_sem_funcao_e_sinalizado(self, c):
-        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("microonibus"),
+        ordem, _ = ordens.salvar(c.usuarios["operador"], modelo=_modelo("unidade_movel"),
                                  servidores=[Servidor.objects.first()], destinos=[_londrina()],
                                  data_inicio=date(2030, 1, 1), motivo="x")
         assert ordens.faltando(ordem) == ["função da equipe"]

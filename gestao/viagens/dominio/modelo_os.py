@@ -30,7 +30,8 @@ COMBINADAS = frozenset({"ida_e_antes", "depois_e_volta"})
 # nas funções, só quem tem a função.
 MARCADORES_ETAPA = frozenset({"equipe", "servidores", "destino", "municipio", "data", "motivo",
                               "hora", "sede"})
-MARCADORES_FUNCAO = frozenset({"servidores", "destino", "municipio", "motivo", "sede"})
+MARCADORES_FUNCAO = frozenset({"equipe", "servidores", "destino", "municipio", "motivo",
+                               "sede"})
 
 # Textos exatos das pendências (a conferência da tela os mostra como "Falta …").
 FALTA_PERIODO = "período"
@@ -38,6 +39,9 @@ FALTA_FUNCAO = "função da equipe"
 FALTA_HORA = "horário do briefing"
 
 _MARCADOR = re.compile(r"\{([a-z_]+)\}")
+# Concordância: "{conduza|conduzam}" vira a forma do singular com uma pessoa no item e a do
+# plural com mais de uma (a função: quem a tem; a etapa: a equipe toda).
+_CONCORDANCIA = re.compile(r"\{([^{}|]*)\|([^{}|]*)\}")
 _UM_DIA = timedelta(days=1)
 
 
@@ -147,6 +151,11 @@ def romano(n: int) -> str:
     return saida
 
 
+def concordar(texto: str, pessoas: int) -> str:
+    """Escolhe "{singular|plural}" pelo número de pessoas do item (nenhuma conta como uma)."""
+    return _CONCORDANCIA.sub(lambda m: m.group(1) if pessoas <= 1 else m.group(2), texto)
+
+
 def _limpar(texto: str) -> str:
     """Marcador vazio não deixa espaço duplo nem " ." para trás."""
     return " ".join(texto.split()).replace(" .", ".").replace(" ,", ",")
@@ -169,10 +178,12 @@ def itens_da_os(dados: DadosOS, modelo: Modelo) -> TextosModelo:
     valores = _valores(dados)
     itens: list[str] = []
     for funcao in modelo.funcoes:
-        nomes = [p.nome for p in dados.equipe if dados.funcoes.get(p.id) == funcao.codigo]
-        if nomes and funcao.texto.strip():
-            itens.append(_limpar(funcao.texto.format_map(
-                {**valores, "servidores": lista_com_e(nomes)})))
+        quem = [p for p in dados.equipe if dados.funcoes.get(p.id) == funcao.codigo]
+        if quem and funcao.texto.strip():
+            # {equipe} e {servidores} na função são só quem a tem.
+            itens.append(_limpar(concordar(funcao.texto, len(quem)).format_map(
+                {**valores, "equipe": equipe_no_texto(quem),
+                 "servidores": lista_com_e([p.nome for p in quem])})))
     if dados.inicio:
         etapas = distribuir_etapas(dados.inicio, dados.fim or dados.inicio,
                                    dados.evento_inicio, dados.evento_fim,
@@ -180,7 +191,7 @@ def itens_da_os(dados: DadosOS, modelo: Modelo) -> TextosModelo:
         for etapa in etapas:
             texto = (modelo.textos.get(etapa.nome) or "").strip()
             if texto:
-                itens.append(_limpar(texto.format_map(
+                itens.append(_limpar(concordar(texto, len(dados.equipe)).format_map(
                     {**valores, "data": data_da_etapa(etapa)})))
     return TextosModelo(referencia=modelo.referencia, itens=itens,
                         justificativas=[j for j in modelo.justificativas if j.strip()],

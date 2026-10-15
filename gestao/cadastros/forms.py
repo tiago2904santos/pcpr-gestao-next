@@ -33,6 +33,7 @@ from .models import (
     Servidor,
     SubstituicaoAssinante,
     TabelaDiaria,
+    TipoViagem,
     Unidade,
     Viatura,
 )
@@ -254,6 +255,10 @@ class FormularioViatura(forms.Form):
     modelo = forms.CharField(label="Modelo", max_length=120, required=False, widget=_entrada())
     tipo = forms.ChoiceField(label="Tipo", choices=Viatura.Tipo.choices, required=False,
                              widget=Selecao())
+    porte = forms.ChoiceField(
+        label="Veículo da unidade móvel", required=False, widget=Selecao(),
+        choices=[("", "Selecione (só unidade móvel)"), *Viatura.Porte.choices],
+        help_text="A van anda como viatura; micro-ônibus, ônibus e caminhão, mais devagar.")
     combustivel = forms.ModelChoiceField(label="Combustível",
                                          queryset=Combustivel.objects.none(), required=False,
                                          empty_label="Selecione (opcional)", widget=Selecao())
@@ -289,6 +294,7 @@ class FormularioViatura(forms.Form):
     def de(cls, viatura: Viatura, **kwargs) -> FormularioViatura:
         return cls(instancia=viatura, initial={
             "placa": viatura.placa_formatada, "modelo": viatura.modelo, "tipo": viatura.tipo,
+            "porte": viatura.porte,
             "combustivel": viatura.combustivel_id, "unidade": viatura.unidade_id,
             "motoristas": [m.pk for m in viatura.motoristas.all()]}, **kwargs)
 
@@ -306,6 +312,15 @@ class FormularioViatura(forms.Form):
 
     def clean_modelo(self) -> str:
         return titulo(self.cleaned_data["modelo"])
+
+    def clean(self):
+        dados = super().clean() or {}
+        movel = dados.get("tipo") == Viatura.Tipo.UNIDADE_MOVEL
+        if movel and not dados.get("porte"):
+            self.add_error("porte", "Informe qual é o veículo da unidade móvel.")
+        elif not movel:
+            dados["porte"] = ""
+        return dados
 
 
 # ---------------------------------------------------------------- tabela de diárias
@@ -549,6 +564,37 @@ class FormularioHorario(forms.Form):
         partes = objeto.nome.split(" até ")
         inicial = {"inicio": partes[0], "fim": partes[1]} if len(partes) == 2 else {}
         return cls(initial=inicial)
+
+
+class FormularioTipoViagem(forms.Form):
+    """Tipo de viagem: o nome (o título da viagem nasce dele), o motivo que já vem escrito na
+    viagem e o tipo de OS com que a OS da viagem nasce."""
+
+    nome = forms.CharField(label="Nome", max_length=120, widget=_entrada())
+    motivo = forms.CharField(
+        label="Motivo", required=False, max_length=4000,
+        widget=forms.Textarea(attrs={"class": "entrada area-texto", "rows": 3}),
+        help_text="Opcional. Escolher este tipo na viagem escreve o motivo, se estiver em "
+                  "branco.")
+    tipo_os = forms.ChoiceField(
+        label="Tipo de OS", required=False, widget=Selecao(),
+        choices=[("", "OS padrão"), *TipoViagem.TipoOS.choices],
+        help_text="A OS criada na viagem já vem com este tipo.")
+
+    def clean_nome(self) -> str:
+        return titulo(self.cleaned_data["nome"])
+
+    def clean_motivo(self) -> str:
+        return self.cleaned_data["motivo"].strip()
+
+    @property
+    def cleaned_para_salvar(self) -> dict:
+        return dict(self.cleaned_data)
+
+    @classmethod
+    def de(cls, objeto) -> FormularioTipoViagem:
+        return cls(initial={"nome": objeto.nome, "motivo": objeto.motivo,
+                            "tipo_os": objeto.tipo_os})
 
 
 class FormularioAtividade(forms.Form):

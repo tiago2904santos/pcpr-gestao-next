@@ -36,6 +36,7 @@ from .forms import (
     FormularioPrograma,
     FormularioServidor,
     FormularioSubstituicao,
+    FormularioTipoViagem,
     FormularioUnidade,
     FormularioViatura,
     FormularioVigencia,
@@ -56,6 +57,7 @@ from .models import (
     Unidade,
     Viatura,
 )
+from .validacoes import sem_acentos
 
 
 def _migalhas(rotulo: str):
@@ -121,8 +123,11 @@ CATALOGOS: dict[str, Catalogo] = {
     # Plano de trabalho (referência: viagens_planos/catalogos).
     "tipos": Catalogo(
         TipoViagem, "Tipos de viagem", "tipo de viagem", "o", "route",
-        "Nome do tipo; uma viagem pode ter mais de um, e o título dela nasce deles.",
-        FormularioCatalogo, vazio="Nenhum tipo de viagem cadastrado ainda.",
+        "Uma viagem pode ter mais de um, e o título dela nasce deles. O tipo pode trazer o "
+        "motivo já escrito e o tipo da OS criada na viagem.",
+        FormularioTipoViagem, vazio="Nenhum tipo de viagem cadastrado ainda.",
+        salvar=services.salvar_tipo_viagem, campos="cadastros/_campos_tipo_viagem.html",
+        detalhe=lambda o: o.get_tipo_os_display() if o.tipo_os else "",
         contar=(("viagens", "viagem,viagens"),)),
     "programas": Catalogo(
         ProgramaSolicitante, "Programas solicitantes", "programa", "o", "landmark",
@@ -601,6 +606,12 @@ ABAS_VIATURAS = [("", "Ativas", "ativos"), ("incompletas", "Incompletas", "incom
 INCOMPLETA = Q(modelo="") | Q(combustivel__isnull=True) | Q(tipo="")
 
 
+def _opcoes_com(opcoes, termo: str) -> list[str]:
+    """Valores das opções cujo rótulo contém o termo (sem acento nem caixa)."""
+    alvo = sem_acentos(termo).lower()
+    return [valor for valor, rotulo in opcoes if alvo and alvo in sem_acentos(rotulo).lower()]
+
+
 def _form_viatura(*args, **kwargs) -> FormularioViatura:
     return FormularioViatura(*args, fonte_motoristas=reverse("cadastros:buscar_servidores"),
                              **kwargs)
@@ -627,6 +638,9 @@ def _lista_viaturas(request: HttpRequest, *, form=None, editando=None,
                   | Q(motoristas__nome__unaccent__icontains=termo))
         if placa:
             filtro |= Q(placa__contains=placa)
+        # "unidade movel", "caminhão": o tipo e o veículo pelo nome que a tela mostra.
+        filtro |= Q(tipo__in=_opcoes_com(Viatura.Tipo.choices, termo))
+        filtro |= Q(porte__in=_opcoes_com(Viatura.Porte.choices, termo))
         qs = qs.filter(filtro).distinct()
     total_filtro = qs.count()
     por_combustivel = services.contagem_por(qs, "combustivel")

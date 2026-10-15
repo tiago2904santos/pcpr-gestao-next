@@ -139,9 +139,11 @@ Protocolo (D1): obrigatório para emitir (pendência bloqueante); opcional no ra
 
 ## Tipos de OS (15/10/2026)
 
-Cinco tipos, **fixos no código** (sem cadastro na tela): **OS padrão** (sem modelo; parágrafo
+Quatro tipos, **fixos no código** (sem cadastro na tela): **OS padrão** (sem modelo; parágrafo
 único) e, com modelo (`ModeloOS`/`FuncaoOS`, textos em `viagens/modelos_do_sistema.py`,
-sincronizados por migração), **Operação policial, Micro-ônibus, Caminhão e Cerimonial**. O
+sincronizados por migração), **Operação policial, Unidade móvel e Cerimonial**. Micro-ônibus e
+caminhão eram dois tipos e viraram **Unidade móvel** (migração 0056; as OS passaram para ele).
+A diferença entre os veículos está no cadastro da viatura e no tempo de estrada (abaixo). O
 documento com tipo sai como a OS real: `Ref.:`, autoridade, `DETERMINO` e itens `I - …`,
 `II - …`: primeiro um por **função** com alguém, depois um por **etapa** da viagem — ida, dias
 antes do evento, evento, dias depois, volta — distribuída nos dias pelos dois períodos da OS
@@ -155,15 +157,34 @@ antes do evento, evento, dias depois, volta — distribuída nos dias pelos dois
 | 18 | 18 | só evento |
 | 3–8 | — | a viagem inteira é evento |
 
-Nos dias antes do evento: **caminhão** — montagem; **cerimonial** — **visita técnica** (saída 4
-e evento 6 → dia 4 deslocamento, dia 5 visita técnica; saída na véspera → deslocamento e visita
-técnica no mesmo dia); micro-ônibus — organização dos materiais. Operação policial: ida,
+Nos dias antes do evento: **unidade móvel** — montagem; **cerimonial** — **visita técnica**
+(saída 4 e evento 6 → dia 4 deslocamento, dia 5 visita técnica; saída na véspera → deslocamento
+e visita técnica no mesmo dia). Operação policial: ida,
 briefing com horário (`{hora}`, campo "Horário do briefing" na OS) e retorno.
 
 A OS tem `modelo` (o tipo), `hora` e `data_evento_inicio/fim`. O período do evento **não se
 digita**: vem do vínculo — a Viagem da OS (criada dentro da viagem) ou a do ofício ligado —
 recortado ao período da OS (ida e volta dos trechos) e refeito a cada gravação
 (`ordens.evento_do_vinculo`). Sem Viagem com datas, a viagem inteira conta como evento.
+
+### Tipo que já vem escolhido (15/10/2026)
+
+A OS nova criada na viagem (ou a partir de ofícios) já vem com o tipo, nesta ordem:
+1. o **tipo de OS do tipo da viagem** (cadastro "Tipos de viagem": Operação Policial →
+   Operação policial). O tipo da viagem também traz o **motivo** já escrito na viagem, quando o
+   motivo está em branco;
+2. senão, **Unidade móvel**, se a viatura de um ofício da viagem é unidade móvel.
+
+O plano de trabalho novo da viagem marca a atividade **Unidade móvel** quando a viatura de um
+ofício dela é unidade móvel.
+
+### Viatura unidade móvel e tempo de estrada
+
+No cadastro da viatura, o tipo **Unidade móvel** pede o veículo: van, micro-ônibus, ônibus ou
+caminhão. Digitar "unidade móvel" (ou "caminhão") na escolha da viatura acha todas. A **van**
+anda como uma viatura; **micro-ônibus, ônibus e caminhão** são mais lentos: no ofício com essa
+viatura, o tempo de estrada de cada trecho sai pela velocidade média de veículo pesado
+(`dominio/tempos_rota.tempo_de_veiculo_lento`).
 
 ## Cadastro da OS — contrato da tela (14/10/2026)
 

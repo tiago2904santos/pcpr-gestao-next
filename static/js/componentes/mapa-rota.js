@@ -73,9 +73,13 @@ export class MapaDaRota {
     }).observe(this.caixa);
   }
 
-  /** Pede a rota que passa pelos pontos ("Cidade/UF", na ordem). @param {string[]} pontos @param {AbortSignal} [sinal] */
-  async buscar(pontos, sinal) {
-    const url = `${this.dono.dataset.rotaUrl}?${pontos.map((p) => `p=${encodeURIComponent(p)}`).join("&")}`;
+  /**
+   * Pede a rota que passa pelos pontos ("Cidade/UF", na ordem). `lento`: unidade móvel
+   * pesada (micro-ônibus, ônibus, caminhão), com mais tempo de estrada.
+   * @param {string[]} pontos @param {AbortSignal} [sinal] @param {boolean} [lento]
+   */
+  async buscar(pontos, sinal, lento = false) {
+    const url = `${this.dono.dataset.rotaUrl}?${pontos.map((p) => `p=${encodeURIComponent(p)}`).join("&")}${lento ? "&lento=1" : ""}`;
     const resposta = await fetch(url, { signal: sinal, headers: { Accept: "application/json" } });
     if (!resposta.ok) throw new Error(String(resposta.status));
     return resposta.json();

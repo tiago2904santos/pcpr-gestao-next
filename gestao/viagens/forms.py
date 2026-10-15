@@ -229,8 +229,15 @@ class SelecaoDeViatura(forms.Select):
                 "data-nomes": "|".join(m.nome.split()[0] for m in viatura.motoristas.all()),
                 "data-meta": " · ".join(p for p in (
                     getattr(viatura.combustivel, "nome", ""),
-                    viatura.get_tipo_display(), sigla) if p),
+                    viatura.get_tipo_display(), viatura.get_porte_display(), sigla) if p),
+                # Digitar "unidade móvel" (ou "caminhão") acha as viaturas desse tipo.
+                "data-busca": " ".join(p for p in (
+                    viatura.get_tipo_display(), viatura.get_porte_display()) if p),
             })
+            if viatura.unidade_movel:
+                opcao["attrs"]["data-unidade-movel"] = ""
+            if viatura.lenta:
+                opcao["attrs"]["data-lenta"] = ""
         return opcao
 
 
@@ -1554,8 +1561,11 @@ class FormularioViagem(forms.Form):
         super().__init__(*args, **kwargs)
         self._mostrados: dict[str, list[int]] = {}
         atuais = list(viagem.tipos.values_list("pk", flat=True))
-        cast(forms.ModelMultipleChoiceField, self.fields["tipos"]).queryset = (
-            TipoViagem.objects.filter(Q(ativo=True) | Q(pk__in=atuais)).order_by("nome"))
+        tipos = TipoViagem.objects.filter(Q(ativo=True) | Q(pk__in=atuais)).order_by("nome")
+        cast(forms.ModelMultipleChoiceField, self.fields["tipos"]).queryset = tipos
+        # {id do tipo: motivo} para a tela escrever o motivo ao escolher o tipo.
+        motivos = {str(t.pk): t.motivo for t in tipos if t.motivo.strip()}
+        self.motivos_dos_tipos = json.dumps(motivos, ensure_ascii=False) if motivos else ""
         self.fields["destinos"].widget.fonte = fonte_municipios
         for tipo, qs in candidatos(viagem).items():
             # Os desta viagem sempre; dos livres, os 40 mais recentes (lista curta, legível).

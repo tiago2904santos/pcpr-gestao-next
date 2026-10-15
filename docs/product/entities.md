@@ -57,7 +57,7 @@ erDiagram
 | **Cargo** | nome, ativo | nome único | ✓ |
 | **Combustivel** | nome, ativo | — | ✓ |
 | **Servidor** | nome, cpf, rg, cargo, unidade, telefone, ativo | CPF vazio ou 11 dígitos, único quando informado; PROTECT em ofícios | ✓ |
-| **Viatura** | placa, modelo, combustível, tipo (caracterizada/descaracterizada), unidade, motoristas habituais (M2M com Servidor) | placa única no formato `ABC1234`/`ABC1D23` | ✓ |
+| **Viatura** | placa, modelo, combustível, tipo (caracterizada/descaracterizada/unidade móvel), veículo da unidade móvel (van, micro-ônibus, ônibus, caminhão), unidade, motoristas habituais (M2M com Servidor) | placa única no formato `ABC1234`/`ABC1D23`; veículo só na unidade móvel; micro-ônibus, ônibus e caminhão são lentos na estrada | ✓ |
 | **Municipio** | codigo_ibge, nome, uf | código IBGE único | ✓ (sem região, capital, lat/long) |
 | **TabelaDiaria** | faixa, vigente_desde, valor_24h, norma | (faixa, vigência) única; valor > 0; 15%/30% **derivados** | ✓ |
 | **Lotacao** | usuario (1:1), unidade | define escopo | ✓ (novo) |

@@ -173,3 +173,35 @@ class TestPendencias:
     def test_sem_equipe_nao_cobra_funcao(self):
         assert m.faltam_para_o_modelo(dados(equipe=[], funcoes={}, hora=time(5)),
                                       CAMINHAO) == []
+
+
+class TestConcordancia:
+    MODELO = m.Modelo(
+        nome="X", referencia="R",
+        textos={"ida": "", "ida_e_antes": "", "antes": "",
+                "evento": "Que {o policial|os policiais} {servidores} {acompanhe|acompanhem} "
+                          "{data}.",
+                "depois": "", "depois_e_volta": "", "volta": ""},
+        funcoes=(m.Funcao("conducao", "Condução",
+                          "O deslocamento {equipe}, na função de {condutor|condutores}, "
+                          "{responsável|responsáveis} pelo veículo."),))
+
+    def test_um_servidor_fica_no_singular(self):
+        itens = m.itens_da_os(dados(equipe=[A], funcoes={1: "conducao"}, inicio=d(5), fim=d(5),
+                                    evento_inicio=None, evento_fim=None), self.MODELO).itens
+        assert itens == [
+            "O deslocamento do agente de polícia judiciária Ana Lima, na função de condutor, "
+            "responsável pelo veículo.",
+            "Que o policial Ana Lima acompanhe no dia 5 de maio de 2026."]
+
+    def test_dois_servidores_vao_para_o_plural(self):
+        itens = m.itens_da_os(dados(funcoes={1: "conducao", 2: "conducao"}, inicio=d(5),
+                                    fim=d(5), evento_inicio=None, evento_fim=None),
+                              self.MODELO).itens
+        assert itens == [
+            "O deslocamento dos agentes de polícia judiciária Ana Lima e Bruno Rocha, na função "
+            "de condutores, responsáveis pelo veículo.",
+            "Que os policiais Ana Lima e Bruno Rocha acompanhem no dia 5 de maio de 2026."]
+
+    def test_marcadores_ignoram_as_alternativas(self):
+        assert m.marcadores("{o policial|os policiais} {servidores}") == {"servidores"}

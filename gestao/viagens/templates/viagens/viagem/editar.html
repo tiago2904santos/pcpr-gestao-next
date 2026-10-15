@@ -44,7 +44,8 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     <div class="pilha">
       {# Tipo seguido do calendário compartilhado, com largura própria. #}
       <div class="pilha" id="periodo">
-        <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}">
+        {# Escolher um tipo com motivo cadastrado escreve o motivo, se ele está em branco (motivo-do-tipo.js). #}
+        <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}"{% if form.motivos_dos_tipos %} data-motivos-dos-tipos="{{ form.motivos_dos_tipos }}" data-alvo="{{ form.motivo.id_for_label }}"{% endif %}>
           <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
           {% if form.tipos.field.queryset %}
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione os tipos">
