@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
 
 from . import (
@@ -215,6 +216,7 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
         "pode_repetir": policies.pode_criar_viagem(request.user),
         "form_repetir": _form_repetir(),
         "pode_semear": bool(v.data_inicio and v.destinos.exists()),
+        "pode_gerir_textos": politicas_cadastros.pode_gerir_textos(request.user),
         "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
                               (str(v), ""))}, status=status)
 

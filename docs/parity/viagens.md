@@ -35,12 +35,12 @@ Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
 
 ## Folha da viagem recomposta (15/10/2026, pedido do usuário)
 
-- **Identificação** em duas colunas a partir de 1024px: tipo e motivo à esquerda (o tipo
-  pode escrever o motivo), o calendário do período à direita; destinos e mapa embaixo.
+- **Identificação**, um embaixo do outro e cada um na linha toda: tipo, **motivo igual ao do
+  ofício e da OS** (bloco "Motivo" com o texto pronto e a caixa de texto), período e destinos.
   O campo **Descrição/objetivo saiu** da tela e da consulta (a coluna no banco fica, com o
   que já estava gravado; a gravação da tela não a mexe).
-- **Documentos da viagem**: uma linha por tipo (tipo e contagem · documentos com situação e
-  período · "Novo …"), num quadro só, e o atalho "Gerar documentos em conjunto".
+- **Documentos da viagem** continua com os cartões por tipo (a versão em linhas foi
+  descartada a pedido do usuário).
 - **Vincular documentos existentes**: cada lista mostra no máximo três linhas e rola; o
   texto de cada opção fica centrado com a caixa de marcar.
 - **Conferência**: resumo com barra das etapas concluídas; etapas com pendência em cartões

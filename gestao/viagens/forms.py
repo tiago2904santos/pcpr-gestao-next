@@ -1540,12 +1540,15 @@ class FormularioViagem(forms.Form):
     tipos = forms.ModelMultipleChoiceField(
         label="Tipo da viagem", queryset=TipoViagem.objects.none(), required=False,
         widget=CaixasDeEscolha(), help_text="O título da viagem nasce deles.")
+    # O motivo como no ofício e na OS: o texto pronto (só ajuda a escrever; não é gravado)
+    # e a caixa de texto.
+    motivo_modelo = forms.ModelChoiceField(
+        queryset=ModeloTexto.objects.none(), required=False, label="Texto pronto do motivo",
+        empty_label="Escrever do zero", widget=SelecaoDeTexto())
     motivo = forms.CharField(
         label="Motivo", required=False, max_length=4000,
-        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 4,
-                                     "placeholder": "O que a equipe vai fazer e para quê…"}),
-        help_text="Vai para o ofício e a OS criados daqui. O tipo da viagem pode já "
-                  "trazê-lo escrito.")
+        help_text="Vai para o ofício e a OS criados daqui.",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=3)))
     # Período num campo só na tela (<pc-data data-periodo>, início e fim no mesmo
     # calendário), como no termo, na OS e no plano: estes dois levam as pontas.
     data_inicio = forms.DateField(label="Início", required=False, input_formats=FORMATOS_DATA,
@@ -1589,6 +1592,8 @@ class FormularioViagem(forms.Form):
         # {id do tipo: motivo} para a tela escrever o motivo ao escolher o tipo.
         motivos = {str(t.pk): t.motivo for t in tipos if t.motivo.strip()}
         self.motivos_dos_tipos = json.dumps(motivos, ensure_ascii=False) if motivos else ""
+        cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
+            ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
         self.fields["destinos"].widget.fonte = fonte_municipios
         for tipo, qs in candidatos(viagem).items():
             # Os desta viagem sempre; dos livres, os 40 mais recentes (lista curta, legível).
@@ -1605,6 +1610,10 @@ class FormularioViagem(forms.Form):
         inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
         if inicio and fim and fim < inicio:
             self.add_error("data_fim", "A data final não pode ser anterior à data inicial.")
+        # Sem JavaScript, escolher o texto pronto com o motivo em branco o escreve.
+        if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
+            dados["motivo"] = dados["motivo_modelo"].texto
+        dados.pop("motivo_modelo", None)
         return dados
 
     def vinculos(self) -> dict | None:
