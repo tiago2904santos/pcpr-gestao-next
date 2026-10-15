@@ -31,6 +31,7 @@ Variáveis: `form` (FormularioViatura). Opcionais, só a tela de cadastro usa: `
           {% include "componentes/campo.html" with campo=form.placa ajuda_oculta=True %}
           {% include "componentes/campo.html" with campo=form.modelo %}
           {% include "componentes/campo.html" with campo=form.tipo %}
+          {% include "componentes/campo.html" with campo=form.porte %}
           {% include "componentes/campo.html" with campo=form.combustivel acao_dialogo="dialogo-combustivel" acao_rotulo="Cadastrar combustível" %}
         </div>
         <div class="campo{% if form.unidade.errors %} campo--erro{% endif %}">

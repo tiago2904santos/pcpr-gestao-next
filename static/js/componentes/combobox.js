@@ -210,7 +210,8 @@ export class PcCombobox extends HTMLElement {
     const atualTexto = this.select.selectedOptions[0]?.textContent?.trim() || "";
     const mostrarTudo = termo === "" || this.entrada.value.trim() === atualTexto;
     this.opcoes = Array.from(this.select.options)
-      .filter((o) => o.value && (mostrarTudo || normalizar(o.textContent || "").includes(termo)))
+      // `data-busca`: palavras a mais que acham a opção (ex.: "Unidade móvel" na viatura).
+      .filter((o) => o.value && (mostrarTudo || normalizar(`${o.textContent || ""} ${o.dataset.busca || ""}`).includes(termo)))
       .slice(0, 50)
       .map((o) => ({
         id: o.value,

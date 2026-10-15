@@ -29,6 +29,7 @@ from .models import (
     Viagem,
     ViagemDestino,
 )
+from .vinculos import tem_unidade_movel
 
 MAX_DESTINOS = 30
 ESQUECIDA = timedelta(minutes=30)
@@ -202,6 +203,11 @@ def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
     destinos = list(dict.fromkeys(destinos or []))
     if len(destinos) > MAX_DESTINOS:
         raise ViagemInvalida(f"No máximo {MAX_DESTINOS} destinos.")
+    # Tipo escolhido agora com motivo em branco: o motivo do tipo (ex.: Operação Policial),
+    # como a tela já escreve. Só na escolha: apagar o motivo depois não o traz de volta.
+    antes = set(viagem.tipos.values_list("pk", flat=True))
+    if not motivo.strip():
+        motivo = next((t.motivo for t in tipos if t.pk not in antes and t.motivo.strip()), "")
     viagem.tipos.set(tipos)
     viagem.titulo = titulo_dos_tipos([t.nome for t in tipos])
     viagem.motivo, viagem.descricao = motivo.strip(), descricao.strip()
@@ -276,11 +282,14 @@ def novo_documento(usuario, pk: int, tipo: str):
                             data_inicio=inicio, data_fim=fim if fim != inicio else None,
                             destinos=destinos)
     elif tipo == "ordem":
+        # O tipo vem do tipo da viagem ou, sem ele, da viatura unidade móvel de um ofício.
         doc, _ = ordens.salvar(usuario, destinos=destinos, data_inicio=inicio, data_fim=fim,
-                               motivo=viagem.motivo)
+                               motivo=viagem.motivo, modelo=ordens.tipo_sugerido(viagem))
     elif tipo == "plano":
+        movel = tem_unidade_movel(viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO)
+                                  .select_related("viatura"))
         doc, _ = planos.salvar(usuario, data_inicio=inicio, data_fim=fim, destinos=destinos,
-                               programa_outros="")
+                               programa_outros="", unidade_movel=movel)
     else:
         raise ViagemInvalida("Documento desconhecido.")
     type(doc).objects.filter(pk=doc.pk).update(viagem=viagem)

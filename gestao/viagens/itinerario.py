@@ -183,8 +183,8 @@ def com_iniciais(form_id: str, dados: QueryDict, *, mais_um: bool = False,
 
 
 def _perna(origem: Municipio, destino: Municipio, saida, viagem: int | None,
-           adicional: int | None) -> TrechoInformado:
-    rota = rotas.calcular(origem, destino)
+           adicional: int | None, *, lento: bool = False) -> TrechoInformado:
+    rota = rotas.calcular(origem, destino, lento=lento)
     viagem = rota.minutos if viagem is None else viagem
     adicional = rota.adicional_sugerido if adicional is None else adicional
     return TrechoInformado(origem.pk, destino.pk, saida,
@@ -192,8 +192,9 @@ def _perna(origem: Municipio, destino: Municipio, saida, viagem: int | None,
                            rota.km if rota.km else None, viagem, adicional)
 
 
-def trechos(itin: Itinerario) -> list[TrechoInformado]:
-    """Trechos na ordem informada, com chegada calculada. Exige `itin.valido()`."""
+def trechos(itin: Itinerario, *, lento: bool = False) -> list[TrechoInformado]:
+    """Trechos na ordem informada, com chegada calculada. Exige `itin.valido()`. `lento`: a
+    viatura é unidade móvel pesada (o tempo em branco sai pelo veículo lento)."""
     sede = itin.sede.cleaned_data["cidade"]
     resultado = []
     origem = sede
@@ -202,11 +203,12 @@ def trechos(itin: Itinerario) -> list[TrechoInformado]:
         if not dados or not dados.get("cidade"):
             continue
         resultado.append(_perna(origem, dados["cidade"], dados["saida"],
-                                dados.get("tempo_viagem"), dados.get("tempo_adicional")))
+                                dados.get("tempo_viagem"), dados.get("tempo_adicional"),
+                                lento=lento))
         origem = dados["cidade"]
     volta = itin.retorno.cleaned_data
     resultado.append(_perna(origem, sede, volta["saida"], volta.get("tempo_viagem"),
-                            volta.get("tempo_adicional")))
+                            volta.get("tempo_adicional"), lento=lento))
     return resultado
 
 

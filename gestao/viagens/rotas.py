@@ -11,7 +11,7 @@ import json
 import logging
 import math
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import ROUND_HALF_UP, Decimal
 
 from django.conf import settings
@@ -22,6 +22,7 @@ from .dominio.tempos_rota import (
     arredondar_a_15,
     minutos_da_api,
     tempo_adicional_sugerido,
+    tempo_de_veiculo_lento,
     tempo_de_viagem,
 )
 from .models import DistanciaMunicipios
@@ -45,6 +46,10 @@ class Perna:
     @property
     def adicional_sugerido(self) -> int:
         return tempo_adicional_sugerido(self.minutos)
+
+    def para_veiculo_lento(self) -> Perna:
+        """A mesma perna, com o tempo de estrada da unidade móvel pesada."""
+        return replace(self, minutos=tempo_de_veiculo_lento(self.minutos))
 
 
 def arredondar_minutos(minutos: float) -> int:
@@ -114,8 +119,14 @@ def _openrouteservice(a: tuple[float, float], b: tuple[float, float]) -> tuple[f
 PROVEDORES = {"osrm": _osrm, "openrouteservice": _openrouteservice}
 
 
-def calcular(origem: Municipio, destino: Municipio) -> Perna:
-    """Rota de origem a destino: cache → provedor configurado → estimativa."""
+def calcular(origem: Municipio, destino: Municipio, *, lento: bool = False) -> Perna:
+    """Rota de origem a destino: cache → provedor configurado → estimativa. `lento`: a
+    viatura é unidade móvel pesada (o cache guarda sempre o tempo de viatura)."""
+    perna = _calcular(origem, destino)
+    return perna.para_veiculo_lento() if lento else perna
+
+
+def _calcular(origem: Municipio, destino: Municipio) -> Perna:
     if origem.pk == destino.pk:
         return Perna(Decimal(0), 0, "estimativa")
     provedor = PROVEDORES.get(settings.ROTAS_PROVEDOR)

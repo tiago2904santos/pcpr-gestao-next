@@ -99,7 +99,7 @@ def paginas(settings):
         reverse("viagens:ordens"),
         reverse("viagens:nova_ordem"),
         reverse("viagens:editar_ordem", args=[OrdemServico.objects.filter(
-            modelo__chave="caminhao").first().pk]),
+            modelo__chave="unidade_movel").first().pk]),
         reverse("viagens:planos"),
         reverse("viagens:novo_plano"),
         reverse("viagens:editar_plano", args=[PlanoTrabalho.objects.order_by("pk").first().pk]),

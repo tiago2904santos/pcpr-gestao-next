@@ -29,6 +29,7 @@ from . import policies
 from .dominio import modelo_os as dominio_modelo
 from .dominio import ordem_servico as dominio
 from .dominio.numeracao import proximo_numero
+from .modelos_do_sistema import UNIDADE_MOVEL as CHAVE_UNIDADE_MOVEL
 from .models import (
     LacunaOrdemServico,
     ModeloOS,
@@ -39,7 +40,7 @@ from .models import (
     Trecho,
     Viajante,
 )
-from .vinculos import incompatibilidade
+from .vinculos import incompatibilidade, tem_unidade_movel
 
 # "Não mexa": a data do documento só muda quando quem chama a informa.
 MANTER = object()
@@ -137,6 +138,24 @@ def evento_do_vinculo(viagem, oficios, inicio: date | None,
     return (ev_ini, ev_fim) if ev_ini <= ev_fim else (None, None)
 
 
+def tipo_sugerido(viagem=None, oficios=()) -> ModeloOS | None:
+    """O tipo com que a OS nasce: o do tipo da viagem (cadastro "Tipos de viagem") ou, sem
+    ele, "Unidade móvel" quando um ofício (ligado ou da viagem) vai numa unidade móvel."""
+    oficios = list(oficios)
+    if viagem is None:
+        viagem = next((o.viagem for o in oficios if o.viagem_id), None)
+    chaves: list[str] = []
+    if viagem is not None:
+        chaves = [t.tipo_os for t in viagem.tipos.all() if t.tipo_os]
+        oficios += [o for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO)
+                    .select_related("viatura") if o not in oficios]
+    if not chaves and tem_unidade_movel(oficios):
+        chaves = [CHAVE_UNIDADE_MOVEL]
+    if not chaves:
+        return None
+    return ModeloOS.objects.filter(chave__in=chaves, ativo=True).order_by("ordem").first()
+
+
 # ---------------------------------------------------------------- escrita
 def _funcoes_validas(modelo: ModeloOS | None, funcoes: dict,
                      servidores: list[Servidor]) -> dict[str, str]:
@@ -232,6 +251,11 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | Non
         if not motivo.strip() and base["motivo"]:
             motivo = base["motivo"]
             copiados.append("motivo")
+        # OS padrão (o tipo "vazio"): o tipo vem do tipo da viagem ou da unidade móvel.
+        if modelo is None and (sugerido := tipo_sugerido(ordem.viagem if pk else None,
+                                                         oficios)):
+            modelo = sugerido
+            copiados.append("tipo de OS")
         if len(destinos) > MAX_DESTINOS or len(servidores) > MAX_SERVIDORES:
             raise OrdemInvalida("Os ofícios somam destinos ou servidores demais para uma OS: "
                                 f"no máximo {MAX_DESTINOS} destinos e {MAX_SERVIDORES} "

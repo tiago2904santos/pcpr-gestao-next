@@ -335,3 +335,69 @@ def test_documento_mostra_o_caminho_de_volta_para_a_viagem(c):
     ordem = viagem.novo_documento(op, v.pk, "ordem")
     html = _cliente(op).get(reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
     assert reverse("viagens:editar_viagem", args=[v.pk]) in html and "Viagem:" in html
+
+
+class TestTipoDaViagemInteligente:
+    """O tipo da viagem traz o motivo e o tipo da OS; a viatura unidade móvel do ofício põe
+    a OS em "Unidade móvel" e marca a atividade no plano."""
+
+    def _operacao(self):
+        return TipoViagem.objects.create(nome="Operação Policial", motivo="Acompanhar a operação.",
+                                         tipo_os=TipoViagem.TipoOS.OPERACAO_POLICIAL)
+
+    def test_escolher_o_tipo_escreve_o_motivo_so_na_escolha(self, c):
+        op = c.usuarios["operador"]
+        v = viagem.criar(op)
+        operacao = self._operacao()
+        viagem.salvar_dados(op, v.pk, tipos=[operacao])
+        assert Viagem.objects.get(pk=v.pk).motivo == "Acompanhar a operação."
+        # Apagar o motivo depois não o traz de volta (o tipo já estava escolhido).
+        viagem.salvar_dados(op, v.pk, tipos=[operacao], motivo="")
+        assert Viagem.objects.get(pk=v.pk).motivo == ""
+        # O motivo escrito pela pessoa nunca é trocado.
+        outra = viagem.criar(c.usuarios["gestor"])
+        viagem.salvar_dados(c.usuarios["gestor"], outra.pk, tipos=[operacao], motivo="Meu.")
+        assert Viagem.objects.get(pk=outra.pk).motivo == "Meu."
+
+    def test_a_tela_leva_os_motivos_dos_tipos(self, c):
+        op = c.usuarios["operador"]
+        v = viagem.criar(op)
+        operacao = self._operacao()
+        html = _cliente(op).get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+        assert "data-motivos-dos-tipos=" in html and f"&quot;{operacao.pk}&quot;" in html
+
+    def test_os_da_viagem_nasce_com_o_tipo_do_tipo_da_viagem(self, c):
+        op = c.usuarios["operador"]
+        v = viagem.criar(op)
+        viagem.salvar_dados(op, v.pk, tipos=[self._operacao()], data_inicio=timezone.localdate(),
+                            destinos=[_londrina()])
+        ordem = OrdemServico.objects.get(pk=viagem.novo_documento(op, v.pk, "ordem").pk)
+        assert ordem.modelo is not None and ordem.modelo.chave == "operacao_policial"
+
+    def test_viatura_unidade_movel_poe_a_os_e_o_plano_em_unidade_movel(self, c):
+        from gestao.cadastros.models import AtividadePlano, Viatura
+        from gestao.viagens.models import PlanoTrabalho
+
+        op = c.usuarios["operador"]
+        oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+        Viatura.objects.filter(pk=oficio.viatura_id).update(tipo="unidade_movel", porte="van")
+        AtividadePlano.objects.get_or_create(
+            codigo=AtividadePlano.UNIDADE_MOVEL,
+            defaults={"nome": "Unidade móvel", "meta": "Atender."})
+        oficio.refresh_from_db()
+        # A OS criada do ofício: tipo "Unidade móvel".
+        ordem, copiados = ordens.salvar(op, oficios=[oficio])
+        assert ordem.modelo.chave == "unidade_movel" and "tipo de OS" in copiados
+        # Na viagem com esse ofício: a OS e o plano novos também.
+        v = viagem.criar(op)
+        viagem.salvar_dados(op, v.pk, tipos=[], data_inicio=timezone.localdate(),
+                            destinos=[_londrina()], vinculos={"oficios": [oficio]})
+        nova = OrdemServico.objects.get(pk=viagem.novo_documento(op, v.pk, "ordem").pk)
+        assert nova.modelo.chave == "unidade_movel"
+        plano = PlanoTrabalho.objects.get(pk=viagem.novo_documento(op, v.pk, "plano").pk)
+        assert plano.atividades.filter(codigo=AtividadePlano.UNIDADE_MOVEL).exists()
+
+    def test_tipos_de_os_do_cadastro_batem_com_os_do_sistema(self):
+        from gestao.viagens.modelos_do_sistema import MODELOS
+
+        assert set(TipoViagem.TipoOS.values) == {m["chave"] for m in MODELOS}

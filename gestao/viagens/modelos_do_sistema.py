@@ -1,6 +1,7 @@
-"""Os tipos de OS (além da OS padrão, que não tem modelo): operação policial, micro-ônibus,
-caminhão e cerimonial — textos por etapa da viagem e funções da equipe. São fixos: não há
-cadastro na tela; mudar um texto é mudar aqui e sincronizar numa migração (`sincronizar`)."""
+"""Os tipos de OS (além da OS padrão, que não tem modelo): operação policial, unidade móvel
+(micro-ônibus, ônibus, caminhão ou van: a mesma OS) e cerimonial — textos por etapa da viagem
+e funções da equipe. São fixos: não há cadastro na tela; mudar um texto é mudar aqui e
+sincronizar numa migração (`sincronizar`)."""
 
 from __future__ import annotations
 
@@ -8,8 +9,9 @@ from __future__ import annotations
 # quem a tem; na etapa, a equipe toda (dominio.modelo_os.concordar). {equipe} na função lista só
 # quem tem a função, com o cargo ("do agente de polícia judiciária Fulano").
 
-# Caminhão e micro-ônibus: depois do DETERMINO, o deslocamento de cada um com a sua função;
+# Unidade móvel: depois do DETERMINO, o deslocamento de cada um com a sua função;
 # depois os dias — deslocamento, montagem, participação no evento, desmontagem e volta.
+UNIDADE_MOVEL = "unidade_movel"  # a OS da viatura unidade móvel (ordens.tipo_sugerido)
 _FUNCAO = "O deslocamento {equipe}, na função de "
 _VOLTA = "Que a equipe realize {data} o deslocamento de volta à sede de lotação em {sede}."
 
@@ -37,50 +39,13 @@ MODELOS: list[dict] = [
         "funcoes": [],
     },
     {
-        "chave": "microonibus", "nome": "Micro-ônibus", "ordem": 20,
-        "referencia": "Deslocamento - Micro-ônibus",
+        "chave": "unidade_movel", "nome": "Unidade móvel", "ordem": 20,
+        "referencia": "Deslocamento - Unidade Móvel",
         "ida": ("Que a equipe realize {data} o deslocamento até {municipio}, para apoio "
-                "logístico com micro-ônibus em {motivo}."),
-        "ida_e_antes": ("Que a equipe realize {data} o deslocamento até {municipio} e a "
-                        "montagem da estrutura e dos equipamentos no local do evento, para "
-                        "apoio logístico com micro-ônibus em {motivo}."),
-        "antes": ("Que a equipe realize {data} a montagem da estrutura e dos equipamentos no "
-                  "local do evento."),
-        "evento": ("Que a equipe participe {data} do evento em {destino}, prestando o "
-                   "transporte e o apoio logístico de {motivo}."),
-        "depois": ("Que a equipe realize {data} a desmontagem da estrutura e o recolhimento "
-                   "dos materiais utilizados na atividade."),
-        "depois_e_volta": ("Que a equipe realize {data} a desmontagem da estrutura e o "
-                           "deslocamento de volta à sede de lotação em {sede}."),
-        "volta": _VOLTA,
-        "justificativas": (
-            "O micro-ônibus será utilizado para transporte e apoio logístico da equipe, "
-            "observando-se o cronograma da atividade."),
-        "finalidade": ("A presente Ordem de Serviço tem por finalidade garantir o transporte, a "
-                       "organização e o apoio logístico necessários à realização da atividade."),
-        "funcoes": [
-            {"codigo": "conducao", "nome": "Condução", "icone": "bus",
-             "texto": (_FUNCAO + "{condutor|condutores} do micro-ônibus oficial, "
-                       "{responsável|responsáveis} pelos deslocamentos de ida e retorno, "
-                       "zelando pela segurança da equipe e dos passageiros.")},
-            {"codigo": "tecnico", "nome": "Técnico", "icone": "wrench",
-             "texto": (_FUNCAO + "{técnico|técnicos}, {responsável|responsáveis} pelo suporte "
-                       "técnico à operação dos equipamentos e pelo acompanhamento da "
-                       "organização dos materiais utilizados na atividade.")},
-            {"codigo": "apoio", "nome": "Apoio", "icone": "hand-helping",
-             "texto": (_FUNCAO + "apoio, {responsável|responsáveis} pelo apoio operacional à "
-                       "equipe, auxiliando na organização, montagem, escolta e movimentação "
-                       "necessárias à realização da atividade.")},
-        ],
-    },
-    {
-        "chave": "caminhao", "nome": "Caminhão", "ordem": 30,
-        "referencia": "Deslocamento - Caminhão de apoio",
-        "ida": ("Que a equipe realize {data} o deslocamento até {municipio}, para apoio "
-                "logístico com caminhão em {motivo}."),
+                "logístico com a Unidade Móvel em {motivo}."),
         "ida_e_antes": ("Que a equipe realize {data} o deslocamento até {municipio} e a "
                         "montagem da Unidade Móvel no local do evento, para apoio logístico "
-                        "com caminhão em {motivo}."),
+                        "em {motivo}."),
         "antes": ("Que a equipe realize {data} a montagem da Unidade Móvel, com o traslado, a "
                   "descarga, a conferência técnica e a adequação dos materiais e equipamentos "
                   "no local do evento."),
@@ -92,17 +57,18 @@ MODELOS: list[dict] = [
                            "deslocamento de volta à sede de lotação em {sede}."),
         "volta": _VOLTA,
         "justificativas": (
-            "O deslocamento do caminhão com antecedência faz-se necessário para viabilizar o "
-            "traslado, descarga, montagem, conferência técnica e adequação dos materiais e "
+            "O deslocamento da Unidade Móvel com antecedência faz-se necessário para viabilizar "
+            "o traslado, descarga, montagem, conferência técnica e adequação dos materiais e "
             "equipamentos no local do evento.\n"
             "A permanência posterior ao evento justifica-se pela necessidade de desmontagem, "
             "conferência, acondicionamento, carregamento dos materiais e retorno do veículo "
             "com segurança, preservando os bens públicos utilizados."),
         "finalidade": ("A presente Ordem de Serviço tem por finalidade garantir o planejamento, "
-                       "a execução e a desmobilização do apoio logístico prestado com caminhão."),
+                       "a execução e a desmobilização do apoio logístico prestado com a Unidade "
+                       "Móvel."),
         "funcoes": [
-            {"codigo": "conducao", "nome": "Condução", "icone": "truck",
-             "texto": (_FUNCAO + "{condutor|condutores} da Unidade Móvel (caminhão), "
+            {"codigo": "conducao", "nome": "Condução", "icone": "bus",
+             "texto": (_FUNCAO + "{condutor|condutores} da Unidade Móvel, "
                        "{responsável|responsáveis} pelo deslocamento desde o local onde o "
                        "veículo estiver estacionado até o município de destino e, ao término "
                        "das atividades, pelo retorno ao local de guarda do veículo, "
@@ -177,8 +143,28 @@ MODELOS: list[dict] = [
 ]
 
 # O tipo que a OS tinha antes dos modelos → a chave do modelo (migração 0053).
-CHAVE_DO_TIPO = {"operacao_retorno_posterior": "operacao_policial", "caminhao": "caminhao",
-                 "microonibus": "microonibus", "cerimonial_antecipado": "cerimonial"}
+CHAVE_DO_TIPO = {"operacao_retorno_posterior": "operacao_policial",
+                 "caminhao": "unidade_movel", "microonibus": "unidade_movel",
+                 "cerimonial_antecipado": "cerimonial"}
+
+# Tipos que viraram outro (migração 0056): micro-ônibus e caminhão são a mesma OS agora.
+JUNTADOS = {"caminhao": "unidade_movel", "microonibus": "unidade_movel"}
+
+
+def juntar(ModeloOS, OrdemServico) -> None:
+    """Leva as OS dos tipos juntados para o tipo novo e apaga os antigos. O primeiro antigo
+    encontrado vira o novo (mesmo registro), se o novo ainda não existe."""
+    for antiga, nova in JUNTADOS.items():
+        velho = ModeloOS.objects.filter(chave=antiga).first()
+        if velho is None:
+            continue
+        destino = ModeloOS.objects.filter(chave=nova).first()
+        if destino is None:
+            # O nome é único: o texto e o nome certos vêm do `sincronizar` logo depois.
+            ModeloOS.objects.filter(pk=velho.pk).update(chave=nova, nome=f"__{nova}")
+            continue
+        OrdemServico.objects.filter(modelo_id=velho.pk).update(modelo_id=destino.pk)
+        velho.delete()
 
 
 def semear(ModeloOS, FuncaoOS) -> dict[str, int]:
