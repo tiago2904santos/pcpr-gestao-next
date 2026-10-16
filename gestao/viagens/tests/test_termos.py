@@ -5,7 +5,6 @@ ZIP de DOCX, cancelar/reativar/excluir. Dados fictícios."""
 from __future__ import annotations
 
 import io
-import zipfile
 from datetime import date, timedelta
 
 import pikepdf
@@ -151,8 +150,9 @@ class TestDocumentos:
         total = len(termos.documentos_do_termo(termo))
         with pikepdf.Pdf.open(io.BytesIO(r.content)) as pdf:
             assert len(pdf.pages) == total  # um termo por página
-        r = cli.get(reverse("viagens:todos_termo", args=[termo.pk, "zip"]))
-        assert len(zipfile.ZipFile(io.BytesIO(r.content)).namelist()) == total
+        r = cli.get(reverse("viagens:todos_termo", args=[termo.pk, "docx"]),
+                    HTTP_X_REQUESTED_WITH="fetch")
+        assert len(r.json()["fila"]) == total
         assert cli.get(reverse("viagens:documento_termo",
                                args=[termo.pk, "generico", "exe"])).status_code == 404
 

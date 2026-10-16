@@ -117,7 +117,9 @@ def test_tela_semana_dia_e_navegacao(c):
     html = r.content.decode()
     assert "Apoio à feira (teste)" in html and 'aria-label="Próximo dia"' in html
     amanha = (hoje + timedelta(days=400)).isoformat()
-    r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": amanha})
+    # Data futura não garante agenda vazia: hoje+400 pode cair em feriado.
+    # Isola a fonte da viagem sintética para testar o estado vazio da tela.
+    r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": amanha, "fonte": "viagem"})
     assert "Nada na agenda neste dia" in r.content.decode()
     r = cliente.get(reverse("painel:agenda"), {"vista": "semana", "dia": "lixo"})
     assert r.status_code == 200  # dia inválido: hoje

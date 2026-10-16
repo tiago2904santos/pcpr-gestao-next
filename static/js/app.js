@@ -70,6 +70,17 @@ function acompanhar(promessa) {
 /** @type {{botao: HTMLElement, cancelada: boolean} | null} */
 let aberturaBaixar = null;
 document.addEventListener("click", async (evento) => {
+  const alvo = evento.target instanceof Element ? evento.target.closest("[data-importar-abrir]") : null;
+  if (!alvo) return;
+  evento.preventDefault();
+  try {
+    const modulo = await import("./componentes/importador.js");
+    modulo.abrir();
+  } catch {
+    window.location.assign(alvo.getAttribute("href") || "/viagens/importacoes/");
+  }
+});
+document.addEventListener("click", async (evento) => {
   const botao = evento.target instanceof Element ? evento.target.closest("[data-baixar-documentos]") : null;
   if (!(botao instanceof HTMLElement) || botao.getAttribute("aria-disabled") === "true"
       || !document.getElementById("dialogo-baixar")) return;
@@ -286,7 +297,11 @@ document.addEventListener("submit", (evento) => {
     /** @type {SubmitEvent} */ (evento).submitter
   );
   if (botao && !botao.hasAttribute("formnovalidate")) {
-    window.setTimeout(() => botao.setAttribute("aria-busy", "true"), 0);
+    window.setTimeout(() => {
+      // Controladores carregados sob demanda também podem cancelar este submit.
+      // Eles cuidam do próprio estado; não deixe o botão preso no carregamento.
+      if (!evento.defaultPrevented) botao.setAttribute("aria-busy", "true");
+    }, 0);
   }
 });
 

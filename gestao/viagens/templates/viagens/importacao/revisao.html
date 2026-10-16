@@ -1,0 +1,29 @@
+{% extends "arquetipos/detalhe.html" %}
+{% load static %}
+{% block titulo %}Revisar documento{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/importador.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/leitor-pdf.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block cabecalho_detalhe %}{% include "componentes/registro_hero.html" with pagina=True contexto="Importação de documentos" titulo="Confira o destino" complemento=parte.importacao.nome %}{% endblock %}
+{% block principal %}
+<div class="linha"><a class="botao" href="{% url 'viagens:importacoes' %}">{% icone "arrow-left" %}Voltar ao histórico</a><a class="botao" href="{% url 'viagens:arquivo_importacao' parte.pk %}" target="_blank" rel="noopener">{% icone "maximize-2" %}Abrir ampliado</a><a class="botao" href="{% url 'viagens:original_importacao' parte.importacao_id %}">Original</a></div>
+<p class="texto-secundario">Páginas {{ parte.inicio }}–{{ parte.fim }} do arquivo original. Use os controles do leitor para ampliar.</p>
+<section class="pilha" aria-label="Documento para revisão" data-leitor-pdf data-pdf-url="{% url 'viagens:arquivo_importacao' parte.pk %}" data-pdf-modulo="{% static 'vendor/pdfjs/pdf.mjs' %}" data-pdf-worker="{% static 'vendor/pdfjs/pdf.worker.mjs' %}">
+  <div class="linha" role="group" aria-label="Zoom do documento"><button class="botao botao--sm" type="button" data-pdf-zoom="1">Ajustar à largura</button><button class="botao botao--sm" type="button" data-pdf-zoom="1.5">150%</button><button class="botao botao--sm" type="button" data-pdf-zoom="2">200%</button></div>
+  <div class="linha"><button class="botao botao--sm" type="button" data-pdf-anterior disabled>Anterior</button><p class="texto-secundario texto-sm" role="status" data-pdf-status>Carregando documento…</p><button class="botao botao--sm" type="button" data-pdf-proxima disabled>Próxima</button></div>
+  <div class="importador-previa" data-pdf-visor tabindex="0" aria-label="Área ampliável do documento"><canvas role="img" aria-label="Documento em leitura"></canvas></div>
+  <p class="sr-only" data-pdf-texto></p>
+  <noscript><p>Use Abrir ampliado para visualizar o PDF.</p></noscript>
+</section>
+{% endblock %}
+{% block contexto %}
+<section class="cartao"><div class="cartao__corpo pilha"><h2 class="resumo__titulo">Identificação</h2><p class="alerta alerta--aviso">{{ parte.motivo }}</p>
+{% if parte.estado == 'revisao' %}
+<form method="post" class="pilha" data-importar-revisao>{% csrf_token %}
+  <div class="campo"><label for="tipo-revisao">Tipo de documento</label><select id="tipo-revisao" class="entrada" data-importar-tipo><option value="">Todos os tipos</option>{% for valor, nome in tipos.items %}<option value="{{ valor }}" {% if parte.tipo == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}</select></div>
+  <div class="campo"><label for="buscar-destino">Buscar por número ou nome</label><input class="entrada" id="buscar-destino" type="search" data-importar-busca placeholder="Ex.: 120/2026 ou nome do servidor"></div>
+  <div class="campo"><label for="destino-revisao">Documento que recebe o arquivo</label><select class="entrada" id="destino-revisao" name="destino" required data-importar-destino><option value="">Escolha o destino</option>{% for d in destinos %}<option value="{{ d.chave }}" data-tipo="{{ d.tipo }}" {% if d.chave == parte.destino %}selected{% endif %}>{{ d.rotulo }}</option>{% endfor %}</select></div>
+  <label class="escolha"><input type="checkbox" name="confirmar" value="sim"><span>Conferi o documento e autorizo substituir a via atual, caso exista.</span></label>
+  <button class="botao botao--primario" type="submit">{% icone "check" %}Anexar ao destino</button>
+  <button class="botao botao--sutil" type="submit" name="acao" value="ignorar" formnovalidate>Ignorar este documento</button>
+</form>{% else %}<p class="selo selo--sucesso">{{ parte.estado }} · {{ parte.rotulo }}</p>{% endif %}
+</div></section>
+{% endblock %}

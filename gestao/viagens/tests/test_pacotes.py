@@ -4,7 +4,6 @@ via assinada × original, DOCX, ordem da tela, permissões e cancelado."""
 from __future__ import annotations
 
 import io
-import zipfile
 
 import pikepdf
 import pytest
@@ -87,11 +86,14 @@ def test_pdf_unico_na_ordem_da_tela_e_zip_com_nomes(c):
     assert f'oficio-{oficio.numero:02d}-{oficio.ano}-documentos.pdf' in r["Content-Disposition"]
     with pikepdf.open(io.BytesIO(r.content)) as pdf:
         assert len(pdf.pages) >= 2
-    r = cli.post(url, {"itens": escolhidos, "formato": "docx", "saida": "unico"})
-    assert r["Content-Type"] == "application/zip"  # DOCX com "um só" vira ZIP
-    nomes = zipfile.ZipFile(io.BytesIO(r.content)).namelist()
-    assert nomes[0].startswith("oficio-") and nomes[0].endswith(".docx")  # ordem da tela
-    assert nomes[1] == f"termo-{termo.pk}-generico.docx"
+    r = cli.post(url, {"itens": escolhidos, "formato": "docx", "saida": "unico"},
+                 HTTP_X_REQUESTED_WITH="fetch")
+    fila = r.json()["fila"]
+    assert [i["dados"]["itens"] for i in fila] == ["oficio", f"termo-{termo.pk}-generico"]
+    for item in fila:
+        arquivo = cli.post(item["url"], item["dados"])
+        assert arquivo.status_code == 200
+        assert "wordprocessingml" in arquivo["Content-Type"]
 
 
 def test_rascunho_sai_como_minuta_e_nao_emite(c):
@@ -134,9 +136,9 @@ def test_termo_e_justificativa(c):
     itens = cli.get(reverse("viagens:baixar_termo", args=[termo.pk])).json()["itens"]
     assert itens[-1]["valor"] in ("generico", "viatura")
     r = cli.post(reverse("viagens:baixar_termo", args=[termo.pk]),
-                 {"itens": [i["valor"] for i in itens], "formato": "pdf"})
-    assert r["Content-Type"] == "application/zip"
-    assert f"termo-{termo.pk}-documentos.zip" in r["Content-Disposition"]
+                 {"itens": [i["valor"] for i in itens], "formato": "pdf"},
+                 HTTP_X_REQUESTED_WITH="fetch")
+    assert len(r.json()["fila"]) == len(itens)
     termos.cancelar(op, termo.pk, "Adiado")
     r = cli.get(reverse("viagens:baixar_termo", args=[termo.pk]), follow=True)
     assert "Reative o termo antes de baixar documentos." in r.content.decode()
@@ -187,16 +189,15 @@ def test_viagem_baixar_documentos_e_baixar_tudo(c):
     assert f"os-{ordem.pk}" not in valores  # OS ainda não gerada não entra
     ordens.dados_do_documento(OrdemServico.objects.get(pk=ordem.pk), fixar=True)
     assert f"os-{ordem.pk}" in [i["valor"] for i in cli.get(url).json()["itens"]]
-    # Baixar tudo: PDFs numerados na ordem do processo + LEIA-ME.
-    r = cli.post(reverse("viagens:baixar_tudo_viagem", args=[v.pk]))
-    assert r["Content-Type"] == "application/zip" and r["Cache-Control"] == "no-store"
-    pacote = zipfile.ZipFile(io.BytesIO(r.content))
-    nomes = pacote.namelist()
-    assert nomes[0] == "00 - LEIA-ME.txt" and nomes[1].startswith("01 - ")
-    leia = pacote.read("00 - LEIA-ME.txt").decode()
-    from gestao.viagens.models import Viagem
-    assert f"Viagem: {Viagem.objects.get(pk=v.pk)}" in leia
-    assert "Ainda sem a versão assinada anexada no sistema:" in leia
+    # Baixar tudo: manifesto na ordem do processo e PDF individual autorizado.
+    r = cli.post(reverse("viagens:baixar_tudo_viagem", args=[v.pk]),
+                 HTTP_X_REQUESTED_WITH="fetch")
+    assert r["Cache-Control"] == "no-store"
+    fila = r.json()["fila"]
+    assert fila[0]["nome"].startswith("01 · ")
+    assert fila[0]["dados"]["itens"] == f"oficio-{oficio.pk}:oficio"
+    arquivo = cli.post(fila[0]["url"], fila[0]["dados"])
+    assert arquivo["Content-Type"] == "application/pdf"
 
 
 def test_viagem_sem_documentos_e_cancelada(c):

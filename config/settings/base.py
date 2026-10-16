@@ -179,6 +179,12 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / "var" / "media"
 # Teto do corpo da requisição (via assinada: até 15 MB + formulário). Ver LimiteDoCorpoMiddleware.
 LIMITE_DO_CORPO_BYTES = 16 * 1024 * 1024
+LIMITES_DO_CORPO_POR_CAMINHO = {
+    "/viagens/importacoes/enviar/": (
+        26 * 1024 * 1024,
+        "Envio grande demais: envie um arquivo por vez, de até 25 MB.",
+    ),
+}
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     # WhiteNoise (hash + compressão) com CSS minificado (gestao/plataforma/estaticos.py).

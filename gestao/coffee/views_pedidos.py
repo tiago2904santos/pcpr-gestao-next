@@ -670,6 +670,13 @@ def baixar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
 
     _exigir(request)
     get_object_or_404(Solicitacao, pk=pk)
+    partes = request.POST.getlist("partes")
+    if len(partes) > 1 and request.POST.get("formato") != "unico":
+        from gestao.plataforma.downloads import responder_fila
+        return responder_fila(request, [{
+            "nome": protocolo.ROTULO_PARTE[p], "url": request.path, "metodo": "POST",
+            "dados": {"partes": p, "formato": "separados"},
+        } for p in partes if p in protocolo.ROTULO_PARTE])
     try:
         pacote = protocolo.baixar(request.user, pk, request.POST.getlist("partes"),
                                   request.POST.get("formato") or "zip")

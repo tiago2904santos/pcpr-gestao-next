@@ -1781,6 +1781,61 @@ class EdicaoOrdem(models.Model):
         return not self.regioes
 
 
+class ArquivoImportado(models.Model):
+    """Original privado e fila persistente. Partes registram cada decisão/aplicação."""
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    nome = models.CharField(max_length=255)
+    sha256 = models.CharField(max_length=64)
+    original = models.FileField(upload_to="importacoes/originais/%Y/%m")
+    convertido = models.FileField(upload_to="importacoes/convertidos/%Y/%m", blank=True)
+    estado = models.CharField(max_length=16, default="fila", db_index=True)
+    erro = models.CharField(max_length=500, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    iniciado_em = models.DateTimeField(null=True)
+    concluido_em = models.DateTimeField(null=True)
+    tentativas = models.PositiveSmallIntegerField(default=0)
+    paginas = models.PositiveSmallIntegerField(default=0)
+    paginas_ocr = models.PositiveSmallIntegerField(default=0)
+    duracao_ms = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-criado_em", "-pk"]
+        constraints = [models.UniqueConstraint(fields=["usuario", "sha256"],
+                                               name="importacao_original_usuario_unico")]
+
+    def __str__(self):
+        return self.nome
+
+
+class ParteImportada(models.Model):
+    importacao = models.ForeignKey(ArquivoImportado, on_delete=models.PROTECT,
+                                   related_name="partes")
+    inicio = models.PositiveSmallIntegerField()
+    fim = models.PositiveSmallIntegerField()
+    tipo = models.CharField(max_length=20, blank=True)
+    arquivo = models.FileField(upload_to="importacoes/partes/%Y/%m")
+    sha256 = models.CharField(max_length=64)
+    destino = models.CharField(max_length=120, blank=True)
+    rotulo = models.CharField(max_length=300, blank=True)
+    motivo = models.CharField(max_length=500, blank=True)
+    candidatos = models.JSONField(default=list)
+    estado = models.CharField(max_length=16, default="revisao")
+    via = models.ForeignKey(ViaAssinada, on_delete=models.PROTECT, null=True, blank=True)
+    anexo = models.ForeignKey(AnexoPrestacao, on_delete=models.PROTECT, null=True, blank=True)
+    aplicado_em = models.DateTimeField(null=True)
+    revisado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                     null=True, blank=True)
+
+    class Meta:
+        ordering = ["inicio", "pk"]
+        constraints = [models.UniqueConstraint(fields=["importacao", "inicio"],
+                                               name="importacao_parte_unica")]
+
+    def __str__(self):
+        return f"{self.importacao_id}: {self.inicio}–{self.fim}"
+
+
 class EdicaoPlano(models.Model):
     """Uma versão do texto editado do documento do plano de trabalho (como EdicaoOrdem; as
     regras ficam em edicao_texto.py)."""

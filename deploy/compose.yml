@@ -127,6 +127,19 @@ services:
     # Mensagem em processamento termina ou volta à fila (transação); 60 s basta para um PDF.
     stop_grace_period: 60s
 
+  importador:
+    <<: *app
+    command: ["python", "manage.py", "processar_importacoes", "--concorrencia", "2"]
+    # Conversores não precisam de internet. Só alcançam o PostgreSQL interno.
+    networks: [banco]
+    mem_limit: ${PCPR_IMPORTADOR_MEMORIA:-2g}
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    depends_on:
+      db:
+        condition: service_healthy
+    stop_grace_period: 60s
+
   # ---- Tarefas sob demanda (profile "ops"): docker compose run --rm <serviço> ----
   migrar:
     <<: *app

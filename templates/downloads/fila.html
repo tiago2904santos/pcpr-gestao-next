@@ -1,0 +1,8 @@
+{% extends "arquetipos/detalhe.html" %}
+{% load static %}
+{% block titulo %}Downloads{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/fila-downloads.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block cabecalho_detalhe %}{% include "componentes/registro_hero.html" with pagina=True titulo="Seus downloads" complemento="Arquivos individuais, preparados em paralelo." %}{% endblock %}
+{% block principal %}{{ manifesto|json_script:"manifesto-downloads" }}<p>A fila abrirá automaticamente. Se o navegador perguntar, permita vários downloads deste site.</p><button class="botao" type="button" data-fila-abrir>Abrir fila</button>
+<noscript><p>Baixe os documentos individualmente pelos botões abaixo.</p></noscript>
+<div class="pilha">{% for item in manifesto.fila %}<article class="cartao"><div class="cartao__corpo linha"><strong>{{ item.nome }}</strong>{% if item.metodo == 'POST' %}<form action="{{ item.url }}" method="post">{% csrf_token %}{% for chave, valor in item.dados.items %}<input type="hidden" name="{{ chave }}" value="{{ valor }}">{% endfor %}<button class="botao botao--sm" type="submit">Baixar</button></form>{% else %}<a class="botao botao--sm" href="{{ item.url }}">Baixar</a>{% endif %}</div></article>{% endfor %}</div>{% endblock %}

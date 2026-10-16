@@ -121,7 +121,7 @@ quem dirige e a viatura, e o que sai junto).
   <a class="botao{% if not docs.oficios %} botao--primario{% endif %}" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "file-plus-2" %}<span>Gerar <span class="barra-acoes__extra">documentos</span></span></a>
   {% include "viagens/viagem/_acoes.html" with onde="rodapé" dobrar=True %}
 </div></div>
-{# Baixar tudo (ZIP) gera na hora, com o item do menu em "processando". #}
+{# Baixar tudo prepara a fila, com o item do menu em "processando". #}
 <form id="baixar-tudo" method="post" action="{% url 'viagens:baixar_tudo_viagem' v.pk %}" hidden data-baixar-arquivo>{% csrf_token %}</form>
 {% include "componentes/dialogo_baixar.html" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="roteiro" %}

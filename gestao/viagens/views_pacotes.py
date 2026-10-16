@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
+from gestao.plataforma.downloads import responder_fila
+
 from . import pacotes, policies
 from .models import Oficio, TermoAutorizacao
 
@@ -36,8 +38,19 @@ def _responder(request: HttpRequest, itens: Callable[[], list[pacotes.Item]], *,
     if formato not in pacotes.FORMATOS:
         raise Http404
     try:
+        lista = itens()
+        marcados = request.POST.getlist("itens")
+        if any(m not in {i.valor for i in lista} for m in marcados):
+            raise KeyError
+        escolhidos = [i for i in lista if i.valor in marcados]
+        if len(escolhidos) > 1 and (formato != "pdf" or request.POST.get("saida") != "unico"):
+            return responder_fila(request, [{
+                "nome": i.nome, "url": request.path, "metodo": "POST",
+                "dados": {"itens": i.valor, "formato": formato,
+                          "versao": request.POST.get("versao", "assinado"), "saida": "separados"},
+            } for i in escolhidos])
         conteudo, nome, tipo = pacotes.montar(
-            itens(), request.POST.getlist("itens"), formato=formato,
+            lista, marcados, formato=formato,
             versao=request.POST.get("versao", "assinado"),
             saida=request.POST.get("saida", "separados"), nome_base=nome_base)
     except KeyError:
@@ -154,7 +167,7 @@ def baixar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
 
 @require_http_methods(["POST"])
 def baixar_tudo_viagem(request: HttpRequest, pk: int) -> HttpResponse:
-    """O processo inteiro (PDFs numerados + LEIA-ME), para subir no eProtocolo."""
+    """Fila dos documentos do processo, para baixar individualmente."""
     v = _viagem(request, pk)
     padrao = reverse("viagens:editar_viagem", args=[v.pk])
     if v.cancelada:
@@ -162,12 +175,11 @@ def baixar_tudo_viagem(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect(padrao)
     policies.exigir(policies.pode_editar_viagem(request.user, v),
                     "Você não tem permissão para baixar estes documentos.")
-    try:
-        conteudo, nome, _ = pacotes.baixar_tudo(v)
-    except pacotes.PacoteInvalido as exc:
-        messages.error(request, str(exc))
+    itens = pacotes.itens_da_viagem(v)
+    if not itens:
+        messages.error(request, "Nenhum documento pronto para baixar ainda.")
         return redirect(padrao)
-    resposta = HttpResponse(conteudo, content_type="application/zip")
-    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
-    resposta["Cache-Control"] = "no-store"
-    return resposta
+    return responder_fila(request, [{
+        "nome": f"{n:02d} · {i.nome}", "url": reverse("viagens:baixar_viagem", args=[v.pk]),
+        "metodo": "POST", "dados": {"itens": i.valor, "formato": "pdf", "versao": "assinado"},
+    } for n, i in enumerate(itens, 1)])

@@ -76,7 +76,7 @@ registra o atesto e envio ao GAF (uma vez, com o protocolo registrado).
         <div class="caixas">{% for chave, rotulo in partes %}<label class="escolha caixas__item"><input type="checkbox" name="partes" value="{{ chave }}"{% if chave in prontas %} checked{% else %} disabled{% endif %}><span>{{ forloop.counter }}. {{ rotulo }}{% if chave not in prontas %} <span class="texto-secundario">(nada pronto ainda)</span>{% endif %}</span></label>{% endfor %}</div>
       </fieldset>
       <fieldset class="opcoes"><legend>Como baixar</legend>
-        <label class="opcao"><input type="radio" name="formato" value="zip" checked><span class="opcao__texto"><span class="opcao__titulo">Um PDF por arquivo (ZIP)</span></span></label>
+        <label class="opcao"><input type="radio" name="formato" value="separados" checked><span class="opcao__texto"><span class="opcao__titulo">Um PDF por arquivo (fila)</span></span></label>
         <label class="opcao"><input type="radio" name="formato" value="unico"><span class="opcao__texto"><span class="opcao__titulo">Tudo num PDF só, na ordem</span></span></label>
       </fieldset>
       <div class="linha"><button type="submit" class="botao botao--primario">{% icone "download" %}Baixar</button></div>

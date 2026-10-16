@@ -3,9 +3,9 @@
 DOMINIO {
 	encode zstd gzip
 
-	# Via assinada até 15 MB + formulário (a aplicação também recusa com 413).
+	# Importação até 25 MiB + formulário; Django mantém 16 MiB nas demais rotas.
 	request_body {
-		max_size 16MB
+		max_size 32MB
 	}
 
 	# Documentos e mídia NUNCA saem pelo proxy: só pelas views, com autorização por objeto.

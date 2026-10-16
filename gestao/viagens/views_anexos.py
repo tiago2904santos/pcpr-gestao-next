@@ -11,10 +11,12 @@ from typing import Any
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import FileResponse, Http404, HttpRequest, HttpResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
+
+from gestao.plataforma.downloads import responder_fila
 
 from . import anexos, assinados, carimbo, diario, pacote_prestacao, policies
 from . import prestacao as servico
@@ -151,6 +153,10 @@ def pacote_servidor(request: HttpRequest, ps_pk: int) -> HttpResponse:
     try:
         conteudo = pacote_prestacao.pdf(ps)
     except pacote_prestacao.PacoteIncompleto as exc:
+        if request.headers.get("X-Requested-With") == "fetch":
+            resposta_erro = JsonResponse({"erro": f"{ps.servidor.nome}: {exc}"}, status=422)
+            resposta_erro["Cache-Control"] = "no-store"
+            return resposta_erro
         messages.error(request, f"{ps.servidor.nome}: {exc}")
         return redirect(_voltar(ps.prestacao, f"ps-{ps.pk}"))
     resposta = HttpResponse(conteudo, content_type="application/pdf")
@@ -162,14 +168,15 @@ def pacote_servidor(request: HttpRequest, ps_pk: int) -> HttpResponse:
 @require_GET
 def pacote_equipe(request: HttpRequest, pk: int) -> HttpResponse:
     p = _prestacao(request, pk)
-    conteudo, gerados = pacote_prestacao.zip_da_equipe(p)
-    if not gerados:
+    pessoas = list(servico.ativos(PrestacaoServidor.objects.filter(prestacao=p))
+                   .select_related("servidor").order_by("servidor__nome"))
+    if not pessoas:
         messages.error(request, "Nenhum servidor está com o pacote pronto: veja o que falta "
                                 "em cada um.")
         return redirect(_voltar(p, "servidores"))
-    resposta = HttpResponse(conteudo, content_type="application/zip")
-    resposta["Content-Disposition"] = f'attachment; filename="{pacote_prestacao.nome_do_zip(p)}"'
-    return resposta
+    return responder_fila(request, [{"nome": ps.servidor.nome,
+        "url": reverse("viagens:pacote_servidor", args=[ps.pk]), "metodo": "GET"}
+        for ps in pessoas])
 
 
 def _fracao(texto: str, rotulo: str) -> float:

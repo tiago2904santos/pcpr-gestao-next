@@ -110,8 +110,11 @@ def test_telas_e_permissoes(c):
     assert r["Content-Type"] == "application/pdf" and "Prestacao" in r["Content-Disposition"]
     r = op.get(reverse("viagens:pacote_servidor", args=[b.pk]), follow=True)
     assert "número da solicitação" in r.content.decode()
-    r = op.get(reverse("viagens:pacote_equipe", args=[p.pk]))
-    assert r["Content-Type"] == "application/zip"
+    r = op.get(reverse("viagens:pacote_equipe", args=[p.pk]), HTTP_X_REQUESTED_WITH="fetch")
+    assert len(r.json()["fila"]) == 2
+    assert {i["url"] for i in r.json()["fila"]} == {
+        reverse("viagens:pacote_servidor", args=[a.pk]),
+        reverse("viagens:pacote_servidor", args=[b.pk])}
     assert outra.get(reverse("viagens:pacote_servidor", args=[a.pk])).status_code == 404
     assert outra.get(reverse("viagens:pacote_equipe", args=[p.pk])).status_code == 404
     html = op.get(reverse("viagens:documentos_prestacao", args=[p.pk])).content.decode()

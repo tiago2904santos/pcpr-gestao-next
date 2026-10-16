@@ -1,6 +1,6 @@
 """Telas dos termos de autorização (paridade com `viagens_termos` da referência): lista com
 abas e busca, cadastro numa tela (com o que vem do ofício à vista), documentos gerados na
-hora (PDF por servidor, genérico e da viatura; PDF único; ZIP de DOCX) e o ciclo de vida
+hora (PDF por servidor, genérico e da viatura; PDF único; fila de DOCX) e o ciclo de vida
 (cancelar com motivo, reativar, excluir)."""
 
 from __future__ import annotations
@@ -480,7 +480,7 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
 @require_GET
 @moldura_do_pdf
 def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
-    """Todos os documentos do termo: um PDF só ou um ZIP de DOCX (referência)."""
+    """Todos os documentos do termo: PDF único ou fila de arquivos individuais."""
     termo = _termo_visivel(request, pk)
     policies.exigir(policies.pode_editar_termo(request.user, termo),
                     "Reative o termo para gerar documentos.")
@@ -488,10 +488,12 @@ def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
         if formato == "pdf":
             resposta = HttpResponse(termos.pdf_unico(termo), content_type="application/pdf")
             resposta["Content-Disposition"] = f'inline; filename="termo-{termo.pk}-todos.pdf"'
-        elif formato == "zip":
-            resposta = HttpResponse(termos.zip_de_docx(termo), content_type="application/zip")
-            resposta["Content-Disposition"] = (f'attachment; filename="termo-{termo.pk}-'
-                                               'docx.zip"')
+        elif formato in {"zip", "docx"}:
+            from gestao.plataforma.downloads import responder_fila
+            return responder_fila(request, [{
+                "nome": d["titulo"], "url": reverse("viagens:baixar_termo", args=[pk]),
+                "metodo": "POST", "dados": {"itens": d["chave"], "formato": "docx"},
+            } for d in termos.documentos_do_termo(termo)])
         else:
             raise Http404
         resposta["Cache-Control"] = "no-store"

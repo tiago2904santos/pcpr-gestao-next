@@ -47,7 +47,7 @@ privado, uma **deploy key somente leitura** do GitHub para a VPS.
 
 ```
  Internet ──443/80──► Proxy (Caddy compartilhado OU Nginx existente)       VPS
-                        │  TLS, HSTS, 16 MB, bloqueia /media e /var
+                        │  TLS, HSTS, 32 MB, bloqueia /media e /var
                         ▼  127.0.0.1:<porta da instância>
              ┌───────── instância "homologacao" (docker compose -p pcpr-homologacao) ─────────┐
              │  web (gunicorn, uid 10001, raiz RO) ──┐                                       │

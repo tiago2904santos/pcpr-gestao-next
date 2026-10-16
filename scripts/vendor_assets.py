@@ -39,7 +39,7 @@ ICONES = sorted({
     "align-right", "align-justify", "table", "redo-2", "separator-horizontal", "text-quote",
     "rotate-ccw", "refresh-cw", "file-x-2", "file-input", "book-open-text", "bookmark-plus",
     "columns-2",
-    "file-search", "pilcrow", "remove-formatting",
+    "file-search", "pilcrow", "remove-formatting", "upload", "maximize-2",
     # Cadastros
     "fuel", "id-card",
     # Atendimento à imprensa (ASCOM)
@@ -101,6 +101,19 @@ def main() -> None:
     (RAIZ / "static/fonts").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
                 RAIZ / "static/fonts/inter-latin-wght-normal.woff2")
+    # Leitor local de PDFs enviados; sem CDN e carregado somente na revisão.
+    pdfjs = RAIZ / "static/vendor/pdfjs"
+    pdfjs.mkdir(parents=True, exist_ok=True)
+    for nome in ("pdf.mjs", "pdf.worker.mjs"):
+        shutil.copy(NODE / "pdfjs-dist/legacy/build" / nome, pdfjs / nome)
+    shutil.copy(NODE / "pdfjs-dist/LICENSE", pdfjs / "LICENSE")
+    for pasta in ("cmaps", "standard_fonts"):
+        shutil.copytree(NODE / "pdfjs-dist" / pasta, pdfjs / pasta, dirs_exist_ok=True)
+    decodificadores = pdfjs / "wasm"
+    decodificadores.mkdir(exist_ok=True)
+    for nome in ("jbig2_nowasm_fallback.js", "openjpeg_nowasm_fallback.js", "LICENSE_JBIG2",
+                 "LICENSE_OPENJPEG", "LICENSE_PDFJS_JBIG2", "LICENSE_PDFJS_OPENJPEG"):
+        shutil.copy(NODE / "pdfjs-dist/wasm" / nome, decodificadores / nome)
     print(f"OK: htmx, Leaflet, axe-core e {len(ICONES)} ícones.")
 
 

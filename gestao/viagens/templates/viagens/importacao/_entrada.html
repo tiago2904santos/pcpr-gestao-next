@@ -1,0 +1,11 @@
+<form action="{% url 'viagens:enviar_importacao' %}" method="post" enctype="multipart/form-data" data-importar-form data-estado-url="{% url 'viagens:estado_importacao' %}" class="pilha">
+  {% csrf_token %}
+  <label class="importador-soltar" data-importar-soltar>
+    {% icone "files" %}<strong>Arraste arquivos para cá</strong>
+    <span class="botao botao--sm">Selecionar arquivos</span>
+    <input class="sr-only" type="file" name="arquivos" multiple required aria-label="Arquivos para importar">
+  </label>
+  <p class="texto-secundario texto-sm">PDF, imagens, documentos de escritório e e-mails. Até 25 MB por arquivo e 50 arquivos por envio. A conversão ocorre automaticamente; formatos não reconhecidos recebem uma orientação.</p>
+  <button class="botao botao--primario" type="submit">{% icone "upload" %}Enviar arquivos</button>
+  <p data-importar-aviso role="status" class="texto-secundario"></p>
+</form>

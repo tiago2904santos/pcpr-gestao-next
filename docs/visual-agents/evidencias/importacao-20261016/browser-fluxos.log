@@ -1,0 +1,10 @@
+2026-10-16 01:29:36,566 INFO gestao.viagens.assinantes Ofício 26 emitido
+.2026-10-16 01:30:21,696 INFO gestao.viagens.assinantes Ofício 31 emitido
+.2026-10-16 01:31:19,683 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 44 consultas (limite 25)
+.2026-10-16 01:32:00,336 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 44 consultas (limite 25)
+.2026-10-16 01:32:42,472 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/4/: 44 consultas (limite 25)
+2026-10-16 01:32:49,640 INFO pikepdf._core pikepdf C++ to Python logger bridge initialized
+2026-10-16 01:32:50,012 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/4/baixar/: 29 consultas (limite 25)
+.2026-10-16 01:33:16,829 INFO gestao.viagens.assinantes Ofício 51 emitido
+.
+6 passed in 265.24s (0:04:25)

@@ -52,10 +52,10 @@ function atualizar(form) {
   /** @type {HTMLButtonElement} */ (um(form, "[data-baixar-enviar]")).disabled = !marcados.length;
   um(form, "[data-baixar-todos]").textContent =
     marcados.length === todos.length ? "Desmarcar todos" : "Marcar todos";
-  // O que vai sair, numa linha: "3 documentos · PDF · num ZIP".
+  // O que vai sair, numa linha: "3 documentos · PDF · em fila".
   const dados = new FormData(form);
   const n = marcados.length;
-  const saida = n < 2 ? "" : dados.get("saida") === "unico" ? "num PDF só" : "num ZIP";
+  const saida = n < 2 ? "" : dados.get("saida") === "unico" ? "num PDF só" : "em fila";
   um(form, "[data-baixar-resumo]").textContent = n
     ? [`${n} ${n === 1 ? "documento" : "documentos"}`, String(dados.get("formato") || "").toUpperCase(), saida]
       .filter(Boolean).join(" · ")
@@ -223,6 +223,11 @@ document.addEventListener("submit", async (e) => {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
       fecharDialogo(janela);
+    } else if (resposta.ok && resposta.headers.get("Content-Type")?.includes("application/json")) {
+      const dados = await resposta.json();
+      const modulo = await import("./fila-downloads.js");
+      fecharDialogo(janela);
+      modulo.executarFila(dados.fila || []);
     } else if (!resposta.ok && resposta.headers.get("Content-Type")?.includes("application/json")) {
       const falha = await resposta.json();
       erro.textContent = typeof falha.erro === "string" && falha.erro.trim()

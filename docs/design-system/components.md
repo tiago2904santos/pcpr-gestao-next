@@ -756,3 +756,24 @@ institucional. UI Lab demonstra futuro, um dia/hoje, iniciado, vazio, consulta e
 `fim_aberto=True` mantém fim ausente como vigência até encerramento, mostra a folha
 aberta e oferece “Sem data final” no seletor. Não converte ausência de fim em um dia.
 Primeiro consumidor da combinação: Nova substituição na Configuração da chefia.
+
+### Importação documental e fila de downloads
+
+`componentes/importador.html` compõe o diálogo existente, cartões e botões com uma
+entrada de arquivo múltipla. `importador-fita` é a entrada vertical na borda direita,
+solicitada pelo usuário; mantém alvo de toque, nome acessível e link para a página
+quando o JavaScript não carregar. O controlador só entra no clique ou na tela dedicada.
+`importador-soltar` oferece seleção por teclado e drag-and-drop, foco visível,
+mensagem de envio e erro por arquivo. O original não aparece inline em HTML.
+
+`componentes/fila_downloads.html` apresenta cada arquivo como cartão com estado e
+ação de repetir. Até três preparações simultâneas; parar aborta requisições pendentes.
+"Enviado ao navegador" não afirma que o usuário salvou o arquivo no disco.
+Estados de importação: fila, leitura, revisão, concluído, erro; por parte: anexado,
+repetido, revisão, ignorado. A tela de revisão nasce de DETAIL e usa a prévia PDF.
+
+`leitor-pdf.js` carrega PDF.js localmente somente na revisão: uma página por vez,
+anterior/próxima, ajuste à largura e zoom de 150%/200%. A área ampliada tem rolagem
+própria e acesso por teclado; o texto extraído também fica disponível a leitores
+de tela. Link para abrir o PDF permanece como alternativa. Não depende do plug-in
+nativo (que apresentou uma área vazia no teste de navegador).

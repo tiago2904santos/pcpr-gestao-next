@@ -9,7 +9,7 @@ linha da lista (a janela abre por cima dela).
 {% if l.editavel %}{# No resumo, os PDFs e as vias estão nas peças de Documentos e no rodapé; Abrir é o botão principal. #}
   <button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_termo' t.pk %}" data-baixar-titulo="{{ t }}">{% icone "download" %}Baixar documentos</button>
   {% if not no_resumo %}<a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Todos em um PDF</a>{% endif %}
-  <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'zip' %}">{% icone "download" %}Todos em DOCX (ZIP)</a>
+  <a class="menu__item" role="menuitem" data-baixar-arquivo href="{% url 'viagens:todos_termo' t.pk 'docx' %}">{% icone "download" %}Todos em DOCX (fila)</a>
   {% if not no_resumo %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>{% endif %}
   {% if not no_resumo %}{% for g in ef.viaturas %}{% with id=g.viatura.pk|stringformat:"s" %}{% if forloop.first %}{% firstof "viatura" as chave %}{% else %}{% firstof "viatura-"|add:id as chave %}{% endif %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk chave 'pdf' %}" target="_blank" rel="noopener">{% icone "car" %}Termo da viatura {{ g.viatura.placa_formatada }} (PDF)</a>{% endwith %}{% endfor %}{% endif %}
   {% if not no_resumo %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "pencil" %}Abrir (documentos de cada servidor)</a>{% endif %}

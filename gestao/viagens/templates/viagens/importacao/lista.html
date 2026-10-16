@@ -1,0 +1,17 @@
+{% extends "arquetipos/detalhe.html" %}
+{% load static %}
+{% block titulo %}Importação de documentos{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/importador.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block cabecalho_detalhe %}{% include "componentes/registro_hero.html" with pagina=True contexto="Documentos" titulo="Importação de documentos" complemento="Envie, acompanhe e confira somente o que precisar da sua ajuda." %}{% endblock %}
+{% block principal %}
+<div data-importar-resultados data-importar-ids="{% for a in pagina %}{{ a.pk }},{% endfor %}" data-importar-acompanhar="{% url 'viagens:estado_importacao' %}" class="pilha">
+{% for a in pagina %}<article class="cartao"><div class="cartao__corpo pilha">
+  <div class="linha"><h2 class="resumo__titulo">{{ a.nome }}</h2><span class="selo">{{ a.estado }}</span></div>
+  {% if a.erro %}<p class="alerta alerta--aviso">{{ a.erro }}</p>{% endif %}
+  {% for p in a.partes.all %}<div class="registro"><div class="registro__corpo"><strong>{{ p.rotulo|default:"Documento para identificar" }}</strong><p class="texto-secundario">Páginas {{ p.inicio }}–{{ p.fim }} · {{ p.estado }} · {{ p.motivo }}</p></div>{% if p.estado == 'revisao' %}<a class="botao botao--sm" href="{% url 'viagens:revisar_importacao' p.pk %}">Revisar</a>{% endif %}</div>{% endfor %}
+  <a class="botao botao--sm botao--sutil" href="{% url 'viagens:original_importacao' a.pk %}">Baixar original</a>
+</div></article>{% empty %}{% include "componentes/vazio.html" with titulo="Seus arquivos organizados em um só envio" descricao="Envie os documentos ao lado. Os identificados serão anexados automaticamente e os demais aparecerão aqui para revisão." %}{% endfor %}
+</div>
+<nav class="linha" aria-label="Páginas do histórico">{% if pagina.has_previous %}<a class="botao" href="?pagina={{ pagina.previous_page_number }}">Anterior</a>{% endif %}<span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>{% if pagina.has_next %}<a class="botao" href="?pagina={{ pagina.next_page_number }}">Próxima</a>{% endif %}</nav>
+{% endblock %}
+{% block contexto %}<section class="cartao"><div class="cartao__corpo pilha"><h2 class="resumo__titulo">Adicionar arquivos</h2>{% include "viagens/importacao/_entrada.html" %}</div></section><p class="texto-secundario texto-sm">Pode fechar esta página após o envio. A leitura continua e o resultado fica no histórico.</p>{% endblock %}

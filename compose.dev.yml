@@ -12,3 +12,8 @@ services:
       - ./templates:/app/templates
       - ./static:/app/static
       - ./config:/app/config
+
+  importador:
+    volumes:
+      - ./gestao:/app/gestao
+      - ./config:/app/config

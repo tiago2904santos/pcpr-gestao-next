@@ -88,7 +88,7 @@ do servidor, com ele finalizado.
   <section class="secao" id="servidores" aria-labelledby="t-servidores">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-servidores"><span class="secao__numero">4</span>Por servidor</h2>
-      <div class="secao__estado"><a class="botao botao--sm" href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "files" %}Pacotes da equipe (ZIP)</a></div>
+      <div class="secao__estado"><a class="botao botao--sm" data-baixar-arquivo href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "files" %}Pacotes da equipe (fila)</a></div>
       <p class="secao__nota">Comprovantes de saque/transferência (a soma é conferida com a diária dele) e o relatório técnico assinado (sem ele, o <a href="{% url 'viagens:relatorio' p.pk %}">RT preenchido</a> vale).</p>
     </div>
     {% for s in servidores %}

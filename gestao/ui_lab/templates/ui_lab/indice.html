@@ -1054,6 +1054,19 @@
 </div>
 
 {% include "ui_lab/_dossie.html" with vazio=False %}
+<section class="cartao" id="lab-importacao" aria-labelledby="lab-importacao-titulo">
+  <div class="cartao__corpo pilha">
+    <h2 id="lab-importacao-titulo">Importação documental</h2>
+    <p class="texto-secundario">A fitinha na borda abre o importador. Seleção múltipla por teclado ou arrastar arquivos.</p>
+    <div class="importador-soltar"><span>{% icone "files" %}</span><strong>Arraste arquivos para cá</strong><span class="botao botao--sm">Selecionar arquivos</span></div>
+    <div class="grade grade--2">
+      <article class="cartao"><div class="cartao__corpo pilha"><h3 class="resumo__titulo">Ofício 120/2026</h3><span class="selo selo--sucesso">Anexado</span><p>Identificado pelo número e protocolo.</p></div></article>
+      <article class="cartao"><div class="cartao__corpo pilha"><h3 class="resumo__titulo">Documento sem referência</h3><span class="selo selo--aviso">Precisa de revisão</span><p>Confira o arquivo e escolha o destino.</p><button class="botao botao--sm" disabled>Revisar documento</button></div></article>
+    </div>
+    <p class="alerta alerta--aviso">Arquivo protegido por senha. Envie uma cópia desbloqueada.</p>
+    <p class="texto-secundario">Fila de downloads: na fila → preparando → enviado ao navegador. Falhas oferecem nova tentativa.</p>
+  </div>
+</section>
 {% include "ui_lab/_dossie.html" with vazio=True %}
 {% include "ui_lab/_resumo_comum.html" %}
 <dialog id="lab-dialogo" class="dialogo" aria-labelledby="lab-dialogo-titulo">

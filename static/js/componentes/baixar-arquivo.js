@@ -37,13 +37,19 @@ async function gerar(botao, url, pedido, padrao) {
   if (botao?.getAttribute("aria-busy") === "true") return;  // já está gerando
   botao?.setAttribute("aria-busy", "true");
   try {
-    const resposta = await fetch(url, { credentials: "same-origin", ...pedido });
+    const resposta = await fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "fetch" }, ...pedido });
     const tipo = resposta.headers.get("Content-Type") || "";
     if (resposta.redirected || tipo.includes("text/html")) {
       window.location.href = resposta.url;  // o servidor mandou uma página (aviso)
       return;
     }
     if (!resposta.ok) throw new Error(String(resposta.status));
+    if (tipo.includes("application/json")) {
+      const dados = await resposta.json();
+      const modulo = await import("./fila-downloads.js");
+      modulo.executarFila(dados.fila || []);
+      return;
+    }
     const arquivo = URL.createObjectURL(await resposta.blob());
     const baixar = document.createElement("a");
     baixar.href = arquivo;
@@ -83,7 +89,7 @@ document.addEventListener("submit", (evento) => {
     evento.submitter || form.querySelector("[type=submit]"));
   gerar(botao, form.action, {
     method: "POST", body: new FormData(form), headers: { "X-Requested-With": "fetch" },
-  }, "documentos.zip");
+  }, "documento");
 });
 
 export {};

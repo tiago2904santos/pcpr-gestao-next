@@ -7,6 +7,7 @@ from . import (
     views_diario,
     views_editor,
     views_editor_avulso,
+    views_importacao,
     views_ordens,
     views_pacotes,
     views_planos,
@@ -20,6 +21,13 @@ from . import (
 app_name = "viagens"
 
 urlpatterns = [
+    path("importacoes/", views_importacao.lista, name="importacoes"),
+    path("importacoes/enviar/", views_importacao.enviar, name="enviar_importacao"),
+    path("importacoes/estado/", views_importacao.estado, name="estado_importacao"),
+    path("importacoes/partes/<int:pk>/", views_importacao.revisar, name="revisar_importacao"),
+    path("importacoes/partes/<int:pk>/arquivo/", views_importacao.arquivo,
+         name="arquivo_importacao"),
+    path("importacoes/<int:pk>/original/", views_importacao.original, name="original_importacao"),
     path("", views.painel, name="painel"),
     path("oficios/", views.lista, name="oficios"),
     path("oficios/novo/", views.novo, name="novo"),

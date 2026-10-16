@@ -1,0 +1,11 @@
+{% if perms.viagens.change_oficio %}
+<a class="importador-fita" href="{% url 'viagens:importacoes' %}" data-importar-abrir aria-label="Importar documentos" title="Importar documentos">{% icone "upload" %}<span>Arquivos</span></a>
+<dialog class="dialogo" id="dialogo-importar" aria-labelledby="importar-titulo">
+  <div class="dialogo__cabecalho"><div><h2 id="importar-titulo">Importar documentos</h2><p class="texto-secundario">Solte os arquivos. Vamos identificar e organizar cada documento.</p></div><button type="button" class="botao botao--icone botao--sutil" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button></div>
+  <div class="dialogo__corpo pilha">
+    {% include "viagens/importacao/_entrada.html" %}
+    <div data-importar-resultados aria-live="polite"></div>
+  </div>
+  <div class="dialogo__rodape"><a class="botao" href="{% url 'viagens:importacoes' %}">Histórico e revisão</a><button type="button" class="botao" data-fechar-dialogo>Fechar</button></div>
+</dialog>
+{% endif %}

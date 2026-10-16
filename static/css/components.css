@@ -3680,3 +3680,40 @@ fieldset.campo--escolhas > .campo__erro {
   .mesa-evento { grid-template-columns: minmax(0, 1fr); padding: var(--esp-4); }
   .mesa-evento__seletor { justify-self: center; }
 }
+/* Entrada discreta da importação; exceção solicitada ao padrão de ações da lista. */
+.importador-fita {
+  position: fixed;
+  right: 0;
+  top: 45%;
+  z-index: var(--z-barra-acoes);
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  writing-mode: vertical-rl;
+  padding: var(--esp-3) var(--esp-2);
+  min-width: var(--altura-controle-sm);
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-left: 3px solid var(--cor-marca);
+  border-radius: var(--raio-sm);
+  box-shadow: var(--sombra-2);
+  font-size: var(--texto-xs);
+  text-decoration: none;
+}
+.importador-soltar {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-5);
+  border: 2px dashed var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  text-align: center;
+  cursor: pointer;
+}
+.importador-soltar input { max-width: 100%; min-width: 0; }
+.importador-soltar--ativo, .importador-soltar:focus-within { outline: 2px solid var(--cor-marca); }
+.importador-previa { width: 100%; max-height: 75vh; min-height: 20rem; overflow: auto; padding: var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); }
+.importador-previa canvas { display: block; max-width: none; }
+[data-importar-resultados] { overflow-wrap: anywhere; }

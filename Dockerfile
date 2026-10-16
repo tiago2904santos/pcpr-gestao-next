@@ -19,7 +19,8 @@ RUN --mount=type=secret,id=ca,required=false \
     if [ -f /run/secrets/ca ]; then export PIP_CERT=/run/secrets/ca; fi \
     && apt-get update \
     && apt-get install -y --no-install-recommends libpango-1.0-0 libpangoft2-1.0-0 \
-       libharfbuzz-subset0 \
+       libharfbuzz-subset0 poppler-utils tesseract-ocr tesseract-ocr-por \
+       libreoffice-writer libreoffice-calc libreoffice-impress \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir uv==0.8.17 \
     && useradd --create-home --uid 1000 pcpr

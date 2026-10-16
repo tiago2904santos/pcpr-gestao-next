@@ -40,8 +40,8 @@ server {
     ssl_session_cache shared:pcpr_ssl:10m;
     ssl_session_timeout 1d;
 
-    # Via assinada até 15 MB + formulário.
-    client_max_body_size 16m;
+    # Importação até 25 MiB + formulário. Django mantém 16 MiB nas demais rotas.
+    client_max_body_size 32m;
     server_tokens off;
 
     # Django já envia CSP, X-Frame-Options, nosniff, Referrer-Policy e COOP.
