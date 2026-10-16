@@ -1,5 +1,7 @@
+{% comment %}Os diálogos de cadastro rápido vazios: o formulário vem de `cadastro_base`?cadastros=1
+quando o "+" é apertado (padrão: a edição do ofício; o diário de bordo passa a própria folha).{% endcomment %}
 {% url 'viagens:editar' oficio.pk as editar_url %}
-{% with cadastro_url=editar_url|add:"?cadastros=1" %}
+{% with cadastro_url=cadastro_base|default:editar_url|add:"?cadastros=1" %}
 {% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-servidor" titulo="Novo servidor" largo=True %}
 {% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-viatura" titulo="Nova viatura" largo=True %}
 {% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-cargo" titulo="Cadastrar cargo" %}

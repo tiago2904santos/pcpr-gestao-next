@@ -414,9 +414,12 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
     if viatura_modo not in DiarioBordo.ViaturaModo.values:
         viatura_modo = DiarioBordo.ViaturaModo.OFICIO
     if motorista_modo == DiarioBordo.Motorista.SERVIDOR:
-        equipe = set(diario.prestacao.oficio.viajantes.values_list("servidor_id", flat=True))
-        if motorista_servidor_id not in equipe:
-            erros.append("Selecione um servidor do ofício.")
+        # Da equipe ou não (o "+" cadastra quem ainda não existe): basta ser servidor ativo.
+        from gestao.cadastros.models import Servidor
+        if not motorista_servidor_id or not Servidor.objects.filter(
+                Q(ativo=True) | Q(pk=diario.motorista_servidor_id),
+                pk=motorista_servidor_id).exists():
+            erros.append("Selecione o servidor que dirigiu.")
     elif motorista_modo == DiarioBordo.Motorista.OUTRO:
         erros += _conferir_oficio_do_motorista(diario, oficio_do_motorista_id)
     modelo = " ".join((viatura_modelo or "").split())

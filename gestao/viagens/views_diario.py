@@ -9,6 +9,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -49,6 +50,11 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     p = _prestacao(request, pk)
     finalizada = diario.equipe_finalizada(p)
     editavel = diario.pode_editar(request.user, p, finalizada)
+    if editavel and request.GET.get("cadastros") == "1":
+        # Os "+" de servidor e viatura: o formulário só vem quando o diálogo abre.
+        from gestao.cadastros.forms import formularios_de_cadastro_rapido
+        return render(request, "componentes/dialogos_cadastro.html",
+                      formularios_de_cadastro_rapido())
     d = (diario.obter(p) if editavel
          else DiarioBordo.objects.filter(prestacao=p).select_related("prestacao__oficio")
          .first())  # consulta, diário ainda não aberto: mostra sem criar nada
@@ -98,8 +104,8 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "motorista_oficio": mot_oficio[0], "viatura_oficio": via_oficio,
         "alteracoes": (diario.alteracoes(d, do_oficio=mot_oficio, viatura_oficio=via_oficio)
                        if d else []),
-        "equipe": [vj.servidor for vj in oficio.viajantes.select_related("servidor")
-                   .order_by("ordem")],
+        "equipe": [vj.servidor for vj in oficio.viajantes.select_related(
+            "servidor__cargo", "servidor__unidade").order_by("ordem")],
         "viaturas": Viatura.objects.filter(ativo=True).order_by("modelo", "placa"),
         "tipos_viatura": Viatura.Tipo.choices,
         **views_prestacao.contexto_folha(request, p, "diario"),
@@ -112,12 +118,15 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
 def _contexto_da_escolha(d: DiarioBordo) -> dict:
     """O que a troca de motorista e viatura usa: a busca de ofícios (a mesma do termo) e a
     escolha de viatura do ofício, com o "+" que cadastra sem sair da folha."""
-    from gestao.cadastros.forms import formularios_de_cadastro_rapido
+    from gestao.cadastros.models import Servidor
 
     from .forms import ViaturaDoDiarioForm
+    equipe = d.prestacao.oficio.viajantes.values("servidor_id")
+    outros = (Servidor.objects.filter(Q(ativo=True) | Q(pk=d.motorista_servidor_id))
+              .exclude(pk__in=equipe).select_related("cargo", "unidade").order_by("nome"))
     return {"fonte_oficios": reverse("viagens:buscar_oficios"),
-            "form_viatura_diario": ViaturaDoDiarioForm(diario=d),
-            **formularios_de_cadastro_rapido()}
+            "outros_servidores": outros,
+            "form_viatura_diario": ViaturaDoDiarioForm(diario=d)}
 
 
 @require_POST

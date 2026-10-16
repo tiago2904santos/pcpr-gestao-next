@@ -78,5 +78,5 @@
 </div>
 {% if editavel and linhas %}<form id="continuar-diario" method="get" action="{% url 'viagens:relatorio' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>{% endif %}
 {% include "viagens/oficios/_dialogo_resumo.html" %}
-{% if editavel %}{% include "componentes/dialogos_cadastro.html" with destino="viatura-cadastro" %}{% endif %}
+{% if editavel %}{% url 'viagens:diario' p.pk as diario_url %}{% include "componentes/dialogos_cadastro_adiados.html" with cadastro_base=diario_url %}{% endif %}
 {% endblock %}

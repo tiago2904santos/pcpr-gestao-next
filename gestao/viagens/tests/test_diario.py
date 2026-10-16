@@ -113,7 +113,7 @@ def test_motorista_e_viatura_so_neste_diario(c):
     oficio = p.oficio
     antes = (oficio.viatura_id, list(oficio.viajantes.filter(motorista=True)
                                      .values_list("servidor_id", flat=True)))
-    with pytest.raises(diario.DiarioInvalido, match="servidor do ofício"):
+    with pytest.raises(diario.DiarioInvalido, match="servidor que dirigiu"):
         diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="servidor",
                                           motorista_servidor_id=None, viatura_modo="oficio")
     with pytest.raises(diario.DiarioInvalido, match="ofício pelo qual o motorista"):
@@ -256,7 +256,7 @@ def test_motorista_e_transporte_gravam_sozinhos(c):
     url = reverse("viagens:autosave_motorista_diario", args=[p.pk])
     # Escolha sem o que ela pede: avisa e não grava.
     r = op.post(url, {"motorista_modo": "servidor", "viatura_modo": "oficio"}).json()
-    assert r == {"salvo": False, "mensagem": "Selecione um servidor do ofício."}
+    assert r == {"salvo": False, "mensagem": "Selecione o servidor que dirigiu."}
     r = op.post(url, {"motorista_modo": "oficio", "viatura_modo": "manual",
                       "viatura_modelo": "Hilux"}).json()
     assert r["salvo"] is True

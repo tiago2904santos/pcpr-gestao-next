@@ -69,6 +69,9 @@
   .recurso-diario__campos { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); }
 }
 .recurso-diario__campos > .modos__campos { grid-template-columns: minmax(0, 1fr); }
+/* Sem nada a escolher ao lado (o do ofício), a escolha ocupa a linha inteira; encolhe só
+   quando a opção pede o campo vizinho (servidor, ofício do motorista, viatura do cadastro). */
+.recurso-diario__campos:not(:has(option:is([value="servidor"], [value="outro_oficio"], [value="cadastro"]):checked)) > .campo:first-child { grid-column: 1 / -1; }
 .recurso-diario .modos__campos[data-modo="manual"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 /* Motorista de outro ofício: a viatura é a do diário de lá — sem escolha aqui, só a nota. */
 .recurso-diario__campos.recurso-diario__vinculo { display: none; }

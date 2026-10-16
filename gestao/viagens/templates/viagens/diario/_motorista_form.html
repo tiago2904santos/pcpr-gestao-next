@@ -21,10 +21,14 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
     <div class="recurso-diario__escolha">
     <div class="recurso-diario__campos">
       <div class="campo"><label class="campo__rotulo" for="motorista-modo">Motorista</label>
-        <pc-select class="seletor"><select class="selecao" id="motorista-modo" name="motorista_modo">{% for valor, rotulo in d.Motorista.choices %}<option value="{{ valor }}"{% if d.motorista_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}O do ofício{% elif valor == 'servidor' %}Outro servidor da equipe{% else %}De outro ofício{% endif %}</option>{% endfor %}</select></pc-select></div>
+        <pc-select class="seletor"><select class="selecao" id="motorista-modo" name="motorista_modo">{% for valor, rotulo in d.Motorista.choices %}<option value="{{ valor }}"{% if d.motorista_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}O do ofício{% elif valor == 'servidor' %}Outro servidor{% else %}De outro ofício{% endif %}</option>{% endfor %}</select></pc-select></div>
       <div class="modos__campos" data-modo="servidor">
-        <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor da equipe</label>
-          <pc-select class="seletor"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione um servidor</option>{% for s in equipe %}<option value="{{ s.pk }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-select></div>
+        {# Primeiro a equipe do ofício, depois os demais; o "+" cadastra (o mesmo modal do ofício) e o novo volta escolhido. #}
+        <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor</label>
+          <div class="campo__com-acao">
+            <pc-combobox class="combobox" data-placeholder="Nome do servidor…"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione o servidor…</option>{% for s in equipe %}<option value="{{ s.pk }}" data-grupo="Da equipe do ofício" data-meta="{{ s.descricao }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}{% for s in outros_servidores %}<option value="{{ s.pk }}" data-grupo="Outros servidores" data-meta="{{ s.descricao }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-combobox>
+            <button type="button" class="botao botao--icone" data-abrir-dialogo="dialogo-servidor" aria-label="Cadastrar servidor">{% icone "plus" %}</button>
+          </div></div>
       </div>
       <div class="modos__campos" data-modo="outro_oficio">
         <div class="campo campo--lg"><label class="campo__rotulo" for="oficio-do-motorista">Ofício do motorista</label>
@@ -42,7 +46,7 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
         <span class="avatar{% if motorista.nome %} avatar--escuro{% endif %}" aria-hidden="true">{% if motorista.nome %}{% icone "volante" classe="icone--sm" %}{% else %}{% icone "user" classe="icone--sm" %}{% endif %}</span>
         <span class="pessoa__texto">
           <strong class="pessoa__nome">{{ motorista.nome|default:"Sem motorista" }}</strong>
-          <span class="pessoa__meta">{% if motorista.cpf %}CPF {{ motorista.cpf }} · {% endif %}{% if d.motorista_modo == 'servidor' %}da equipe, só neste diário{% elif de_la %}do Ofício {{ de_la.prestacao.oficio.numero_formatado }}{% if de_la.prestacao.oficio.protocolo %} · protocolo {{ protocolo_de_la }}{% endif %} — o diário de bordo é o de lá{% elif d.motorista_modo == 'outro_oficio' %}de outro ofício{% if d.motorista_oficio %} ({{ d.motorista_oficio }}){% endif %}, só neste diário{% elif motorista.nome %}o do ofício{% else %}o ofício não indica quem dirige{% endif %}</span>
+          <span class="pessoa__meta">{% if motorista.cpf %}CPF {{ motorista.cpf }} · {% endif %}{% if d.motorista_modo == 'servidor' %}outro servidor, só neste diário{% elif de_la %}do Ofício {{ de_la.prestacao.oficio.numero_formatado }}{% if de_la.prestacao.oficio.protocolo %} · protocolo {{ protocolo_de_la }}{% endif %} — o diário de bordo é o de lá{% elif d.motorista_modo == 'outro_oficio' %}de outro ofício{% if d.motorista_oficio %} ({{ d.motorista_oficio }}){% endif %}, só neste diário{% elif motorista.nome %}o do ofício{% else %}o ofício não indica quem dirige{% endif %}</span>
         </span>
       </article>
     </div>
