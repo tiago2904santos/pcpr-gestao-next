@@ -117,11 +117,12 @@ def test_telas_e_permissoes(c):
         reverse("viagens:pacote_servidor", args=[b.pk])}
     assert outra.get(reverse("viagens:pacote_servidor", args=[a.pk])).status_code == 404
     assert outra.get(reverse("viagens:pacote_equipe", args=[p.pk])).status_code == 404
-    html = op.get(reverse("viagens:documentos_prestacao", args=[p.pk])).content.decode()
+    html = op.get(reverse("viagens:leitura_prestacao", args=[p.pk]),
+                  {"servidor": a.pk}).content.decode()
     assert reverse("viagens:pacote_servidor", args=[a.pk]) in html
     for url in (reverse("viagens:prestacoes"),
                 reverse("viagens:prestacao_equipe", args=[p.pk]),
-                reverse("viagens:documentos_prestacao", args=[p.pk])):
+                reverse("viagens:leitura_prestacao", args=[p.pk])):
         pagina = op.get(url).content.decode()
         assert "Pacotes da equipe (fila)" in pagina
         assert "Pacotes da equipe (ZIP)" not in pagina

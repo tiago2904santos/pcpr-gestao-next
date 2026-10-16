@@ -1,7 +1,0 @@
-{% load viagens %}{# Itens do ⋮ do cabeçalho na folha de documentos e fechamento. #}
-{% if servidor_atual %}{% for s in servidores %}{% if s.ps.pk == servidor_atual.ps.pk %}
-{% if not s.falta_pacote %}<a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' s.ps.pk %}">{% icone "file-check-2" %}Pacote final de {{ s.ps.servidor.nome }} (PDF)</a>{% endif %}
-{% if via %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">{% icone "stamp" %}Prévia do ofício carimbado (PDF)</a>{% endif %}
-{% if servidor_atual.editavel and not s.ps.finalizada and not s.ps.arquivada %}<button type="submit" form="form-ps-{{ s.ps.pk }}" formaction="{% url 'viagens:acao_prestacao' s.ps.pk 'arquivar' %}" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar prestação</button>{% endif %}
-{% if servidor_atual.editavel and s.ps.arquivada %}<button type="submit" form="form-ps-{{ s.ps.pk }}" formaction="{% url 'viagens:acao_prestacao' s.ps.pk 'desarquivar' %}" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar prestação</button>{% endif %}
-{% endif %}{% endfor %}{% endif %}

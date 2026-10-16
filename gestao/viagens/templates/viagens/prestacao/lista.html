@@ -77,10 +77,6 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
         {% if b.prestar_ate %}<span class="registro__meta-item" title="Prazo para prestar contas (o mais próximo da equipe)">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar até {{ b.prestar_ate|date:"d/m/Y" }}</span></span>{% endif %}
       </div>
     </div>
-    <div class="registro-operacional__recursos">
-      <span class="registro__meta-item registro__meta-item--equipe" title="{% for l in b.linhas %}{{ l.ps.servidor.nome }}{% if l.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}">{% include "componentes/avatares_mini.html" with pessoas=b.pessoas %}<span class="sr-only">Equipe: </span><span class="registro__meta-texto">{{ b.total|pluralizar:"servidor,servidores" }} · {{ b.finalizadas }} finalizad{{ b.finalizadas|pluralize:"a,as" }}</span></span>
-      {% if o.viatura %}<span class="registro__meta-item registro__meta-item--transporte" title="{{ o.viatura }}">{% icone "car" classe="icone--sm" %}<span class="sr-only">Transporte: </span><span class="registro__meta-texto">{{ o.viatura }}</span></span>{% elif o.transporte_texto %}<span class="registro__meta-item registro__meta-item--transporte">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.transporte_texto }}</span></span>{% else %}<span class="registro__meta-item registro__meta-item--transporte registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">Sem transporte</span></span>{% endif %}
-    </div>
     <div class="registro-operacional__conferencia">
       {% if b.por_servidor %}<span class="registro__meta-item registro__meta-item--diarias" title="Diária por servidor: {{ b.por_servidor|moeda }}{% if b.quantidade_diarias %} · {{ b.quantidade_diarias }}{% endif %}">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diária por servidor: </span><span class="registro__meta-texto"><span class="registro__valor">{{ b.por_servidor|moeda }}</span><span class="registro__meta-detalhe">por servidor{% if b.quantidade_diarias %} · {{ b.quantidade_diarias }}{% endif %}</span></span></span>
       {% elif o.diarias_total %}<span class="registro__meta-item registro__meta-item--diarias">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">{{ o.diarias_total|moeda }}</span><span class="registro__meta-detalhe">em diárias</span></span></span>
@@ -98,8 +94,7 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
           {% endif %}
           <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}1 · Diário de bordo</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}2 · Relatório técnico</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" %}3 · Documentos e fechamento</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}">{% icone "scan-text" %}4 · Leitura e conferência</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}">{% icone "scan-text" %}3 · Leitura e conferência</a>
           <div class="menu__separador" role="separator"></div>
           <a class="menu__item" role="menuitem" href="{{ b.url }}">{% icone "users" %}Visão da equipe</a>
           <a class="menu__item" role="menuitem" data-baixar-arquivo href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "download" %}Pacotes da equipe (fila)</a>

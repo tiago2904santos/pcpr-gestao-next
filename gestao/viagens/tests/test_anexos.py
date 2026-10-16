@@ -136,11 +136,12 @@ def test_permissoes(c):
     anexo = anexos.anexar(c.usuarios["operador"], p.pk, "comprovante", servidor_pk=a.pk,
                           nome="c.pdf", conteudo=PDF)
     outra, consulta = _cliente(c, "outra"), _cliente(c, "consulta")
-    assert outra.get(reverse("viagens:documentos_prestacao", args=[p.pk])).status_code == 404
+    assert outra.get(reverse("viagens:leitura_prestacao", args=[p.pk])).status_code == 404
     assert outra.get(reverse("viagens:abrir_anexo", args=[anexo.pk])).status_code == 404
     assert outra.post(reverse("viagens:acao_anexo", args=[anexo.pk, "remover"])).status_code == 404
-    r = consulta.get(reverse("viagens:documentos_prestacao", args=[p.pk]))
-    assert r.status_code == 200 and 'type="file"' not in r.content.decode()
+    r = consulta.get(reverse("viagens:leitura_prestacao", args=[p.pk]))
+    assert r.status_code == 200
+    assert reverse("viagens:acao_anexo", args=[anexo.pk, "remover"]) not in r.content.decode()
     assert consulta.get(reverse("viagens:abrir_anexo", args=[anexo.pk])).status_code == 200
     consulta.post(reverse("viagens:acao_anexo", args=[anexo.pk, "remover"]))
     anexo.refresh_from_db()
@@ -151,14 +152,21 @@ def test_tela_anexar_abrir_remover(c):
     p = _p(c)
     a, _ = _servidores(p)
     op = _cliente(c, "operador")
-    r = op.get(reverse("viagens:documentos_prestacao", args=[p.pk]))
+    # A antiga folha de documentos leva à leitura e conferência (no mesmo servidor).
+    r = op.get(reverse("viagens:documentos_prestacao", args=[p.pk]), {"servidor": a.pk})
+    assert r["Location"] == reverse("viagens:leitura_prestacao", args=[p.pk]) + f"?servidor={a.pk}"
+    r = op.get(reverse("viagens:leitura_prestacao", args=[p.pk]))
     assert r.status_code == 200 and "Despacho assinado" in r.content.decode()
     r = op.post(reverse("viagens:anexar_prestacao", args=[p.pk]), {
         "tipo": "comprovante", "servidor": a.pk, "valor": "R$ 100,00",
         "data_operacao": "07/01/2030", "operacao": "pix",
         "arquivo": SimpleUploadedFile("comprovante.png", PNG + b"x" * 20, "image/png")})
+    assert r["Location"].startswith(reverse("viagens:leitura_prestacao", args=[p.pk]))
     assert r["Location"].endswith(f"#ps-{a.pk}")
     anexo = AnexoPrestacao.objects.get(tipo="comprovante")
+    html = op.get(reverse("viagens:leitura_prestacao", args=[p.pk])).content.decode()
+    assert f'data-abrir-dialogo="corrigir-{anexo.pk}"' in html
+    assert reverse("viagens:acao_anexo", args=[anexo.pk, "remover"]) in html
     assert (anexo.valor, anexo.data_operacao, anexo.operacao) == (
         Decimal("100.00"), date(2030, 1, 7), "pix")
     r = op.get(reverse("viagens:abrir_anexo", args=[anexo.pk]))
@@ -171,7 +179,8 @@ def test_tela_anexar_abrir_remover(c):
     anexo.refresh_from_db()
     assert anexo.removido_motivo == "excluido"
     assert "Trazer de volta" in op.get(
-        reverse("viagens:documentos_prestacao", args=[p.pk])).content.decode()
-    assert reverse("viagens:documentos_prestacao", args=[p.pk]) in op.get(
-        reverse("viagens:prestacoes")).content.decode()
+        reverse("viagens:leitura_prestacao", args=[p.pk])).content.decode()
+    lista = op.get(reverse("viagens:prestacoes")).content.decode()
+    assert reverse("viagens:leitura_prestacao", args=[p.pk]) in lista
+    assert reverse("viagens:documentos_prestacao", args=[p.pk]) not in lista
     assert op.post(reverse("viagens:acao_anexo", args=[anexo.pk, "xyz"])).status_code == 404

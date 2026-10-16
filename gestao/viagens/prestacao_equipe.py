@@ -61,23 +61,22 @@ class Conferencia:
 
 
 def destino(p: PrestacaoContas, ps: PrestacaoServidor, texto: str) -> str:
-    """Onde se resolve cada pendência (os textos são os de `prestacao.pendencias`)."""
-    documentos = reverse("viagens:documentos_prestacao", args=[p.pk])
+    """Onde se resolve cada pendência (os textos são os de `prestacao.pendencias`): o que
+    falta anexar vai ao importador; a posição do nº, à leitura e conferência."""
     if texto == diario.PENDENCIA:
         return reverse("viagens:diario", args=[p.pk])
     if texto == relatorio.PENDENCIA:
         return reverse("viagens:relatorio", args=[p.pk])
     if texto == carimbo.PENDENCIA:
-        return f"{documentos}#oficio_assinado"
-    if "despacho" in texto:
-        return f"{documentos}#despacho"
-    if "comprovante" in texto:
-        return f"{documentos}#ps-{ps.pk}"
+        leitura = reverse("viagens:leitura_prestacao", args=[p.pk])
+        return f"{leitura}?servidor={ps.pk}#oficio_assinado"
+    if "despacho" in texto or "comprovante" in texto:
+        return reverse("viagens:importacoes")
     return f"{reverse('viagens:prestacao_equipe', args=[p.pk])}#ps-{ps.pk}"
 
 
 def etapas(membros: list[PrestacaoServidor], folhas: list[Folha]) -> list[Etapa]:
-    """Solicitações → Diário → Relatório → Documentos → Finalização → Envio: a primeira que
+    """Solicitações → Diário → Relatório → Leitura → Finalização → Envio: a primeira que
     falta é a atual (como a solicitação de evento)."""
     feitas = [
         ("Solicitações", bool(membros) and all(
@@ -98,7 +97,8 @@ def _plural(n: int, singular: str, plural: str) -> str:
 
 def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
            trechos: int) -> list[Folha]:
-    """As três folhas da equipe, com a situação de cada uma numa linha."""
+    """As três folhas da equipe (diário, relatório, leitura e conferência), com a situação
+    de cada uma numa linha."""
     total = len(membros)
     if p.pk in s.diarios:
         chip_diario = Chip("Preenchido", "sucesso")
@@ -123,7 +123,6 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
     else:
         chip_docs = Chip(f"Faltam {total - comprovantes} comprovante"
                          f"{'' if total - comprovantes == 1 else 's'}", "aviso")
-    comprovantes_lidos = comprovantes  # a leitura vale quando há o que ler
     return [
         Folha("diario", "Diário de bordo", "gauge",
               "Km e abastecimento de cada trecho, motorista e horários realizados.",
@@ -135,22 +134,14 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
               reverse("viagens:relatorio", args=[p.pk]), chip_rt,
               f"RT assinado de {rts} de {_plural(total, 'servidor', 'servidores')}",
               chip_rt.tom == "sucesso"),
-        Folha("documentos", "Documentos", "files",
-              "Despacho, comprovantes, vias assinadas e o pacote final.",
-              reverse("viagens:documentos_prestacao", args=[p.pk]), chip_docs,
+        Folha("leitura", "Leitura e conferência", "scan-text",
+              "O ofício assinado com o nº da solicitação, o despacho e o que está escrito "
+              "nos comprovantes, no RT e no diário assinados, para copiar e conferir.",
+              reverse("viagens:leitura_prestacao", args=[p.pk]), chip_docs,
               f"Despacho {'anexado' if despacho else 'pendente'} · comprovantes de "
               f"{comprovantes} de {_plural(total, 'servidor', 'servidores')}"
               f"{' · ofício assinado' if p.pk in s.vias else ''}",
               not falta_docs),
-        Folha("leitura", "Leitura dos anexos", "scan-text",
-              "O que está escrito nos comprovantes, no RT e no diário assinados, "
-              "para copiar e conferir.",
-              reverse("viagens:leitura_prestacao", args=[p.pk]),
-              Chip("Com o que ler", "neutro") if comprovantes_lidos or rts or p.pk in s.db_assinados
-              else Chip("Nada anexado ainda", "neutro"),
-              f"{_plural(comprovantes_lidos, 'comprovante', 'comprovantes')} · "
-              f"{_plural(rts, 'RT assinado', 'RTs assinados')}",
-              bool(total) and comprovantes >= total and rts >= total),
     ]
 
 
@@ -181,12 +172,12 @@ class EtapaFolha:
 
 
 def etapas_folha(folhas: list[Folha], bloco: dict, atual: str) -> list[EtapaFolha]:
-    """A barra das folhas: 1 Diário → 2 Relatório → 3 Documentos → 4 Leitura e conferência.
+    """A barra das folhas: 1 Diário → 2 Relatório → 3 Leitura e conferência.
     Concluída vem da completude (nunca só por abrir a página); a atual é a folha aberta."""
     feitas = {f.chave: f.feito for f in folhas}
     urls = {f.chave: f.url for f in folhas}
     passos = [("diario", "Diário de bordo"), ("relatorio", "Relatório técnico"),
-              ("documentos", "Documentos"), ("leitura", "Leitura e conferência")]
+              ("leitura", "Leitura e conferência")]
     saida = []
     for i, (chave, titulo) in enumerate(passos, 1):
         feita = feitas.get(chave, bloco.get("todas_finalizadas", False))

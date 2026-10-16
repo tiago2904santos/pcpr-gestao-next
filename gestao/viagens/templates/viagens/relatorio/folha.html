@@ -147,10 +147,10 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
   {% if editavel %}{% include "componentes/estado_salvamento.html" with atualizado_em=rt.atualizado_em sem_emissao=True only %}{% else %}<div class="barra-acoes__status" role="status">{% icone "file-pen-line" classe="icone--sm" %}<span>Relatório em consulta.</span></div>{% endif %}
   <div class="barra-acoes__acoes">
     <a class="botao botao--texto" href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
-    {% if editavel %}<button type="submit" form="continuar-relatorio" class="botao botao--primario">{% icone "arrow-right" %}Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-right" %}Documentos</a>{% endif %}
+    {% if editavel %}<button type="submit" form="continuar-relatorio" class="botao botao--primario">{% icone "arrow-right" %}Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:leitura_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-right" %}Leitura e conferência</a>{% endif %}
   </div>
 </div>
-{% if editavel %}<form id="continuar-relatorio" method="get" action="{% url 'viagens:documentos_prestacao' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>{% endif %}
+{% if editavel %}<form id="continuar-relatorio" method="get" action="{% url 'viagens:leitura_prestacao' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>{% endif %}
 {% if editavel and pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

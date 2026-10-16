@@ -336,7 +336,8 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
       {% if pode_cancelar and not plano.cancelado %}{% url 'viagens:cancelar_plano' plano.pk as cancelar_url %}{% endif %}
       {% if pode_excluir %}{% firstof "excluir-plano" as excluir_form %}{% endif %}
       {% with nome_doc=plano|stringformat:"s" %}{% with titulo_cancelar="Cancelar o "|add:nome_doc|add:"?" %}
-      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="plano" finalizar_form="finalizar-plano" duplicar_form="duplicar-plano" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O plano continua na lista, em Cancelados; o número não se libera." %}
+      {% if editavel and not pendencias and not plano.cancelado %}{% firstof "finalizar-plano" as emitir_form %}{% endif %}
+      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="plano" finalizar_form="finalizar-plano" emitir_form=emitir_form emitir_pronto=emitir_form emitir_rotulo="Emitir plano" duplicar_form="duplicar-plano" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O plano continua na lista, em Cancelados; o número não se libera." %}
       {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar plano</button>

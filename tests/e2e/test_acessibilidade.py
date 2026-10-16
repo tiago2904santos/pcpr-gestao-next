@@ -322,7 +322,6 @@ def test_documentos_da_prestacao_sem_violacoes(logado, dados_e2e, largura):
     anexos.anexar(Usuario.objects.get(login="operador"), p.pk, "comprovante", servidor_pk=a.pk,
                   nome="comprovante.pdf", conteudo=b"%PDF-1.4 t")
     logado.set_viewport_size({"width": largura, "height": 900})
-    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
 
 
@@ -356,7 +355,7 @@ def test_documentos_com_carimbo_sem_violacoes(logado, dados_e2e, largura):
     a = prestacao.ativos().filter(prestacao=p).order_by("servidor__nome").first()
     prestacao.salvar_solicitacao(operador, a.pk, numero="2030/1", liberacao=None, prazo=None)
     logado.set_viewport_size({"width": largura, "height": 900})
-    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

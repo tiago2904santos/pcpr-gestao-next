@@ -150,6 +150,17 @@ def rodar_axe(pg: Page) -> list[dict]:
     return resultado["violations"]
 
 
+def finalizar(pg: Page) -> None:
+    """Finalizar a folha: com o documento todo preenchido, o botão principal do rodapé é
+    Emitir e Finalizar mora no menu Ações ("Finalizar sem emitir")."""
+    botao = pg.locator(".barra-acoes").get_by_role("button", name="Finalizar", exact=True)
+    if botao.count() and botao.first.is_visible():
+        botao.first.click()
+        return
+    pg.locator(".barra-acoes [data-menu-botao]").last.click()
+    pg.get_by_role("menuitem", name="Finalizar sem emitir").click()
+
+
 def nome_seguro(texto: str) -> str:
     """Nome de arquivo válido em qualquer sistema e no upload de artefatos do CI."""
     return re.sub(r"[^A-Za-z0-9._-]+", "_", texto).strip("_") or "raiz"

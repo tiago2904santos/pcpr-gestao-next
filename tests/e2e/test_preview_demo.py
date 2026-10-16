@@ -18,7 +18,7 @@ import re
 import pytest
 from playwright.sync_api import Browser, Page, expect
 
-from .conftest import LARGURAS
+from .conftest import LARGURAS, finalizar
 
 PREVIEW_URL = os.environ.get("PREVIEW_URL", "").rstrip("/")
 # Local: banco de teste transacional (o servidor de teste roda em outra conexão).
@@ -184,7 +184,7 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente às",
                                                                    timeout=15000)
     _sem_rolagem_lateral(pg)
-    pg.get_by_role("button", name="Finalizar").click()
+    finalizar(pg)  # completo, o rodapé mostra Emitir; Finalizar fica no menu
     expect(pg.get_by_text(re.compile(r"Ofício \d+/\d{4} salvo\."))).to_be_visible()
 
     # Sair → login; a entrada automática não volta depois de sair.

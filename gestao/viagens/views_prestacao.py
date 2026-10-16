@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -21,9 +22,20 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, exportacao, leitura_anexos, policies, prestacao, prestacao_equipe
+from . import (
+    anexos,
+    assinados,
+    carimbo,
+    exportacao,
+    leitura_anexos,
+    pacote_prestacao,
+    policies,
+    prestacao,
+    prestacao_equipe,
+)
+from .diario import equipe_finalizada
 from .dominio.prestacao import prazo_para_prestar
-from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, Trecho
+from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, Trecho, ViaAssinada
 from .viagem import periodo_curto
 from .views import _migalhas
 
@@ -416,9 +428,11 @@ def exportar(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def leitura(request: HttpRequest, pk: int) -> HttpResponse:
-    """Leitura dos anexos: o texto do RT assinado, do diário assinado e dos comprovantes em
-    campos para copiar; no comprovante, autorização, data e valor conferidos com a diária do
-    ofício e a do RT. Só leitura (nada é gravado ao abrir)."""
+    """Leitura e conferência (etapa 3): o ofício assinado com a posição do nº da solicitação
+    de cada servidor e o despacho; o texto dos comprovantes, do RT e do diário assinados em
+    campos para copiar, com autorização, data e valor conferidos com a diária do ofício e a
+    do RT; remover um anexo e trazer de volta uma versão anterior. Os arquivos chegam pelo
+    importador. Nada é gravado ao abrir."""
     p = get_object_or_404(PrestacaoContas.objects.select_related("oficio__unidade"), pk=pk)
     if not policies.pode_ver_equipe_prestacao(request.user, p):
         raise Http404
@@ -430,8 +444,13 @@ def leitura(request: HttpRequest, pk: int) -> HttpResponse:
                  .select_related("servidor__servidor").order_by("servidor__servidor__nome",
                                                                "data_operacao", "pk"))
     tipos = AnexoPrestacao.Tipo
-    diario = next((leitura_anexos.ler(a) for a in todos if a.tipo == tipos.DB_ASSINADO), None)
-    servidores = []
+    pode = policies.pode_editar_equipe_prestacao(request.user, p)
+    o = p.oficio
+    via = assinados.vigente(assinados.Alvo(ViaAssinada.Tipo.OFICIO, o))
+    carimbos = {c.servidor_id: c for c in carimbo.carimbos(via)} if via else {}
+    db_anexo = next((a for a in todos if a.tipo == tipos.DB_ASSINADO), None)
+    diario = leitura_anexos.ler(db_anexo) if db_anexo else None
+    servidores: list[dict[str, Any]] = []
     lidos = 0
     for ps in membros:
         liberada = prestacao.diaria_liberada(ps)
@@ -449,25 +468,39 @@ def leitura(request: HttpRequest, pk: int) -> HttpResponse:
         soma = sum((a.valor for a in comprovantes if a.valor), Decimal("0")) or None
         leituras = [leitura_anexos.ler(a, diaria_oficio=liberada, diaria_rt=diaria_rt,
                                        soma_comprovantes=soma) for a in comprovantes]
+        c = carimbos.get(ps.pk)
         servidores.append({"ps": ps, "liberada": liberada, "diaria_rt": diaria_rt,
-                           "comprovantes": leituras, "rt": rt,
+                           "comprovantes": leituras, "rt": rt, "rt_anexo": rt_anexo,
+                           "carimbo": c, "carimbo_x": round(c.x * 100, 1) if c else "",
+                           "carimbo_y": round(c.y * 100, 1) if c else "",
+                           "falta_pacote": pacote_prestacao.pendencias_do_pacote(ps),
                            "editavel": policies.pode_editar_prestacao(request.user, ps)
                            and not ps.finalizada})
         lidos += sum(1 for c in leituras if c.legivel) + (1 if rt and rt.legivel else 0)
     lidos += 1 if diario and diario.legivel else 0
-    o = p.oficio
+    folha = contexto_folha(request, p, "leitura")
+    atual = folha["servidor_atual"]
+    pacote = next((s for s in servidores if atual and s["ps"].pk == atual["ps"].pk), None)
+    pacote_pronto = pacote if pacote and not pacote["falta_pacote"] else None
     return render(request, "viagens/prestacao/leitura.html", {
-        "p": p, "oficio": o, "servidores": servidores, "diario": diario,
-        "lidos": lidos,
-        **contexto_folha(request, p, "leitura"),
+        "p": p, "oficio": o, "servidores": servidores, "diario": diario, "db_anexo": db_anexo,
+        "lidos": lidos, "via": via, "pode": pode,
+        "paginas_via": range(1, carimbo.numero_de_paginas(via) + 1) if via else range(0),
+        "despachos": [a for a in todos if a.tipo == tipos.DESPACHO and a.servidor_id is None],
+        "editavel_equipe": pode and not equipe_finalizada(p),
+        "anteriores": list(anexos.versoes_anteriores(p)),
+        "operacoes": AnexoPrestacao.Operacao.choices,
+        "pacote_pronto": pacote_pronto,
+        "menu_leitura": "viagens/prestacao/_menu_leitura.html" if via or pacote_pronto else "",
+        **folha,
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {o.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),
-                              ("Leitura dos anexos", ""))})
+                              ("Leitura e conferência", ""))})
 
 
 def contexto_folha(request: HttpRequest, p: PrestacaoContas, atual: str) -> dict:
-    """O que as folhas da prestação (diário, relatório, documentos, leitura) têm em comum:
+    """O que as folhas da prestação (diário, relatório, leitura) têm em comum:
     as etapas, a equipe (as linhas da lista) e o bloco do ofício para a lateral."""
     if not hasattr(p, "equipe"):
         p.equipe = p.oficio.viajantes.count()  # type: ignore[attr-defined]

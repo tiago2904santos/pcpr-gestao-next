@@ -43,3 +43,10 @@
   .registro--servidor .registro__campo--solicitacao { width: 7.5rem; }
   .registro--servidor .registro__campo--prazo { flex: 1 1 12rem; width: auto; }
 }
+
+/* Pendências da linha do servidor: aberto, o painel fica por cima das linhas seguintes (a
+   linha e o bloco dos servidores sobem; o próximo ofício não o cobre). */
+.registros > .registro:has(.pendencias-linha:is(:hover, :focus-within)),
+.registros--operacionais > .registro-operacional__servidores:has(.pendencias-linha:is(:hover, :focus-within)) { position: relative; z-index: calc(var(--z-linha-acoes) + 1); }
+/* As ações da linha do servidor com a altura dos campos ao lado (solicitação e saque). */
+.registro--servidor .registro__acoes > .botao.botao--sm { min-height: var(--altura-controle); }

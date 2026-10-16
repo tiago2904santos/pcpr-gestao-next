@@ -11,7 +11,7 @@ from playwright.sync_api import expect
 from gestao.cadastros.models import Servidor, Viatura
 from gestao.viagens.models import Oficio
 
-from .conftest import AXE, rodar_axe, salvar_relatorio
+from .conftest import AXE, finalizar, rodar_axe, salvar_relatorio
 
 pytestmark = pytest.mark.e2e
 
@@ -114,7 +114,7 @@ def test_cadastra_servidor_e_viatura_sem_perder_a_folha(logado, dados_e2e, largu
     expect(janela).to_be_hidden()
     # Finalizar é um envio real que aguarda o autosave e termina fora da folha.
     # Evita que pagehide envie um beacon concorrente com TRUNCATE da fixture.
-    pg.get_by_role("button", name="Finalizar", exact=True).click()
+    finalizar(pg)
     pg.wait_for_url("**/viagens/oficios/")
     assert Oficio.objects.get(pk=pk).motivo == texto
 

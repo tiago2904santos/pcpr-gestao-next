@@ -1,4 +1,4 @@
-"""Documentos da prestação: correção operável em cada largura."""
+"""Leitura e conferência da prestação: correção e carimbo operáveis em cada largura."""
 
 import re
 
@@ -23,8 +23,8 @@ def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura
     arquivo = a.arquivo.name
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
-    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
-    expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos e fechamento")
+    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Leitura e conferência")
     expect(pg.get_by_role("button", name=re.compile("^Servidor da folha"))).to_contain_text(ps.servidor.nome)
     cartao = pg.locator(f"#ps-{ps.pk}")
     corrigir = cartao.get_by_role("button", name=re.compile("^Corrigir valor"))
@@ -72,7 +72,7 @@ def test_carimbo_responsivo_preserva_via_assinada(logado, dados_e2e):
     ps = prestacao.ativos().filter(prestacao=p).first()
     prestacao.salvar_solicitacao(operador, ps.pk, numero="2030/1", liberacao=None, prazo=None)
     pg = logado
-    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
     pg.get_by_text("Posição do número da solicitação no ofício assinado", exact=True).click()
     for largura in [360, 768, 1440]:
         pg.set_viewport_size({"width": largura, "height": 900})

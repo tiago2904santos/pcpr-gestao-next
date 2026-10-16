@@ -447,10 +447,6 @@ def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
     parser.feed(html)
     assert parser.envios and all(parser.envios)
     assert f'data-abrir-dialogo="envio-{a.pk}"' in html
-    # Nos documentos do servidor finalizado, o mesmo diálogo.
-    html = op.get(reverse("viagens:documentos_prestacao", args=[a.prestacao_id]),
-                  {"servidor": a.pk}).content.decode()
-    assert f'<dialog id="envio-{a.pk}"' in html
 
 
 def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
@@ -459,16 +455,16 @@ def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
     r = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id]))
     assert r.status_code == 200
     assert [e.titulo for e in r.context["etapas_folha"]] == [
-        "Diário de bordo", "Relatório técnico", "Documentos", "Leitura e conferência"]
+        "Diário de bordo", "Relatório técnico", "Leitura e conferência"]
     assert all(e.estado == "pendente" for e in r.context["etapas_folha"])  # nada feito
-    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "documentos",
-                                                      "leitura"]
+    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "leitura"]
     conf = r.context["conferencia"]
     assert conf.total == 2 and not conf.pronta
     # Cada pendência leva aonde se resolve.
     urls = [i.url for _, itens in conf.abertas for i in itens]
     assert any(u.endswith(f"#ps-{a.pk}") for u in urls)
-    assert any("/documentos/#despacho" in u for u in urls)
+    # O que falta anexar vai ao importador.
+    assert reverse("viagens:importacoes") in urls
     # Abrir não cria diário nem relatório (GET).
     from gestao.viagens.models import DiarioBordo, RelatorioTecnico
     assert not DiarioBordo.objects.filter(prestacao_id=a.prestacao_id).exists()

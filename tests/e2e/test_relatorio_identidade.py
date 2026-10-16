@@ -31,7 +31,7 @@ def test_relato_continuar_e_valores_individuais(logado, dados_e2e, largura):
     # Não aguarda o anúncio de autosave: continuar precisa coordenar a gravação.
     pg.get_by_role("button", name="Salvar e continuar").last.focus()
     pg.keyboard.press("Enter")
-    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/documentos/\?servidor=\d+$"))
+    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/leitura/\?servidor=\d+$"))
     assert RelatorioTecnico.objects.get(prestacao=p).atividade == texto
     assert not p.servidores.filter(finalizada_em__isnull=False).exists()
     assert pg.erros_console == []

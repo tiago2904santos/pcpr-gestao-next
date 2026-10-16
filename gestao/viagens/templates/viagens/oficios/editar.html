@@ -233,7 +233,8 @@ altura do fluxo durante o autosave ou a proteção de saída.
   <div class="barra-acoes__acoes">
     <a class="botao botao--texto" href="{% url 'viagens:oficios' %}">Voltar</a>
     {% if pode_excluir %}{% firstof "form-excluir" as excluir_form %}{% endif %}
-    {% include "componentes/rodape_documento.html" with nome="ofício" finalizar_form="form-oficio" finalizar_acao="finalizar" finalizar_primario=True duplicar_form="duplicar-oficio" excluir_form=excluir_form %}
+    {% if pode_emitir and prontidao.pode_emitir %}{% firstof "form-oficio" as emitir_form %}{% endif %}
+    {% include "componentes/rodape_documento.html" with nome="ofício" finalizar_form="form-oficio" finalizar_acao="finalizar" finalizar_primario=True emitir_form=emitir_form emitir_acao="emitir" emitir_pronto=emitir_form emitir_rotulo="Emitir ofício" finalizar_no_menu=True duplicar_form="duplicar-oficio" excluir_form=excluir_form %}
   </div>
 </div>
 {% comment %}"Limpar roteiro" (cartão do roteiro cadastrado): apaga trechos e vínculo — pede confirmação e espera o autosave.{% endcomment %}

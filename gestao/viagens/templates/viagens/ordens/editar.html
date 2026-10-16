@@ -190,7 +190,8 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       {% if pode_cancelar and not ordem.cancelada %}{% url 'viagens:cancelar_ordem' ordem.pk as cancelar_url %}{% endif %}
       {% if pode_excluir %}{% firstof "excluir-ordem" as excluir_form %}{% endif %}
       {% with nome_doc=ordem|stringformat:"s" %}{% with titulo_cancelar="Cancelar a "|add:nome_doc|add:"?" %}
-      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="OS" finalizar_form="finalizar-ordem" duplicar_form="duplicar-ordem" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="A OS continua na lista, em Canceladas; o número não se libera." %}
+      {% if editavel and not faltando and not ordem.cancelada %}{% firstof "finalizar-ordem" as emitir_form %}{% endif %}
+      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="OS" finalizar_form="finalizar-ordem" emitir_form=emitir_form emitir_pronto=emitir_form emitir_rotulo="Emitir OS" duplicar_form="duplicar-ordem" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="A OS continua na lista, em Canceladas; o número não se libera." %}
       {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar OS</button>

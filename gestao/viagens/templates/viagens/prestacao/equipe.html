@@ -9,7 +9,7 @@ leitura) e as seções numeradas:
 1 Servidores — um cartão por servidor (nº da solicitação, liberação e prazo gravam sozinhos;
   finalizar, arquivar, registrar envio, aprovar e devolver); os ids, formulários e regiões
   vivas são os da lista antiga (autosave.js);
-2 Diário, relatório e documentos — as três folhas da equipe, cada uma com a situação e o
+2 Diário, relatório e leitura — as três folhas da equipe, cada uma com a situação e o
   que tem;
 3 Conferência — o que falta para cada servidor finalizar, com o atalho até onde se resolve.
 No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e o menu.
@@ -45,7 +45,7 @@ No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e
   {# 2. As folhas da equipe. #}
   <section class="secao{% if folhas_feitas == folhas|length %} secao--ok{% endif %}" id="folhas" aria-labelledby="t-folhas">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-folhas"><span class="secao__numero">2</span>Diário, relatório e documentos</h2>
+      <h2 class="secao__titulo" id="t-folhas"><span class="secao__numero">2</span>Diário, relatório e leitura</h2>
       <div class="secao__estado"><span class="selo {% if folhas_feitas == folhas|length %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ folhas_feitas }} de {{ folhas|length }} prontas</span></div>
       <p class="secao__nota">As folhas são da equipe inteira: travam quando todos estão finalizados.</p>
     </div>

@@ -80,7 +80,8 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
         {% elif ps.arquivada %}
           <button type="submit" class="botao botao--sm botao--sutil" formaction="{% url 'viagens:acao_prestacao' ps.pk 'desarquivar' %}">{% icone "folder-open" %}Desarquivar</button>
         {% else %}
-          <button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar</button>
+          {% if l.pendencias %}{# Com pendência, finalizar pede a justificativa (fica registrada). #}<button type="button" class="botao botao--sm" data-pedir-motivo="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}" data-motivo-campo="justificativa" data-motivo-titulo="Finalizar a prestação de {{ ps.servidor.nome }} com pendências?" data-motivo-rotulo="Justificativa" data-motivo-acao="Finalizar mesmo assim" data-motivo-ajuda="Falta: {{ l.pendencias|join:'; ' }}. A justificativa fica registrada na prestação.">{% icone "check" %}Finalizar</button>
+          {% else %}<button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar</button>{% endif %}
         {% endif %}
       {% endif %}
       <pc-menu class="menu">
@@ -89,8 +90,7 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
           <p class="menu__folha-titulo" aria-hidden="true">{{ ps.servidor.nome }}</p>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "gauge" %}1 · Diário de bordo</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "file-pen-line" %}2 · Relatório técnico</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:documentos_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "files" %}3 · Documentos e fechamento</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "scan-text" %}4 · Leitura e conferência</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "scan-text" %}3 · Leitura e conferência</a>
           <div class="menu__separador" role="separator"></div>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' ps.pk %}">{% icone "file-check-2" %}Pacote final (PDF)</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_relatorio' ps.prestacao_id ps.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}RT deste servidor (PDF)</a>

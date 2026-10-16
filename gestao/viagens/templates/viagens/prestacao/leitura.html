@@ -4,23 +4,74 @@
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Etapa 4 da prestação de contas (ADR 0042), com as peças da folha do termo e da OS: o que
-está escrito nos anexos transcrito em campos para copiar (os mesmos "dados copiáveis" dos
-dados para o eProtocolo do ofício). 1 Comprovantes — por servidor, o nº de autorização, a
-data, o valor e a operação lidos do PDF do banco, conferidos com a diária do ofício e com a
-do RT assinado; "Usar no comprovante" grava o lido no anexo. 2 Relatório técnico assinado e
-3 Diário de bordo assinado — os campos como estão no PDF. Nada é gravado ao abrir.
+Etapa 3 da prestação de contas (ADR 0042), com as peças da folha do termo e da OS. Os
+arquivos chegam pelo importador; aqui se confere o que veio. 1 Ofício assinado e despacho —
+a via do ofício com a posição do nº da solicitação de cada servidor (o carimbo) e os
+despachos. 2 Comprovantes — por servidor, o nº de autorização, a data, o valor e a operação
+lidos do PDF do banco, conferidos com a diária do ofício e com a do RT assinado; "Usar no
+comprovante" grava o lido no anexo. 3 Relatório técnico assinado e 4 Diário de bordo
+assinado — os campos como estão no PDF. 5 Versões anteriores — o removido fica 30 dias e
+pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é gravado ao abrir.
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Leitura e conferência" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Leitura e conferência" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" menu_folha=menu_leitura %}
 {% include "viagens/prestacao/_etapas.html" %}
 
 <div class="documento documento--preparacao">
-  {# 1. Comprovantes: por servidor, o que foi lido e a conferência. #}
+  {# 1. Ofício assinado (com o nº da solicitação de cada servidor) e despacho, da equipe. #}
+  <section class="secao{% if via and despachos %} secao--ok{% endif %}" id="oficio_assinado" aria-labelledby="t-oficio-assinado">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-oficio-assinado"><span class="secao__numero">1</span>Ofício assinado e despacho</h2>
+      <p class="secao__nota">Da equipe. O nº da solicitação de cada servidor entra na prévia e no pacote, na posição indicada; o arquivo assinado não muda.</p>
+    </div>
+    <div class="secao__bloco">
+    <ul class="registros" aria-label="Documentos da equipe">
+      <li class="registro{% if not via %} registro--rascunho{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% if via %}{% icone "check-circle-2" %}{% else %}{% icone "file-signature" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Ofício assinado</span><span class="registro__selos">{% if via %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}</span></div>
+          {% if via %}<ul class="registro__notas"><li class="registro__nota">{% icone "file-signature" classe="icone--sm" %}<a href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a></li></ul>
+          {% else %}<div class="registro__meta"><span class="registro__meta-item">A via assinada é anexada na folha do ofício.</span></div>{% endif %}
+          {% if via %}
+          <details class="divulgacao mt-2"><summary>{% icone "stamp" classe="icone--sm" %}Posição do número da solicitação no ofício assinado</summary>
+            <div class="divulgacao__corpo pilha">
+              <p class="texto-secundario texto-sm">O ofício volta assinado com a coluna da solicitação em branco. Diga a página e a posição (em % da página, do canto de cima à esquerda) e confira na <a href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">prévia (PDF)<span class="sr-only"> (nova aba)</span></a>.</p>
+              {% for s in servidores %}{% with ps=s.ps %}
+              {% if not ps.numero_solicitacao %}<p class="texto-sm"><span class="peso-semi">{{ ps.servidor.nome }}</span> · sem nº de solicitação ainda.</p>
+              {% elif s.editavel %}
+              <form method="post" action="{% url 'viagens:carimbar_numero' ps.pk %}" class="anexo-campos" novalidate>
+                {% csrf_token %}<input type="hidden" name="servidor" value="{{ ps.pk }}">
+                <p class="anexo-campos__arquivo texto-sm"><span class="peso-semi">{{ ps.servidor.nome }}</span> · nº {{ ps.numero_solicitacao }}{% if not s.carimbo %} · <span class="selo selo--aviso selo--situacao-rascunho">sem posição</span>{% endif %}</p>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-pagina">Página</label><pc-select class="seletor"><select class="selecao" id="c{{ ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></pc-select></div>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-x">Horizontal (%)</label><input class="entrada" id="c{{ ps.pk }}-x" name="x" value="{{ s.carimbo_x }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-y">Vertical (%)</label><input class="entrada" id="c{{ ps.pk }}-y" name="y" value="{{ s.carimbo_y }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+                <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "stamp" %}Salvar posição<span class="sr-only"> do número de {{ ps.servidor.nome }}</span></button></div>
+              </form>
+              {% else %}<p class="texto-sm"><span class="peso-semi">{{ ps.servidor.nome }}</span> · nº {{ ps.numero_solicitacao }}{% if s.carimbo %} · página {{ s.carimbo.pagina|add:1 }}, {{ s.carimbo_x }}% × {{ s.carimbo_y }}%{% else %} · sem posição{% endif %}</p>{% endif %}
+              {% endwith %}{% endfor %}
+            </div></details>
+          {% endif %}
+        </div>
+        {% if editavel_equipe %}<div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm" href="{% url 'viagens:editar' oficio.pk %}#assinados">{% icone "upload" %}{% if via %}Substituir{% else %}Anexar{% endif %}<span class="sr-only"> o ofício assinado, na folha do ofício</span></a></div>{% endif %}
+      </li>
+
+      <li class="registro{% if not despachos %} registro--rascunho{% endif %}" id="despacho">
+        <span class="registro__icone" aria-hidden="true">{% if despachos %}{% icone "check-circle-2" %}{% else %}{% icone "file-text" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Despacho assinado</span><span class="registro__selos">{% if despachos %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}</span></div>
+          {% if despachos %}<ul class="registro__notas">{% for a in despachos %}<li class="registro__nota">{% icone "file-signature" classe="icone--sm" %}<a href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener">{{ a.nome_original|default:a.get_tipo_display }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=a editavel=editavel_equipe %}</li>{% endfor %}</ul>
+          {% else %}<div class="registro__meta"><span class="registro__meta-item">Pode ter mais de um (somam). <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a>.</span></div>{% endif %}
+        </div>
+      </li>
+    </ul>
+    </div>
+  </section>
+
+  {# 2. Comprovantes: por servidor, o que foi lido e a conferência. #}
   <section class="secao" id="comprovantes" aria-labelledby="t-comprovantes">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-comprovantes"><span class="secao__numero">1</span>Comprovantes de saque e transferência</h2>
+      <h2 class="secao__titulo" id="t-comprovantes"><span class="secao__numero">2</span>Comprovantes de saque e transferência</h2>
       <div class="secao__estado"><span class="texto-terciario texto-xs">{{ lidos|pluralizar:"documento lido,documentos lidos" }}</span></div>
       <p class="secao__nota">Nº de autorização (o código do banco), data e valor lidos do PDF. O valor é conferido com a diária do ofício e com a escrita no relatório técnico assinado. PDF digitalizado ou imagem não têm texto para ler.</p>
     </div>
@@ -35,7 +86,7 @@ do RT assinado; "Usar no comprovante" grava o lido no anexo. 2 Relatório técni
         <div class="secao__bloco" id="anexo-{{ c.anexo.pk }}">
           <div class="secao__bloco-cabecalho">
             <h4 class="secao__bloco-titulo">{% icone "receipt" classe="icone--sm" %}<a href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{{ c.titulo }}</a></h4>
-            {% if c.legivel %}<div class="secao__estado">{% for texto, tom in c.conferencias %}<span class="selo selo--{{ tom }}">{{ texto }}</span>{% endfor %}</div>{% endif %}
+            <div class="secao__estado">{% if c.legivel %}{% for texto, tom in c.conferencias %}<span class="selo selo--{{ tom }}">{{ texto }}</span>{% endfor %}{% endif %}{% include "viagens/prestacao/_anexo_acoes.html" with a=c.anexo editavel=s.editavel %}</div>
           </div>
           {% if c.legivel %}
           <div class="dados-copiaveis">
@@ -66,10 +117,11 @@ do RT assinado; "Usar no comprovante" grava o lido no anexo. 2 Relatório técni
           <div class="campo" id="selecao-{{ c.anexo.pk }}" hidden><label class="campo__rotulo" for="tudo-{{ c.anexo.pk }}">Todos os dados para copiar</label><textarea class="area-texto" id="tudo-{{ c.anexo.pk }}" rows="4" readonly>{{ c.copiar_tudo }}</textarea><p class="campo__ajuda">O texto foi selecionado. Pressione Ctrl+C para copiar.</p></div>
           {% else %}
           <p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
+          <p class="texto-sm texto-secundario mt-2">{% if c.anexo.valor %}Gravado: {{ c.anexo.valor|moeda }}{% if c.anexo.data_operacao %} em {{ c.anexo.data_operacao|date:"d/m/Y" }}{% endif %}{% if c.anexo.operacao %} · {{ c.anexo.get_operacao_display }}{% endif %}.{% else %}Sem valor gravado{% if s.editavel %} — informe pelo lápis ao lado do arquivo{% endif %}.{% endif %}</p>
           {% endif %}
         </div>
       {% empty %}
-        <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}#comprovantes">Anexar em Documentos</a>.</p>
+        <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a>.</p>
       {% endfor %}
       </div>
     </div>
@@ -78,42 +130,56 @@ do RT assinado; "Usar no comprovante" grava o lido no anexo. 2 Relatório técni
     {% endfor %}
   </section>
 
-  {# 2. Relatório técnico assinado, por servidor. #}
-  <section class="secao" id="relatorios" aria-labelledby="t-relatorios">
+  {# 3. Relatório técnico assinado, por servidor. #}
+  <section class="secao" id="rt_assinado" aria-labelledby="t-relatorios">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-relatorios"><span class="secao__numero">2</span>Relatório técnico assinado</h2>
-      <p class="secao__nota">Os campos do RT como estão no PDF anexado, para copiar; a diária escrita nele entra na conferência do comprovante.</p>
+      <h2 class="secao__titulo" id="t-relatorios"><span class="secao__numero">3</span>Relatório técnico assinado</h2>
+      <p class="secao__nota">Os campos do RT como estão no PDF anexado, para copiar; a diária escrita nele entra na conferência do comprovante. Sem o assinado, o RT preenchido vale para finalizar.</p>
     </div>
     {% for s in servidores %}{% with ps=s.ps c=s.rt %}
     <div class="secao__bloco" aria-labelledby="t-rt-{{ ps.pk }}">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-rt-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
-        {% if c %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{% icone "file-pen-line" classe="icone--sm" %}{{ c.titulo }}</a></div>{% endif %}
+        {% if c %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{% icone "file-pen-line" classe="icone--sm" %}{{ c.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=s.rt_anexo editavel=s.editavel %}</div>{% endif %}
       </div>
-      {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}#rt_assinado">Anexar em Documentos</a>.</p>
+      {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">ver o RT preenchido</a>.</p>
       {% elif not c.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
       {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=c prefixo="rt" %}{% endif %}
     </div>
     {% endwith %}{% endfor %}
   </section>
 
-  {# 3. Diário de bordo assinado (da equipe). #}
-  <section class="secao" id="diario-lido" aria-labelledby="t-diario-lido">
+  {# 4. Diário de bordo assinado (da equipe). #}
+  <section class="secao" id="db_assinado" aria-labelledby="t-diario-lido">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">3</span>Diário de bordo assinado</h2>
-      {% if diario and diario.legivel %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{% icone "gauge" classe="icone--sm" %}{{ diario.titulo }}</a></div>{% endif %}
-      <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado.</p>
+      <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">4</span>Diário de bordo assinado</h2>
+      {% if diario %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{% icone "gauge" classe="icone--sm" %}{{ diario.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=db_anexo editavel=editavel_equipe %}</div>{% endif %}
+      <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado. Sem o assinado, o diário preenchido vale para finalizar.</p>
     </div>
-    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}#db_assinado">Anexar em Documentos</a>.</p>
+    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">ver o diário preenchido</a>.</p>
     {% elif not diario.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ diario.aviso }}</span></p>
     {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=diario prefixo="db" %}{% endif %}
+  </section>
+
+  {# 5. Versões anteriores: o removido fica 30 dias e pode voltar. #}
+  <section class="secao" id="anteriores" aria-labelledby="t-anteriores">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-anteriores"><span class="secao__numero">5</span>Versões anteriores</h2>
+      <div class="secao__estado"><span class="texto-terciario texto-xs">{{ anteriores|length|pluralizar:"arquivo,arquivos" }}</span></div>
+      <p class="secao__nota">O que foi removido ou substituído fica 30 dias e pode voltar.</p>
+    </div>
+    {% if anteriores %}<ul class="registros">{% for a in anteriores %}<li class="registro registro--inativo">
+      <span class="registro__icone" aria-hidden="true">{% icone "history" %}</span>
+      <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener">{{ a.nome_original|default:a.get_tipo_display }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ a.get_tipo_display }}{% if a.servidor %} · {{ a.servidor.servidor.nome }}{% endif %} · {{ a.get_removido_motivo_display|default:"removido" }} em {{ a.removido_em|date:"d/m/Y H:i" }}</span></div></div>
+      {% if pode %}<div class="registro__acoes registro__acoes--fixas"><form method="post" action="{% url 'viagens:acao_anexo' a.pk 'restaurar' %}">{% csrf_token %}<input type="hidden" name="servidor_atual" value="{{ a.servidor_id|default:'' }}"><button type="submit" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Trazer de volta<span class="sr-only"> {{ a.nome_original }}</span></button></form></div>{% endif %}
+    </li>{% endfor %}</ul>{% else %}<p class="vazio-inline">{% icone "history" classe="icone--sm" %}Nada removido nos últimos 30 dias.</p>{% endif %}
   </section>
 </div>
 
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" role="status">{% icone "scan-text" classe="icone--sm" %}<span>{{ lidos|pluralizar:"documento lido,documentos lidos" }}. Nada é gravado ao abrir esta página.</span></div>
   <div class="barra-acoes__acoes">
-    <a class="botao botao--texto" href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
+    <a class="botao botao--texto" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
     <a class="botao botao--primario" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "list" %}Concluir: voltar à lista</a>
   </div>
 </div>

@@ -61,16 +61,15 @@ def test_prestacao_da_linha_ao_envio(logado, dados_e2e):
     pg.locator(f"#ps-{a.pk}").get_by_role("button", name="Finalizar", exact=True).click()
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Finalizada")
 
-    # Com pendência (sem comprovante): explica e oferece finalizar com justificativa.
+    # Com pendência (sem comprovante): Finalizar pede a justificativa (fica registrada).
     outro = pg.locator(f"#ps-{b.pk}")
     outro.get_by_role("button", name="Finalizar", exact=True).click()
-    expect(pg.locator(".toast").first).to_contain_text("pendências")
-    # A justificativa fica na folha de documentos e fechamento do servidor.
-    pg.goto(f"/viagens/prestacoes/equipe/{b.prestacao_id}/documentos/?servidor={b.pk}")
-    pg.get_by_label("Justificativa para finalizar mesmo assim (fica registrada)").fill("Servidor não chegou a viajar.")
-    pg.get_by_role("button", name="Finalizar mesmo assim").click()
-    expect(pg.locator("#fechamento")).to_contain_text("Finalizada")
-    pg.goto("/viagens/prestacoes/")
+    dialogo = pg.get_by_role("dialog", name=f"Finalizar a prestação de {b.servidor.nome} com pendências?")
+    dialogo.get_by_label("Justificativa").fill("Servidor não chegou a viajar.")
+    dialogo.get_by_role("button", name="Finalizar mesmo assim").click()
+    expect(pg.locator(".toast").first).to_contain_text("finalizada")
+    b.refresh_from_db()
+    assert b.finalizada and b.justificativa_finalizacao == "Servidor não chegou a viajar."
     expect(pg.locator(f"#ps-{b.pk}")).to_contain_text("Finalizada com pendência")
     expect(pg.locator(f"#equipe-{a.prestacao_id}").get_by_text("Equipe finalizada")).to_be_visible()
 

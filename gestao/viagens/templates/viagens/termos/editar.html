@@ -21,6 +21,7 @@ delas são parte do contrato e não mudam.
 {% if termo %}{% with numero=termo.pk|stringformat:"s" %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" rotulo="Termo" numero="#"|add:numero titulo="Autorizações da viagem" complemento_template="viagens/termos/_cabecalho_contexto.html" acoes_template="viagens/termos/_cabecalho_acoes.html" %}{% endwith %}{% else %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Novo termo de autorização" complemento_template="viagens/termos/_cabecalho_contexto.html" %}{% endif %}
 
 {% if termo and editavel %}<form id="finalizar-termo" method="post" action="{% url 'viagens:finalizar_termo' termo.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form><form id="duplicar-termo" method="post" action="{% url 'viagens:duplicar_termo' termo.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>{% endif %}
+{% if termo and editavel %}{# Emitir (rodapé, com tudo preenchido): espera a gravação e abre o documento final. #}<form id="emitir-termo" method="get" action="{% url 'viagens:todos_termo' termo.pk 'pdf' %}" target="_blank" hidden data-esperar-salvamento></form>{% endif %}
 {% if pode_excluir %}<form id="excluir-termo" method="post" action="{% url 'viagens:excluir_termo' termo.pk %}" hidden data-confirmar="O {{ termo }} será excluído de vez. Para guardar o histórico, cancele em vez de excluir." data-confirmar-titulo="Excluir termo?" data-confirmar-rotulo="Excluir termo" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 
 {% if termo.cancelado %}
@@ -245,7 +246,8 @@ delas são parte do contrato e não mudam.
       {% if pode_cancelar and not termo.cancelado %}{% url 'viagens:cancelar_termo' termo.pk as cancelar_url %}{% endif %}
       {% if pode_excluir %}{% firstof "excluir-termo" as excluir_form %}{% endif %}
       {% with nome_doc=termo|stringformat:"s" %}{% with titulo_cancelar="Cancelar o "|add:nome_doc|add:"?" %}
-      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="termo" finalizar_form="finalizar-termo" duplicar_form="duplicar-termo" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O termo continua na lista, em Cancelados; dá para reativar." %}
+      {% if editavel and ef.completo and not termo.cancelado %}{% firstof "emitir-termo" as emitir_form %}{% endif %}
+      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="termo" finalizar_form="finalizar-termo" emitir_form=emitir_form emitir_pronto=emitir_form emitir_rotulo="Emitir termos" finalizar_no_menu=True duplicar_form="duplicar-termo" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O termo continua na lista, em Cancelados; dá para reativar." %}
       {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar termo</button>

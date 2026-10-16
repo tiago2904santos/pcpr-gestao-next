@@ -12,12 +12,23 @@ o botão manda, quando Finalizar é o próprio formulário da folha — o ofíci
 `excluir_form`,
 `cancelar_url` (+ `cancelar_titulo`, `cancelar_ajuda`). Ações próprias de um documento
 (ex.: "Lançar os resultados" do plano) ficam no menu do cabeçalho.
+
+Emitir: com o documento todo preenchido (`emitir_pronto`), o botão principal deixa de ser
+Finalizar e vira Emitir — `emitir_form` (+ `emitir_acao`, como em Finalizar) e
+`emitir_rotulo` ("Emitir OS"…). Onde Finalizar só grava (ofício, termo:
+`finalizar_no_menu`), ele continua no menu Ações como "Finalizar sem emitir"; onde Finalizar
+já gera o documento (OS, plano), Emitir é o próprio envio de Finalizar. O botão principal mora numa
+região viva (`#acao-principal`): a troca acontece sozinha depois da gravação automática.
 {% endcomment %}
-{% if finalizar_form %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="botao {% if finalizar_primario %}botao--primario{% else %}botao--marca{% endif %}">{% icone "check" %}Finalizar</button>{% endif %}
-{% if duplicar_form or cancelar_url or excluir_form %}
+<span class="rodape-documento__principal" id="acao-principal" data-vivo>
+{% if emitir_pronto and emitir_form %}<button type="submit" form="{{ emitir_form }}"{% if emitir_acao %} name="acao" value="{{ emitir_acao }}"{% endif %} class="botao botao--primario">{% icone "stamp" %}{{ emitir_rotulo|default:"Emitir" }}</button>
+{% elif finalizar_form %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="botao {% if finalizar_primario %}botao--primario{% else %}botao--marca{% endif %}">{% icone "check" %}Finalizar</button>{% endif %}
+</span>
+{% if duplicar_form or cancelar_url or excluir_form or emitir_pronto and finalizar_no_menu %}
 <pc-menu class="menu">
   <button type="button" class="botao" data-menu-botao aria-haspopup="menu" aria-label="Ações: {{ nome }}">{% icone "ellipsis-vertical" %}<span>Ações</span></button>
   <div class="menu__painel menu__painel--acima" role="menu" hidden>
+    {% if emitir_pronto and emitir_form and finalizar_form and finalizar_no_menu %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="menu__item" role="menuitem">{% icone "check" %}Finalizar sem emitir</button>{% endif %}
     {% if duplicar_form %}<button type="submit" form="{{ duplicar_form }}" class="menu__item" role="menuitem">{% icone "copy" %}Duplicar {{ nome }}</button>{% endif %}
     {% if cancelar_url %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{{ cancelar_url }}" data-motivo-titulo="{{ cancelar_titulo }}" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar {{ nome }}" data-motivo-ajuda="{{ cancelar_ajuda }}" data-motivo-perigo>{% icone "ban" %}Cancelar {{ nome }}</button>{% endif %}
     {% if excluir_form %}<button type="submit" form="{{ excluir_form }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir {{ nome }}</button>{% endif %}

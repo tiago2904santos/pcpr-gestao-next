@@ -1,37 +1,27 @@
-"""Documentos da prestação (módulo 9d): a folha com o ofício assinado (a via do módulo 7),
-o despacho, o diário assinado, e por servidor os comprovantes e o RT assinado; anexar,
-abrir, remover, voltar uma versão anterior e corrigir valor/data/operação do comprovante.
-Regra em `anexos.py`."""
+"""Anexos da prestação (módulo 9d): o despacho, o diário assinado e, por servidor, os
+comprovantes e o RT assinado — anexar, abrir, remover, voltar uma versão anterior, corrigir
+valor/data/operação do comprovante e a posição do nº da solicitação no ofício assinado. A
+tela é a leitura e conferência (a antiga folha de documentos leva para lá). Regra em
+`anexos.py`."""
 
 from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from gestao.plataforma.downloads import responder_fila
 
-from . import (
-    anexos,
-    assinados,
-    carimbo,
-    diario,
-    eprotocolo,
-    pacote_prestacao,
-    policies,
-    views_prestacao,
-)
+from . import anexos, carimbo, pacote_prestacao, policies
 from . import prestacao as servico
 from .dominio import relatorio as dominio_rt
-from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, ViaAssinada
-from .views import _migalhas
+from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor
 
 
 def _prestacao(request: HttpRequest, pk: int) -> PrestacaoContas:
@@ -66,59 +56,17 @@ def _data(texto: str) -> date | None:
 
 @require_GET
 def folha(request: HttpRequest, pk: int) -> HttpResponse:
+    """A antiga folha "Documentos e fechamento" (apagada a pedido do usuário, 16/10/2026):
+    os arquivos chegam pelo importador e se conferem na leitura — o endereço leva para lá."""
     p = _prestacao(request, pk)
-    oficio = p.oficio
-    pode = policies.pode_editar_equipe_prestacao(request.user, p)
-    equipe_travada = diario.equipe_finalizada(p)
-    todos = list(anexos.ativos(AnexoPrestacao.objects.filter(prestacao=p))
-                 .select_related("servidor__servidor"))
-    da_equipe: dict[str, list[AnexoPrestacao]] = {
-        str(t): [a for a in todos if a.tipo == t and a.servidor_id is None]
-        for t in (AnexoPrestacao.Tipo.DESPACHO, AnexoPrestacao.Tipo.DB_ASSINADO)}
-    servidores: list[dict[str, Any]] = []
-    for ps in servico.ativos(PrestacaoServidor.objects.filter(prestacao=p)
-                             .select_related("servidor").order_by("servidor__nome")):
-        ps.prestacao = p
-        comprovantes = sorted(
-            (a for a in todos if a.servidor_id == ps.pk
-             and a.tipo == AnexoPrestacao.Tipo.COMPROVANTE),
-            key=lambda a: (a.data_operacao is None, a.data_operacao or date.min, a.pk))
-        liberada = servico.diaria_liberada(ps)
-        esperado = ps.diaria_valor_override or liberada
-        div = anexos.divergencia(ps, [a.valor for a in comprovantes], liberada)
-        servidores.append({
-            "ps": ps, "comprovantes": comprovantes,
-            "rt": next((a for a in todos if a.servidor_id == ps.pk
-                        and a.tipo == AnexoPrestacao.Tipo.RT_ASSINADO), None),
-            "esperado": dominio_rt.moeda(esperado) if esperado else "",
-            "divergencia": (dominio_rt.moeda(div[0]), dominio_rt.moeda(div[1])) if div else None,
-            "falta_pacote": pacote_prestacao.pendencias_do_pacote(ps),
-            "editavel": pode and not ps.finalizada})
-    via = assinados.vigente(assinados.Alvo(ViaAssinada.Tipo.OFICIO, oficio))
-    carimbos = {c.servidor_id: c for c in carimbo.carimbos(via)} if via else {}
-    for s in servidores:
-        c = carimbos.get(s["ps"].pk)
-        s["carimbo"] = c
-        s["carimbo_x"] = round(c.x * 100, 1) if c else ""
-        s["carimbo_y"] = round(c.y * 100, 1) if c else ""
-    return render(request, "viagens/anexos/folha.html", {
-        "paginas_via": range(1, carimbo.numero_de_paginas(via) + 1) if via else range(0),
-        "p": p, "oficio": oficio, "via": via, "despachos": da_equipe["despacho"],
-        "db": next(iter(da_equipe["db_assinado"]), None), "servidores": servidores,
-        "editavel_equipe": pode and not equipe_travada, "equipe_finalizada": equipe_travada,
-        "operacoes": AnexoPrestacao.Operacao.choices,
-        "copia": eprotocolo.projetar_dados_eprotocolo(oficio),
-        "anteriores": list(anexos.versoes_anteriores(p)), "pode": pode,
-        **views_prestacao.contexto_folha(request, p, "documentos"),
-        "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Ofício {oficio.numero_formatado}",
-                               reverse("viagens:prestacao_equipe", args=[p.pk])),
-                              ("Documentos", ""))})
+    servidor = request.GET.get("servidor") or ""
+    consulta = f"?servidor={servidor}" if servidor.isdigit() else ""
+    return redirect(reverse("viagens:leitura_prestacao", args=[p.pk]) + consulta)
 
 
 def _voltar(p: PrestacaoContas, ancora: str, servidor: str | int | None = "") -> str:
-    """De volta aos documentos, no servidor que estava aberto (?servidor=) e na âncora."""
-    base = reverse("viagens:documentos_prestacao", args=[p.pk])
+    """De volta à leitura e conferência, no servidor que estava aberto e na âncora."""
+    base = reverse("viagens:leitura_prestacao", args=[p.pk])
     consulta = f"?servidor={servidor}" if str(servidor or "").isdigit() else ""
     return f"{base}{consulta}#{ancora}"
 
