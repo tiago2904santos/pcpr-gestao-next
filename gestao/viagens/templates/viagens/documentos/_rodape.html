@@ -1,0 +1,16 @@
+{% comment %}
+Rodapé padrão de todos os documentos (ADR 0044): a marca da PCPR e a linha da unidade
+(endereço, telefone, e-mail) em itálico miúdo; o ofício põe acima o destinatário, à
+esquerda, como no sistema modelo. É o elemento corrido `rodape` do PDF e o pé da folha de
+tela. Contexto: `marca`, `texto` (a linha da unidade) e `destinatario` (opcional: tratamento,
+nome, cargo, cidade).
+{% endcomment %}<footer class="rodape" role="contentinfo">
+    {% if destinatario %}<div class="destinatario">
+      <p>{{ destinatario.tratamento }}</p>
+      <p>{{ destinatario.nome }}</p>
+      <p>{{ destinatario.cargo }}</p>
+      <p>{{ destinatario.cidade }}</p>
+    </div>{% endif %}
+    <img class="marca" src="{{ marca }}" alt="">
+    <p class="unidade">{{ texto }}</p>
+  </footer>

@@ -1756,7 +1756,7 @@ class TestDocumentoDoOficio:
         pdf, _ = gerar_pdf("oficio", dados)
         leitor = PdfReader(BytesIO(pdf))
         assert len(leitor.pages) == 1
-        texto = leitor.pages[0].extract_text()
+        texto = " ".join(leitor.pages[0].extract_text().split())
         for trecho in ("SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA", "Senhor Delegado,",
                        "através deste, solicito", "Nº de diárias por servidor:",
                        "ROTEIRO DE IDA", "Porte/trânsito de arma:",

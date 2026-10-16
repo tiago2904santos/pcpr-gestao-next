@@ -326,3 +326,7 @@ unidade, corpo em Times 8 e **todas as tabelas com colunas iguais** (`table-layo
 Os textos fixos são os do modelo (abertura, declaração do cartão, fecho). O PDF é refeito em
 dois degraus de compactação para caber numa página. A coluna "Nº solicitação" sai preenchida
 quando a prestação de contas já gravou o número. Teste: `test_views.TestDocumentoDoOficio`.
+
+Em seguida (ADR 0044), cabeçalho, rodapé e margens passaram a ser os mesmos em todos os
+documentos (`_folha.html`, `_timbre.html`, `_rodape.html`): 32 mm em cima, 15 mm dos lados,
+18 mm embaixo (34 mm no ofício, pelo destinatário), brasão de 13 mm.
