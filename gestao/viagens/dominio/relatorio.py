@@ -118,7 +118,7 @@ def preenchido(textos: Mapping[str, str]) -> bool:
 # Regra local, sem serviço externo (referência m103): o rascunho sai de modelos de frase com
 # o que o sistema já sabe — evento, destino, período, atividades e resultados do plano — e o
 # que já está escrito no próprio RT. Só volta para a tela; quem grava é a pessoa.
-CAMPOS_SUGERIR = ("conclusao", "medidas")
+CAMPOS_SUGERIR = CAMPOS_TEXTO  # todos os textos do relato têm "Sugerir texto"
 SINAIS_DE_PENDENCIA = ("pendên", "pendente", "não foi possível", "não pôde", "faltou",
                        "faltaram", "intercorrência", "problema", "dificuldade")
 
@@ -131,6 +131,9 @@ class Contexto:
     periodo: str = ""
     atividades: tuple[str, ...] = ()
     realizados: tuple[str, ...] = ()
+    # O que a viagem teve de diferente do ofício (trocas de motorista/viatura, horários,
+    # diária) — relatorio.texto_dos_ajustes; vira a sugestão das informações complementares.
+    ajustes: str = ""
 
 
 def listar(itens: Iterable[str], maximo: int = 4) -> str:
@@ -212,7 +215,50 @@ def sugerir_medidas(ctx: Contexto, textos: Mapping[str, str]) -> str:
             "da prestação de contas das diárias.")
 
 
+def sugerir_descricao(ctx: Contexto) -> str:
+    """O que foi a viagem: o motivo do ofício (ou o evento), com onde e quando."""
+    if ctx.motivo:
+        abertura = frase(ctx.motivo)
+    elif ctx.evento:
+        abertura = frase(f"participação no evento “{ctx.evento}”")
+    else:
+        abertura = "Viagem a serviço da Polícia Civil do Paraná."
+    onde = _onde_e_quando(ctx)
+    return f"{abertura} {frase('a viagem ocorreu ' + onde)}" if onde else abertura
+
+
+def sugerir_objetivo(ctx: Contexto) -> str:
+    """Para que a equipe foi: representar a instituição no evento ou no destino e, havendo
+    plano de trabalho, as atividades previstas."""
+    if ctx.evento:
+        alvo = f"no evento “{ctx.evento}”" + (f", em {ctx.destino}" if ctx.destino else "")
+    elif ctx.destino:
+        alvo = f"em {ctx.destino}"
+    else:
+        alvo = "na ação para a qual a viagem foi autorizada"
+    texto = f"representar a Polícia Civil do Paraná {alvo}"
+    if ctx.atividades:
+        texto += f", realizando as atividades previstas no plano de trabalho: " \
+                 f"{listar(ctx.atividades)}"
+    elif ctx.motivo:
+        texto += f", conforme o motivo da viagem: {ctx.motivo[0].lower() + ctx.motivo[1:]}"
+    return frase(texto)
+
+
+def sugerir_informacoes(ctx: Contexto) -> str:
+    """As trocas da viagem em relação ao ofício; sem nenhuma, que não há o que acrescentar."""
+    return frase(ctx.ajustes) if espacos(ctx.ajustes) else (
+        "Não há informações complementares: a viagem seguiu o ofício (equipe, motorista, "
+        "viatura e horários).")
+
+
 def sugerir(campo: str, ctx: Contexto, textos: Mapping[str, str]) -> str:
+    if campo == "motivo":
+        return sugerir_descricao(ctx)
+    if campo == "atividade":
+        return sugerir_objetivo(ctx)
+    if campo == "info_complementares":
+        return sugerir_informacoes(ctx)
     if campo == "conclusao":
         return sugerir_conclusao(ctx, textos)
     if campo == "medidas":

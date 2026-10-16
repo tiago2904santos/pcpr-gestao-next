@@ -20,6 +20,17 @@ from .models import PrestacaoContas, PrestacaoServidor, RelatorioTecnico
 from .views import _migalhas
 from .views_editor import moldura_da_folha, resposta_de_folha
 
+# Cada texto do relato num cartão próprio — ícone e o que escrever ali —, para os cinco
+# campos (iguais na forma) não se confundirem.
+APRESENTACAO = {
+    "motivo": ("file-text", "O que foi a viagem: o evento ou a ação, onde e quando."),
+    "atividade": ("flag", "Para que a equipe foi e o que se propôs a fazer."),
+    "conclusao": ("check-circle-2", "Como foi: o que se realizou e se o objetivo foi atingido."),
+    "medidas": ("list-checks", "O que o órgão deve fazer a partir daqui."),
+    "info_complementares": ("info", "Trocas de motorista, viatura ou horários e outros "
+                                    "registros que expliquem a viagem."),
+}
+
 
 def _prestacao(request: HttpRequest, pk: int) -> PrestacaoContas:
     p = get_object_or_404(PrestacaoContas.objects.select_related("oficio__unidade"), pk=pk)
@@ -42,11 +53,14 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     editavel = diario.pode_editar(request.user, p, finalizada)
     rt = (relatorio.obter(p) if editavel
           else RelatorioTecnico.objects.filter(prestacao=p).first())
-    sugestoes = relatorio.sugestoes(p) if editavel else {}
+    # A sugestão fica no fundo do campo vazio (placeholder): some quando a pessoa digita e
+    # entra de verdade pelo "Sugerir texto".
+    sugestoes = relatorio.sugestoes_de_texto(p) if editavel else {}
     prontos = relatorio.textos_prontos(p) if editavel else {}
     campos = [{"nome": c, "rotulo": dominio.ROTULOS[c], "tipo": dominio.TIPO_DO_CAMPO[c],
-               "valor": (getattr(rt, c) if rt else "") or sugestoes.get(c, ""),
-               "sugerido": bool(rt) and not getattr(rt, c) and c in sugestoes,
+               "icone": APRESENTACAO[c][0], "dica": APRESENTACAO[c][1],
+               "valor": getattr(rt, c) if rt else "",
+               "sugestao": sugestoes.get(c, ""),
                "prontos": prontos.get(c, []),
                "obrigatorio": c in ("motivo", "atividade", "conclusao")}
               for c in dominio.CAMPOS_TEXTO]
@@ -117,7 +131,7 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
 
 @require_POST
 def sugerir(request: HttpRequest, pk: int, campo: str) -> JsonResponse:
-    """"Sugerir texto" da conclusão e das medidas (regra local; nunca grava)."""
+    """"Sugerir texto" de qualquer campo do relato (regra local; nunca grava)."""
     p = _prestacao(request, pk)
     if not diario.pode_editar(request.user, p):
         return JsonResponse({"erro": "Você não pode alterar este relatório."}, status=403)

@@ -54,18 +54,30 @@
 /* Diário de bordo · motorista e transporte, no desenho do "Equipe e transporte" do ofício:
    dois blocos lado a lado; em cada um, a linha de campos (de onde vem · o que a escolha pede),
    os campos de escrever à mão e o cartão do recurso como ficou (o da viatura do ofício). */
-@media (min-width: 1024px) {
-  .recursos-diario { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 .secao__bloco.recurso-diario { display: grid; align-content: start; gap: var(--esp-3); }
 .recurso-diario > .secao__bloco-cabecalho { margin-bottom: 0; }
+.recurso-diario__escolha { display: grid; align-content: start; gap: var(--esp-3); }
+/* Lado a lado, os dois blocos dividem as mesmas linhas (cabeçalho · escolha · cartão): os
+   cartões do motorista e da viatura ficam sempre na mesma altura, qualquer que seja a
+   escolha de cada lado. */
+@media (min-width: 1024px) {
+  .recursos-diario { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto auto; }
+  .recursos-diario > .secao__bloco.recurso-diario { grid-row: span 3; grid-template-rows: subgrid; }
+}
 .recurso-diario__campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
 @media (min-width: 768px) {
   .recurso-diario__campos { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); }
 }
 .recurso-diario__campos > .modos__campos { grid-template-columns: minmax(0, 1fr); }
-.recurso-diario .modos__campos[data-modo="outro_oficio"],
+/* Sem nada a escolher ao lado (o do ofício), a escolha ocupa a linha inteira; encolhe só
+   quando a opção pede o campo vizinho (servidor, ofício do motorista, viatura do cadastro). */
+.recurso-diario__campos:not(:has(option:is([value="servidor"], [value="outro_oficio"], [value="cadastro"]):checked)) > .campo:first-child { grid-column: 1 / -1; }
 .recurso-diario .modos__campos[data-modo="manual"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* Motorista de outro ofício: a viatura é a do diário de lá — sem escolha aqui, só a nota. */
+.recurso-diario__campos.recurso-diario__vinculo { display: none; }
+.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .recurso-diario__escolha-viatura,
+.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .modos__campos { display: none; }
+.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario__campos.recurso-diario__vinculo { display: grid; }
 /* A escolha é um <select>: o campo do modo aparece com a opção marcada. */
 @supports selector(:has(*)) {
   .recurso-diario:has(option[value="servidor"]:checked) .modos__campos[data-modo="servidor"],
@@ -76,17 +88,71 @@
 .recurso-diario__atual--vazio .pessoa__nome { color: var(--cor-texto-secundario); font-weight: var(--peso-medio); }
 
 /* Diário de bordo · trechos e horários realizados com os cartões de trecho do ofício
-   (itin--operacional): só as colunas mudam — km inicial, km final, abastecimento e o rodado
-   (no lugar da chegada calculada); nos horários, saída e chegada realizadas. */
-@media (max-width: 1279px) {
-  .diario-itin .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+   (itin--operacional). Nos trechos, a linha é dos dados do trecho — rota com previsto e
+   rodado, data e horário — e os campos (km inicial, km final, abastecimento) ficam estreitos
+   à direita, do tamanho do que se digita. Nos horários, saída e chegada realizadas. */
+.itin.diario-itin .diario-trecho { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); align-items: center; }
+.itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-template-columns: var(--altura-controle-sm) minmax(0, 1fr); grid-template-areas: "numero rota" "numero rodado"; gap: var(--esp-1) var(--esp-3); align-items: center; }
+.itin.diario-itin .diario-trecho .itin__trecho-rota { font-size: var(--texto-md); }
+.diario-rodado { grid-area: rodado; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.diario-rodado > span { display: inline-flex; align-items: center; gap: var(--esp-1); }
+.diario-rodado > span + span { padding-left: var(--esp-2); border-left: var(--borda-sutil); }
+.diario-rodado .icone { flex: none; }
+.diario-rodado strong { font-weight: var(--peso-forte); color: var(--cor-texto); }
+.diario-rodado--vazio .diario-rodado__valor { color: var(--cor-texto-terciario); }
+.diario-rodado--conforme .diario-rodado__valor .icone, .diario-rodado--conforme .diario-rodado__comparacao { color: var(--cor-sucesso); }
+.diario-rodado--fora .diario-rodado__valor .icone, .diario-rodado--fora .diario-rodado__comparacao { color: var(--cor-aviso); font-weight: var(--peso-medio); }
+.diario-rodado--invalido .diario-rodado__valor { color: var(--cor-perigo); }
+.diario-quando { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); margin: 0; font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-variant-numeric: tabular-nums; }
+.diario-quando > span { display: inline-flex; align-items: center; gap: var(--esp-1); white-space: nowrap; }
+.diario-quando .icone { flex: none; color: var(--cor-texto-terciario); }
+.diario-quando__dia { font-weight: var(--peso-medio); }
+.diario-quando small { font-size: var(--texto-2xs); color: var(--cor-aviso); }
+.diario-quando__duracao { margin-left: var(--esp-1); padding: 0 var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.diario-quando__vazio { color: var(--cor-texto-terciario); }
+.itin.diario-itin .diario-trecho .itin__tempos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr); gap: var(--esp-2); }
+@media (min-width: 768px) {
+  .itin.diario-itin .diario-trecho { grid-template-columns: minmax(0, 1fr) max-content; }
+  .itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-column: 1 / -1; }
+  .itin.diario-itin .diario-trecho .diario-quando { grid-column: 1; padding-left: calc(var(--altura-controle-sm) + var(--esp-3)); }
+  .itin.diario-itin .diario-trecho .itin__tempos { grid-column: 2; grid-row: 2; grid-template-columns: 8rem 8rem 6.5rem; }
 }
 @media (min-width: 768px) and (max-width: 1279px) {
-  .diario-itin .itin__tempos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
   .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1280px) {
-  .itin.diario-itin { --trechos-colunas: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1fr); }
+  .itin.diario-itin { --trechos-colunas: minmax(0, 1fr) 11rem 8rem 8rem 6.5rem; }
   .itin.diario-itin .diario-realizada { --trechos-colunas: minmax(0, 2fr) minmax(0, 1.6fr) minmax(0, 1.6fr); }
+  .itin.diario-itin .diario-trecho { grid-template-columns: var(--trechos-colunas); gap: var(--esp-3); }
+  .itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-column: 1; }
+  .itin.diario-itin .diario-trecho .diario-quando { grid-column: 2; grid-row: 1; flex-direction: column; align-items: start; gap: var(--esp-05); padding-left: 0; }
+  .itin.diario-itin .diario-trecho .itin__tempos { grid-column: 3 / -1; grid-row: 1; grid-template-columns: subgrid; gap: var(--esp-3); }
 }
 .diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }
+
+/* Relatório técnico · relato: cada texto num cartão próprio (ícone, título, o que escrever
+   ali) — os cinco são iguais na forma e, soltos, se confundiam; dentro, a linha do texto
+   pronto e a área de texto, como o "Motivo da viagem" do ofício. */
+.rt-textos { display: grid; gap: var(--esp-4); }
+.rt-texto { display: grid; gap: var(--esp-3); padding: var(--esp-4); border: 1px solid var(--cor-borda); border-left: var(--filete) solid var(--cor-marca); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.rt-texto:focus-within { border-color: var(--hover-cartao-borda); border-left-color: var(--cor-marca); box-shadow: var(--sombra-1); }
+.rt-texto__cabecalho { display: flex; align-items: flex-start; gap: var(--esp-3); }
+.rt-texto__icone { display: inline-grid; flex: none; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); background: var(--cor-superficie-realce); color: var(--cor-marca-texto); }
+.rt-texto__titulos { display: grid; gap: var(--esp-05); min-width: 0; }
+.rt-texto__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin: 0; font-size: var(--texto-md); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); }
+.rt-texto__selo { font-size: var(--texto-2xs); }
+.rt-texto__dica { margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.rt-texto__leitura { height: auto; min-height: var(--altura-controle); margin: 0; }
+/* Sem texto pronto cadastrado (só as ações), as ações sobem para o lado do título. */
+@media (min-width: 768px) {
+  .rt-texto:has(> .texto-pronto > .texto-pronto__acoes:only-child) { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  .rt-texto:has(> .texto-pronto > .texto-pronto__acoes:only-child) > .campo { grid-column: 1 / -1; }
+}
+@media (max-width: 767px) {
+  /* No celular, as ações do texto pronto numa linha só, dividindo a largura do cartão. */
+  .rt-texto .texto-pronto__acoes { flex-wrap: nowrap; width: 100%; }
+  .rt-texto .texto-pronto__acoes .botao:not(.botao--icone) { flex: 1 1 auto; padding-inline: var(--esp-2); }
+}

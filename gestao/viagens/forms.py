@@ -241,6 +241,26 @@ class SelecaoDeViatura(forms.Select):
         return opcao
 
 
+class ViaturaDoDiarioForm(forms.Form):
+    """A viatura do cadastro no diário de bordo: a mesma escolha do ofício (busca por placa
+    ou modelo, chips, o "+" que cadastra), em viagens/_campo_viatura.html."""
+
+    viatura = forms.ModelChoiceField(label="Viatura do cadastro", queryset=Viatura.objects.none(),
+                                     required=False)
+
+    def __init__(self, *args, diario=None, **kwargs):
+        atual = diario.viatura_id if diario is not None else None
+        kwargs.setdefault("initial", {"viatura": atual})
+        super().__init__(*args, **kwargs)
+        viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
+        viatura.queryset = (Viatura.objects.filter(Q(ativo=True) | Q(pk=atual))
+                            .order_by("placa").select_related("combustivel", "unidade")
+                            .prefetch_related("motoristas"))
+        viatura.empty_label = "Selecione a viatura…"
+        viatura.widget = SelecaoDeViatura(attrs=_attrs("selecao", id="viatura-cadastro"))
+        viatura.widget.choices = viatura.choices
+
+
 class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     """Seções Dados, Transporte e Justificativa (equipe e roteiro têm formulários próprios)."""
 

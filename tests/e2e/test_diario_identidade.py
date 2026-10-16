@@ -20,7 +20,7 @@ def test_resultado_vivo_estado_visivel_e_continuar(logado, dados_e2e, largura):
     d = DiarioBordo.objects.get(prestacao=p)
     trecho = d.linhas.order_by("ordem").first()
     resultado = pg.locator(f"#rodado-{trecho.pk}")
-    expect(resultado).to_contain_text("A preencher")
+    expect(resultado).to_contain_text("Rodado: a preencher")
     pg.locator(f"#l-{trecho.pk}-km_inicial").fill("10000")
     chegada = pg.locator(f"#l-{trecho.pk}-km_final")
     chegada.fill("10440")
