@@ -1,0 +1,20 @@
+Bytecode compiled 4391 files in 2.44s
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /opt/venv/bin/python3
+cachedir: .pytest_cache
+django: version: 6.1.1, settings: config.settings.test (from env)
+hypothesis profile 'default'
+rootdir: /prestacao-acabamento
+configfile: pyproject.toml
+plugins: cov-7.1.0, django-4.14.0, hypothesis-6.168.3, xdist-3.8.0, platformdirs-4.12.2
+created: 2/2 workers
+2 workers [2 items]
+
+scheduling tests via LoadScheduling
+
+tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[360] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[360] 
+[gw1] [ 50%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[360] 
+[gw0] [100%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[360] 
+
+======================== 2 passed in 249.89s (0:04:09) =========================

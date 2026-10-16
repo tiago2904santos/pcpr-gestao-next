@@ -1,0 +1,82 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "diario",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "diario",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  }
+]

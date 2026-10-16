@@ -62,3 +62,22 @@ por hash antes/depois. Forms multipart, CSRF, IDs e âncoras permanecem.
 Regressão integrada de Lista, Diário, Relatório e Documentos:38 testes aprovados.
 QA em `docs/visual-agents/qa/anexos-2026-10-12.md`, cinco larguras e correções abertas.
 Não houve mudança nos documentos oficiais nem implementação das lacunas históricas.
+
+## Recomposição integral solicitada — 15/10/2026
+
+Melhoria intencional de apresentação, mantendo os contratos funcionais anteriores:
+lista com cartões de solicitação por servidor e resumo canônico do Ofício, navegação
+entre as folhas, Diário começando pelos quilômetros, RT em pares de campos e
+Documentos com anexos individuais organizados em blocos. Configuração do carimbo
+fica em divulgação, sem ocultar documentos nem alterar a posição gravada.
+
+Não há cadastro manual novo, novo resumo/endpoint nem outro componente visual.
+Os campos de cadastro continuam sendo os da solicitação, Diário, RT e anexos.
+Mantidos filtros combinados, paginação por 25 equipes, exportação, edição por
+pessoa, autosave e trava, envio/aprovação/devolução, diário realizado, limites de
+diárias, arquivos originais, pacotes e versões. CSS específico antigo removido
+após migrar seu último consumidor no UI Lab; componentes compartilhados mantidos.
+
+Referência funcional é o levantamento documentado anterior, não uma nova auditoria
+da referência. Lacunas históricas não foram implementadas nem simuladas. Evidências
+da rodada, crítica e validação em `docs/visual-agents/qa/prestacao-refino-2026-10-15.md`.

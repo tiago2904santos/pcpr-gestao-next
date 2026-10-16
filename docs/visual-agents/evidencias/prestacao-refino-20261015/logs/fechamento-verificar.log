@@ -1,0 +1,107 @@
+▶ ruff
+Bytecode compiled 4391 files in 2.38s
+All checks passed!
+▶ fronteiras
+Bytecode compiled 4391 files in 3.13s
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 603 files, 3216 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (17 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de Cadastros KEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Bytecode compiled 4391 files in 2.38s
+Success: no issues found in 309 source files
+▶ bandit
+Bytecode compiled 4391 files in 2.37s
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao/viagens/management/commands/semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+Bytecode compiled 4391 files in 2.24s
+▶ tipos JS
+▶ testes
+Bytecode compiled 4391 files in 3.09s
+bringing up nodes...
+bringing up nodes...
+
+.                                                                        [100%]
+1 passed in 170.67s (0:02:50)
+✔ tudo verde

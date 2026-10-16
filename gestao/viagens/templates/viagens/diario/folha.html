@@ -5,23 +5,68 @@
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Folha do diário de bordo (módulo 9b), com identidade documental e seções contínuas.
-1 motorista/viatura; 2 horários realizados; 3 hodômetro e abastecimento com autosave;
+1 hodômetro e abastecimento com autosave; 2 motorista/viatura; 3 horários realizados;
 4 conferência não bloqueante. PDF/planilha no cabeçalho. A equipe compartilha o diário:
 trava quando todos estão finalizados. Consulta preserva dados sem controles de edição.
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Diário de bordo" complemento_template="viagens/diario/_cabecalho_contexto.html" acoes_template="viagens/diario/_acoes.html" %}
+<nav class="abas abas--conteudo mb-4" aria-label="Páginas da prestação">
+  <a class="aba" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "users" classe="icone--sm" %}Solicitações</a>
+  <a class="aba" href="{% url 'viagens:diario' p.pk %}" aria-current="page">{% icone "gauge" classe="icone--sm" %}Diário de bordo</a>
+  <a class="aba" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" classe="icone--sm" %}Relatório técnico</a>
+  <a class="aba" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" classe="icone--sm" %}Documentos</a>
+</nav>
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O diário é da equipe e trava quando todos estão finalizados.</p></div></div>
 {% endif %}
 
 <div class="documento documento--preparacao">
-  {# 1. Motorista e viatura. #}
+  {# 1. Trechos: km e abastecimento (gravam sozinhos). #}
+  <section class="secao{% if completo %} secao--ok{% endif %}" id="trechos" aria-labelledby="t-trechos">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">1</span>Trechos</h2>
+      <div class="secao__estado" id="estado-trechos" data-vivo>{% if not completo and linhas %}<span class="selo selo--aviso selo--sem-ponto">Falta km em {{ faltam|pluralizar:"trecho,trechos" }}</span>{% endif %}</div>
+      <p class="secao__nota">Um por trecho do ofício, na ordem. Digite o km do hodômetro na saída e na chegada; a distância prevista ajuda a conferir.</p>
+    </div>
+    {% if linhas %}
+    {% if editavel %}<form method="post" action="{% url 'viagens:salvar_diario' p.pk %}" id="form-diario" novalidate data-autosave="{% url 'viagens:autosave_diario' p.pk %}">{% csrf_token %}{% endif %}
+    <ol class="diario-linhas">
+      {% for item in linhas %}{% with l=item.l t=item.fonte %}
+      <li class="diario-linha diario-linha--hodometro" id="linha-{{ l.pk }}">
+        <div class="diario-linha__rota">
+          <span class="diario-linha__numero" aria-hidden="true">{{ forloop.counter }}</span>
+          <div>
+            <p class="peso-semi">{{ item.rota }}</p>
+            <p class="texto-secundario texto-xs">{% if t %}{{ t.saida_em|date:"d/m/Y H:i" }} → {{ t.chegada_em|date:"d/m/Y H:i" }}{% endif %}{% if item.prevista %} · previsto {{ item.prevista }} km{% endif %}</p>
+          </div>
+        </div>
+        {% if editavel %}
+        <div class="diario-linha__campos">
+          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-km_inicial">Km de saída</label><input class="entrada" id="l-{{ l.pk }}-km_inicial" name="l-{{ l.pk }}-km_inicial" value="{{ l.km_inicial|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-km_final">Km de chegada</label><input class="entrada" id="l-{{ l.pk }}-km_final" name="l-{{ l.pk }}-km_final" value="{{ l.km_final|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-abastecimento">Abastecimento</label>
+            <pc-select class="seletor"><select class="selecao" id="l-{{ l.pk }}-abastecimento" name="l-{{ l.pk }}-abastecimento"><option value="sim"{% if l.abastecimento is not False %} selected{% endif %}>Sim</option><option value="nao"{% if l.abastecimento is False %} selected{% endif %}>Não</option></select></pc-select></div>
+        </div>
+        {% else %}
+        <p class="texto-sm">Km {{ item.km_inicial|default:"—" }} → {{ item.km_final|default:"—" }} · abastecimento: {% if l.abastecimento is False %}não{% else %}sim{% endif %}</p>
+        {% endif %}
+        <p class="diario-linha__resultado" id="rodado-{{ l.pk }}" data-vivo><span>Distância rodada</span><strong>{% if item.rodado != None %}{{ item.rodado }} km{% else %}A preencher{% endif %}</strong></p>
+      </li>
+      {% endwith %}{% endfor %}
+    </ol>
+    {% if editavel %}</form>{% endif %}
+    {% else %}
+      {% include "componentes/vazio.html" with icone="route" titulo="O ofício não tem trechos" texto="O diário espelha os trechos do ofício: inclua-os na folha do ofício." %}
+    {% endif %}
+  </section>
+
+  {# 2. Motorista e viatura. #}
   <section class="secao{% if motorista.nome %} secao--ok{% endif %}" id="motorista" aria-labelledby="t-motorista">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-motorista"><span class="secao__numero">1</span>Motorista e viatura</h2>
+      <h2 class="secao__titulo" id="t-motorista"><span class="secao__numero">2</span>Motorista e viatura</h2>
       <div class="secao__estado">{% if alteracoes %}<span class="selo selo--info selo--sem-ponto">Trocado só neste diário</span>{% endif %}</div>
       <p class="secao__nota">Vêm do ofício: {{ motorista_oficio|default:"sem motorista" }} · {% if viatura_oficio.modelo or viatura_oficio.placa %}{{ viatura_oficio.rotulo }}{% if viatura_oficio.placa %} {{ viatura_oficio.placa }}{% endif %}{% else %}sem viatura{% endif %}. Trocar aqui não muda o ofício; a troca vai para o relatório técnico.</p>
     </div>
@@ -30,7 +75,7 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
     <form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="pilha" novalidate>
       {% csrf_token %}
       <div class="grade grade--2">
-      <fieldset class="modos modos--recurso">
+      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
         <legend class="campo__rotulo">Motorista</legend>
         <div class="opcoes">
           {% for valor, rotulo in d.Motorista.choices %}<label class="opcao"><input type="radio" name="motorista_modo" value="{{ valor }}"{% if d.motorista_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
@@ -45,8 +90,8 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
           <div class="campo"><label class="campo__rotulo" for="motorista-oficio">Ofício do motorista</label><input class="entrada" id="motorista-oficio" name="motorista_oficio" value="{{ d.motorista_oficio }}" placeholder="15/2026" maxlength="16" autocomplete="off"></div>
           <div class="campo"><label class="campo__rotulo" for="motorista-protocolo">Protocolo do motorista</label><input class="entrada" id="motorista-protocolo" name="motorista_protocolo" value="{{ d.motorista_protocolo }}" inputmode="numeric" maxlength="30" autocomplete="off"></div>
         </div>
-      </fieldset>
-      <fieldset class="modos modos--recurso">
+      </fieldset></div>
+      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
         <legend class="campo__rotulo">Viatura</legend>
         <div class="opcoes">
           {% for valor, rotulo in d.ViaturaModo.choices %}<label class="opcao"><input type="radio" name="viatura_modo" value="{{ valor }}"{% if d.viatura_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
@@ -62,7 +107,7 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
             <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
           <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
         </div>
-      </fieldset>
+      </fieldset></div>
       </div>
       <div><button type="submit" class="botao">{% icone "save" %}Aplicar motorista e viatura</button></div>
     </form>
@@ -71,10 +116,10 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
     {% endif %}
   </section>
 
-  {# 2. Viagem realizada (9b-2): o que de fato aconteceu, sem mudar o ofício. #}
+  {# 3. Viagem realizada (9b-2): o que de fato aconteceu, sem mudar o ofício. #}
   <section class="secao{% if realizados %} secao--ok{% endif %}" id="realizada" aria-labelledby="t-realizada">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-realizada"><span class="secao__numero">2</span>Viagem realizada</h2>
+      <h2 class="secao__titulo" id="t-realizada"><span class="secao__numero">3</span>Viagem realizada</h2>
       <div class="secao__estado">{% if realizados %}<span class="selo selo--info selo--sem-ponto">Ajustada</span>{% endif %}</div>
       <p class="secao__nota">Se os horários de saída ou chegada mudaram, ajuste aqui o que de fato aconteceu: as diárias se recalculam, o diário segue os horários realizados e o relatório técnico registra a mudança. O ofício emitido não muda.</p>
     </div>
@@ -115,45 +160,6 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
     {% else %}
       <p class="texto-secundario texto-sm">Igual à viagem do ofício.</p>
       {% if editavel %}<form method="post" action="{% url 'viagens:viagem_realizada' p.pk 'ajustar' %}">{% csrf_token %}<button type="submit" class="botao botao--sm">{% icone "pencil" %}Ajustar horários do que aconteceu</button></form>{% endif %}
-    {% endif %}
-  </section>
-
-  {# 3. Trechos: km e abastecimento (gravam sozinhos). #}
-  <section class="secao{% if completo %} secao--ok{% endif %}" id="trechos" aria-labelledby="t-trechos">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">3</span>Trechos</h2>
-      <div class="secao__estado" id="estado-trechos" data-vivo>{% if not completo and linhas %}<span class="selo selo--aviso selo--sem-ponto">Falta km em {{ faltam|pluralizar:"trecho,trechos" }}</span>{% endif %}</div>
-      <p class="secao__nota">Um por trecho do ofício, na ordem. Digite o km do hodômetro na saída e na chegada; a distância prevista ajuda a conferir.</p>
-    </div>
-    {% if linhas %}
-    {% if editavel %}<form method="post" action="{% url 'viagens:salvar_diario' p.pk %}" id="form-diario" novalidate data-autosave="{% url 'viagens:autosave_diario' p.pk %}">{% csrf_token %}{% endif %}
-    <ol class="diario-linhas">
-      {% for item in linhas %}{% with l=item.l t=item.fonte %}
-      <li class="diario-linha diario-linha--hodometro" id="linha-{{ l.pk }}">
-        <div class="diario-linha__rota">
-          <span class="diario-linha__numero" aria-hidden="true">{{ forloop.counter }}</span>
-          <div>
-            <p class="peso-semi">{{ item.rota }}</p>
-            <p class="texto-secundario texto-xs">{% if t %}{{ t.saida_em|date:"d/m/Y H:i" }} → {{ t.chegada_em|date:"d/m/Y H:i" }}{% endif %}{% if item.prevista %} · previsto {{ item.prevista }} km{% endif %}</p>
-          </div>
-        </div>
-        {% if editavel %}
-        <div class="diario-linha__campos">
-          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-km_inicial">Km de saída</label><input class="entrada" id="l-{{ l.pk }}-km_inicial" name="l-{{ l.pk }}-km_inicial" value="{{ l.km_inicial|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-km_final">Km de chegada</label><input class="entrada" id="l-{{ l.pk }}-km_final" name="l-{{ l.pk }}-km_final" value="{{ l.km_final|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="l-{{ l.pk }}-abastecimento">Abastecimento</label>
-            <pc-select class="seletor"><select class="selecao" id="l-{{ l.pk }}-abastecimento" name="l-{{ l.pk }}-abastecimento"><option value="sim"{% if l.abastecimento is not False %} selected{% endif %}>Sim</option><option value="nao"{% if l.abastecimento is False %} selected{% endif %}>Não</option></select></pc-select></div>
-        </div>
-        {% else %}
-        <p class="texto-sm">Km {{ item.km_inicial|default:"—" }} → {{ item.km_final|default:"—" }} · abastecimento: {% if l.abastecimento is False %}não{% else %}sim{% endif %}</p>
-        {% endif %}
-        <p class="diario-linha__resultado" id="rodado-{{ l.pk }}" data-vivo><span>Distância rodada</span><strong>{% if item.rodado != None %}{{ item.rodado }} km{% else %}A preencher{% endif %}</strong></p>
-      </li>
-      {% endwith %}{% endfor %}
-    </ol>
-    {% if editavel %}</form>{% endif %}
-    {% else %}
-      {% include "componentes/vazio.html" with icone="route" titulo="O ofício não tem trechos" texto="O diário espelha os trechos do ofício: inclua-os na folha do ofício." %}
     {% endif %}
   </section>
 

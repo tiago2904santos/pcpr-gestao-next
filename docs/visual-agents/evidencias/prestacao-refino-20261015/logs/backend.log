@@ -1,0 +1,14 @@
+Bytecode compiled 4391 files in 1.79s
+bringing up nodes...
+bringing up nodes...
+
+..................................................................       [100%]
+=============================== warnings summary ===============================
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+  /opt/venv/lib/python3.13/site-packages/pypdf/_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+66 passed, 3 warnings in 204.76s (0:03:24)

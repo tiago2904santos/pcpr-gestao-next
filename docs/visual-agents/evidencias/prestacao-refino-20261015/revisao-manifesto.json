@@ -1,0 +1,158 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 323,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": [
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "aba"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "aba"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "aba__contagem"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "aba"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "aba__contagem"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "aba"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "aba__contagem"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "segmentado__conta"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "segmentado__conta"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "classe": "registro__corpo"
+      },
+      {
+        "tag": "H3",
+        "id": "equipe-211-titulo",
+        "classe": "registro__titulo"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "classe": "registro__meta"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "registro__meta-item"
+      }
+    ]
+  },
+  {
+    "tela": "diario",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "diario",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  }
+]

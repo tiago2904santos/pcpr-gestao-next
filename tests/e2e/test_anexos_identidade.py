@@ -72,6 +72,7 @@ def test_carimbo_responsivo_preserva_via_assinada(logado, dados_e2e):
     prestacao.salvar_solicitacao(operador, ps.pk, numero="2030/1", liberacao=None, prazo=None)
     pg = logado
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+    pg.get_by_text("Número da solicitação no ofício assinado", exact=True).click()
     for largura in [360, 768, 1440]:
         pg.set_viewport_size({"width": largura, "height": 900})
         expect(pg.locator(f"#c{ps.pk}-x")).to_be_visible()

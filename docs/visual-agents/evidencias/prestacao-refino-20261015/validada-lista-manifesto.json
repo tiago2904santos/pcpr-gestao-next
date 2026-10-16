@@ -1,0 +1,82 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  }
+]

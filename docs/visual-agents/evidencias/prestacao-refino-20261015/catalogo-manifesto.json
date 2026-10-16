@@ -1,0 +1,24 @@
+[
+  {
+    "tela": "catalogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 25,
+    "extravasados": []
+  },
+  {
+    "tela": "catalogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  }
+]

@@ -1,0 +1,137 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "liberadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "diario",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [
+      {
+        "id": "target-size",
+        "alvos": [
+          [
+            "button[aria-controls=\"seletor-6\"]"
+          ]
+        ]
+      }
+    ],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "liberadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "diario",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  }
+]

@@ -1,0 +1,214 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "liberadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "diario",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "catalogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 25,
+    "extravasados": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "liberadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "diario",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  },
+  {
+    "tela": "catalogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "overflow_pagina": 0,
+    "extravasados": []
+  }
+]

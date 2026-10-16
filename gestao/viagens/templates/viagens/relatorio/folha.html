@@ -14,6 +14,12 @@ toda finalizada.
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Relatório técnico" complemento_template="viagens/relatorio/_cabecalho_contexto.html" %}
+<nav class="abas abas--conteudo mb-4" aria-label="Páginas da prestação">
+  <a class="aba" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "users" classe="icone--sm" %}Solicitações</a>
+  <a class="aba" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" classe="icone--sm" %}Diário de bordo</a>
+  <a class="aba" href="{% url 'viagens:relatorio' p.pk %}" aria-current="page">{% icone "file-pen-line" classe="icone--sm" %}Relatório técnico</a>
+  <a class="aba" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" classe="icone--sm" %}Documentos</a>
+</nav>
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O relatório é da equipe e trava quando todos estão finalizados.</p></div></div>
@@ -38,7 +44,10 @@ toda finalizada.
     {% endif %}
     <div class="pilha-lg">
     {% for c in campos %}
-      <div class="pilha-sm">
+      {# Quatro textos em pares; informações complementares encerram em largura inteira. #}
+      {% if forloop.first %}<div class="grade grade--2">{% endif %}
+      {% if c.nome == "info_complementares" %}</div>{% endif %}
+      <div class="cartao cartao__corpo pilha-sm">
         {% if editavel and c.prontos %}
         {% with alvo="rt-"|add:c.nome rotulo="Texto pronto para "|add:c.rotulo %}
           {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo pode_gerir=pode_gerir_textos %}
@@ -67,7 +76,7 @@ toda finalizada.
     </div>
     <div class="grade grade--3">
       {% for c in custeio %}
-      <fieldset class="modos modos--recurso">
+      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
         <legend class="campo__rotulo">{{ c.rotulo }}</legend>
         {% if editavel %}
         <div class="opcoes">
@@ -78,7 +87,7 @@ toda finalizada.
           <div class="campo"><label class="campo__rotulo" for="rt-{{ c.nome }}-outro">{{ c.rotulo }} (outro)</label><input class="entrada" id="rt-{{ c.nome }}-outro" name="{{ c.nome }}_outro" value="{% if c.outro %}{{ c.valor }}{% endif %}" maxlength="255" autocomplete="off"></div>
         </div>
         {% else %}<p class="texto-sm">{{ c.valor|default:"—" }}</p>{% endif %}
-      </fieldset>
+      </fieldset></div>
       {% endfor %}
     </div>
   </section>

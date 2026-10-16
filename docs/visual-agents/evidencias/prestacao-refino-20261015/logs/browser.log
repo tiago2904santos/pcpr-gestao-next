@@ -1,0 +1,73 @@
+Bytecode compiled 4391 files in 1.00s
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /opt/venv/bin/python3
+cachedir: .pytest_cache
+django: version: 6.1.1, settings: config.settings.test (from env)
+hypothesis profile 'default'
+rootdir: /prestacao-final
+configfile: pyproject.toml
+plugins: cov-7.1.0, django-4.14.0, hypothesis-6.168.3, xdist-3.8.0, platformdirs-4.12.2
+created: 2/2 workers
+2 workers [26 items]
+
+scheduling tests via LoadScheduling
+
+tests/e2e/test_prestacao.py::test_prestacao_do_cartao_ao_envio <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_prestacao.py 
+tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[1440] 
+[gw1] [  3%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[1440] 
+[gw0] [  7%] PASSED tests/e2e/test_prestacao.py::test_prestacao_do_cartao_ao_envio <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_prestacao.py 
+tests/e2e/test_prestacoes_lista_identidade.py::test_filtros_combinados_exportacao_e_leitura 
+tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[360] 
+[gw1] [ 11%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_filtros_combinados_exportacao_e_leitura 
+[gw0] [ 15%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[360] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_calendario_autosave_e_menu[360] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[768] 
+[gw1] [ 19%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_calendario_autosave_e_menu[360] 
+[gw0] [ 23%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_busca_dialogo_enviar_equipe_completa[768] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_calendario_autosave_e_menu[1440] 
+tests/e2e/test_diario.py::test_diario_do_km_a_troca_de_viatura <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_diario.py 
+[gw1] [ 26%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_calendario_autosave_e_menu[1440] 
+[gw0] [ 30%] PASSED tests/e2e/test_diario.py::test_diario_do_km_a_troca_de_viatura <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_diario.py 
+tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[360] 
+tests/e2e/test_diario.py::test_viagem_realizada_ajusta_e_recalcula <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_diario.py 
+[gw1] [ 34%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[360] 
+[gw0] [ 38%] PASSED tests/e2e/test_diario.py::test_viagem_realizada_ajusta_e_recalcula <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_diario.py 
+tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[360] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[1440] 
+[gw0] [ 42%] PASSED tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[360] 
+[gw1] [ 46%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_resumo_existente_e_navegacao_da_equipe[1440] 
+tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[768] 
+tests/e2e/test_prestacoes_lista_identidade.py::test_folhas_recompostas_em_consulta 
+[gw0] [ 50%] PASSED tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[768] 
+[gw1] [ 53%] PASSED tests/e2e/test_prestacoes_lista_identidade.py::test_folhas_recompostas_em_consulta 
+tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[1440] 
+[gw0] [ 57%] PASSED tests/e2e/test_diario_identidade.py::test_resultado_vivo_estado_visivel_e_conclusao[1440] 
+tests/e2e/test_relatorio.py::test_relatorio_do_texto_ao_documento <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_relatorio.py 
+[gw1] [ 61%] PASSED tests/e2e/test_relatorio.py::test_relatorio_do_texto_ao_documento <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_relatorio.py 
+tests/e2e/test_relatorio.py::test_sugerir_e_copiar_textos <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_relatorio.py 
+[gw0] [ 65%] PASSED tests/e2e/test_relatorio.py::test_sugerir_e_copiar_textos <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_relatorio.py 
+tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[360] 
+tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[768] 
+[gw1] [ 69%] PASSED tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[360] 
+[gw0] [ 73%] PASSED tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[768] 
+tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[1440] 
+tests/e2e/test_relatorio_identidade.py::test_texto_pronto_compartilhado_e_dialogo_preservam_relato 
+[gw1] [ 76%] PASSED tests/e2e/test_relatorio_identidade.py::test_relato_conclusao_e_valores_individuais[1440] 
+[gw0] [ 80%] PASSED tests/e2e/test_relatorio_identidade.py::test_texto_pronto_compartilhado_e_dialogo_preservam_relato 
+tests/e2e/test_anexos.py::test_documentos_anexar_conferir_e_voltar <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_anexos.py 
+tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[360] 
+[gw1] [ 84%] PASSED tests/e2e/test_anexos.py::test_documentos_anexar_conferir_e_voltar <- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_anexos.py 
+[gw0] [ 88%] PASSED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[360] 
+tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[768] 
+tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[1440] 
+[gw1] [ 92%] PASSED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[768] 
+[gw0] [ 96%] PASSED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[1440] 
+tests/e2e/test_anexos_identidade.py::test_carimbo_responsivo_preserva_via_assinada 
+[gw1] [100%] PASSED tests/e2e/test_anexos_identidade.py::test_carimbo_responsivo_preserva_via_assinada 
+
+=============================== warnings summary ===============================
+tests/e2e/test_anexos_identidade.py::test_carimbo_responsivo_preserva_via_assinada
+  /prestacao-final:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_prestacao_browser_gw1" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 26 passed, 1 warning in 1236.12s (0:20:36) ==================

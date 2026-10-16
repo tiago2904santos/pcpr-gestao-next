@@ -1,0 +1,234 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "diario",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 360,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "catalogo",
+    "largura": 360,
+    "http": 200,
+    "overflow": 25,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": [
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "indice-preparacao__item"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "classe": "indice-preparacao__item indice-preparacao__item--erro"
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "rotulo-caixa-alta"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "rotulo-caixa-alta"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": "rotulo-caixa-alta"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "classe": "botao botao--primario"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "classe": "botao botao--primario"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "classe": "botao botao--primario"
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": ""
+      },
+      {
+        "tag": "SPAN",
+        "id": "",
+        "classe": ""
+      }
+    ]
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "lista-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "finalizadas",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "finalizadas-dialogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": []
+  },
+  {
+    "tela": "diario",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "relatorio",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "documentos",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  },
+  {
+    "tela": "catalogo",
+    "largura": 1440,
+    "http": 200,
+    "overflow": 0,
+    "axe": [],
+    "js": [],
+    "posts": [],
+    "extravasados": []
+  }
+]

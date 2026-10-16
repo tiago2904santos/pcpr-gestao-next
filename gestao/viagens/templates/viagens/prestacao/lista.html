@@ -1,8 +1,8 @@
 {% extends "arquetipos/lista.html" %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block titulo %}Prestação de contas{% endblock %}
 {% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
-{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestação de contas" complemento="Solicitações, prazos e envio ao financeiro por equipe." %}{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestação de contas" complemento="Da solicitação ao envio. Confira e prepare cada equipe." %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
 {% block classe_area_lista %}colecao-operacional__painel{% endblock %}
@@ -58,22 +58,24 @@ esperam as gravações pendentes (data-esperar-salvamento).
 </div>
 {% if blocos %}
   {% for b in blocos %}{% with p=b.p o=b.p.oficio %}
-  <article class="prestacao-equipe prestacao-equipe--documento" id="equipe-{{ p.pk }}" aria-labelledby="equipe-{{ p.pk }}-titulo">
-    <header class="prestacao-equipe__cabecalho">
-      <div class="prestacao-equipe__identificacao"><a class="prestacao-equipe__placa" href="{% url 'viagens:editar' o.pk %}" aria-label="Abrir {{ o }}">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True placa=True only %}</a>
-      <div><h3 class="prestacao-equipe__titulo" id="equipe-{{ p.pk }}-titulo"><span class="sr-only">{{ o }} · </span>{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</h3>
-      <div class="prestacao-equipe__meta">
-        {% if b.periodo %}<span>{{ b.periodo }}</span>{% endif %}
-        <span>{% if o.diarias_total %}{{ o.diarias_total|moeda }} em diárias{% else %}Sem diárias calculadas{% endif %}</span>
-        <span>{{ b.linhas|length|pluralizar:"servidor,servidores" }}</span>
+  <article class="cartao mb-4" id="equipe-{{ p.pk }}" aria-labelledby="equipe-{{ p.pk }}-titulo">
+    <header class="registro">
+      <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True only %}</div>
+      <div class="registro__corpo"><h3 class="registro__titulo" id="equipe-{{ p.pk }}-titulo"><a class="registro__link" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML"><span class="sr-only">Resumo do {{ o }} · </span>{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</a></h3>
+      <div class="registro__meta">
+        {% if b.periodo %}<span class="registro__meta-item">{% icone "calendar-days" classe="icone--sm" %} {{ b.periodo }}</span>{% endif %}
+        <span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %} {% if o.diarias_total %}{{ o.diarias_total|moeda }} em diárias{% else %}Sem diárias calculadas{% endif %}</span>
+        <span class="registro__meta-item">{% icone "users" classe="icone--sm" %} {{ b.linhas|length|pluralizar:"servidor,servidores" }} no recorte</span>
         {% if b.todas_finalizadas %}<span class="selo selo--sucesso selo--sem-ponto">Equipe finalizada</span>{% endif %}
       </div>
-      </div></div>
-      <div class="prestacao-equipe__acoes">
+      </div>
+    </header>
+      <div class="cartao__cabecalho">
         <a class="botao botao--sm botao--sutil" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}Diário de bordo</a>
         <a class="botao botao--sm botao--sutil" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}Relatório técnico</a>
         <a class="botao botao--sm botao--sutil" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" %}Documentos</a>
       {% if b.editavel %}
+        <div class="registro__acoes">
         {% if not b.todas_finalizadas %}
           <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button>
         {% elif b.por_enviar %}
@@ -87,12 +89,12 @@ esperam as gravações pendentes (data-esperar-salvamento).
             {% if b.alguma_arquivada %}<button type="submit" form="equipe-{{ p.pk }}-desarquivar" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar equipe</button>{% endif %}
           </div>
         </pc-menu>
+        </div>
       {% endif %}
       </div>
-    </header>
-    <ul class="prestacao-equipe__servidores">
+    <div class="cartao__corpo"><ul class="registros grade grade--2">
       {% for l in b.linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
-    </ul>
+    </ul></div>
   </article>
   {% if b.editavel %}{% for acao in acoes_equipe %}
   <form id="equipe-{{ p.pk }}-{{ acao }}" method="post" action="{% url 'viagens:acao_equipe_prestacao' p.pk acao %}" hidden data-esperar-salvamento>{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.get_full_path }}"></form>
@@ -116,5 +118,8 @@ esperam as gravações pendentes (data-esperar-salvamento).
 {% endblock %}
 
 {% block depois_lista %}
+{% include "viagens/oficios/_dialogo_resumo.html" %}
 {% include "componentes/dialogo_motivo.html" %}
+{% include "componentes/dialogo_assinado.html" %}
+{% include "componentes/dialogo_baixar.html" %}
 {% endblock %}
