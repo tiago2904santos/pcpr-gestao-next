@@ -76,28 +76,47 @@
 .recurso-diario__atual--vazio .pessoa__nome { color: var(--cor-texto-secundario); font-weight: var(--peso-medio); }
 
 /* Diário de bordo · trechos e horários realizados com os cartões de trecho do ofício
-   (itin--operacional): só as colunas mudam — km inicial, km final e abastecimento; o rodado
-   desce para o cartão do trecho, embaixo da rota, comparado ao previsto. Nos horários,
-   saída e chegada realizadas. */
-.diario-itin .itin__trecho-cabecalho:has(.diario-rodado) { grid-template-areas: "numero etapa km" "numero rota rota" "numero rodado rodado"; }
-.diario-rodado { grid-area: rodado; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); margin: var(--esp-1) 0 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+   (itin--operacional). Nos trechos, a linha é dos dados do trecho — rota com previsto e
+   rodado, data e horário — e os campos (km inicial, km final, abastecimento) ficam estreitos
+   à direita, do tamanho do que se digita. Nos horários, saída e chegada realizadas. */
+.itin.diario-itin .diario-trecho { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); align-items: center; }
+.itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-template-columns: var(--altura-controle-sm) minmax(0, 1fr); grid-template-areas: "numero rota" "numero rodado"; gap: var(--esp-1) var(--esp-3); align-items: center; }
+.itin.diario-itin .diario-trecho .itin__trecho-rota { font-size: var(--texto-md); }
+.diario-rodado { grid-area: rodado; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.diario-rodado > span { display: inline-flex; align-items: center; gap: var(--esp-1); }
+.diario-rodado > span + span { padding-left: var(--esp-2); border-left: var(--borda-sutil); }
 .diario-rodado .icone { flex: none; }
 .diario-rodado strong { font-weight: var(--peso-forte); color: var(--cor-texto); }
-.diario-rodado__comparacao { padding-left: var(--esp-2); border-left: var(--borda-sutil); }
-.diario-rodado--vazio { color: var(--cor-texto-terciario); }
-.diario-rodado--conforme .icone, .diario-rodado--conforme .diario-rodado__comparacao { color: var(--cor-sucesso); }
-.diario-rodado--fora .icone, .diario-rodado--fora .diario-rodado__comparacao { color: var(--cor-aviso); }
-.diario-rodado--invalido { color: var(--cor-perigo); }
-@media (max-width: 767px) {
-  .diario-itin .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .diario-itin .itin__tempos > .campo:nth-child(3):last-child { grid-column: 1 / -1; }
+.diario-rodado--vazio .diario-rodado__valor { color: var(--cor-texto-terciario); }
+.diario-rodado--conforme .diario-rodado__valor .icone, .diario-rodado--conforme .diario-rodado__comparacao { color: var(--cor-sucesso); }
+.diario-rodado--fora .diario-rodado__valor .icone, .diario-rodado--fora .diario-rodado__comparacao { color: var(--cor-aviso); font-weight: var(--peso-medio); }
+.diario-rodado--invalido .diario-rodado__valor { color: var(--cor-perigo); }
+.diario-quando { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); margin: 0; font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-variant-numeric: tabular-nums; }
+.diario-quando > span { display: inline-flex; align-items: center; gap: var(--esp-1); white-space: nowrap; }
+.diario-quando .icone { flex: none; color: var(--cor-texto-terciario); }
+.diario-quando__dia { font-weight: var(--peso-medio); }
+.diario-quando small { font-size: var(--texto-2xs); color: var(--cor-aviso); }
+.diario-quando__duracao { margin-left: var(--esp-1); padding: 0 var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.diario-quando__vazio { color: var(--cor-texto-terciario); }
+.itin.diario-itin .diario-trecho .itin__tempos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr); gap: var(--esp-2); }
+@media (min-width: 768px) {
+  .itin.diario-itin .diario-trecho { grid-template-columns: minmax(0, 1fr) max-content; }
+  .itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-column: 1 / -1; }
+  .itin.diario-itin .diario-trecho .diario-quando { grid-column: 1; padding-left: calc(var(--altura-controle-sm) + var(--esp-3)); }
+  .itin.diario-itin .diario-trecho .itin__tempos { grid-column: 2; grid-row: 2; grid-template-columns: 8rem 8rem 6.5rem; }
 }
 @media (min-width: 768px) and (max-width: 1279px) {
-  .diario-itin .itin__tempos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
   .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1280px) {
-  .itin.diario-itin { --trechos-colunas: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr); }
+  .itin.diario-itin { --trechos-colunas: minmax(0, 1fr) 11rem 8rem 8rem 6.5rem; }
   .itin.diario-itin .diario-realizada { --trechos-colunas: minmax(0, 2fr) minmax(0, 1.6fr) minmax(0, 1.6fr); }
+  .itin.diario-itin .diario-trecho { grid-template-columns: var(--trechos-colunas); gap: var(--esp-3); }
+  .itin.diario-itin .diario-trecho .itin__trecho-cabecalho { grid-column: 1; }
+  .itin.diario-itin .diario-trecho .diario-quando { grid-column: 2; grid-row: 1; flex-direction: column; align-items: start; gap: var(--esp-05); padding-left: 0; }
+  .itin.diario-itin .diario-trecho .itin__tempos { grid-column: 3 / -1; grid-row: 1; grid-template-columns: subgrid; gap: var(--esp-3); }
 }
 .diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }
