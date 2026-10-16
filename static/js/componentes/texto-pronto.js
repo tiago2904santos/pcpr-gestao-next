@@ -16,14 +16,9 @@ function avisar(mensagem, nivel = "sucesso") {
   document.body.dispatchEvent(new CustomEvent("toast", { detail: { mensagem, nivel } }));
 }
 
-/** @param {HTMLElement} raiz */
-function ligar(raiz) {
-  if (raiz.dataset.pronto) return;
-  raiz.dataset.pronto = "1";
-  const alvo = /** @type {HTMLTextAreaElement | null} */ (
-    document.getElementById(raiz.dataset.alvo || ""));
-  const escolha = /** @type {HTMLSelectElement | null} */ (raiz.querySelector("select"));
-  if (!alvo || !escolha) return;
+/** Escolher um texto pronto preenche o campo (perguntando antes de trocar texto escrito).
+ * @param {HTMLTextAreaElement} alvo @param {HTMLSelectElement} escolha */
+function ligarEscolha(alvo, escolha) {
   /** Textos de todas as opções: o campo com um deles, sem ajuste, é texto pronto intacto. */
   const prontos = () => new Set(Array.from(escolha.options)
     .map((o) => (o.dataset.texto || "").trim()).filter(Boolean));
@@ -59,7 +54,18 @@ function ligar(raiz) {
     alvo.dispatchEvent(new Event("input", { bubbles: true }));
     alvo.focus();
   });
+}
 
+/** @param {HTMLElement} raiz */
+function ligar(raiz) {
+  if (raiz.dataset.pronto) return;
+  raiz.dataset.pronto = "1";
+  const alvo = /** @type {HTMLTextAreaElement | null} */ (
+    document.getElementById(raiz.dataset.alvo || ""));
+  if (!alvo) return;
+  // Sem nenhum texto pronto cadastrado a escolha nem aparece; o "Guardar texto" continua.
+  const escolha = /** @type {HTMLSelectElement | null} */ (raiz.querySelector("select"));
+  if (escolha) ligarEscolha(alvo, escolha);
   const guardar = /** @type {HTMLButtonElement | null} */ (raiz.querySelector("[data-guardar-texto]"));
   const janela = /** @type {HTMLDialogElement | null} */ (document.getElementById("dialogo-guardar-texto"));
   if (!guardar || !janela) return;

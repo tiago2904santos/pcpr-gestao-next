@@ -2026,6 +2026,11 @@ dialog.dialogo.gaveta[open] {
   gap: var(--esp-1);
 }
 
+/* Sem a escolha (nenhum texto pronto cadastrado), as ações ficam sozinhas, à direita. */
+.texto-pronto__acoes:only-child {
+  margin-left: auto;
+}
+
 /* =============== Menu suspenso (pc-menu) =============== */
 .menu {
   position: relative;
@@ -3611,8 +3616,10 @@ fieldset.campo--escolhas > .campo__erro {
    trecho do evento em dourado no lugar dele (degraus de 5% em data-de/data-largura — a CSP
    não deixa estilo em linha) e o carro que percorre a estrada. Coluna própria, na mesma
    linha da data: não empurra o texto. */
-.mesa-evento__vivo:has(> .trajeto) { grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem) 11rem; }
-
+.mesa-evento__vivo:has(> .trajeto) { grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem) 11rem; }
+
+
+
 /* Briefing: o horário na mesma linha da data, como a antecedência — a hora grande se digita
    direto (máscara hh:mm) e o botão abre o relógio do sistema (<pc-hora>). */
 .mesa-evento__vivo:has(> .briefing:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto 11rem; }

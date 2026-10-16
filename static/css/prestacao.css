@@ -146,6 +146,11 @@
 .rt-texto__selo { font-size: var(--texto-2xs); }
 .rt-texto__dica { margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
 .rt-texto__leitura { height: auto; min-height: var(--altura-controle); margin: 0; }
+/* Sem texto pronto cadastrado (só as ações), as ações sobem para o lado do título. */
+@media (min-width: 768px) {
+  .rt-texto:has(> .texto-pronto > .texto-pronto__acoes:only-child) { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  .rt-texto:has(> .texto-pronto > .texto-pronto__acoes:only-child) > .campo { grid-column: 1 / -1; }
+}
 @media (max-width: 767px) {
   /* No celular, as ações do texto pronto numa linha só, dividindo a largura do cartão. */
   .rt-texto .texto-pronto__acoes { flex-wrap: nowrap; width: 100%; }
