@@ -1,0 +1,5 @@
+{# Ações da faixa: alterar depois do envio e pedir o coffee break do evento. #}
+{% if s %}
+{% if pode_reabrir and not reabrir %}<a class="botao botao--sm" href="?reabrir=1">{% icone "pencil" classe="icone--sm" %}Alterar</a>{% endif %}
+{% if pedir_coffee %}<a class="botao botao--sm" href="{{ pedir_coffee }}">{% icone "receipt" classe="icone--sm" %}Pedir coffee break</a>{% endif %}
+{% endif %}

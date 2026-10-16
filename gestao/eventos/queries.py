@@ -130,9 +130,10 @@ class Linha:
     selo: dominio.Selo | None
     em_cima: str
     fatos: list[tuple[str, str, str, bool]] = field(default_factory=list)
+    coffee: str = ""  # o "Pedir coffee break" da linha (a view preenche)
 
 
-def _periodo(s: Solicitacao) -> str:
+def periodo(s: Solicitacao) -> str:
     if not s.data_inicio_evento:
         return ""
     fim = s.data_fim_evento or s.data_inicio_evento
@@ -146,7 +147,7 @@ def linha(s: Solicitacao, hoje: date) -> Linha:
     quem = " — ".join(p for p in (s.solicitante_nome, s.solicitante_cargo_unidade) if p)
     um = (s.unidade_movel_designada.nome if s.unidade_movel_designada
           else "Unidade móvel a designar") if s.unidade_movel else ""
-    fatos = [("calendar", "Período", _periodo(s) or "Sem período", not _periodo(s)),
+    fatos = [("calendar", "Período", periodo(s) or "Sem período", not periodo(s)),
              ("map-pin", "Local", local or "Local não informado", not local),
              ("user-round", "Solicitante", quem or "Sem solicitante", not quem)]
     if um:

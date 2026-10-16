@@ -61,20 +61,52 @@ def lista(request: HttpRequest) -> HttpResponse:
           else qs.order_by("-data_solicitacao", "-criado_em"))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = _querystring(request, "pagina")
+    linhas = [queries.linha(s, hoje) for s in pagina.object_list]
+    for linha in linhas:  # o "Pedir coffee break" do ⋮ (vazio sem o módulo)
+        linha.coffee = pedir_coffee.url(request.user, linha.s)
+    municipios = Municipio.objects.filter(
+        pk__in=policies.solicitacoes_visiveis(request.user).values("municipio_id")
+    ).order_by("nome")
+    tipos = TipoEvento.objects.order_by("nome")
+    url_exportar = reverse("eventos:exportar") + (f"?{base}" if base else "")
     return render(request, "eventos/solicitacoes/lista.html", {
-        "page_obj": pagina, "linhas": [queries.linha(s, hoje) for s in pagina.object_list],
+        "page_obj": pagina, "linhas": linhas,
         "filtros": f, "filas": filas, "qs_sem_fila": _querystring(request, "fila", "pagina"),
         "querystring_base": f"{base}&" if base else "",
-        "municipios": Municipio.objects.filter(
-            pk__in=policies.solicitacoes_visiveis(request.user).values("municipio_id")
-        ).order_by("nome"),
-        "tipos": TipoEvento.objects.order_by("nome"),
-        "url_exportar": reverse("eventos:exportar") + (f"?{base}" if base else ""),
+        "municipios": municipios, "tipos": tipos,
+        "fichas": _fichas(request, f, municipios, tipos),
+        "url_limpar_tudo": request.path + "?" + _querystring(
+            request, "pagina", "inicio", "fim", "municipio", "tipo"),
+        "url_exportar": url_exportar,
         "url_exportar_xlsx": (reverse("eventos:exportar")
                               + f"?{base}{'&' if base else ''}formato=xlsx"),
+        "mais": [{"url": (reverse("eventos:exportar")
+                          + f"?{base}{'&' if base else ''}formato=xlsx"),
+                  "icone": "table", "titulo": "Exportar planilha",
+                  "descricao": "as solicitações deste recorte, em XLSX"},
+                 {"url": url_exportar, "icone": "download", "titulo": "Exportar CSV",
+                  "descricao": "o mesmo recorte, separado por ponto e vírgula"}],
         "pode_despachar": policies.pode_despachar(request.user),
         "migalhas": [("Início", reverse("painel:inicio")), ("Solicitações de evento", "")],
     })
+
+
+def _fichas(request: HttpRequest, f, municipios, tipos) -> list[dict]:
+    """Os filtros da gaveta que valem agora, cada um com o link que tira só ele."""
+    def sem(*campos: str) -> str:
+        return request.path + "?" + _querystring(request, "pagina", *campos)
+
+    fichas = []
+    if f.inicio or f.fim:
+        de, ate = (f"{d:%d/%m/%Y}" if d else "" for d in (f.inicio, f.fim))
+        rotulo = (f"Eventos de {de} a {ate}" if de and ate
+                  else f"Eventos a partir de {de}" if de else f"Eventos até {ate}")
+        fichas.append({"rotulo": rotulo, "url": sem("inicio", "fim")})
+    if f.municipio and (m := next((m for m in municipios if m.pk == f.municipio), None)):
+        fichas.append({"rotulo": f"{m.nome}/{m.uf}", "url": sem("municipio")})
+    if f.tipo and (t := next((t for t in tipos if t.pk == f.tipo), None)):
+        fichas.append({"rotulo": t.nome, "url": sem("tipo")})
+    return fichas
 
 
 COLUNAS = ("Nº", "Status", "Data da solicitação", "Início do evento", "Fim do evento",
@@ -237,6 +269,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     ctx.update({
         "pedir_coffee": pedir_coffee.url(request.user, s),
         "titulo": queries.titulo(s), "etapas": dominio.etapas(s.status),
+        "periodo": queries.periodo(s),
         "selo": dominio.selo_de_tempo(s.data_inicio_evento, s.data_fim_evento, s.status, hoje),
         "em_cima": dominio.em_cima_da_hora(s.data_solicitacao, s.data_inicio_evento),
         "erros_envio": (dominio.erros_do_envio(s.status, solicitacoes.dados_do_envio(s))

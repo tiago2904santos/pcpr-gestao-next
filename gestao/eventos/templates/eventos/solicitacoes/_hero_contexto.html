@@ -1,0 +1,11 @@
+{# Metadados da faixa: quem pede, onde e quando, e o responsável. #}
+{% if s %}
+<p class="registro-hero__metadados" id="frase-solicitacao">
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ periodo|default:"Sem período" }}</span>
+  <span class="registro-hero__metadado">{% icone "map-pin" classe="icone--sm" %}{{ s.municipio|default:"Município não informado" }}</span>
+  <span class="registro-hero__metadado">{% icone "user-round" classe="icone--sm" %}{{ s.solicitante_nome|default:"Sem solicitante" }}</span>
+  <span class="registro-hero__metadado">{% icone "user" classe="icone--sm" %}Responsável: {{ s.criado_por.nome }}</span>
+</p>
+{% else %}
+<p class="registro-hero__complemento">Preencha o que já sabe e salve como rascunho; quando estiver completa, envie para o despacho da Diretoria-Geral.</p>
+{% endif %}

@@ -1,0 +1,23 @@
+/* Eventos sociais: composições próprias do módulo, sobre as peças das folhas de Viagens
+   (registro_hero, documento--preparacao, secao, secao__bloco). Só tokens (tokens.css). */
+
+/* Folha da solicitação · equipes e servidores: cada equipe numa linha — a escolha e,
+   ao lado, quantos servidores —; duas colunas a partir do tablet. */
+.evento-equipes { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2) var(--esp-5); margin: 0; padding: 0; list-style: none; }
+.evento-equipes__item { display: grid; grid-template-columns: minmax(0, 1fr) 7rem; align-items: center; gap: var(--esp-3); padding: var(--esp-2) var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie); }
+.evento-equipes__item:has(input[type="checkbox"]:checked) { border-color: var(--cor-borda-forte); background: var(--cor-superficie-sutil); }
+.evento-equipes__item .campo { margin: 0; }
+@media (min-width: 768px) {
+  .evento-equipes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Folha da solicitação · linhas de campos: duas colunas que dividem a largura (a grade de
+   cinco colunas do ofício, campos--registro, não serve a linhas de dois ou três campos). */
+.evento-campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4) var(--esp-3); }
+.evento-campos > .campo { width: auto; max-width: none; min-width: 0; margin: 0; }
+.evento-campos--curto { grid-template-columns: minmax(0, 14rem); }
+@media (min-width: 768px) {
+  .evento-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .evento-campos--curto { grid-template-columns: minmax(0, 14rem); }
+  .evento-campos--endereco { grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, .8fr); }
+}

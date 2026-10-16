@@ -1,0 +1,5 @@
+{# Selos ao lado do título da folha: a situação e no máximo um alerta (em cima da hora, senão o tempo do evento). #}
+{% if s %}<span class="registro-hero__selos" id="selos-solicitacao">
+  <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %} selo--sem-ponto">{{ s.get_status_display }}</span>
+  {% if em_cima %}<span class="selo selo--aviso selo--sem-ponto" title="{{ em_cima }}">{% icone "alert-triangle" classe="icone--sm" %}Em cima da hora</span>{% elif selo %}<span class="selo selo--{{ selo.tom }} selo--sem-ponto">{{ selo.texto }}</span>{% endif %}
+</span>{% endif %}
