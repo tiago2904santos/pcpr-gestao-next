@@ -133,8 +133,21 @@
 }
 .diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }
 
-/* Relatório técnico · relato: cada texto como o "Motivo da viagem" do ofício — a linha do
-   texto pronto e, logo embaixo, a área de texto; entre um texto e outro, mais ar. */
-.rt-textos { gap: var(--esp-6); }
-.rt-texto { gap: var(--esp-3); }
+/* Relatório técnico · relato: cada texto num cartão próprio (ícone, título, o que escrever
+   ali) — os cinco são iguais na forma e, soltos, se confundiam; dentro, a linha do texto
+   pronto e a área de texto, como o "Motivo da viagem" do ofício. */
+.rt-textos { display: grid; gap: var(--esp-4); }
+.rt-texto { display: grid; gap: var(--esp-3); padding: var(--esp-4); border: 1px solid var(--cor-borda); border-left: var(--filete) solid var(--cor-marca); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.rt-texto:focus-within { border-color: var(--hover-cartao-borda); border-left-color: var(--cor-marca); box-shadow: var(--sombra-1); }
+.rt-texto__cabecalho { display: flex; align-items: flex-start; gap: var(--esp-3); }
+.rt-texto__icone { display: inline-grid; flex: none; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); background: var(--cor-superficie-realce); color: var(--cor-marca-texto); }
+.rt-texto__titulos { display: grid; gap: var(--esp-05); min-width: 0; }
+.rt-texto__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin: 0; font-size: var(--texto-md); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); }
+.rt-texto__selo { font-size: var(--texto-2xs); }
+.rt-texto__dica { margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
 .rt-texto__leitura { height: auto; min-height: var(--altura-controle); margin: 0; }
+@media (max-width: 767px) {
+  /* No celular, as ações do texto pronto numa linha só, dividindo a largura do cartão. */
+  .rt-texto .texto-pronto__acoes { flex-wrap: nowrap; width: 100%; }
+  .rt-texto .texto-pronto__acoes .botao:not(.botao--icone) { flex: 1 1 auto; padding-inline: var(--esp-2); }
+}

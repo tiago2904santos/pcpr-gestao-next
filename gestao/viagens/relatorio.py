@@ -113,14 +113,17 @@ def contexto_da_viagem(prestacao: PrestacaoContas) -> dominio.Contexto:
             if linha.realizado is not None:
                 realizados.append(f"{linha.atividade.nome}: {linha.realizado}")
     return dominio.Contexto(evento=dominio.espacos(viagem.titulo if viagem else ""),
-                            motivo=dominio.espacos(oficio.motivo), destino=destino,
+                            # Sem o ponto final: o motivo entra no meio das frases sugeridas.
+                            motivo=dominio.espacos(oficio.motivo).rstrip("."),
+                            destino=destino,
                             periodo=periodo, atividades=tuple(atividades),
-                            realizados=tuple(realizados))
+                            realizados=tuple(realizados),
+                            ajustes=texto_dos_ajustes(prestacao))
 
 
 def sugerir(prestacao: PrestacaoContas, campo: str, rascunho: dict[str, str]) -> str:
-    """Conclusão ou medidas montadas por regra local (nunca grava). `rascunho` é o que está
-    na tela agora; sem ele, vale o gravado."""
+    """O "Sugerir texto" de qualquer campo do relato, por regra local (nunca grava).
+    `rascunho` é o que está na tela agora; sem ele, vale o gravado."""
     rt = RelatorioTecnico.objects.filter(prestacao=prestacao).first()
     textos = {c: (getattr(rt, c) if rt else "") for c in dominio.CAMPOS_TEXTO}
     textos.update({c: v for c, v in rascunho.items() if c in textos and v is not None})

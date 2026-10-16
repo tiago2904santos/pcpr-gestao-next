@@ -168,7 +168,9 @@ def test_sugerir_texto_pela_tela(c):
     assert "Arapongas/PR" in texto
     r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "medidas"]))
     assert r.json()["texto"].startswith("Recomenda-se ao órgão:")
-    assert op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "motivo"])).status_code == 404
+    r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "motivo"]))
+    assert "Arapongas/PR" in r.json()["texto"]
+    assert op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "outro"])).status_code == 404
     consulta = _cliente(c, "consulta")
     assert consulta.post(reverse("viagens:sugerir_relatorio",
                                  args=[p.pk, "conclusao"])).status_code == 403

@@ -70,29 +70,33 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
     {{ para_copiar|json_script:"rts-para-copiar" }}
     {% endif %}
 
-    {% comment %}Cada texto como o "Motivo da viagem" do ofício: a linha do texto pronto (com
-    "Sugerir texto" e "Guardar texto" na mesma peça) e, embaixo, a área de texto com o rótulo
-    na borda.{% endcomment %}
-    <div class="pilha rt-textos">
+    {% comment %}Cada texto num cartão próprio — ícone, título, o que escrever ali e "para
+    finalizar" —, para os cinco (iguais na forma) não se confundirem; dentro, a peça do
+    "Motivo da viagem" do ofício: a linha do texto pronto (com "Sugerir texto" e "Guardar
+    texto") e a área de texto.{% endcomment %}
+    <div class="rt-textos">
     {% for c in campos %}
-    <div class="pilha rt-texto" id="grupo-{{ c.nome }}">
-      {% if editavel %}{% with alvo="rt-"|add:c.nome rotulo="Texto pronto — "|add:c.rotulo %}
-        {% if c.nome in sugeriveis %}{% url 'viagens:sugerir_relatorio' p.pk c.nome as url_sugerir %}
+    <section class="rt-texto rt-texto--{{ c.nome }}" id="grupo-{{ c.nome }}" aria-labelledby="t-{{ c.nome }}">
+      <header class="rt-texto__cabecalho">
+        <span class="rt-texto__icone" aria-hidden="true">{% icone c.icone %}</span>
+        <div class="rt-texto__titulos">
+          <h3 class="rt-texto__titulo" id="t-{{ c.nome }}">{{ c.rotulo }}{% if c.obrigatorio %} <span class="selo selo--sem-ponto rt-texto__selo">Para finalizar</span>{% endif %}</h3>
+          <p class="rt-texto__dica" id="dica-{{ c.nome }}">{{ c.dica }}</p>
+        </div>
+      </header>
+      {% if editavel %}{% with alvo="rt-"|add:c.nome rotulo="Texto pronto para "|add:c.rotulo %}{% url 'viagens:sugerir_relatorio' p.pk c.nome as url_sugerir %}
         {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo rotulo_campo=c.rotulo pode_gerir=pode_gerir_textos sugerir_url=url_sugerir sugerir_form="form-rt" %}
-        {% else %}
-        {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo pode_gerir=pode_gerir_textos sugerir_url="" %}
-        {% endif %}
       {% endwith %}{% endif %}
       <div class="campo">
-        <label class="campo__rotulo" for="rt-{{ c.nome }}" id="t-{{ c.nome }}">{{ c.rotulo }}{% if c.obrigatorio %} <span class="campo__opcional">(<span class="sr-only">necessário </span>para finalizar)</span>{% endif %}</label>
+        <label class="campo__rotulo sr-only" for="rt-{{ c.nome }}">{{ c.rotulo }}</label>
         {% if editavel %}
-        <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="3"{% if c.sugerido %} aria-describedby="rt-{{ c.nome }}-sugestao"{% endif %}>{{ c.valor }}</textarea>
+        <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="4" aria-describedby="dica-{{ c.nome }}{% if c.sugerido %} rt-{{ c.nome }}-sugestao{% endif %}" placeholder="{{ c.dica }}">{{ c.valor }}</textarea>
         {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
         {% else %}
         <p class="entrada area-texto rt-texto__leitura">{{ c.valor|default:"—"|linebreaksbr }}</p>
         {% endif %}
       </div>
-    </div>
+    </section>
     {% endfor %}
     </div>
   </section>
