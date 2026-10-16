@@ -1600,7 +1600,10 @@ class FormularioViagem(forms.Form):
             ids = list(qs.filter(viagem=viagem).values_list("pk", flat=True))
             ids += list(qs.filter(viagem__isnull=True).values_list("pk", flat=True)[:40])
             campo = cast(forms.ModelMultipleChoiceField, self.fields[tipo])
-            campo.queryset = qs.model.objects.filter(pk__in=ids).order_by(*qs.query.order_by)
+            opcoes = qs.model.objects.filter(pk__in=ids).order_by(*qs.query.order_by)
+            if tipo == "oficios":  # o rótulo mostra destino e período (os trechos)
+                opcoes = opcoes.prefetch_related("trechos__destino")
+            campo.queryset = opcoes
             self._mostrados[tipo] = ids
         if not self.is_bound:
             self.initial["conhecidos"] = json.dumps(self._mostrados, separators=(",", ":"))

@@ -17,7 +17,6 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
 
@@ -141,14 +140,20 @@ def _roteiro(r) -> Item:
                 reverse("viagens:resumo_roteiro", args=[r.pk]))
 
 
-def _pdf_do_oficio(o: Oficio, tipo: str) -> str:
-    """O PDF emitido mais recente (a via assinada prevalece no download)."""
-    doc = (Documento.objects.filter(oficio=o, tipo=tipo, situacao=Documento.Situacao.PRONTO)
-           .order_by("-versao").values_list("pk", flat=True).first())
-    return f"{reverse('viagens:baixar_documento', args=[doc])}?baixar=1" if doc else ""
+def _pdfs_dos_oficios(oficios: list[Oficio]) -> dict[tuple[int, str], str]:
+    """{(ofício, tipo): download do PDF emitido mais recente} numa consulta só (a via
+    assinada prevalece no download)."""
+    pdfs: dict[tuple[int, str], str] = {}
+    emitidos = [o.pk for o in oficios if o.situacao == Oficio.Situacao.EMITIDO]
+    for doc, oficio, tipo in (Documento.objects
+                              .filter(oficio_id__in=emitidos, situacao=Documento.Situacao.PRONTO)
+                              .order_by("-versao").values_list("pk", "oficio_id", "tipo")):
+        pdfs.setdefault((oficio, tipo),
+                        f"{reverse('viagens:baixar_documento', args=[doc])}?baixar=1")
+    return pdfs
 
 
-def _oficio(o: Oficio, usuario) -> Item:
+def _oficio(o: Oficio, usuario, pdfs: dict[tuple[int, str], str]) -> Item:
     emitido = o.situacao == Oficio.Situacao.EMITIDO
     anexa = usuario is not None and policies.pode_anexar_assinado(usuario, o)
     tipos = [("Ofício", "oficio")]
@@ -156,7 +161,7 @@ def _oficio(o: Oficio, usuario) -> Item:
         tipos.append(("Justificativa", "justificativa"))
     final = "?final=1" if emitido else ""  # emitido: a folha sem a marca de minuta
     paginas = [Pagina(rotulo, reverse("viagens:folha", args=[o.pk, tipo]) + final,
-                      pdf=_pdf_do_oficio(o, tipo) if emitido else "",
+                      pdf=pdfs.get((o.pk, tipo), "") if emitido else "",
                       anexar=reverse("viagens:anexar_assinado", args=[tipo, o.pk])
                       if anexa and emitido else "") for rotulo, tipo in tipos]
     protocolo = o.protocolo_formatado if o.protocolo else ""
@@ -169,8 +174,8 @@ def _oficio(o: Oficio, usuario) -> Item:
 def _plano(p: PlanoTrabalho) -> Item:
     gerado = p.documento_gerado_em is not None or p.situacao == PlanoTrabalho.Situacao.GERADO
     pronto = gerado and not _cancelado(p) and not planos.pendencias(p)
-    atividades = p.atividades.count()
-    efetivo = p.efetivo.aggregate(total=Sum("quantidade"))["total"] or 0
+    atividades = len(p.atividades.all())  # pré-carregados (viagem.documentos)
+    efetivo = sum(linha.quantidade or 0 for linha in p.efetivo.all())
     return Item(p, "os-plano", str(p), _situacao(p, gerado, "Gerado"),
                 f"{_plural(atividades, 'atividade', 'atividades')} · "
                 f"{_plural(efetivo, 'pessoa no efetivo', 'pessoas no efetivo')}",
@@ -184,7 +189,7 @@ def _ordem(o: OrdemServico, usuario) -> Item:
     gerada = o.documento_gerado_em is not None
     pronto = gerada and not _cancelado(o) and not ordens.faltando(o)
     tipo = o.modelo.nome if o.modelo is not None else "OS padrão"
-    servidores = o.servidores.count()
+    servidores = len(o.servidores.all())  # pré-carregados (viagem.documentos)
     return Item(o, "os-plano", str(o), _situacao(o, gerada, "Gerada"),
                 f"{tipo} · {_plural(servidores, 'servidor', 'servidores')}",
                 reverse("viagens:editar_ordem", args=[o.pk]),
@@ -222,6 +227,7 @@ def trilha(docs: Documentos, anexos=(), usuario=None) -> list[Passo]:
     documentos_da_os = ([_ordem(o, usuario) for o in docs.ordens]
                         + [_plano(p) for p in docs.planos])
     solicitacao = [_anexo(a) for a in anexos]
+    pdfs = _pdfs_dos_oficios(docs.oficios)
     return [
         Passo(1, "solicitacao", "Solicitação", "mail",
               "O e-mail do solicitante ou o ofício que pede o evento.",
@@ -230,7 +236,7 @@ def trilha(docs: Documentos, anexos=(), usuario=None) -> list[Passo]:
               "Nenhum roteiro ainda", [_roteiro(r) for r in docs.roteiros],
               [Novo("roteiro", "Novo roteiro")]),
         Passo(3, "oficio", "Ofícios", "file-text", "A equipe e o pedido de diárias.",
-              "Nenhum ofício ainda", [_oficio(o, usuario) for o in docs.oficios],
+              "Nenhum ofício ainda", [_oficio(o, usuario, pdfs) for o in docs.oficios],
               [Novo("oficio", "Novo ofício")]),
         Passo(4, "os-plano", "OS ou plano de trabalho", "clipboard-list",
               "Basta um dos dois — e nenhum é preciso quando a solicitação está anexada.",

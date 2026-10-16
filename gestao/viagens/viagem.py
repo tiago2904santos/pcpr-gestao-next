@@ -75,13 +75,16 @@ def documentos(viagem: Viagem) -> Documentos:
     oficios = list(viagem.oficios.select_related("roteiro").order_by("ano", "numero"))
     ids = [o.pk for o in oficios]
     roteiros = list(Roteiro.objects.filter(Q(viagem=viagem) | Q(oficios__pk__in=ids))
-                    .distinct().order_by("pk"))
+                    .distinct().order_by("pk").prefetch_related("oficios"))
     termos = list(TermoAutorizacao.objects.filter(Q(viagem=viagem) | Q(oficio_id__in=ids))
                   .distinct().order_by("oficio_id", "pk"))
     termos.sort(key=lambda t: (t.oficio_id is not None, t.pk))
     return Documentos(roteiros=roteiros, oficios=oficios,
-                      planos=list(viagem.planos.order_by("ano", "numero")),
-                      ordens=list(viagem.ordens.order_by("ano", "numero")), termos=termos)
+                      planos=list(viagem.planos.order_by("ano", "numero")
+                                  .prefetch_related("atividades", "efetivo")),
+                      ordens=list(viagem.ordens.order_by("ano", "numero")
+                                  .select_related("modelo").prefetch_related("servidores")),
+                      termos=termos)
 
 
 def periodo_curto(inicio: date | None, fim: date | None) -> str:

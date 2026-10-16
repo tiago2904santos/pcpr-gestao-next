@@ -28,6 +28,11 @@ ORCAMENTO_SQL = 25
 # de cadastro rápido e conflitos de agenda, constantes — não crescem com o ofício).
 ORCAMENTO_SQL_FOLHA = 32
 FOLHA = re.compile(r"/viagens/oficios/\d+/editar/")
+# A folha da viagem (aonde "Finalizar" o ofício de uma viagem leva) reúne a conferência, os
+# conflitos de agenda e os documentos de todos os vínculos: já passava de 60 consultas na
+# base pequena antes de entrar neste fluxo. Teto da base DEMO, para não crescer.
+ORCAMENTO_SQL_VIAGEM = 170
+VIAGEM = re.compile(r"/viagens/viagens/\d+/$")
 
 
 @pytest.fixture
@@ -62,7 +67,8 @@ def _pagina(navegador: Browser, base: str, largura: int) -> Page:
             pg.problemas.append(f"HTTP {r.status} {r.url}")  # type: ignore[attr-defined]
         timing = r.headers.get("server-timing", "")
         consultas = re.search(r'"(\d+) consultas"', timing)
-        teto = ORCAMENTO_SQL_FOLHA if FOLHA.search(r.url) else ORCAMENTO_SQL
+        teto = (ORCAMENTO_SQL_FOLHA if FOLHA.search(r.url)
+                else ORCAMENTO_SQL_VIAGEM if VIAGEM.search(r.url) else ORCAMENTO_SQL)
         if consultas and int(consultas.group(1)) > teto:
             pg.problemas.append(f"{consultas.group(1)} consultas em {r.url}")  # type: ignore[attr-defined]
 
@@ -174,7 +180,7 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
     # A folha grava sozinha a cada pausa (o status diz quando); "Finalizar" grava o que
-    # faltar e volta à lista.
+    # faltar e volta à lista — ou à viagem, quando o ofício é de uma.
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente às",
                                                                    timeout=15000)
     _sem_rolagem_lateral(pg)
