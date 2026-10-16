@@ -286,9 +286,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "pode_anexos": policies.pode_mexer_nos_anexos(request.user, s),
         "decisoes": dominio.DECISOES, "textos_despacho": TextoDespacho.objects.filter(ativo=True),
         "despacho_escolhido": despacho_escolhido, "despacho_observacao": despacho_observacao,
-        "fila": (queries.aplicar_fila(policies.solicitacoes_visiveis(request.user), "despacho",
-                                      request.user, hoje).count()
-                 if policies.pode_despachar(request.user) else 0),
+        **_posicao_na_fila(request, s),
         "usuarios": get_user_model().objects.filter(is_active=True).exclude(
             pk=s.criado_por_id).order_by("nome") if policies.pode_transferir(request.user, s)
         else [],
@@ -430,6 +428,15 @@ def _quantidades(request: HttpRequest) -> dict[int, int]:
     return saida
 
 
+def _posicao_na_fila(request: HttpRequest, s: Solicitacao) -> dict:
+    """"3 de 7 na fila" para a DG: a posição desta na fila de despacho."""
+    if not policies.pode_despachar(request.user):
+        return {"fila": 0, "posicao_fila": 0}
+    ordem = solicitacoes.ordem_da_fila(request.user)
+    return {"fila": len(ordem),
+            "posicao_fila": ordem.index(s.pk) + 1 if s.pk in ordem else 0}
+
+
 @require_POST
 def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     if not policies.pode_despachar(request.user):
@@ -446,6 +453,7 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
                              else "Nenhuma alteração nas quantidades.")
         return redirect(reverse("eventos:solicitacao", args=[pk]) + "#despacho")
     decisao = request.POST.get("decisao") or ""
+    ordem = solicitacoes.ordem_da_fila(request.user)  # a de antes da decisão
     try:
         feita = solicitacoes.despachar(request.user, s.pk, decisao,
                                        request.POST.get("observacao") or "", _quantidades(request))
@@ -457,7 +465,7 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     messages.success(request, f"Solicitação #{feita.pk} enviada para correção." if decisao ==
                      "devolver" else f"Decisão registrada para a solicitação #{feita.pk}.")
     if request.POST.get("seguir") == "proxima":
-        proxima = solicitacoes.proxima_da_fila(request.user, depois_de=feita.pk)
+        proxima = solicitacoes.proxima_da_fila(request.user, depois_de=feita.pk, ordem=ordem)
         if proxima is None:
             messages.info(request, "Não há mais solicitações aguardando despacho.")
             return redirect(reverse("eventos:solicitacoes") + "?fila=despacho")

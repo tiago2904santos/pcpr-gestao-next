@@ -274,14 +274,27 @@ def despachar(usuario, pk: int, decisao: str, observacao: str = "",
     return s
 
 
-def proxima_da_fila(usuario, depois_de: int | None = None) -> Solicitacao | None:
-    """A próxima aguardando despacho: o evento mais próximo primeiro (sem data, no fim)."""
+def ordem_da_fila(usuario) -> list[int]:
+    """A fila de despacho em ordem: o evento mais próximo primeiro (sem data, no fim)."""
     from django.db.models import F
-    qs = (policies.solicitacoes_visiveis(usuario).filter(status=dominio.AGUARDANDO)
-          .order_by(F("data_inicio_evento").asc(nulls_last=True), "pk"))
-    if depois_de:
-        qs = qs.exclude(pk=depois_de)
-    return qs.first()
+    return list(policies.solicitacoes_visiveis(usuario).filter(status=dominio.AGUARDANDO)
+                .order_by(F("data_inicio_evento").asc(nulls_last=True), "pk")
+                .values_list("pk", flat=True))
+
+
+def proxima_da_fila(usuario, depois_de: int | None = None,
+                    ordem: list[int] | None = None) -> Solicitacao | None:
+    """A próxima ainda aguardando despacho depois de `depois_de`, na ordem que a fila tinha
+    antes da decisão (`ordem`); passada a última, volta às de antes dela."""
+    pendentes = ordem_da_fila(usuario)
+    ordem = ordem if ordem is not None else pendentes
+    if depois_de in ordem:
+        i = ordem.index(depois_de)
+        ordem = ordem[i + 1:] + ordem[:i]
+    restantes = set(pendentes)
+    pk = next((pk for pk in ordem if pk in restantes and pk != depois_de),
+              next((pk for pk in pendentes if pk != depois_de), None))
+    return Solicitacao.objects.filter(pk=pk).first() if pk else None
 
 
 # ---------------------------------------------------------------- viagem (E4)

@@ -134,6 +134,27 @@ def test_visibilidade(ana, dg):
     assert c.get(reverse("eventos:solicitacao", args=[s.pk])).status_code == 200
 
 
+def test_fila_de_despacho_segue_a_ordem_e_volta_ao_comeco(ana, dg):
+    hoje = timezone.localdate()
+    a, b, c = (solicitacoes.criar(ana, _completa(data_inicio_evento=hoje + timedelta(days=d),
+                                                 data_fim_evento=hoje + timedelta(days=d)),
+                                  _estrutura()) for d in (5, 10, 15))
+    for s in (a, b, c):
+        solicitacoes.enviar(ana, s.pk)
+    ordem = solicitacoes.ordem_da_fila(dg)
+    assert ordem == [a.pk, b.pk, c.pk]
+    cli = Client()
+    cli.force_login(dg)
+    assert "2 de 3 na fila" in cli.get(reverse("eventos:solicitacao", args=[b.pk])).content.decode()
+    solicitacoes.despachar(dg, b.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=b.pk, ordem=ordem) == c
+    ordem = solicitacoes.ordem_da_fila(dg)
+    solicitacoes.despachar(dg, c.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=c.pk, ordem=ordem) == a  # volta
+    solicitacoes.despachar(dg, a.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=a.pk) is None
+
+
 def test_despacho_devolucao_reenvio_e_proxima(ana, dg, django_capture_on_commit_callbacks):
     s = solicitacoes.criar(ana, _completa(), _estrutura())
     solicitacoes.enviar(ana, s.pk)

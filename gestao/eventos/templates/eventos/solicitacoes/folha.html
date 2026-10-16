@@ -141,7 +141,7 @@ histórico.
   </section>
 
   <section class="secao{% if s.decisao_dg != 'pendente' %} secao--ok{% endif %}" id="despacho" aria-labelledby="t-despacho">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-despacho"><span class="secao__numero">4</span>Despacho da DG</h2>{% if pode_despachar and fila %}<div class="secao__estado"><span class="selo selo--sem-ponto">{{ fila|pluralizar:"na fila,na fila" }}</span></div>{% endif %}</div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-despacho"><span class="secao__numero">4</span>Despacho da DG</h2>{% if pode_despachar and fila %}<div class="secao__estado"><span class="selo selo--sem-ponto" title="A fila vai do evento mais próximo ao mais distante.">{% if posicao_fila %}{{ posicao_fila }} de {{ fila }} na fila{% else %}{{ fila|pluralizar:"na fila,na fila" }}{% endif %}</span></div>{% endif %}</div>
     {% if pode_despachar %}
     <form method="post" action="{% url 'eventos:despachar' s.pk %}" class="pilha" novalidate>
       {% csrf_token %}
