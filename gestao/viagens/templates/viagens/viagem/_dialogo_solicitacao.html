@@ -1,0 +1,33 @@
+{% comment %}
+Anexar a solicitação da viagem (1º passo da trilha): o que é (e-mail, ofício ou outro) e o
+arquivo. Fora do formulário da viagem (que se grava sozinho); volta para "Documentos".
+Remover usa o formulário escondido `remover-solicitacao` (formaction de cada linha).
+{% endcomment %}
+<dialog id="dialogo-solicitacao" class="dialogo" aria-labelledby="dialogo-solicitacao-titulo">
+  <form method="post" action="{% url 'viagens:anexar_solicitacao_viagem' v.pk %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="dialogo__cabecalho">
+      <span class="dialogo__icone" aria-hidden="true">{% icone "mail" %}</span>
+      <h2 class="dialogo__titulo" id="dialogo-solicitacao-titulo">Anexar a solicitação</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <p class="texto-secundario texto-sm">O pedido que originou a viagem: o e-mail do solicitante ou o ofício que pede o evento.</p>
+      <fieldset class="campo">
+        <legend class="campo__rotulo">O que é</legend>
+        <div class="viagem-solicitacao__tipos">
+          {% for valor, rotulo in tipos_de_solicitacao %}<label class="escolha viagem-solicitacao__tipo"><input type="radio" name="tipo" value="{{ valor }}"{% if forloop.first %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
+        </div>
+      </fieldset>
+      <div class="campo">
+        <label class="campo__rotulo" for="solicitacao-arquivo">Arquivo</label>
+        <input class="entrada entrada--arquivo" type="file" id="solicitacao-arquivo" name="arquivo" required accept=".eml,.msg,.pdf,.png,.jpg,.jpeg,message/rfc822,application/pdf,image/png,image/jpeg" aria-describedby="solicitacao-arquivo-ajuda">
+        <p class="campo__ajuda" id="solicitacao-arquivo-ajuda">O e-mail salvo (.eml ou .msg), um PDF ou uma imagem (PNG ou JPG), até 10 MB.</p>
+      </div>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Voltar</button>
+      <button type="submit" class="botao botao--primario">{% icone "plus" %}Anexar</button>
+    </div>
+  </form>
+</dialog>
+<form id="remover-solicitacao" method="post" hidden data-confirmar="O arquivo sai da viagem (fica guardado no histórico)." data-confirmar-titulo="Remover a solicitação?" data-confirmar-rotulo="Remover" data-confirmar-perigo>{% csrf_token %}</form>

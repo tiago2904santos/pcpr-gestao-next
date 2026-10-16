@@ -17,6 +17,8 @@ Não copiar código nem usar registros reais em testes.
 
 - A fitinha abre uma janela com seleção múltipla/arrastar arquivos e acompanhamento.
   A página de importações conserva o andamento após fechar/recarregar a janela.
+  Enquanto uma janela modal estiver aberta, a fita fica oculta para não disputar
+  espaço com as ações do documento; volta ao fechar a janela.
 - Cada original é privado e imutável, com hash e usuário. O resultado conserva
   páginas de origem, motivos da identificação, destino e anexo criado.
 - Processamento persistente fora da requisição, com concorrência limitada,

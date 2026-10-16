@@ -9,6 +9,17 @@ Atualizar também o modelo do proxy: teto externo de 32 MB; a aplicação libera
 envia um arquivo por requisição, mesmo em lote. As partes resultantes respeitam
 os limites existentes: 15 MiB por via assinada e 10 MiB por anexo da prestação.
 
+### Atenção ao executor da VPS
+
+Os executores atuais `deploy/automatico/atualizar.sh` e `deploy/vps/implantar.sh`
+selecionam explicitamente `web worker`; o novo serviço não é ativado apenas pelo
+push no main. Antes de disponibilizar a importação nessa instalação, o responsável
+deve integrar `importador` ao executor: mesma imagem da release, rede interna do
+banco conectada, parada nas migrações/restaurações e pausa nos backups, subida e
+verificação de saúde. A atualização do executor instalado e do proxy exige uma
+operação separada no servidor. Sem isso, os arquivos permanecem aguardando na fila.
+O ambiente local já tem o importador ativo; o push não comprova essa ativação na VPS.
+
 O worker usa a rede interna do banco, sem saída à internet. Os subprocessos recebem
 ambiente mínimo, sem credenciais do banco. Perfil do LibreOffice exclusivo por
 conversão, macros bloqueadas; documentos OOXML com vínculos externos pedem PDF.

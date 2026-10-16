@@ -33,6 +33,7 @@ from . import (
     resultados,
     resumo_listas,
 )
+from . import viagem as viagem_mod
 from .dominio import plano_trabalho as dominio
 from .forms import FormularioEvento, FormularioPlano
 from .models import Oficio, PlanoTrabalho
@@ -543,7 +544,7 @@ def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, str(exc))
         return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#conferencia")
     messages.success(request, f"{plano} finalizado e gerado.")
-    return redirect("viagens:planos")
+    return redirect(viagem_mod.ao_terminar(plano, "viagens:planos"))
 
 
 @require_POST

@@ -1,0 +1,77 @@
+.....F..                                                                 [100%]
+=================================== FAILURES ===================================
+_______________ test_setas_passam_por_todos_os_documentos[1440] ________________
+
+logado = <Page url='http://localhost:36223/viagens/viagens/2/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 171, 'oficio_rascunho': 172, 'oficio_vazio': 173, 'oficio_cancelado': 174, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_setas_passam_por_todos_os_documentos(logado, dados_e2e, largura):
+        pg = logado
+        v = _viagem(dados_e2e)
+        emitido = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        rascunho = Oficio.objects.get(pk=dados_e2e.ids["oficio_rascunho"])
+        viagem.salvar_dados(dados_e2e.usuarios["operador"], v.pk, tipos=list(v.tipos.all()),
+                            vinculos={"oficios": [emitido, rascunho]})
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto(f"/viagens/viagens/{v.pk}/")
+        itens = pg.locator("a[data-visualizar]")
+        hrefs = [itens.nth(i).get_attribute("href") or "" for i in range(itens.count())]
+        total = len(hrefs)
+        i_emitido = next(i for i, h in enumerate(hrefs) if h.endswith(f"/oficios/{emitido.pk}/editar/"))
+        i_rascunho = next(i for i, h in enumerate(hrefs)
+                          if h.endswith(f"/oficios/{rascunho.pk}/editar/"))
+        # Só o emitido está pronto: abre a folha; o rascunho abre a janela de resumo.
+        assert "/documento/oficio/folha/" in (itens.nth(i_emitido).get_attribute("data-paginas") or "")
+        assert itens.nth(i_rascunho).get_attribute("data-paginas") is None
+    
+        visor, resumo = pg.locator("#dialogo-documento"), pg.locator("#dialogo-resumo")
+        itens.nth(i_emitido).click()
+        expect(visor).to_be_visible()
+        expect(pg.locator("[data-v-posicao]")).to_have_text(f"{i_emitido + 1} de {total}")
+>       _axe_estavel(pg)
+
+tests/e2e/test_viagem_visualizador.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pg = <Page url='http://localhost:36223/viagens/viagens/2/'>
+
+    def _axe_estavel(pg):
+        # A URL muda no commit da navegação, antes de o CSS registrar animações.
+        pg.wait_for_load_state("load")
+        # Transição nativa entre documentos desenha snapshots após load. O axe
+        # precisa da composição final, não do snapshot parcialmente transparente.
+        pg.evaluate("""async () => {
+            const limite = performance.now() + 5000;
+            while (document.documentElement.matches(':active-view-transition')) {
+                if (performance.now() > limite) throw new Error('Transição de navegação não terminou');
+                await new Promise(requestAnimationFrame);
+            }
+        }""")
+        # O cronômetro do toast pausa sob hover/foco por acessibilidade; não é
+        # animação de entrada nem pode ser aguardado até sumir para medir contraste.
+        pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
+            a.animationName !== 'toast-tempo' &&
+            a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+        # O cabeçalho e o rodapé grudados cobrem o que calhar atrás deles na rolagem do momento:
+        # mede do topo da página, com o rodapé em repouso (como test_acessibilidade), e devolve
+        # o estilo depois.
+        pg.evaluate("window.scrollTo(0, 0); document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
+        violacoes = rodar_axe(pg)
+        pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = '')")
+>       assert violacoes == [], [(v["id"], [n["target"] for n in v["nodes"]][:4], [r["target"] for a in v["nodes"][0]["any"] for r in a.get("relatedNodes", [])][:4]) for v in violacoes]
+E       AssertionError: [('target-size', [['.visualizador__seta--proximo']], [['.importador-fita'], ['.importador-fita']])]
+E       assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests/e2e/test_justificativas_identidade.py:39: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-16 10:21:59,552 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 81 consultas (limite 25)
+------------------------------ Captured log call -------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/viagens/2/: 81 consultas (limite 25)
+=========================== short test summary info ============================
+FAILED tests/e2e/test_viagem_visualizador.py::test_setas_passam_por_todos_os_documentos[1440]
+1 failed, 7 passed in 318.56s (0:05:18)

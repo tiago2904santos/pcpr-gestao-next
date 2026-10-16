@@ -15,6 +15,7 @@ from typing import Any
 
 from django.db import transaction
 from django.db.models import Q, QuerySet
+from django.urls import reverse
 from django.utils import timezone
 
 from gestao.cadastros.models import Municipio, TipoViagem
@@ -62,6 +63,11 @@ class Documentos:
     def total(self) -> int:
         return sum(len(getattr(self, t)) for t in TIPOS_DE_DOCUMENTO)
 
+    @property
+    def tipos_com_documento(self) -> int:
+        """Quantos dos cinco tipos já têm documento (a trilha da folha da viagem)."""
+        return sum(1 for t in TIPOS_DE_DOCUMENTO if getattr(self, t))
+
 
 def documentos(viagem: Viagem) -> Documentos:
     """Os documentos da viagem. Roteiros e termos também contam quando chegam por um ofício
@@ -69,13 +75,16 @@ def documentos(viagem: Viagem) -> Documentos:
     oficios = list(viagem.oficios.select_related("roteiro").order_by("ano", "numero"))
     ids = [o.pk for o in oficios]
     roteiros = list(Roteiro.objects.filter(Q(viagem=viagem) | Q(oficios__pk__in=ids))
-                    .distinct().order_by("pk"))
+                    .distinct().order_by("pk").prefetch_related("oficios"))
     termos = list(TermoAutorizacao.objects.filter(Q(viagem=viagem) | Q(oficio_id__in=ids))
                   .distinct().order_by("oficio_id", "pk"))
     termos.sort(key=lambda t: (t.oficio_id is not None, t.pk))
     return Documentos(roteiros=roteiros, oficios=oficios,
-                      planos=list(viagem.planos.order_by("ano", "numero")),
-                      ordens=list(viagem.ordens.order_by("ano", "numero")), termos=termos)
+                      planos=list(viagem.planos.order_by("ano", "numero")
+                                  .prefetch_related("atividades", "efetivo")),
+                      ordens=list(viagem.ordens.order_by("ano", "numero")
+                                  .select_related("modelo").prefetch_related("servidores")),
+                      termos=termos)
 
 
 def periodo_curto(inicio: date | None, fim: date | None) -> str:
@@ -193,7 +202,7 @@ def _travar(usuario, pk: int, versao: str = "") -> Viagem:
 
 @transaction.atomic
 def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
-                 descricao: str = "", data_inicio: date | None = None,
+                 descricao: str | None = None, data_inicio: date | None = None,
                  data_fim: date | None = None, destinos: list[Municipio] | None = None,
                  vinculos: dict | None = None,
                  versao: str = "") -> Viagem:
@@ -210,7 +219,9 @@ def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
         motivo = next((t.motivo for t in tipos if t.pk not in antes and t.motivo.strip()), "")
     viagem.tipos.set(tipos)
     viagem.titulo = titulo_dos_tipos([t.nome for t in tipos])
-    viagem.motivo, viagem.descricao = motivo.strip(), descricao.strip()
+    viagem.motivo = motivo.strip()
+    if descricao is not None:  # a tela não tem mais o campo: o gravado fica como está
+        viagem.descricao = descricao.strip()
     viagem.data_inicio, viagem.data_fim = data_inicio, data_fim
     viagem.save()
     viagem.destinos.all().delete()
@@ -251,6 +262,22 @@ def _sincronizar(viagem: Viagem, vinculos: dict) -> None:
             soltar = soltar.filter(pk__in=mostrados)
         soltar.update(viagem=None)
         modelo.objects.filter(pk__in=permitidos).update(viagem=viagem)
+
+
+def ao_terminar(documento, padrao: str) -> str:
+    """Para onde a folha de um documento volta ao "Finalizar": a viagem dele (a trilha de
+    documentos), quando ele é de uma viagem — direto ou por um ofício dela —; senão, `padrao`
+    (a lista do tipo)."""
+    viagem_id = getattr(documento, "viagem_id", None)
+    oficio = getattr(documento, "oficio", None)  # o termo que nasceu de um ofício
+    if not viagem_id and oficio is not None:
+        viagem_id = oficio.viagem_id
+    if not viagem_id and hasattr(documento, "oficios") and documento.pk:
+        viagem_id = (documento.oficios.exclude(viagem=None)
+                     .values_list("viagem_id", flat=True).first())
+    if viagem_id:
+        return reverse("viagens:editar_viagem", args=[viagem_id]) + "#documentos"
+    return reverse(padrao)
 
 
 # ---------------------------------------------------------------- documento novo vinculado

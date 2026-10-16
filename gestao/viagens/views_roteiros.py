@@ -19,6 +19,7 @@ from django.views.decorators.vary import vary_on_headers
 from gestao.cadastros.models import Municipio
 
 from . import itinerario, linha_lista, policies, queries, resumo_listas, services
+from . import viagem as viagem_mod
 from .dominio.bate_volta import BateVoltaInvalido
 from .dominio.diarias import Faixa, RoteiroIncalculavel, SemTabelaDeDiarias
 from .forms import FORM_ID_ROTEIRO, FormularioRoteiro
@@ -195,8 +196,9 @@ def _formulario(request: HttpRequest, roteiro: Roteiro | None) -> HttpResponse:
             return render(request, template, contexto, status=422)
         messages.success(request, f"Roteiro #{salvo.pk} "
                                   f"{'cadastrado' if roteiro is None else 'salvo'}.")
-        # O autosave já guarda o caminho; salvar quer dizer "terminei" e volta para a lista.
-        return redirect("viagens:roteiros")
+        # O autosave já guarda o caminho; salvar quer dizer "terminei": volta para a viagem
+        # dele (ou para a lista).
+        return redirect(viagem_mod.ao_terminar(salvo, "viagens:roteiros"))
     contexto = _contexto(request, roteiro, form, itin)
     contexto.update(sujo=True, foco="resumo-erros" if form.errors else "alerta-roteiro")
     return render(request, template, contexto, status=422)

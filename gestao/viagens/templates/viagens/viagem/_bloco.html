@@ -1,31 +1,45 @@
 {% comment %}
-Um tipo de documento da viagem: cada um com situação e período, link para a folha dele e
-"Novo …" (já vinculado). Termo, OS e plano nascem com período e destinos: sem eles, o botão
-fica parado e diz por quê.
+Um passo da trilha (_documentos.html): o marcador (✓ quando tem documento, senão o número),
+o título e o que o passo é, o botão de criar (Termo, OS e plano nascem com período e
+destinos: sem eles, o botão fica parado e diz por quê; a solicitação anexa um arquivo) e a
+lista dos documentos — título, chip da situação e subtexto.
 {% endcomment %}
-<div class="secao__bloco viagem-documento{% if not lista %} viagem-documento--vazio{% endif %}" aria-labelledby="t-bloco-{{ tipo }}">
-  <div class="secao__bloco-cabecalho">
-    <h3 class="secao__bloco-titulo" id="t-bloco-{{ tipo }}">{% icone icone classe="icone--sm" %}{{ titulo }}</h3>
-    <div class="secao__estado">
-      <span class="selo selo--neutro selo--sem-ponto" aria-label="{{ lista|length|pluralizar:'documento,documentos' }}">{{ lista|length }}</span>
+<li class="viagem-passo{% if passo.feito %} viagem-passo--ok{% endif %}" aria-labelledby="t-passo-{{ passo.chave }}">
+  <span class="viagem-passo__marca" aria-hidden="true">{% if passo.feito %}{% icone "check" classe="icone--sm" %}{% else %}{{ passo.numero }}{% endif %}</span>
+  <div class="viagem-passo__corpo">
+    <div class="viagem-passo__cabecalho">
+      <div class="viagem-passo__rotulo">
+        <h3 class="viagem-passo__titulo" id="t-passo-{{ passo.chave }}">{{ passo.titulo }}{% if passo.itens %} <span class="viagem-passo__conta">{{ passo.itens|length }}</span>{% endif %}</h3>
+        <p class="viagem-passo__descricao">{{ passo.descricao }}</p>
+      </div>
       {% if editavel %}
-        {% if precisa_semente and not pode_semear %}
-          <button type="button" class="botao botao--sm" disabled aria-describedby="sem-semente-{{ tipo }}">{% icone "plus" %}{{ rotulo_novo }}</button>
-          <span class="texto-terciario texto-xs" id="sem-semente-{{ tipo }}"><a href="#periodo">informe período e destino</a></span>
-        {% else %}
-          <button type="submit" form="novo-{{ tipo }}" class="botao botao--sm">{% icone "plus" %}{{ rotulo_novo }}</button>
-        {% endif %}
+      <div class="viagem-passo__acoes">
+        {% if passo.anexar %}
+          <button type="button" class="botao botao--sm" data-abrir-dialogo="dialogo-solicitacao">{% icone "plus" %}Anexar e-mail ou ofício</button>
+        {% else %}{% for novo in passo.novos %}
+          {% if novo.precisa_semente and not pode_semear %}
+            <button type="button" class="botao botao--sm" disabled aria-describedby="sem-semente-{{ passo.chave }}">{% icone "plus" %}{{ novo.rotulo }}</button>
+          {% else %}
+            <button type="submit" form="novo-{{ novo.tipo }}" class="botao botao--sm">{% icone "plus" %}{{ novo.rotulo }}</button>
+          {% endif %}
+        {% endfor %}{% endif %}
+      </div>
       {% endif %}
     </div>
-  </div>
-  {% if lista %}
-    <ul class="relacoes-documentais" aria-labelledby="t-bloco-{{ tipo }}">
-      {% for d in lista %}<li><a class="peca-documental" href="{% url rota d.pk %}">
-        {% icone icone %}<span class="ficha-documental__texto"><span>{{ d }}</span>
-        <span class="ficha-documental__meta">{% include "viagens/viagem/_situacao_doc.html" %}{% if d.viagem_id != v.pk %}<span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}{% if d.data_inicio %}<span>{% icone "calendar" classe="icone--sm" %}{{ d.data_inicio|date:"d/m/Y" }}{% if d.data_fim and d.data_fim != d.data_inicio %} a {{ d.data_fim|date:"d/m/Y" }}{% endif %}</span>{% endif %}</span>
-        </span>{% icone "arrow-right" classe="icone--sm viagem-documento__abrir" %}</a></li>{% endfor %}
+    {% if passo.itens %}
+    <ul class="viagem-lista" aria-labelledby="t-passo-{{ passo.chave }}">
+      {% for item in passo.itens %}<li class="viagem-lista__item">
+        <a class="viagem-lista__link" href="{{ item.abrir_url }}"{% if item.visualizar %} data-visualizar data-grupo="{{ item.grupo }}" data-tipo="{{ passo.titulo }}" data-titulo="{{ item.titulo }}" data-resumo="{{ item.resumo_url }}" data-abrir="{{ item.abrir_url }}"{% if item.paginas_json %} data-paginas="{{ item.paginas_json }}"{% endif %}{% if item.baixar_url %} data-baixar="{{ item.baixar_url }}"{% endif %} aria-haspopup="dialog"{% else %} download{% endif %}>
+          <span class="viagem-lista__linha"><span class="viagem-lista__nome">{{ item.titulo }}</span><span class="selo selo--{{ item.chip.tom }} selo--sem-ponto">{{ item.chip.texto }}</span></span>
+          <span class="viagem-lista__sub">{{ item.subtexto }}</span>
+          <span class="viagem-lista__ver" aria-hidden="true">{% if item.visualizar %}{% icone "eye" classe="icone--sm" %}Ver{% else %}{% icone "download" classe="icone--sm" %}Baixar{% endif %}</span>
+        </a>
+        {% if editavel and item.remover_url %}<button type="submit" form="remover-solicitacao" formaction="{{ item.remover_url }}" class="botao botao--icone botao--sm botao--sutil viagem-lista__remover" aria-label="Remover {{ item.titulo }}">{% icone "trash-2" %}</button>{% endif %}
+      </li>{% endfor %}
     </ul>
-  {% else %}
-    <div class="viagem-documento__vazio"><span class="viagem-documento__marca" aria-hidden="true">{% icone icone %}</span><p><strong>Nenhum documento ainda</strong><span>{{ vazio }}</span></p></div>
-  {% endif %}
-</div>
+    {% else %}
+    <p class="viagem-lista__vazio{% if passo.dispensado %} viagem-lista__vazio--dispensado{% endif %}">{% if passo.dispensado %}{% icone "check" classe="icone--sm" %}{% else %}{% icone passo.icone classe="icone--sm" %}{% endif %}{{ passo.vazio }}</p>
+    {% endif %}
+    {% if editavel and not pode_semear %}{% for novo in passo.novos %}{% if novo.precisa_semente and forloop.first %}<a class="viagem-passo__falta" id="sem-semente-{{ passo.chave }}" href="#periodo">Para criar, informe o período e o destino da viagem.</a>{% endif %}{% endfor %}{% endif %}
+  </div>
+</li>

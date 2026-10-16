@@ -112,3 +112,19 @@ Conversão não reconhecida mantém original e explica como reenviar. EML/MHTML 
 o corpo textual da mensagem, não importa anexos internos automaticamente.
 O navegador pode pedir permissão para múltiplos downloads; a fila precisa ficar
 na página até terminar. Não foi feito deploy em produção.
+
+## Integração para publicação no main
+
+Após o pedido de publicação, `origin/main` avançou até `9e74fa4` (nove commits,
+incluindo o visualizador e o anexo da solicitação da viagem). O merge textual
+preservou ambos os trabalhos. A migração 0061 une as folhas independentes
+`0059_anexo_da_viagem` e `0060_importacao_auditoria`, sem renomear migrações já
+aplicadas e sem operações destrutivas. O script `scripts/verificar.sh` passou com
+131 testes do escopo integrado (importação, limites, pacotes, viagem e termos), em
+178,70 s, e todas as checagens estáticas verdes (`integracao-main.log`).
+
+O primeiro navegador integrado passou 7/8 testes e revelou que a fita disputava
+espaço com a seta do visualizador em 1440 px (`navegador-main-antes.log`). A fita
+agora fica oculta durante janelas modais, com teste explícito de retorno ao fechar.
+Revalidação em andamento. Na aba local antiga, o acesso estava ausente até
+recarregar a listagem; após atualizar, o link abriu a janela de seleção múltipla.

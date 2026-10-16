@@ -1,22 +1,24 @@
-{% comment %}Região viva do hub: ações usam os formulários externos de cada tipo.{% endcomment %}
+{% comment %}
+Documentos da viagem como a trilha da preparação, de cima para baixo (viagem_trilha.py):
+1 Solicitação, 2 Roteiro, 3 Ofícios, 4 OS ou plano de trabalho (basta um), 5 Termos. Cada
+passo tem o título, o que ele é e o botão de criar (ou anexar) alinhados no topo, e a lista
+dos documentos: o título com o chip da situação e um subtexto do que ele tem. Clicar abre o
+visualizador (_visualizador.html); sem JavaScript, a folha de edição.
+Região viva do hub: os botões usam os formulários externos de cada tipo (`novo-…`).
+{% endcomment %}
 <section class="secao viagem-documentos" id="documentos" aria-labelledby="t-docs" data-vivo>
   <div class="secao__cabecalho">
     <h2 class="secao__titulo" id="t-docs"><span class="secao__numero">2</span>Documentos da viagem</h2>
-    <div class="secao__estado"><span class="selo selo--neutro selo--sem-ponto">{{ docs.total|pluralizar:"documento,documentos" }}</span></div>
-    <p class="secao__nota">Abra um documento para continuar a preparação. Os novos nascem em rascunho, já vinculados à viagem.</p>
+    <div class="secao__estado"><span class="selo {% if trilha_feitos == trilha|length %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ trilha_feitos }} de {{ trilha|length }} passos</span></div>
+    <p class="secao__nota">Na ordem em que se prepara a viagem. Clique num documento para vê-lo com o resumo e as ações. Os novos nascem em rascunho e já vinculados à viagem.</p>
   </div>
+  <ol class="viagem-trilha" aria-label="Passos da preparação">
+    {% for passo in trilha %}{% include "viagens/viagem/_bloco.html" %}{% endfor %}
+  </ol>
   {% if editavel %}
-  <div class="viagem-documentos__orientacao">
-    {% icone "layers" classe="icone--sm" %}
-    <p>Vai preparar uma equipe? <a href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">Gerar documentos em conjunto</a> reúne ofício, transporte e documentos da equipe em uma só etapa.</p>
+  <div class="viagem-trilha__rodape">
+    <p>Vai preparar uma equipe inteira? O ofício, o transporte e os documentos dela saem de uma vez.</p>
+    <a class="botao" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "layers" %}Gerar documentos em conjunto{% icone "arrow-right" classe="icone--sm" %}</a>
   </div>
   {% endif %}
-  <div class="secao__grupo secao__grupo--relacoes viagem-documentos__grade">
-    {% include "viagens/viagem/_bloco.html" with titulo="Roteiros" icone="route" lista=docs.roteiros tipo="roteiro" rotulo_novo="Novo roteiro" rota="viagens:editar_roteiro" vazio="Defina o percurso, os trechos e as diárias." precisa_semente=False %}
-    {% include "viagens/viagem/_bloco.html" with titulo="Ofícios e justificativas" icone="file-text" lista=docs.oficios tipo="oficio" rotulo_novo="Novo ofício" rota="viagens:editar" vazio="Prepare a equipe e a solicitação da viagem." precisa_semente=False %}
-    {% include "viagens/viagem/_bloco.html" with titulo="Planos de trabalho" icone="list-checks" lista=docs.planos tipo="plano" rotulo_novo="Novo plano" rota="viagens:editar_plano" vazio="Organize atividades, metas e efetivo." precisa_semente=True %}
-    {% include "viagens/viagem/_bloco.html" with titulo="Ordens de serviço" icone="clipboard-list" lista=docs.ordens tipo="ordem" rotulo_novo="Nova OS" rota="viagens:editar_ordem" vazio="Formalize a atuação e as funções da equipe." precisa_semente=True %}
-    {% include "viagens/viagem/_bloco.html" with titulo="Termos de autorização" icone="file-signature" lista=docs.termos tipo="termo" rotulo_novo="Novo termo" rota="viagens:editar_termo" vazio="Prepare as autorizações dos servidores." precisa_semente=True %}
-  </div>
-  <p class="viagem-documentos__nota">{% icone "info" classe="icone--sm" %}Termo, OS e plano recebem período e destinos; ofício e OS também recebem o motivo. O roteiro começa pelos trechos. Documentos já existentes não são substituídos.</p>
 </section>

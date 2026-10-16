@@ -3701,6 +3701,8 @@ fieldset.campo--escolhas > .campo__erro {
   font-size: var(--texto-xs);
   text-decoration: none;
 }
+/* A ação global não disputa espaço com controles das janelas modais. */
+body:has(dialog:modal) .importador-fita { display: none; }
 .importador-soltar {
   display: grid;
   justify-items: center;

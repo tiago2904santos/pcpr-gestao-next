@@ -44,13 +44,15 @@ def test_quadro_da_viagem_vazia_lista_as_etapas_na_ordem(c):
     v = viagem.criar(c.usuarios["operador"])
     q = viagem_conferencia.quadro(v)
     assert [e.chave for e in q.etapas] == ["dados", "roteiro", "oficios", "equipe", "ordem",
-                                           "plano", "termos", "assinaturas", "protocolo"]
+                                           "termos", "assinaturas", "protocolo"]
     dados = q.etapas[0]
     assert [i.mensagem for i in dados.itens] == ["Informe o tipo da viagem.",
                                                  "Informe o período da viagem.",
                                                  "Informe o destino da viagem."]
     assert dados.itens[0].link.endswith("#dados") and not q.pronta
-    assert "Crie a ordem de serviço." in [i.mensagem for e in q.etapas for i in e.itens]
+    # OS ou plano: basta um dos dois.
+    assert "Crie a ordem de serviço ou o plano de trabalho (ou anexe a solicitação)." in [
+        i.mensagem for e in q.etapas for i in e.itens]
 
 
 def test_quadro_com_oficio_emitido_pede_assinatura_e_termos(c):
