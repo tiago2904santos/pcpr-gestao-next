@@ -59,36 +59,44 @@ def test_documentos_da_prestacao_como_no_modelo(c):
 
 
 def test_texto_editado_vale_para_a_folha_o_pdf_e_as_versoes(c):
+    """O RT é igual para a equipe toda: o relato editado no RT de um servidor vale para o
+    de todos; nome, CPF e diária (o que muda de um para outro) não se editam."""
     p, ps = _prestacao(c)
+    outro = PrestacaoServidor.objects.filter(prestacao=p).exclude(pk=ps.pk).first()
     chave = prestacao_texto.chave_rt(ps.pk)
     cliente = _cliente(c)
     estado = cliente.get(reverse("viagens:editor_prestacao_estado", args=[p.pk, chave])).json()
     assert estado["pode_editar"] and estado["edicao"] is None
-    assert [r["chave"] for r in estado["regioes"]] == ["corpo", "assinatura"]
+    assert [r["chave"] for r in estado["regioes"]] == ["relato"]
+    relato = '<table class="relato"><tbody><tr><td>Relato editado</td></tr></tbody></table>'
     r = cliente.post(reverse("viagens:editor_prestacao_salvar", args=[p.pk, chave]),
-                     {"regioes": {"assinatura": '<div class="assinatura"><p>CPF editado</p></div>'},
-                      "versao_base": 0}, content_type="application/json")
+                     {"regioes": {"relato": relato}, "versao_base": 0},
+                     content_type="application/json")
     assert r.status_code == 200 and r.json()["resultado"]["versao"] == 1
-    assert EdicaoPrestacao.objects.filter(prestacao=p, chave=chave).count() == 1
+    assert EdicaoPrestacao.objects.filter(prestacao=p, chave="rt").count() == 1
     folha = cliente.get(reverse("viagens:folha_relatorio", args=[p.pk, ps.pk])).content.decode()
-    assert "CPF editado" in folha
+    assert "Relato editado" in folha and ps.servidor.nome in folha
+    do_outro = cliente.get(reverse("viagens:folha_relatorio", args=[p.pk, outro.pk])
+                           ).content.decode()
+    assert "Relato editado" in do_outro and outro.servidor.nome in do_outro
     pdf = cliente.get(reverse("viagens:documento_relatorio", args=[p.pk, ps.pk, "pdf"]))
-    assert "CPF editado" in leitura_anexos.extrair_texto(pdf.content, "rt.pdf")
+    assert "Relato editado" in leitura_anexos.extrair_texto(pdf.content, "rt.pdf")
     # ?versao=0 é o modelo; a versão que não existe é 404.
     modelo = cliente.get(reverse("viagens:folha_relatorio", args=[p.pk, ps.pk]) + "?versao=0")
-    assert "CPF editado" not in modelo.content.decode()
+    assert "Relato editado" not in modelo.content.decode()
     assert cliente.get(reverse("viagens:folha_relatorio", args=[p.pk, ps.pk])
                        + "?versao=9").status_code == 404
-    # Conflito: salvar sobre uma versão que já mudou.
-    r = cliente.post(reverse("viagens:editor_prestacao_salvar", args=[p.pk, chave]),
-                     {"regioes": {"assinatura": "<p>outra</p>"}, "versao_base": 0},
+    # Conflito: salvar (pelo RT do outro servidor) sobre uma versão que já mudou.
+    r = cliente.post(reverse("viagens:editor_prestacao_salvar",
+                             args=[p.pk, prestacao_texto.chave_rt(outro.pk)]),
+                     {"regioes": {"relato": "<p>outra</p>"}, "versao_base": 0},
                      content_type="application/json")
     assert r.status_code == 409
-    # Voltar ao modelo cria uma versão nova, sem regiões.
+    # Voltar ao modelo cria uma versão nova, sem regiões — para todos.
     r = cliente.post(reverse("viagens:editor_prestacao_modelo", args=[p.pk, chave]))
     assert r.status_code == 200 and r.json()["edicao"]["do_modelo"]
-    assert "CPF editado" not in cliente.get(
-        reverse("viagens:folha_relatorio", args=[p.pk, ps.pk])).content.decode()
+    assert "Relato editado" not in cliente.get(
+        reverse("viagens:folha_relatorio", args=[p.pk, outro.pk])).content.decode()
     # O diário tem a sua própria chave e as suas versões.
     r = cliente.post(reverse("viagens:editor_prestacao_salvar", args=[p.pk, "diario"]),
                      {"regioes": {"corpo": "<table><tr><td>Diário editado</td></tr></table>"}},

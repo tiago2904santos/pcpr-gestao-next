@@ -8,8 +8,9 @@ Etapa 2 da prestação de contas, com as peças e o arranjo da folha do termo e 
 0042): cabeçalho, barra das etapas e cartões numerados — 1 Custeio (a diária do servidor da
 folha, translado, combustível e passagem), 2 Relato (os cinco textos, cada um com texto
 pronto e "Sugerir texto"; copiar de outro RT), 3 Diária recebida de cada servidor e
-4 Documentos (um RT por servidor, no mesmo editor do ofício: o texto se edita na folha e
-vale para o PDF e o DOCX); e a barra do rodapé. O RT é da equipe (os textos e o custeio
+4 Documentos (um RT por servidor, igual para todos — só nome, CPF e diária mudam —, no
+mesmo editor do ofício: o relato se edita na folha e vale para todos, no PDF e no DOCX);
+e a barra do rodapé. O RT é da equipe (os textos e o custeio
 valem para todos); a diária recebida é de cada um. Trava quando todos estão finalizados.
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
@@ -57,7 +58,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-relato"><span class="secao__numero">2</span>Relato</h2>
       <div class="secao__estado" id="estado-relato" data-vivo>{% if preenchido %}<span class="selo selo--sucesso selo--situacao-emitido">Preenchido</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">A preencher</span>{% endif %}</div>
-      <p class="secao__nota">Descrição, objetivo e conclusão são obrigatórios para finalizar. Os textos valem para o RT de cada servidor da equipe e se gravam sozinhos.</p>
+      <p class="secao__nota">Descrição, objetivo e conclusão são obrigatórios para finalizar. O relato é um só para a equipe: vale para o RT de todos os servidores. Grava sozinho.</p>
     </div>
 
     {% if editavel and para_copiar %}
@@ -100,7 +101,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
   <section class="secao" id="diarias" aria-labelledby="t-diarias">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">3</span>Diária recebida de cada servidor</h2>
-      <p class="secao__nota">Vazio usa a liberada; preencha só quando recebeu valor diferente — ex.: “R$ 87,00 (saque)”. Nunca acima da liberada. É o valor que sai no RT e que o comprovante precisa bater.</p>
+      <p class="secao__nota">É a única coisa que muda de um RT para outro. Quem recebeu a diária inteira por transferência deixa vazio (vale a liberada); quem sacou parte em dinheiro informa o que recebeu — ex.: “R$ 87,00 (saque)”. Nunca acima da liberada; é o valor que o comprovante precisa bater.</p>
     </div>
     <ul class="registros">
       {% for s in servidores %}
@@ -116,7 +117,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">4</span>Documentos</h2>
       <div class="secao__estado">{% if preenchido %}<span class="selo selo--sucesso selo--situacao-emitido">Prontos para imprimir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Falta relato</span>{% endif %}</div>
-      <p class="secao__nota">Um relatório por servidor, gerado na hora do que está salvo. O texto de cada folha pode ser ajustado aqui mesmo e vale para o PDF e o DOCX; o servidor assina o impresso e o assinado volta em Documentos.</p>
+      <p class="secao__nota">Um RT por servidor, igual para todos: muda só o nome, o CPF e a diária recebida. O relato ajustado aqui vale para o RT de todos, no PDF e no DOCX; cada servidor assina o seu impresso e o assinado volta em Documentos.</p>
     </div>
     {% if rt and servidores %}
     <div class="secao__bloco secao__bloco--integrado" id="previa" aria-label="Relatórios técnicos da equipe">
