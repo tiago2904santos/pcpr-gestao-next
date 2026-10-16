@@ -1,6 +1,6 @@
 {% extends "arquetipos/painel.html" %}
 {% block titulo %}Eventos Sociais{% endblock %}
-{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/graficos.css' %}">{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Painel de Eventos Sociais (paridade com o painel da referência), sobre as solicitações que
@@ -8,18 +8,10 @@ a pessoa vê: no mês, aguardando despacho (o único que pede ação da DG hoje)
 ano e eventos dos próximos 30 dias — cada um leva à fila com o mesmo recorte; os próximos
 eventos e as últimas solicitações; a série mensal e o despacho da DG.
 {% endcomment %}
+{% block classe_layout_painel %}pilha-lg{% endblock %}
+{% block classe_contexto_painel %}pilha{% endblock %}
 {% block cabecalho_painel %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "calendar-days" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Eventos Sociais</h1>
-    <p class="pagina-cabecalho__descricao">Pedidos de evento, o despacho da Diretoria-Geral e o que vem pela frente.</p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="{% url 'eventos:solicitacoes' %}">{% icone "file-text" %}Ver solicitações</a>
-    <a class="botao botao--primario" href="{% url 'eventos:nova' %}">{% icone "plus" %}Nova solicitação</a>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais" titulo="Eventos Sociais" complemento="Pedidos de evento, o despacho da Diretoria-Geral e o que vem pela frente." %}
 {% endblock %}
 {% block indicadores %}
   <a class="indicador" href="{% url 'eventos:solicitacoes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-text" classe="icone--sm" %}Solicitações no mês</span><span class="indicador__valor">{{ r.no_mes }}</span><span class="indicador__nota">{% if r.no_mes or r.no_mes_anterior %}{% if r.diferenca > 0 %}{{ r.diferenca }} a mais que no mês anterior{% elif r.diferenca < 0 %}{{ menos }} a menos que no mês anterior{% else %}Igual ao mês anterior{% endif %}{% else %}Sem registros{% endif %}</span></a>
@@ -28,18 +20,30 @@ eventos e as últimas solicitações; a série mensal e o despacho da DG.
   <a class="indicador" href="{% url 'eventos:solicitacoes' %}?fila=proximos"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Eventos nos próximos 30 dias</span><span class="indicador__valor">{{ r.proximos }}</span><span class="indicador__nota">{% if r.proximos %}{{ r.proximos_unidade_movel }} com unidade móvel{% else %}Nenhum evento agendado{% endif %}</span></a>
 {% endblock %}
 {% block principal %}
-<section class="cartao" aria-labelledby="t-proximos">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-proximos">Próximos eventos</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacoes' %}?fila=proximos">Ver os 30 dias</a></div></div>
-  {% if proximos %}<ul class="registros">{% for l in proximos %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}</ul>
-  {% else %}{% include "componentes/vazio.html" with icone="calendar" titulo="Nenhum evento nos próximos 30 dias" texto="Os eventos com data aparecem aqui e na agenda." %}{% endif %}
+<section class="colecao-operacional pilha-sm" aria-labelledby="t-proximos">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-proximos">Próximos eventos</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacoes' %}?fila=proximos">Ver os 30 dias</a></div></div>
+  {% if proximos %}<ul class="registros registros--operacionais">{% for l in proximos %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with compacto=True icone="calendar" titulo="Nenhum evento nos próximos 30 dias" texto="Os eventos com data aparecem aqui e na agenda." %}{% endif %}
 </section>
-<section class="cartao" aria-labelledby="t-ultimas">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-ultimas">Últimas solicitações</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacoes' %}">Ver todas</a></div></div>
-  {% if ultimas %}<ul class="registros">{% for l in ultimas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}</ul>
-  {% else %}{% url 'eventos:nova' as url_nova %}{% include "componentes/vazio.html" with icone="inbox" titulo="Nenhuma solicitação registrada" texto="Registre o primeiro pedido de evento." acao_url=url_nova acao_rotulo="Nova solicitação" %}{% endif %}
+<section class="colecao-operacional pilha-sm" aria-labelledby="t-ultimas">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-ultimas">Últimas solicitações</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacoes' %}">Ver todas</a></div></div>
+  {% if ultimas %}<ul class="registros registros--operacionais">{% for l in ultimas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% url 'eventos:nova' as url_nova %}{% include "componentes/vazio.html" with compacto=True icone="inbox" titulo="Nenhuma solicitação registrada" texto="Registre o primeiro pedido de evento." acao_url=url_nova acao_rotulo="Nova solicitação" %}{% endif %}
 </section>
+{# O "Duplicar" do ⋮ das linhas envia estes formulários. #}
+{% for l in proximos %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% endfor %}
+{% for l in ultimas %}{% if l not in proximos %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% endif %}{% endfor %}
 {% endblock %}
 {% block lateral %}
+<section class="cartao" aria-labelledby="t-atalhos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-atalhos">Atalhos</h2></div>
+  <ul class="atalhos grade grade--2">
+    <li><a class="atalho" href="{% url 'eventos:nova' %}">{% icone "plus" %}Nova solicitação{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'eventos:solicitacoes' %}">{% icone "file-text" %}Todas as solicitações{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    {% if pode_gerir_cadastros %}<li><a class="atalho" href="{% url 'eventos:cadastros' %}">{% icone "layers" %}Cadastros{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'eventos:textos-despacho' %}">{% icone "text-quote" %}Textos do despacho{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>{% endif %}
+  </ul>
+</section>
 <section class="cartao" aria-labelledby="t-despacho">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-despacho">Despacho da DG</h2></div>
   <div class="cartao__corpo pilha">
@@ -67,13 +71,4 @@ eventos e as últimas solicitações; a série mensal e o despacho da DG.
     </ol>
   </div>
 </section>
-{% if pode_gerir_cadastros %}
-<section class="cartao" aria-labelledby="t-cadastros">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cadastros">Cadastros</h2></div>
-  <ul class="atalhos">
-    <li><a class="atalho" href="{% url 'eventos:cadastros' %}">{% icone "layers" %}Todos os cadastros{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
-    <li><a class="atalho" href="{% url 'eventos:textos-despacho' %}">{% icone "text-quote" %}Textos prontos do despacho{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
-  </ul>
-</section>
-{% endif %}
 {% endblock %}

@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
-from . import painel, policies, queries
+from . import painel, pedir_coffee, policies, queries
 
 
 @require_GET
@@ -28,10 +28,17 @@ def painel_eventos(request: HttpRequest) -> HttpResponse:
     base = queries.base(request.user)
     proximos = painel.proximos(base, hoje).order_by("data_inicio_evento", "pk")[:7]
     ultimas = base.order_by("-criado_em", "-pk")[:6]
+
+    def linhas(qs) -> list[queries.Linha]:
+        saida = [queries.linha(s, hoje) for s in qs]
+        for linha in saida:  # o "Pedir coffee break" do ⋮, como na lista
+            linha.coffee = pedir_coffee.url(request.user, linha.s)
+        return saida
+
     return render(request, "eventos/painel.html", {
         "r": r, "menos": abs(r.diferenca),
-        "proximos": [queries.linha(s, hoje) for s in proximos],
-        "ultimas": [queries.linha(s, hoje) for s in ultimas],
+        "proximos": linhas(proximos), "ultimas": linhas(ultimas),
+        "pode_despachar": policies.pode_despachar(request.user),
         "grafico": painel.serie_mensal(request.user, hoje, meses), "meses": meses,
         "periodos": painel.PERIODOS,
         "despacho": painel.despacho(request.user, hoje, r.aguardando),

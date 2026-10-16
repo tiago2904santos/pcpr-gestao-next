@@ -28,9 +28,17 @@ def indice(request: HttpRequest) -> HttpResponse:
     visiveis = policies.catalogos_visiveis(request.user)
     if not visiveis:
         raise PermissionDenied
-    cartoes = [(catalogos.CATALOGOS[s], catalogos.CATALOGOS[s].modelo.objects.count(),
-                catalogos.CATALOGOS[s].modelo.objects.filter(ativo=False).count())
-               for s in visiveis]
+    cartoes = []
+    for slug in visiveis:  # a lista de catálogos dos cadastros gerais (lista_catalogo.html)
+        cat = catalogos.CATALOGOS[slug]
+        total = cat.modelo.objects.count()
+        inativos = cat.modelo.objects.filter(ativo=False).count()
+        cartoes.append({"titulo": cat.titulo, "url": reverse(cat.url_name), "icone": cat.icone,
+                        "texto": f"Cadastre {cat.genitivo.split(' ', 1)[-1]} usado nas "
+                                 "solicitações de evento.",
+                        "resumo": f"{total} cadastrado{'s' if total != 1 else ''}"
+                                  + (f" · {inativos} inativo{'s' if inativos != 1 else ''}"
+                                     if inativos else "")})
     return render(request, "eventos/cadastros.html", {
         "cartoes": cartoes, "migalhas": [("Início", reverse("painel:inicio")),
                                           ("Cadastros de Eventos", "")]})
@@ -74,8 +82,12 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = "&".join(p for p in (f"q={q}" if q else "",
                                 f"situacao={situacao}" if situacao else "") if p)
+    descricao = (f"{'Os dados' if cat.com_texto else 'O nome'} {cat.genitivo} usado"
+                 f"{'s' if cat.com_texto else ''} nas solicitações. O inativo sai dos "
+                 "formulários novos e continua nas solicitações que já o usam.")
     return render(request, "eventos/catalogo.html", {
-        "cat": cat, "page_obj": pagina, "registros": list(pagina.object_list), "q": q,
+        "cat": cat, "descricao_catalogo": descricao, "page_obj": pagina,
+        "registros": list(pagina.object_list), "q": q,
         "situacao": situacao, "erro": erro, "editando": editando, "valores": valores,
         "querystring_base": f"{base}&" if base else "",
         "outros": [catalogos.CATALOGOS[s] for s in policies.catalogos_visiveis(request.user)
