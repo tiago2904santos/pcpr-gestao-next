@@ -1,0 +1,11 @@
+{% comment %}
+Cabeçalho padrão de todos os documentos (ADR 0044): o brasão pequeno e as três linhas do
+órgão, em Arial negrito. É o elemento corrido `timbre` do PDF (repete em toda página) e a
+faixa do topo da folha de tela; a geometria está em _folha.html. Contexto: `brasao` (dos
+recursos do documento) e `unidade` (o nome da unidade emissora, em caixa alta).
+{% endcomment %}<header class="timbre">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ unidade }}</p>
+  </header>

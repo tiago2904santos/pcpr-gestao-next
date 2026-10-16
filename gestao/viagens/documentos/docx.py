@@ -124,7 +124,7 @@ class _Escritor:
         run = paragrafo.add_run(texto)
         run.bold, run.italic, run.underline = negrito or None, italico or None, sublinhado or None
 
-    def _imagem(self, paragrafo, el):
+    def _imagem(self, paragrafo, el, altura=None):
         # Só o nome do arquivo, sempre dentro da pasta de recursos do documento: um `src`
         # nunca aponta para outro lugar do servidor.
         endereco = urlparse(el.get("src") or "")
@@ -132,7 +132,37 @@ class _Escritor:
                     else unquote(endereco.path)).name
         caminho = self.base_imagens / nome
         if caminho.is_file() and caminho.suffix.lower() in (".png", ".jpg", ".jpeg"):
-            paragrafo.add_run().add_picture(str(caminho), height=Mm(18))
+            paragrafo.add_run().add_picture(str(caminho), height=altura or Mm(18))
+
+    # ------------------------------------------------------------ rodapé da seção
+    def _paragrafo_do_rodape(self):
+        rodape = self.doc.sections[0].footer
+        primeiro = rodape.paragraphs[0]
+        return primeiro if not primeiro.runs else rodape.add_paragraph()
+
+    def rodape(self, el):
+        """O `.rodape` do modelo vira o rodapé da seção. O do ofício é composto (o
+        destinatário à esquerda, a marca e a linha da unidade); os demais são uma linha."""
+        partes = [f for f in el.iterchildren() if isinstance(f.tag, str)]
+        if not any("destinatario" in _classes(f) or f.tag == "img" for f in partes):
+            p = self._paragrafo_do_rodape()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            self._trechos(p, el, italico=True)
+            return
+        for parte in partes:
+            if "destinatario" in _classes(parte):
+                for linha in parte.iterchildren("p"):
+                    p = self._paragrafo_do_rodape()
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                    self._trechos(p, linha, negrito=True)
+            elif parte.tag == "img":
+                p = self._paragrafo_do_rodape()
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                self._imagem(p, parte, altura=Mm(5))
+            elif (parte.text_content() or "").strip():
+                p = self._paragrafo_do_rodape()
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                self._trechos(p, parte, negrito=True, italico=True)
 
     # ------------------------------------------------------------ blocos
     def paragrafo(self, el, estilo: str | None = None):
@@ -189,9 +219,7 @@ class _Escritor:
         elif "quebra" in classes or el.tag in ("style", "script", "head", "title", "meta"):
             return
         if "rodape" in classes:
-            rodape = self.doc.sections[0].footer.paragraphs[0]
-            rodape.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            self._trechos(rodape, el, italico=True)
+            self.rodape(el)
             return
         if el.tag == "table":
             self.tabela(el)

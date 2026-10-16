@@ -1,0 +1,47 @@
+{% comment %}
+A folha comum a todos os documentos (ADR 0044) — entra no <style> de cada modelo, antes das
+regras próprias dele: as fontes, a página A4 com as margens padrão (32 mm em cima para o
+cabeçalho, 15 mm dos lados, 18 mm embaixo para o rodapé — o ofício pede mais embaixo, para o
+destinatário), o cabeçalho e o rodapé como elementos corridos do PDF, a marca d'água da
+minuta e, na folha de tela (`folha`), as mesmas faixas no topo e no pé do papel.
+Parâmetros: `margem_inferior` (padrão 18mm), `paisagem` (A4 deitado).
+{% endcomment %}
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ fontes.italico }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; font-style: italic; src: url("{{ fontes.negrito_italico }}"); }
+  @font-face { font-family: "Doc Sans"; src: url("{{ fontes.sans_regular }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; src: url("{{ fontes.sans_negrito }}"); }
+  @font-face { font-family: "Doc Sans"; font-style: italic; src: url("{{ fontes.sans_italico }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; font-style: italic; src: url("{{ fontes.sans_negrito_italico }}"); }
+  @page {
+    size: A4{% if paisagem %} landscape{% endif %};
+    margin: 32mm 15mm {{ margem_inferior|default:"18mm" }} 15mm;
+    @top-center { content: element(timbre); vertical-align: top; padding-top: 5mm; width: 100%; }
+    @bottom-center { content: element(rodape); vertical-align: bottom; padding-bottom: 5mm; width: 100%; }
+  }
+  body { margin: 0; color: #000; }
+  main { orphans: 2; widows: 2; }
+  header.timbre { position: running(timbre); text-align: center; line-height: 1.2;
+                  font-family: "Doc Sans", sans-serif; font-size: 9.5pt; font-weight: bold; text-transform: uppercase; }
+  header.timbre img { height: 13mm; width: auto; display: block; margin: 0 auto 1.5mm; }
+  header.timbre p { margin: 0; text-align: center; }
+  .rodape { position: running(rodape); text-align: center; line-height: 1.2; font-family: "Doc Serif", serif; }
+  .rodape .destinatario { margin: 0 0 2.5mm; text-align: left; font-size: 8pt; font-weight: bold; font-style: normal; }
+  .rodape .destinatario p { margin: 0; text-align: left; }
+  .rodape .marca { height: 5mm; width: auto; display: block; margin: 0 auto 1mm; }
+  .rodape .unidade { margin: 0; font-size: 7pt; font-weight: bold; font-style: italic; text-align: center; }
+  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
+            color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
+{% if folha %}
+  /* Na tela: sem margem de página; o cabeçalho e o rodapé ocupam as faixas das margens de
+     impressão, com a mesma altura, e o rodapé fecha o pé do papel. */
+  html body { padding: 0 15mm; }
+  header.timbre { position: static; box-sizing: border-box; height: 32mm; padding-top: 5mm; margin: 0; }
+  main { margin-bottom: 4mm; }
+  .rodape { position: static; order: 99; display: flex; flex-direction: column; justify-content: flex-end;
+            box-sizing: border-box; height: {{ margem_inferior|default:"18mm" }}; margin-top: auto; padding: 0 0 5mm; border-top: 0; }
+  @media (max-width: 640px) {
+    html body { padding: 0 8mm; }
+  }
+{% endif %}

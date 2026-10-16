@@ -8,39 +8,21 @@
 <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
 <link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
 <style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
-  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
-  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
-  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ fontes.italico }}"); }
-  {# Topo e pé curtos, como no ofício: o timbre e o rodapé não comem página. #}
-  @page { size: A4; margin: 9mm 18mm 15mm 18mm; @bottom-center { content: element(rodape); } }
+  {% include "viagens/documentos/_folha.html" %}
   html { font-family: "Doc Serif", serif; font-size: 11pt; color: #000; line-height: 1.5; }
-  body { margin: 0; }
-  header.timbre { text-align: center; margin-bottom: 3mm; }
-  header.timbre img { height: 13mm; display: block; margin: 0 auto 1mm; }
-  /* O `text-align` entra aqui, e não só no cabeçalho: a regra `p { text-align: justify }`
-     abaixo tem alvo direto no <p> e venceria o alinhamento herdado — era por isso que o
-     timbre saía à esquerda, ao contrário do ofício. */
-  header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; text-align: center; }
   h1 { font-size: 12pt; text-align: center; margin: 4mm 0 6mm; }
   p { margin: 0 0 4mm; text-align: justify; }
   .assinatura { text-align: center; margin-top: 14mm; }
   .assinatura p { margin: 0; text-align: center; }
-  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt; color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; }
-  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
-  .rodape strong { display: block; font-style: normal; font-size: 10pt; color: #555; }
   .quebra { display: none; }
   .quebra--ativa { display: block; break-before: page; height: 0; }
 </style>
 </head>
 <body>
+  {# O rodapé vem primeiro: elemento corrido do PDF, vale desde a 1ª página; na tela vai para o pé. #}
+  {% include "viagens/documentos/_rodape.html" with texto=d.rodape %}
   {% if previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
-  <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
-  <header class="timbre">
-    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
-    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
-    <p>POLÍCIA CIVIL DO PARANÁ</p>
-    <p>{{ d.cabecalho_unidade }}</p>
-  </header>
+  {% include "viagens/documentos/_timbre.html" with unidade=d.cabecalho_unidade %}
   <main>
     {% regiao "corpo" "Justificativa" %}
     <h1 data-bloco="titulo" data-rotulo="Título">JUSTIFICATIVA — OFÍCIO Nº {{ d.numero }}</h1>

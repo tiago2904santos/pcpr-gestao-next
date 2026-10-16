@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import timedelta
+from io import BytesIO
 from itertools import pairwise
 
 import pytest
@@ -1737,3 +1738,65 @@ class TestPlanilhaLote2:
                                         {"documento": "rascunho"}))
         tipos = {linha[0]: linha[4] for linha in linhas[1:]}
         assert tipos[rascunho.numero_formatado].endswith("· Complementar")
+
+
+class TestDocumentoDoOficio:
+    """ADR 0043: o PDF do ofício sai com a folha do sistema modelo — cabeçalho e rodapé
+    corridos, o destinatário no pé, os textos fixos do modelo, numa página só — e a coluna
+    do nº da solicitação vem da prestação de contas quando já existe."""
+
+    def test_pdf_tem_a_folha_do_modelo_numa_pagina(self, cenario):
+        from pypdf import PdfReader
+
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import gerar_pdf, paginas_do_documento
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        dados = dados_do_oficio(oficio)
+        pdf, _ = gerar_pdf("oficio", dados)
+        leitor = PdfReader(BytesIO(pdf))
+        assert len(leitor.pages) == 1
+        texto = " ".join(leitor.pages[0].extract_text().split())
+        for trecho in ("SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA", "Senhor Delegado,",
+                       "através deste, solicito", "Nº de diárias por servidor:",
+                       "ROTEIRO DE IDA", "Porte/trânsito de arma:",
+                       "apto para uso, no período do deslocamento.", "Respeitosamente,",
+                       dados["destinatario"]["tratamento"], dados["destinatario"]["cidade"],
+                       dados["rodape"]):
+            assert trecho in texto, trecho
+        assert paginas_do_documento("oficio", dados)["total"] == 1
+
+    def test_pdf_longo_e_compactado_para_caber_numa_pagina(self, cenario):
+        from pypdf import PdfReader
+
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import gerar_pdf, html_do_documento, renderizar
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        dados = dados_do_oficio(oficio)
+        # O menor motivo que, sem os degraus, empurra o ofício para a 2ª página.
+        for vezes in range(40, 200, 5):
+            dados["motivo"] = "Apoio ao evento, com o detalhamento das atividades. " * vezes
+            html = html_do_documento("oficio", dados)
+            if len(renderizar("justificativa", html).pages) > 1:  # "justificativa": sem degraus
+                break
+        else:
+            pytest.fail("o motivo não encheu a página")
+        assert len(renderizar("oficio", html).pages) == 1
+        pdf, _ = gerar_pdf("oficio", dados)
+        assert len(PdfReader(BytesIO(pdf)).pages) == 1
+
+    def test_solicitacao_da_prestacao_entra_no_documento(self, cenario):
+        from gestao.viagens import prestacao
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import html_do_documento
+        from gestao.viagens.models import PrestacaoContas, PrestacaoServidor
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        p = PrestacaoContas.objects.get(oficio=oficio)
+        ps = prestacao.ativos(PrestacaoServidor.objects.filter(prestacao=p)).first()
+        PrestacaoServidor.objects.filter(pk=ps.pk).update(numero_solicitacao="2853780")
+        dados = dados_do_oficio(oficio)
+        assert [v["solicitacao"] for v in dados["viajantes"] if v["id"] == ps.servidor_id] \
+            == ["2853780"]
+        assert "<td>2853780</td>" in html_do_documento("oficio", dados)
