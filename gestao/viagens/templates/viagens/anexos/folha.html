@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %}Documentos · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
-{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block titulo %}Documentos · {{ oficio }}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% comment %}
 Documentos da prestação (módulo 9d), na linguagem das folhas. Na ordem do processo
 (referência): 1 ofício assinado (a via do próprio ofício, módulo 7), 2 despacho(s) assinado(s),
@@ -10,15 +13,17 @@ Documentos da prestação (módulo 9d), na linguagem das folhas. Na ordem do pro
 e o RT assinado; 5 versões anteriores (30 dias). O da equipe trava com todos finalizados; o
 do servidor, com ele finalizado.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos da prestação" complemento_template="viagens/anexos/_cabecalho_contexto.html" %}
-{% include "viagens/prestacao/_abas.html" with atual="documentos" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas · Etapa 3 de 4" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos da prestação" complemento_template="viagens/anexos/_cabecalho_contexto.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar.</p></div></div>
 {% endif %}
 
+<div class="prestacao-folha"><div class="prestacao-folha__principal">
 <div class="documento documento--preparacao">
   <section class="secao{% if via %} secao--ok{% endif %}" id="oficio_assinado" aria-labelledby="t-oficio">
     <div class="secao__cabecalho">
@@ -132,8 +137,13 @@ do servidor, com ele finalizado.
     {% else %}<p class="texto-secundario texto-sm">Nada removido nos últimos 30 dias.</p>{% endif %}
   </section>
 </div>
+</div>
+{% include "viagens/prestacao/_lateral.html" %}
+</div>
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Os arquivos são salvos ao anexar.</span></div>
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacao_equipe' p.pk %}">Voltar</a></div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à lista</a>
+  <a class="botao botao--primario" href="{% url 'viagens:leitura_prestacao' p.pk %}">Continuar: leitura e conferência{% icone "arrow-right" %}</a></div>
 </div>
+{% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

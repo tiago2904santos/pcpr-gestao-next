@@ -17,6 +17,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from gestao.cadastros.models import Viatura
 
+from . import views_prestacao
 from . import diario, policies, realizado
 from .dominio.diario import km as dominio_km
 from .models import DiarioBordo, PrestacaoContas
@@ -85,6 +86,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                    .order_by("ordem")],
         "viaturas": Viatura.objects.filter(ativo=True).order_by("modelo", "placa"),
         "tipos_viatura": Viatura.Tipo.choices,
+        **views_prestacao.contexto_folha(request, p, "diario"),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {oficio.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),

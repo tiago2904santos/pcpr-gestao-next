@@ -1,0 +1,8 @@
+{% comment %}
+As etapas da prestação da equipe, numa barra (como as etapas da solicitação de evento):
+1 Diário de bordo → 2 Relatório técnico → 3 Documentos → 4 Leitura e conferência. Cada
+etapa é um link; ✓ quando concluída; a atual leva aria-current. Contexto: `etapas_folha`.
+{% endcomment %}
+<ol class="etapas-progresso prestacao-folha__etapas mb-4" aria-label="Etapas da prestação">
+  {% for e in etapas_folha %}<li class="etapas-progresso__item etapas-progresso__item--{{ e.estado }}"{% if e.atual %} aria-current="step"{% endif %}><a class="etapas-progresso__ligacao" href="{{ e.url }}" title="{{ e.titulo }} — {{ e.rotulo }}"><span class="etapas-progresso__marca" aria-hidden="true">{% if e.estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ e.numero }}{% endif %}</span><span>{{ e.titulo }}</span></a></li>{% endfor %}
+</ol>

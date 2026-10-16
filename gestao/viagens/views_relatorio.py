@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from gestao.cadastros import policies as politicas_cadastros
 
+from . import views_prestacao
 from . import diario, policies, relatorio
 from . import prestacao as servico
 from .dominio import relatorio as dominio
@@ -73,6 +74,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "preenchido": preenchido, "outro": dominio.OUTRO, "para_copiar": copiar,
         "sugeriveis": dominio.CAMPOS_SUGERIR,
         "pode_gerir_textos": politicas_cadastros.pode_gerir_textos(request.user),
+        **views_prestacao.contexto_folha(request, p, "relatorio"),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {p.oficio.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),

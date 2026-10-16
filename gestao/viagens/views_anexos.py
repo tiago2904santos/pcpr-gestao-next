@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
+from . import views_prestacao
 from . import anexos, assinados, carimbo, diario, pacote_prestacao, policies
 from . import prestacao as servico
 from .dominio import relatorio as dominio_rt
@@ -97,6 +98,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "editavel_equipe": pode and not equipe_travada, "equipe_finalizada": equipe_travada,
         "operacoes": AnexoPrestacao.Operacao.choices,
         "anteriores": list(anexos.versoes_anteriores(p)), "pode": pode,
+        **views_prestacao.contexto_folha(request, p, "documentos"),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {oficio.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),

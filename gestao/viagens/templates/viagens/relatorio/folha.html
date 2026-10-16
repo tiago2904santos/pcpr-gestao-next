@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %}Relatório técnico · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
-{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block titulo %}Relatório técnico · {{ oficio }}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% comment %}
 Folha do relatório técnico (módulo 9c), com identificação e seções de preparação.
 O texto é da equipe; o documento sai por servidor (4). 1 o relato (com
@@ -11,15 +14,17 @@ dos vazios); 2 o custeio (translado, combustível, passagem); 3 a diária de cad
 (a recebida, nunca acima da liberada); 4 os documentos. Grava sozinho; trava com a equipe
 toda finalizada.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Relatório técnico" complemento_template="viagens/relatorio/_cabecalho_contexto.html" %}
-{% include "viagens/prestacao/_abas.html" with atual="relatorio" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas · Etapa 2 de 4" rotulo="Ofício" numero=oficio.numero_formatado titulo="Relatório técnico" complemento_template="viagens/relatorio/_cabecalho_contexto.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O relatório é da equipe e trava quando todos estão finalizados.</p></div></div>
 {% endif %}
 
+<div class="prestacao-folha"><div class="prestacao-folha__principal">
 <div class="documento documento--preparacao">
 {% if editavel %}<form method="post" action="{% url 'viagens:salvar_relatorio' p.pk %}" id="form-rt" class="formulario--secoes" novalidate data-autosave="{% url 'viagens:autosave_relatorio' p.pk %}">{% csrf_token %}{% endif %}
 
@@ -133,12 +138,16 @@ toda finalizada.
 Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar — grava o
 que estiver pendente e volta à prestação de contas (componentes/rodape_documento.html).
 {% endcomment %}
+</div>
+{% include "viagens/prestacao/_lateral.html" %}
+</div>
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% include "componentes/estado_salvamento.html" with atualizado_em=rt.atualizado_em sem_emissao=True only %}
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacao_equipe' p.pk %}">Voltar</a>
-  {% include "componentes/rodape_documento.html" with nome="relatório" finalizar_form="finalizar-relatorio" finalizar_primario=True %}</div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à lista</a>
+  <button type="submit" form="finalizar-relatorio" class="botao botao--primario">Salvar e continuar: documentos{% icone "arrow-right" %}</button></div>
 </div>
-<form id="finalizar-relatorio" method="get" action="{% url 'viagens:prestacao_equipe' p.pk %}" hidden data-esperar-salvamento></form>
+<form id="finalizar-relatorio" method="get" action="{% url 'viagens:documentos_prestacao' p.pk %}" hidden data-esperar-salvamento></form>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% endif %}
+{% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

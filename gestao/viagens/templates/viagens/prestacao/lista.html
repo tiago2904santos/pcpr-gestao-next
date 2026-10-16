@@ -1,5 +1,5 @@
 {% extends "arquetipos/lista.html" %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block titulo %}Prestação de contas{% endblock %}
 {% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestação de contas" complemento="Da solicitação ao envio. Confira e prepare cada equipe." %}{% endblock %}
@@ -7,12 +7,14 @@
 {% block fim_layout_lista %}</div>{% endblock %}
 {% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% comment %}
-Lista de prestações como a das viagens: abas de situação e atalhos "pedem atenção" (aceitam
-várias, juntas por OU, pela URL), busca por servidor, ofício (12/2026), protocolo ou nº de
-solicitação, 25 ofícios por página (a equipe não se parte). Uma linha por ofício/equipe: o
-destino leva à folha da equipe (servidores, folhas e conferência); na linha, quantos estão
-finalizados, o selo mais urgente, o prazo mais perto e o que falta (com o atalho de cada
-pendência). O ⋮ leva às folhas e ao resumo do ofício.
+Lista de prestações (ADR 0042): abas de situação e atalhos "pedem atenção" (aceitam várias,
+juntas por OU, pela URL), busca por servidor, ofício (12/2026), protocolo ou nº de
+solicitação, 25 ofícios por página (a equipe não se parte). Um bloco por ofício — placa
+(abre o resumo), destinos, protocolo, período, unidade, diária por servidor, prazo — e,
+embaixo, uma linha por servidor com o nº da solicitação e o prazo de saque gravando
+sozinhos, o que já foi feito (diário, relatório, comprovante) e a situação; as ações do
+servidor na linha, as da equipe no cabeçalho. Os diálogos de envio moram em #resultados
+(a troca HTMX os leva junto).
 {% endcomment %}
 
 {% comment %}As abas moram dentro do cartão de filtros (um só conjunto: recorte em cima, busca embaixo).{% endcomment %}
@@ -53,51 +55,72 @@ pendência). O ⋮ leva às folhas e ao resumo do ofício.
 {% block resultados %}
 <div id="resultados">
 <div class="lista-cabecalho">
-  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Equipes{% endif %}</h2>
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Prestações por ofício{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"equipe,equipes" }} · {{ total_servidores|pluralizar:"servidor,servidores" }}</span>
 </div>
 {% if blocos %}
-  <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
   {% for b in blocos %}{% with p=b.p o=b.p.oficio %}
-    <li class="registro registro-operacional{% if b.todas_finalizadas %} registro--inativo{% endif %}{% if b.selo.tom == 'vencido' %} registro--urgente registro--urgente-perigo{% elif b.selo.tom == 'alerta' %} registro--urgente registro--urgente-aviso{% endif %}" id="equipe-{{ p.pk }}">
-      <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True only %}</div>
-      <div class="registro__corpo">
-        <div class="registro__titulo">
-          <a class="registro__link" href="{{ b.url }}" id="equipe-{{ p.pk }}-titulo"><span class="sr-only">Prestação do {{ o }} · </span><span class="registro__link-texto">{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</span></a>
+  <section class="prestacao-equipe{% if b.todas_finalizadas %} prestacao-equipe--fechada{% endif %}" id="equipe-{{ p.pk }}" aria-labelledby="equipe-{{ p.pk }}-titulo">
+    <header class="prestacao-equipe__cabecalho">
+      <a class="prestacao-equipe__placa" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML" aria-label="Resumo do {{ o }}">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True only %}</a>
+      <div class="prestacao-equipe__identificacao">
+        <div class="prestacao-equipe__linha">
+          <h3 class="prestacao-equipe__titulo" id="equipe-{{ p.pk }}-titulo"><a class="registro__link" href="{{ b.url }}"><span class="sr-only">Prestação do {{ o }} · </span>{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</a></h3>
           {% include "viagens/prestacao/_situacao_equipe.html" %}
         </div>
-        <div class="registro__agenda">
-          <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{% if b.periodo %}{{ b.periodo }}{% else %}<span class="vazio-inline">Período não informado</span>{% endif %}</span></span>
-          <span class="registro__meta-item" title="{{ o.unidade.nome }}">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.unidade.sigla|default:o.unidade.nome }}</span></span>
-          {% if b.prestar_ate %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar até {{ b.prestar_ate|date:"d/m/Y" }}</span></span>{% endif %}
-          {% if b.pendencias %}{% include "componentes/linha_pendencias.html" with pendencias=b.pendencias url=b.url titulo="Falta para finalizar" %}{% endif %}
-        </div>
+        <ul class="prestacao-equipe__dados">
+          {% if o.protocolo %}<li><span class="prestacao-equipe__rotulo">Protocolo</span><span class="prestacao-equipe__valor">{{ o.protocolo_formatado }}</span></li>{% endif %}
+          {% if b.periodo %}<li><span class="prestacao-equipe__rotulo">Período</span><span class="prestacao-equipe__valor">{{ b.periodo }}</span></li>{% endif %}
+          <li><span class="prestacao-equipe__rotulo">Unidade</span><span class="prestacao-equipe__valor">{{ o.unidade.sigla|default:o.unidade.nome }}</span></li>
+          {% if b.por_servidor %}<li><span class="prestacao-equipe__rotulo">Por servidor</span><span class="prestacao-equipe__valor">{{ b.por_servidor|moeda }}</span>{% if b.quantidade_diarias %}<span>{{ b.quantidade_diarias }}</span>{% endif %}</li>{% elif o.diarias_total %}<li><span class="prestacao-equipe__rotulo">Diárias</span><span class="prestacao-equipe__valor">{{ o.diarias_total|moeda }}</span></li>{% endif %}
+          {% if b.prestar_ate %}<li><span class="prestacao-equipe__rotulo">Prestar até</span><span class="prestacao-equipe__valor">{{ b.prestar_ate|date:"d/m/Y" }}</span></li>{% endif %}
+        </ul>
       </div>
-      <div class="registro-operacional__recursos">
-        <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{{ b.total|pluralizar:"servidor,servidores" }}{% if busca or abas_selecionadas %}{% if b.linhas|length != b.total %} · {{ b.linhas|length }} no filtro{% endif %}{% endif %}</span>
-        <span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{% if o.diarias_total %}{{ o.diarias_total|moeda }}{% else %}<span class="vazio-inline">Sem diárias calculadas</span>{% endif %}</span>
-      </div>
-      <div class="registro__acoes">
+      <div class="prestacao-equipe__acoes">
+        {% if b.editavel %}
+          {% if not b.todas_finalizadas %}
+            <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button>
+          {% elif b.por_enviar %}
+            <button type="button" class="botao botao--sm" data-abrir-dialogo="envio-{{ b.por_enviar.0.ps.pk }}-equipe">{% icone "send" %}Registrar envio da equipe</button>
+          {% endif %}
+        {% endif %}
         <pc-menu class="menu">
-          <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações da prestação do {{ o }}">{% icone "ellipsis-vertical" %}</button>
+          <button type="button" class="botao botao--icone botao--sutil botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Ações da prestação do {{ o }}">{% icone "ellipsis-vertical" %}</button>
           <div class="menu__painel" role="menu" hidden>
-            <a class="menu__item" role="menuitem" href="{{ b.url }}">{% if b.editavel %}{% icone "pencil" %}{% else %}{% icone "eye" %}{% endif %}Abrir a prestação</a>
-            <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}Diário de bordo</a>
-            <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}Relatório técnico</a>
-            <a class="menu__item" role="menuitem" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" %}Documentos</a>
+            <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}1 · Diário de bordo</a>
+            <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}2 · Relatório técnico</a>
+            <a class="menu__item" role="menuitem" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" %}3 · Documentos</a>
+            <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}">{% icone "scan-text" %}4 · Leitura dos anexos</a>
             <div class="menu__separador" role="separator"></div>
-            <button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Resumo do ofício</button>
+            <a class="menu__item" role="menuitem" href="{{ b.url }}">{% icone "users" %}Visão da equipe</a>
+            <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "download" %}Pacotes da equipe (ZIP)</a>
+            {% if b.editavel %}
+            <div class="menu__separador" role="separator"></div>
+            {% if b.reabrivel %}<button type="submit" form="equipe-{{ p.pk }}-reabrir" class="menu__item" role="menuitem">{% icone "undo-2" %}Reabrir as finalizadas</button>{% endif %}
+            <button type="submit" form="equipe-{{ p.pk }}-arquivar" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar equipe</button>
+            {% if b.alguma_arquivada %}<button type="submit" form="equipe-{{ p.pk }}-desarquivar" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar equipe</button>{% endif %}
+            {% endif %}
           </div>
         </pc-menu>
       </div>
-    </li>
+    </header>
+    <ul class="prestacao-equipe__servidores" aria-label="Servidores do {{ o }}">
+      {% for l in b.linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
+    </ul>
+  </section>
+  {% if b.editavel %}{% for acao in acoes_equipe %}
+  <form id="equipe-{{ p.pk }}-{{ acao }}" method="post" action="{% url 'viagens:acao_equipe_prestacao' p.pk acao %}" hidden data-esperar-salvamento>{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.get_full_path }}"></form>
+  {% endfor %}{% endif %}
   {% endwith %}{% endfor %}
-  </ul>
 {% elif busca or abas_selecionadas %}
   {% include "componentes/vazio.html" with icone="search" titulo=vazio texto="Ajuste a busca ou troque de aba." limpar_url=request.path %}
 {% else %}
   {% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma prestação de contas ainda" texto="Ela nasce sozinha quando um ofício com equipe é emitido." %}
 {% endif %}
+{% for b in blocos %}
+  {% for l in b.linhas %}{% if l.editavel and l.ps.finalizada and l.ps.situacao != "enviada" and l.ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=l.ps equipe=False %}{% endif %}{% endfor %}
+  {% if b.editavel and b.todas_finalizadas and b.por_enviar %}{% include "viagens/prestacao/_envio.html" with ps=b.por_enviar.0.ps equipe=True %}{% endif %}
+{% endfor %}
 <div class="barra-acoes barra-acoes--colecao">{% include "componentes/paginacao_barra.html" %}
   <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"equipe,equipes" }} · {{ total_servidores|pluralizar:"servidor,servidores" }}{% if busca or abas_selecionadas %} no filtro de agora{% endif %}</p>
   <a class="botao" href="{% url 'viagens:exportar_prestacoes' %}{% if querystring_base %}?{{ querystring_base }}{% endif %}">{% icone "download" %}Exportar planilha</a>

@@ -123,6 +123,7 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
     else:
         chip_docs = Chip(f"Faltam {total - comprovantes} comprovante"
                          f"{'' if total - comprovantes == 1 else 's'}", "aviso")
+    comprovantes_lidos = comprovantes  # a leitura vale quando há o que ler
     return [
         Folha("diario", "Diário de bordo", "gauge",
               "Km e abastecimento de cada trecho, motorista e horários realizados.",
@@ -141,6 +142,14 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
               f"{comprovantes} de {_plural(total, 'servidor', 'servidores')}"
               f"{' · ofício assinado' if p.pk in s.vias else ''}",
               not falta_docs),
+        Folha("leitura", "Leitura dos anexos", "scan-text",
+              "O que está escrito nos comprovantes, no RT e no diário assinados, para copiar e conferir.",
+              reverse("viagens:leitura_prestacao", args=[p.pk]),
+              Chip("Com o que ler", "neutro") if comprovantes_lidos or rts or p.pk in s.db_assinados
+              else Chip("Nada anexado ainda", "neutro"),
+              f"{_plural(comprovantes_lidos, 'comprovante', 'comprovantes')} · "
+              f"{_plural(rts, 'RT assinado', 'RTs assinados')}",
+              bool(total) and comprovantes >= total and rts >= total),
     ]
 
 
@@ -157,3 +166,31 @@ def conferencia(p: PrestacaoContas, linhas: list[dict]) -> Conferencia:
         else:
             c.prontas.append((ps, "Pronta para finalizar"))
     return c
+
+
+@dataclass(frozen=True)
+class EtapaFolha:
+    numero: int
+    chave: str
+    titulo: str
+    url: str
+    estado: str  # concluido | atual | pendente
+    rotulo: str  # Concluída · Em edição · A seguir
+    atual: bool
+
+
+def etapas_folha(folhas: list[Folha], bloco: dict, atual: str) -> list[EtapaFolha]:
+    """A barra das folhas: 1 Diário → 2 Relatório → 3 Documentos → 4 Leitura e conferência.
+    Concluída vem da completude (nunca só por abrir a página); a atual é a folha aberta."""
+    feitas = {f.chave: f.feito for f in folhas}
+    urls = {f.chave: f.url for f in folhas}
+    passos = [("diario", "Diário de bordo"), ("relatorio", "Relatório técnico"),
+              ("documentos", "Documentos"), ("leitura", "Leitura e conferência")]
+    saida = []
+    for i, (chave, titulo) in enumerate(passos, 1):
+        feita = feitas.get(chave, bloco.get("todas_finalizadas", False))
+        estado = "atual" if chave == atual else "concluido" if feita else "pendente"
+        saida.append(EtapaFolha(i, chave, titulo, urls[chave], estado,
+                                "Em edição" if chave == atual else "Concluída" if feita
+                                else "A seguir", chave == atual))
+    return saida

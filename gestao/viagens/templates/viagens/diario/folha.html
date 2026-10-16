@@ -1,23 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %}Diário de bordo · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
-{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block titulo %}Diário de bordo · {{ oficio }}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% comment %}
 Folha do diário de bordo (módulo 9b), com identidade documental e seções contínuas.
 1 hodômetro e abastecimento com autosave; 2 motorista/viatura; 3 horários realizados;
 4 conferência não bloqueante. PDF/planilha no cabeçalho. A equipe compartilha o diário:
 trava quando todos estão finalizados. Consulta preserva dados sem controles de edição.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Diário de bordo" complemento_template="viagens/diario/_cabecalho_contexto.html" acoes_template="viagens/diario/_acoes.html" %}
-{% include "viagens/prestacao/_abas.html" with atual="diario" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas · Etapa 1 de 4" rotulo="Ofício" numero=oficio.numero_formatado titulo="Diário de bordo" complemento_template="viagens/diario/_cabecalho_contexto.html" acoes_template="viagens/diario/_acoes.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O diário é da equipe e trava quando todos estão finalizados.</p></div></div>
 {% endif %}
 
+<div class="prestacao-folha"><div class="prestacao-folha__principal">
 <div class="documento documento--preparacao">
   {# 1. Trechos: km e abastecimento (gravam sozinhos). #}
   <section class="secao{% if completo %} secao--ok{% endif %}" id="trechos" aria-labelledby="t-trechos">
@@ -185,11 +190,15 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
 Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar — grava o
 que estiver pendente e volta à prestação de contas (componentes/rodape_documento.html).
 {% endcomment %}
+</div>
+{% include "viagens/prestacao/_lateral.html" %}
+</div>
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% include "componentes/estado_salvamento.html" with atualizado_em=d.atualizado_em sem_emissao=True only %}
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacao_equipe' p.pk %}">Voltar</a>
-  {% include "componentes/rodape_documento.html" with nome="diário de bordo" finalizar_form="finalizar-diario" finalizar_primario=True %}</div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à lista</a>
+  <button type="submit" form="finalizar-diario" class="botao botao--primario">Salvar e continuar: relatório{% icone "arrow-right" %}</button></div>
 </div>
-<form id="finalizar-diario" method="get" action="{% url 'viagens:prestacao_equipe' p.pk %}" hidden data-esperar-salvamento></form>
+<form id="finalizar-diario" method="get" action="{% url 'viagens:relatorio' p.pk %}" hidden data-esperar-salvamento></form>
 {% endif %}
+{% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

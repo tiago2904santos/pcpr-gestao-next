@@ -1,0 +1,32 @@
+{% comment %}
+A lateral das folhas da prestação: a equipe (cada servidor leva à parte dele nos
+Documentos, com o que já foi feito) e o ofício (número, protocolo, data, destino,
+período, diárias). Contexto: `equipe_linhas` (views_prestacao._linha), `oficio`, `b`, `p`.
+{% endcomment %}
+<aside class="prestacao-lateral" aria-label="Equipe e ofício">
+  <section class="prestacao-lateral__cartao" aria-labelledby="t-lateral-equipe">
+    <h2 class="prestacao-lateral__titulo" id="t-lateral-equipe">Equipe <small>{{ equipe_linhas|length|pluralizar:"servidor,servidores" }}</small></h2>
+    <ul class="prestacao-lateral__equipe">
+      {% for l in equipe_linhas %}{% with ps=l.ps %}
+      <li><a class="prestacao-lateral__pessoa{% if ps.pk == servidor_atual %} prestacao-lateral__pessoa--atual{% endif %}" href="{% url 'viagens:documentos_prestacao' p.pk %}#ps-{{ ps.pk }}">
+        <span class="avatar{% if l.motorista %} avatar--marca{% endif %}" aria-hidden="true">{% if l.motorista %}{% icone "car" classe="icone--sm" %}{% else %}{{ ps.servidor.iniciais }}{% endif %}</span>
+        <strong>{{ ps.servidor.nome }}</strong>
+        <span>{% if ps.finalizada %}Finalizada{% elif l.pendencias %}{{ l.pendencias|length|pluralizar:"pendência,pendências" }}{% else %}Pronta para finalizar{% endif %}{% if l.motorista %} · motorista{% endif %}</span>
+      </a></li>
+      {% endwith %}{% empty %}<li class="vazio-inline">Sem servidores</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="prestacao-lateral__cartao" aria-labelledby="t-lateral-oficio">
+    <h2 class="prestacao-lateral__titulo" id="t-lateral-oficio">Ofício <small><button type="button" class="botao botao--texto botao--sm" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">Resumo</button></small></h2>
+    <dl class="prestacao-lateral__oficio">
+      <dt>Número</dt><dd>{{ oficio.numero_formatado }}</dd>
+      <dt>Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">sem protocolo</span>{% endif %}</dd>
+      {% if oficio.data_oficio %}<dt>Data</dt><dd>{{ oficio.data_oficio|date:"d/m/Y" }}</dd>{% endif %}
+      <dt>Unidade</dt><dd>{{ oficio.unidade.sigla|default:oficio.unidade.nome }}</dd>
+      <dt>Destino</dt><dd>{{ b.destinos|default:"—" }}</dd>
+      <dt>Período</dt><dd>{{ b.periodo|default:"—" }}</dd>
+      <dt>Diárias</dt><dd>{% if oficio.diarias_total %}{{ oficio.diarias_total|moeda }}{% if b.por_servidor %} <small>({{ b.por_servidor|moeda }} por servidor)</small>{% endif %}{% else %}—{% endif %}</dd>
+      {% if b.prestar_ate %}<dt>Prestar até</dt><dd>{{ b.prestar_ate|date:"d/m/Y" }}</dd>{% endif %}
+    </dl>
+  </section>
+</aside>

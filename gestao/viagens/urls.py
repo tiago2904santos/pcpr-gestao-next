@@ -81,6 +81,8 @@ urlpatterns = [
     path("prestacoes/", views_prestacao.lista, name="prestacoes"),
     path("prestacoes/exportar/", views_prestacao.exportar, name="exportar_prestacoes"),
     path("prestacoes/equipe/<int:pk>/", views_prestacao.equipe, name="prestacao_equipe"),
+    path("prestacoes/equipe/<int:pk>/leitura/", views_prestacao.leitura,
+         name="leitura_prestacao"),
     path("prestacoes/equipe/<int:pk>/diario/", views_diario.folha, name="diario"),
     path("prestacoes/equipe/<int:pk>/diario/salvar/", views_diario.salvar,
          name="salvar_diario"),
