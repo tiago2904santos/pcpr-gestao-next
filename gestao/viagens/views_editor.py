@@ -177,7 +177,10 @@ def folha(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     # que o cabeçalho o carregue.
     preguicoso = get_nonce(request)
     nonce = str(preguicoso) if preguicoso is not None else ""
-    html = html_do_documento(tipo, dados, previa=True, folha=True, nonce=nonce,
+    # ?final=1 (o visualizador da viagem): o ofício já emitido sai sem a marca de minuta.
+    previa = not (request.GET.get("final") == "1"
+                  and oficio.situacao == oficio.Situacao.EMITIDO)
+    html = html_do_documento(tipo, dados, previa=previa, folha=True, nonce=nonce,
                              regioes=regioes, blocos_alterados=marcados)
     resposta = HttpResponse(html)
     resposta["Cache-Control"] = "no-store"

@@ -32,6 +32,7 @@ from . import (
     resumo_listas,
     views_assinados,
 )
+from . import viagem as viagem_mod
 from .forms import FormularioOrdem
 from .models import Oficio, OrdemServico, ViaAssinada
 from .views import POR_PAGINA, _migalhas
@@ -448,7 +449,7 @@ def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, str(exc))
         return redirect("viagens:editar_ordem", ordem.pk)
     messages.success(request, f"{ordem} finalizada.")
-    return redirect("viagens:ordens")
+    return redirect(viagem_mod.ao_terminar(ordem, "viagens:ordens"))
 
 
 @require_POST

@@ -5,8 +5,8 @@
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Folha da viagem, com as peças e o arranjo das folhas do termo, da OS e do plano: placa,
-frase-resumo e ações no cabeçalho; cartões numerados — 1 Identificação (tipos, o período
-num calendário só e os blocos Destinos e Motivo), 2 Documentos da viagem,
+frase-resumo e ações no cabeçalho; cartões numerados — 1 Identificação (tipo, motivo como
+no ofício e na OS, o período num calendário só e os destinos), 2 Documentos da viagem,
 3 Vínculos existentes recolhidos, 4 Conferência por etapa e coerência e 5 Histórico; e a
 barra do rodapé com Voltar, Gerar documentos e Ações. Sem permissão de editar (consulta)
 ou cancelada, os dados aparecem como texto, sem formulário.
@@ -32,7 +32,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
   {{ form.versao }}{{ form.vinculos_presentes }}{{ form.conhecidos }}
 
   {% comment %}
-  1. Identificação — o tipo (o título nasce dele), quando e onde, e o motivo.
+  1. Identificação — o tipo (o título nasce dele) e o motivo, quando e onde.
   {% endcomment %}
   <section class="secao{% if v.titulo and v.data_inicio and destinos %} secao--ok{% endif %}" id="dados" aria-labelledby="t-dados">
     <div class="secao__cabecalho">
@@ -40,37 +40,42 @@ ou cancelada, os dados aparecem como texto, sem formulário.
       <div class="secao__estado" id="estado-dados" data-vivo>{% if not v.titulo %}<span class="selo selo--aviso selo--situacao-rascunho">Falta o tipo</span>{% endif %}{% if not v.data_inicio %}<span class="selo selo--aviso selo--situacao-rascunho">Falta período</span>{% endif %}{% if not destinos %}<span class="selo selo--aviso selo--situacao-rascunho">Falta destino</span>{% endif %}</div>
       <p class="secao__nota" id="nota-dados" data-vivo>Defina a ação, quando acontece e para onde a equipe vai. Esses dados orientam os documentos criados nesta viagem.</p>
     </div>
-    <div class="pilha">
-      {# Tipo seguido do calendário compartilhado, com largura própria. #}
-      <div class="pilha viagem-agenda" id="periodo">
-        {# Escolher um tipo com motivo cadastrado escreve o motivo, se ele está em branco (motivo-do-tipo.js). #}
-        <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}"{% if form.motivos_dos_tipos %} data-motivos-dos-tipos="{{ form.motivos_dos_tipos }}" data-alvo="{{ form.motivo.id_for_label }}"{% endif %}>
-          <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
-          {% if form.tipos.field.queryset %}
-          <pc-escolhas class="seletor escolhas" data-vazio="Selecione os tipos">
-            <button type="button" class="selecao seletor__gatilho" id="tipos-gatilho" aria-haspopup="true" aria-expanded="false" aria-controls="tipos-painel" data-gatilho><span class="seletor__valor" data-resumo>{{ v.titulo|default:"Selecione os tipos" }}</span>{% icone "chevron-down" classe="seletor__seta" %}</button>
-            <div class="escolhas__painel" id="tipos-painel" role="group" aria-labelledby="tipos-rotulo" data-painel>{{ form.tipos }}</div>
-          </pc-escolhas>
-          {% else %}<p class="vazio-inline">{% icone "route" classe="icone--sm" %}Nenhum tipo de viagem cadastrado. <a href="{% url 'cadastros:tipos' %}">Cadastrar tipos</a>.</p>{% endif %}
-          {% for e in form.tipos.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+    {% comment %}
+    Um embaixo do outro, cada um na linha toda: o tipo, o motivo (o mesmo bloco do ofício e
+    da OS: texto pronto e a caixa de texto; o tipo pode escrevê-lo), o período e os destinos.
+    {% endcomment %}
+    <div class="viagem-identificacao">
+      {# Escolher um tipo com motivo cadastrado escreve o motivo, se ele está em branco (motivo-do-tipo.js). #}
+      <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}"{% if form.motivos_dos_tipos %} data-motivos-dos-tipos="{{ form.motivos_dos_tipos }}" data-alvo="{{ form.motivo.id_for_label }}"{% endif %}>
+        <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
+        {% if form.tipos.field.queryset %}
+        <pc-escolhas class="seletor escolhas" data-vazio="Selecione os tipos">
+          <button type="button" class="selecao seletor__gatilho" id="tipos-gatilho" aria-haspopup="true" aria-expanded="false" aria-controls="tipos-painel" data-gatilho><span class="seletor__valor" data-resumo>{{ v.titulo|default:"Selecione os tipos" }}</span>{% icone "chevron-down" classe="seletor__seta" %}</button>
+          <div class="escolhas__painel" id="tipos-painel" role="group" aria-labelledby="tipos-rotulo" data-painel>{{ form.tipos }}</div>
+        </pc-escolhas>
+        {% else %}<p class="vazio-inline">{% icone "route" classe="icone--sm" %}Nenhum tipo de viagem cadastrado. <a href="{% url 'cadastros:tipos' %}">Cadastrar tipos</a>.</p>{% endif %}
+        {% for e in form.tipos.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+      </div>
+
+      <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
+          <div class="secao__estado" id="estado-motivo" data-vivo></div>
         </div>
+        <div class="pilha">
+          {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
+          {% include "componentes/campo.html" with campo=form.motivo %}
+        </div>
+      </div>
+
+      <div id="periodo">
         {% periodo_calendario form.data_inicio form.data_fim prefixo="viagem" rotulo="Período da viagem" natureza="viagem" editavel=editavel %}
       </div>
     </div>
 
     {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}
-    <div class="secao__bloco" id="destinos">
+    <div class="secao__bloco viagem-identificacao__onde" id="destinos">
       {% campo_destinos form.destinos unidade=v.unidade operacional=True %}
-    </div>
-
-    <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
-      </div>
-      <div class="pilha viagem-motivo">
-        {% include "componentes/campo.html" with campo=form.motivo %}
-        {% include "componentes/campo.html" with campo=form.descricao %}
-      </div>
     </div>
   </section>
 
@@ -123,13 +128,18 @@ quem dirige e a viatura, e o que sai junto).
 </div></div>
 {# Baixar tudo (ZIP) gera na hora, com o item do menu em "processando". #}
 <form id="baixar-tudo" method="post" action="{% url 'viagens:baixar_tudo_viagem' v.pk %}" hidden data-baixar-arquivo>{% csrf_token %}</form>
-{% include "componentes/dialogo_baixar.html" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="roteiro" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="oficio" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="plano" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="ordem" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="termo" %}
+{% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
+{% include "viagens/viagem/_dialogo_solicitacao.html" %}
 {% endif %}
+{# Baixar documentos: o menu da viagem e o "Baixar" do visualizador. #}
+{% include "componentes/dialogo_baixar.html" %}
+{% include "viagens/viagem/_visualizador.html" %}
+{% include "componentes/dialogo_assinado.html" %}{# anexar a via na peça do documento, no resumo #}
 {% if pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
 {% if pode_repetir %}
 <dialog id="dialogo-repetir" class="dialogo" aria-labelledby="dialogo-repetir-titulo">

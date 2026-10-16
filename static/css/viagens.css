@@ -2,78 +2,171 @@
 .documento--viagem .secao > .secao__cabecalho { align-items: center; }
 .documento--viagem .secao__cabecalho > .secao__nota { flex-basis: 100%; max-width: none; }
 .documento--viagem .secao__bloco { margin-top: var(--esp-5); }
-.viagem-motivo { display: grid; gap: var(--esp-5); align-items: start; }
-.viagem-motivo .area-texto { min-height: 7rem; }
 .pagina--viagem #tipos-gatilho { height: auto; min-height: var(--altura-controle); padding-block: var(--esp-2); }
 .pagina--viagem #tipos-gatilho .seletor__valor { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.45; }
-.pagina--viagem #motivo { padding: var(--esp-5); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); --fundo-rotulo: var(--cor-superficie-sutil); }
-.pagina--viagem #motivo .secao__bloco-cabecalho { margin-bottom: var(--esp-4); }
 
-.viagem-documentos__orientacao { display: flex; align-items: start; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); margin-bottom: var(--esp-4); border-radius: var(--raio-md); background: var(--cor-marca-fundo); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
-.viagem-documentos__orientacao > .icone { flex: none; margin-top: var(--esp-05); color: var(--cor-marca-texto); }
-.viagem-documentos__orientacao a { color: var(--cor-texto); font-weight: var(--peso-semi); text-underline-offset: var(--esp-1); }
-.viagem-documentos .viagem-documentos__grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
-.viagem-documentos__grade > .viagem-documento { display: flex; flex-direction: column; gap: var(--esp-3); min-width: 0; margin: 0; padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); }
-.viagem-documento .secao__bloco-cabecalho { margin: 0; flex-wrap: wrap; }
-.viagem-documento .secao__bloco-titulo { color: var(--cor-texto); text-transform: none; letter-spacing: normal; font-size: var(--texto-sm); }
-.viagem-documento .secao__bloco-titulo > .icone { color: var(--cor-marca-texto); }
-.viagem-documento .secao__estado { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
-.viagem-documento .relacoes-documentais > li { border: 0; }
-.viagem-documento .peca-documental { padding: var(--esp-3); gap: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
-.viagem-documento .ficha-documental__texto { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.viagem-documento .ficha-documental__meta { margin-top: var(--esp-2); font-size: var(--texto-xs); }
-.viagem-documento .ficha-documental__meta > span:not(.selo) { display: inline-flex; align-items: center; gap: var(--esp-1); }
-.viagem-documento .peca-documental > .viagem-documento__abrir { flex: none; padding: 0; border: 0; background: transparent; color: var(--cor-texto-terciario); }
-.viagem-documento__vazio { display: flex; align-items: center; gap: var(--esp-3); flex: 1; padding-block: var(--esp-3); }
-.viagem-documento__marca { display: grid; place-items: center; flex: none; width: var(--esp-10); height: var(--esp-10); background: var(--cor-superficie-realce); border-radius: var(--raio-lg); color: var(--cor-texto-terciario); }
-.viagem-documento__vazio p { display: grid; gap: var(--esp-1); font-size: var(--texto-sm); }
-.viagem-documento__vazio strong { font-weight: var(--peso-medio); }
-.viagem-documento__vazio p > span { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
-.viagem-documentos__nota { display: flex; align-items: start; gap: var(--esp-2); margin-top: var(--esp-4); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.viagem-documentos__nota > .icone { flex: none; }
+/* 1 Identificação: o que (tipo e motivo) ao lado de quando (calendário); onde embaixo. */
+.viagem-identificacao { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); align-items: start; }
+.viagem-identificacao__acao { gap: var(--esp-5); }
+.viagem-identificacao__acao .area-texto { min-height: 8rem; }
+.viagem-identificacao__quando { min-width: 0; }
+.documento--viagem .viagem-identificacao__onde { margin-top: var(--esp-6); padding-top: var(--esp-6); border-top: var(--borda-sutil); }
 
+/* 2 Documentos da viagem: a trilha da preparação, de cima para baixo. O marcador de cada
+   passo fica numa coluna à esquerda, ligado ao próximo por um fio (verde no trecho já
+   percorrido); à direita, o cabeçalho do passo (título, o que é, criar) e a lista. */
+.viagem-trilha { display: grid; gap: 0; list-style: none; margin: 0; padding: 0; }
+.viagem-passo { position: relative; display: grid; grid-template-columns: var(--esp-8) minmax(0, 1fr); gap: var(--esp-4); padding-bottom: var(--esp-6); }
+.viagem-passo:last-child { padding-bottom: 0; }
+.viagem-passo:not(:last-child)::before { content: ""; position: absolute; left: calc(var(--esp-4) - var(--esp-px)); top: var(--esp-8); bottom: 0; width: calc(2 * var(--esp-px)); background: var(--cor-borda-sutil); }
+.viagem-passo--ok:not(:last-child)::before { background: var(--cor-sucesso-borda); }
+.viagem-passo__marca { position: relative; z-index: 1; display: grid; place-items: center; width: var(--esp-8); height: var(--esp-8); border: var(--esp-px) solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-secundario); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.viagem-passo--ok .viagem-passo__marca { border-color: var(--cor-sucesso-borda); background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.viagem-passo__corpo { display: grid; gap: var(--esp-3); min-width: 0; }
+.viagem-passo__cabecalho { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--esp-2) var(--esp-4); min-height: var(--esp-8); }
+.viagem-passo__rotulo { display: grid; gap: var(--esp-05); min-width: 0; padding-top: var(--esp-1); }
+.viagem-passo__titulo { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-md); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-passo__conta { display: inline-grid; place-items: center; min-width: var(--esp-5); height: var(--esp-5); padding: 0 var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
+.viagem-passo__descricao { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-passo__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.viagem-passo__falta { width: fit-content; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+
+/* A lista de cada passo: uma linha por documento — título e chip, subtexto embaixo, "Ver". */
+.viagem-lista { list-style: none; margin: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: hidden; }
+.viagem-lista__item { display: flex; align-items: center; }
+.viagem-lista__item + .viagem-lista__item { border-top: var(--borda-sutil); }
+.viagem-lista__link { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "linha ver" "sub ver"; gap: var(--esp-1) var(--esp-4); align-items: center; flex: 1; min-width: 0; padding: var(--esp-3) var(--esp-4); color: var(--cor-texto); text-decoration: none; transition: background var(--duracao-rapida) var(--curva-padrao); }
+.viagem-lista__link:hover { background: var(--cor-superficie-sutil); }
+.viagem-lista__link:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: calc(-1 * var(--foco-espessura)); }
+.viagem-lista__linha { grid-area: linha; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); min-width: 0; }
+.viagem-lista__nome { font-size: var(--texto-md); font-weight: var(--peso-semi); overflow-wrap: anywhere; }
+.viagem-lista__sub { grid-area: sub; font-size: var(--texto-sm); color: var(--cor-texto-secundario); overflow-wrap: anywhere; }
+.viagem-lista__ver { grid-area: ver; display: inline-flex; align-items: center; gap: var(--esp-1); font-size: var(--texto-sm); font-weight: var(--peso-medio); color: var(--cor-texto-terciario); }
+.viagem-lista__link:hover .viagem-lista__ver, .viagem-lista__link:focus-visible .viagem-lista__ver { color: var(--cor-marca-texto); }
+.viagem-lista__remover { flex: none; margin-right: var(--esp-2); }
+.viagem-lista__vazio { display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); border: var(--esp-px) dashed var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-lista__vazio > .icone { color: var(--cor-texto-terciario); }
+.viagem-lista__vazio--dispensado { border-style: solid; border-color: var(--cor-sucesso-borda); background: var(--cor-sucesso-fundo); color: var(--cor-texto); }
+.viagem-lista__vazio--dispensado > .icone { color: var(--cor-sucesso); }
+.viagem-trilha__rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3); margin-top: var(--esp-6); padding: var(--esp-4); border-radius: var(--raio-lg); background: var(--cor-marca-fundo); }
+.viagem-trilha__rodape > p { flex: 1 1 18rem; font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-solicitacao__tipos { display: grid; gap: var(--esp-2); }
+.viagem-solicitacao__tipo { padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); }
+.viagem-solicitacao__tipo:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
+
+/* Visualizador (modal): o documento flutuando sobre a página escurecida; no topo o nome e as
+   ações rápidas; nas laterais, as setas. */
+dialog.visualizador { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--cor-texto-inverso); overflow: hidden; }
+dialog.visualizador[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+dialog.visualizador::backdrop { background: color-mix(in srgb, var(--grafite-950) 94%, transparent); backdrop-filter: blur(var(--desfoque-veu)); }
+.visualizador__topo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3) var(--esp-4); padding: var(--esp-3) var(--esp-5); }
+.visualizador__id { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-1) var(--esp-3); flex: 1 1 14rem; min-width: 0; }
+.visualizador__tipo { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--dourado-300); }
+.visualizador__titulo { font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
+.visualizador__posicao { font-size: var(--texto-sm); font-variant-numeric: tabular-nums; color: var(--cor-texto-inverso-sutil); }
+.visualizador__select { min-height: var(--altura-controle); max-width: 18rem; padding: 0 var(--esp-3); border: var(--esp-px) solid var(--luz-28); border-radius: var(--raio-md); background: var(--luz-10); color: var(--cor-texto-inverso); font: inherit; font-size: var(--texto-sm); }
+.visualizador__select option { color: var(--cor-texto); background: var(--cor-superficie); }
+.visualizador__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.visualizador__acao { display: inline-flex; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle); padding: 0 var(--esp-3); border: var(--esp-px) solid var(--luz-16); border-radius: var(--raio-md); background: var(--luz-10); color: var(--cor-texto-inverso); font-size: var(--texto-sm); font-weight: var(--peso-medio); text-decoration: none; cursor: pointer; transition: background var(--duracao-rapida) var(--curva-padrao); }
+.visualizador__acao:hover { background: var(--luz-28); }
+.visualizador__acao:focus-visible, .visualizador__seta:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor-inverso); outline-offset: var(--foco-offset); }
+.visualizador__acao--principal { border-color: var(--cor-superficie); background: var(--cor-superficie); color: var(--cor-texto); }
+.visualizador__acao--principal:hover { background: var(--cor-superficie-sutil); }
+.visualizador__fechar { padding: 0; width: var(--altura-controle); justify-content: center; }
+.visualizador__palco { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; min-height: 0; padding: 0 var(--esp-16) var(--esp-5); }
+.visualizador__documento { width: min(100%, 56rem); height: 100%; min-height: 0; }
+.visualizador__folha { display: block; width: 100%; height: 100%; border: 0; background: transparent; color-scheme: light; }
+.visualizador--anexo .visualizador__folha { border-radius: var(--raio-md); background: var(--cor-superficie); }
+.visualizador__seta { position: absolute; top: 50%; z-index: 1; display: grid; place-items: center; width: var(--esp-12); height: var(--esp-12); translate: 0 -50%; border: var(--esp-px) solid var(--luz-16); border-radius: var(--raio-pilula); background: var(--luz-10); color: var(--cor-texto-inverso); cursor: pointer; }
+.visualizador__seta:hover:not(:disabled) { background: var(--luz-28); }
+.visualizador__seta:disabled { opacity: 0.35; cursor: default; }
+.visualizador__seta--anterior { left: var(--esp-3); }
+.visualizador__seta--proximo { right: var(--esp-3); }
+@media (max-width: 767px) {
+  .visualizador__topo { padding: var(--esp-2) var(--esp-3); }
+  .visualizador__acao > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .visualizador__acao { width: var(--altura-controle); padding: 0; justify-content: center; }
+  .visualizador__palco { padding: 0 var(--esp-2) var(--esp-16); }
+  .visualizador__seta { top: auto; bottom: var(--esp-2); translate: none; width: var(--esp-10); height: var(--esp-10); }
+}
+
+/* Resumo navegável: a janela de resumo das listas, sem mudança; embaixo dela, fora do
+   cartão, a barra com as setas e a posição na viagem. A janela encolhe para caber a barra. */
+dialog.resumo-navegavel:has(> .resumo-navegavel__barra:not([hidden])) { max-height: calc(100dvh - 2 * var(--esp-5) - 2 * var(--esp-16)); }
+.resumo-navegavel__barra { position: fixed; left: 50%; bottom: var(--esp-4); translate: -50% 0; display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-elevada); box-shadow: var(--sombra-4); }
+.resumo-navegavel__barra[hidden] { display: none; }
+.resumo-navegavel__barra > .botao { border-radius: var(--raio-pilula); }
+.resumo-navegavel__posicao { min-width: 4.5rem; text-align: center; font-size: var(--texto-sm); font-variant-numeric: tabular-nums; color: var(--cor-texto-secundario); }
+
+/* 3 Vincular documentos existentes: grupos recolhidos; cada lista mostra até três linhas e rola. */
 .viagem-vinculos > summary { cursor: pointer; list-style: none; }
 .viagem-vinculos > summary::-webkit-details-marker { display: none; }
 .viagem-vinculos__seta { margin-left: auto; transition: rotate var(--duracao-rapida); }
 .viagem-vinculos[open] .viagem-vinculos__seta { rotate: 180deg; }
 .viagem-vinculos__corpo { padding-top: var(--esp-4); }
 .viagem-vinculos__grupos { margin-top: var(--esp-4); gap: var(--esp-2); }
-.viagem-vinculo { border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); padding: var(--esp-3) var(--esp-4); }
+.viagem-vinculo { border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); padding: var(--esp-2) var(--esp-4); }
 .viagem-vinculo > summary { display: flex; flex-wrap: wrap; gap: var(--esp-2); align-items: center; min-height: var(--alvo-minimo); }
 .viagem-vinculo > summary > .icone { color: var(--cor-marca-texto); }
 .viagem-vinculo__contagem { margin-left: auto; color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
-.viagem-vinculo .divulgacao__corpo { margin-top: var(--esp-4); }
-.viagem-vinculo__busca { margin-bottom: var(--esp-4); --fundo-rotulo: var(--cor-superficie-sutil); }
-.viagem-vinculo .caixas { grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
-.viagem-vinculo .caixas__item { border: var(--borda-sutil); border-radius: var(--raio-md); padding: var(--esp-3); background: var(--cor-superficie); align-items: start; }
+.viagem-vinculo .divulgacao__corpo { margin-top: var(--esp-3); padding-bottom: var(--esp-2); }
+.viagem-vinculo__busca { margin-bottom: var(--esp-3); --fundo-rotulo: var(--cor-superficie-sutil); }
+.viagem-vinculo .caixas { grid-template-columns: minmax(0, 1fr); grid-auto-rows: var(--altura-controle-lg); gap: var(--esp-2); max-height: calc(3 * var(--altura-controle-lg) + 2 * var(--esp-2)); overflow-y: auto; overscroll-behavior: contain; padding-right: var(--esp-1); scroll-padding-block: var(--esp-2); }
+.viagem-vinculo .caixas__item { display: flex; align-items: center; gap: var(--esp-3); min-height: 0; padding: 0 var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie); }
 .viagem-vinculo .caixas__item:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
 .viagem-vinculo .caixas__item[hidden] { display: none; }
-.viagem-vinculo .caixas__item > span { overflow-wrap: anywhere; }
+.viagem-vinculo .caixas__item > input { flex: none; margin: 0; }
+.viagem-vinculo .caixas__item > span { flex: 1; min-width: 0; line-height: var(--altura-linha-justa); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: var(--texto-sm); }
 
-.pagina--viagem .viagem-conferencia { padding: 0; border: 0; background: transparent; box-shadow: none; }
-.viagem-conferencia .prontidao-documental__cabecalho { padding-bottom: var(--esp-4); }
-.viagem-conferencia__concluidas > summary { display: flex; align-items: center; gap: var(--esp-2); width: fit-content; min-height: var(--altura-controle); color: var(--cor-texto-secundario); cursor: pointer; list-style: none; font-size: var(--texto-sm); }
-.viagem-conferencia__concluidas > summary::-webkit-details-marker { display: none; }
-.viagem-conferencia__concluidas[open] > summary > .icone { rotate: 180deg; }
-.viagem-conferencia__concluidas .viagem-etapas { margin-top: var(--esp-3); }
-.viagem-etapas { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--esp-3); list-style: none; padding: 0; margin: 0; }
-.viagem-etapas > li { min-width: 0; }
-.viagem-etapa { padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
-.viagem-etapa > summary { display: flex; align-items: center; gap: var(--esp-3); cursor: pointer; list-style: none; min-height: var(--altura-controle); }
-.viagem-etapa > summary::-webkit-details-marker { display: none; }
-.viagem-etapa__marca { display: grid; place-items: center; flex: none; width: var(--esp-8); height: var(--esp-8); border-radius: var(--raio-md); background: var(--cor-marca-fundo-forte); color: var(--cor-marca-texto); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
-.viagem-etapa--pronta .viagem-etapa__marca { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
-.viagem-etapa__nome { display: grid; gap: var(--esp-1); flex: 1; font-size: var(--texto-sm); font-weight: var(--peso-semi); }
-.viagem-etapa__nome > small { color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
-.viagem-etapa__seta { color: var(--cor-texto-terciario); flex: none; }
-.viagem-etapa[open] .viagem-etapa__seta { rotate: 180deg; }
-.viagem-etapa .checklist { margin-top: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda-sutil); }
-.viagem-etapa .checklist__item a { display: flex; align-items: start; gap: var(--esp-2); }
-.viagem-etapa .checklist__item a > span { flex: 1; min-width: 0; }
-.viagem-etapa__concluida { margin-top: var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
-.pagina--viagem #coerencia { padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-marca-fundo); }
-.pagina--viagem #coerencia .checklist__item { padding-block: var(--esp-3); border-bottom: var(--borda-sutil); }
-.pagina--viagem #coerencia .checklist__item:last-child { border-bottom: 0; }
+/* 4 Conferência: resumo com barra, etapas abertas em cartões, concluídas numa fileira. */
+.viagem-conferencia { display: grid; gap: var(--esp-5); }
+.viagem-conferencia__resumo { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "marca texto" "barra barra"; gap: var(--esp-3) var(--esp-4); align-items: center; padding: var(--esp-4) var(--esp-5); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); }
+.viagem-conferencia__marca { grid-area: marca; display: grid; place-items: center; width: var(--esp-12); height: var(--esp-12); border-radius: var(--raio-lg); background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.viagem-conferencia--pronta .viagem-conferencia__marca { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.viagem-conferencia__texto { grid-area: texto; display: grid; gap: var(--esp-1); min-width: 0; }
+.viagem-conferencia__titulo { font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-conferencia__sub { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-conferencia__barra { grid-area: barra; width: 100%; height: var(--esp-2); border: 0; border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); overflow: hidden; appearance: none; }
+.viagem-conferencia__barra::-webkit-progress-bar { background: var(--cor-superficie-realce); border-radius: var(--raio-pilula); }
+.viagem-conferencia__barra::-webkit-progress-value { background: var(--cor-aviso-solida); border-radius: var(--raio-pilula); }
+.viagem-conferencia__barra::-moz-progress-bar { background: var(--cor-aviso-solida); border-radius: var(--raio-pilula); }
+.viagem-conferencia--pronta .viagem-conferencia__barra::-webkit-progress-value { background: var(--cor-sucesso-solida); }
+.viagem-conferencia--pronta .viagem-conferencia__barra::-moz-progress-bar { background: var(--cor-sucesso-solida); }
+
+.viagem-etapas { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); list-style: none; margin: 0; padding: 0; }
+.viagem-etapa { min-width: 0; padding: var(--esp-4); border: var(--borda-sutil); border-left: var(--esp-1) solid var(--cor-aviso-borda); border-radius: var(--raio-md); background: var(--cor-superficie); }
+.viagem-etapa__nome { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-etapa__nome > small { margin-left: auto; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.viagem-etapa__marca { display: inline-grid; place-items: center; flex: none; color: var(--cor-aviso); }
+.viagem-etapa__itens { display: grid; gap: var(--esp-1); list-style: none; margin: var(--esp-3) 0 0; padding: 0; }
+.viagem-etapa__itens > li > a, .viagem-etapa__itens > li > span { display: flex; align-items: center; gap: var(--esp-2); min-height: var(--alvo-minimo); padding: var(--esp-1) var(--esp-3); border-radius: var(--raio-sm); background: var(--cor-superficie-sutil); font-size: var(--texto-sm); color: var(--cor-texto); }
+.viagem-etapa__itens > li > a { text-decoration: none; }
+.viagem-etapa__itens > li > a:hover { background: var(--cor-marca-fundo); }
+.viagem-etapa__itens > li > a > span { flex: 1; min-width: 0; }
+.viagem-etapa__itens > li > a > .icone { flex: none; color: var(--cor-marca-texto); }
+
+.viagem-concluidas { display: grid; gap: var(--esp-2); }
+.viagem-concluidas__titulo { font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.viagem-concluidas__lista { display: flex; flex-wrap: wrap; gap: var(--esp-2); list-style: none; margin: 0; padding: 0; }
+.viagem-concluida { display: inline-flex; align-items: center; gap: var(--esp-1); min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border: var(--esp-px) solid var(--cor-sucesso-borda); border-radius: var(--raio-pilula); background: var(--cor-sucesso-fundo); font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--cor-texto); }
+.viagem-concluida > .icone { color: var(--cor-sucesso); }
+
+.viagem-divergencias { margin-top: var(--esp-5); border: var(--esp-px) solid var(--cor-aviso-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: hidden; }
+.viagem-divergencias__cabecalho { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--esp-3); padding: var(--esp-4) var(--esp-5); background: var(--cor-aviso-fundo); }
+.viagem-divergencias__cabecalho > div { display: grid; gap: var(--esp-1); flex: 1 1 20rem; min-width: 0; }
+.viagem-divergencias__titulo { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-divergencias__titulo > .icone { color: var(--cor-aviso); }
+.viagem-divergencias__nota { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.viagem-divergencias__lista { list-style: none; margin: 0; padding: 0; }
+.viagem-divergencia { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-2) var(--esp-4); align-items: start; padding: var(--esp-4) var(--esp-5); }
+.viagem-divergencia + .viagem-divergencia { border-top: var(--borda-sutil); }
+.viagem-divergencia__doc { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: var(--esp-1); width: fit-content; font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.viagem-divergencia__doc > .icone { color: var(--cor-marca-texto); }
+.viagem-divergencia__campo { grid-column: 1 / -1; font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.viagem-divergencia__valor { display: grid; gap: var(--esp-05); padding: var(--esp-2) var(--esp-3); border-radius: var(--raio-sm); background: var(--cor-superficie-sutil); font-size: var(--texto-sm); color: var(--cor-texto); overflow-wrap: anywhere; }
+.viagem-divergencia__valor > small { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); }
+.viagem-divergencia__valor--viagem { background: var(--cor-sucesso-fundo); }
+.viagem-divergencia__aviso { grid-column: 1 / -1; width: fit-content; }
 
 .viagem-resultados__cabecalho { display: flex; justify-content: space-between; gap: var(--esp-3); align-items: center; padding: var(--esp-4); color: var(--cor-texto-secundario); font-size: var(--texto-sm); }
 .viagem-resultados__cabecalho h2 { font-size: var(--texto-sm); font-weight: var(--peso-medio); }
@@ -92,18 +185,22 @@
 .viagem-lote__opcoes > .escolha:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
 
 @media (min-width: 768px) {
-  .viagem-motivo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .viagem-documentos .viagem-documentos__grade, .viagem-etapas, .viagem-vinculo .caixas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .viagem-documentos__grade > .viagem-documento:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .viagem-etapas, .viagem-vinculo .caixas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viagem-conferencia__resumo { grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 16rem); grid-template-areas: "marca texto barra"; }
+  .viagem-divergencia { grid-template-columns: minmax(10rem, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+  .viagem-divergencia__doc, .viagem-divergencia__aviso { grid-column: 1; }
+  .viagem-divergencia__campo { grid-column: 1; grid-row: 2; }
+  .viagem-divergencia__valor { grid-row: 1 / span 2; }
+  .viagem-divergencia:has(.viagem-divergencia__aviso) .viagem-divergencia__valor { grid-row: 1 / span 3; }
+  .viagem-divergencia__aviso { grid-row: 3; }
+  .viagem-solicitacao__tipos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .viagem-lote__contexto { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .viagem-lote__opcoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .viagem-lote__opcoes > :is(legend, .campo__ajuda) { grid-column: 1 / -1; }
-}
-@media (min-width: 1280px) {
-  .viagem-etapas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 767px) {
   .pagina--viagem .barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
   .pagina--viagem .barra-acoes--preparacao [data-status-salvamento] { grid-column: 1 / -1; order: 2; display: flex; flex-wrap: wrap; margin: 0; width: 100%; border-radius: var(--raio-md); }
   .viagem-vinculo__contagem { flex-basis: 100%; margin-left: 0; }
 }
+

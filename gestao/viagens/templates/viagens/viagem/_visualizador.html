@@ -1,0 +1,49 @@
+{% comment %}
+Visualizador dos documentos da viagem (visualizador.js), aberto pelos cartões da trilha. As
+setas (também ← e →) passam por todos os documentos da viagem, na ordem da trilha.
+
+- Documento pronto: flutua sobre a página escurecida e, no topo, o nome e as ações rápidas —
+  imprimir, baixar (a janela "Baixar documentos": quais e como), baixar todos (a mesma
+  janela com os documentos da viagem), anexar a via assinada, editar — e fechar (também Esc).
+- O que ainda não está pronto (ou o roteiro): a janela de resumo de sempre, a mesma das
+  listas, com as setas numa barra embaixo dela.
+{% endcomment %}
+<dialog id="dialogo-documento" class="visualizador" aria-labelledby="visualizador-titulo" data-visualizador>
+  <header class="visualizador__topo">
+    <div class="visualizador__id">
+      <span class="visualizador__tipo" data-v-tipo></span>
+      <h2 class="visualizador__titulo" id="visualizador-titulo" data-v-titulo>Documento</h2>
+      <span class="visualizador__posicao" data-v-posicao aria-live="polite"></span>
+    </div>
+    <div class="visualizador__pagina" data-v-pagina hidden>
+      <label class="sr-only" for="visualizador-pagina">Qual documento</label>
+      <select class="visualizador__select" id="visualizador-pagina" data-v-paginas></select>
+    </div>
+    <div class="visualizador__acoes" role="toolbar" aria-label="Ações do documento">
+      <button type="button" class="visualizador__acao" data-v-imprimir hidden>{% icone "printer" classe="icone--sm" %}<span>Imprimir</span></button>
+      <button type="button" class="visualizador__acao" data-v-baixar hidden>{% icone "download" classe="icone--sm" %}<span>Baixar</span></button>
+      <a class="visualizador__acao" data-v-baixar-arquivo hidden>{% icone "download" classe="icone--sm" %}<span>Baixar</span></a>
+      {% if editavel %}<button type="button" class="visualizador__acao" data-v-todos data-baixar-documentos="{% url 'viagens:baixar_viagem' v.pk %}" data-baixar-titulo="{{ v }}">{% icone "files" classe="icone--sm" %}<span>Baixar todos</span></button>{% endif %}
+      <button type="button" class="visualizador__acao" data-v-anexar hidden>{% icone "file-signature" classe="icone--sm" %}<span>Anexar assinado</span></button>
+      <a class="visualizador__acao visualizador__acao--principal" data-v-editar hidden>{% icone "pencil" classe="icone--sm" %}<span>Editar</span></a>
+      <button type="button" class="visualizador__acao visualizador__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
+    </div>
+  </header>
+  <div class="visualizador__palco">
+    <button type="button" class="visualizador__seta visualizador__seta--anterior" data-v-anterior aria-label="Documento anterior">{% icone "chevron-left" %}</button>
+    <div class="visualizador__documento" data-v-documento>
+      <iframe class="visualizador__folha" data-v-folha title="Documento"></iframe>
+    </div>
+    <button type="button" class="visualizador__seta visualizador__seta--proximo" data-v-proximo aria-label="Próximo documento">{% icone "chevron-right" %}</button>
+  </div>
+</dialog>
+
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo dialogo--mesa resumo-navegavel" aria-labelledby="resumo-titulo" aria-label="Resumo" data-visualizador-resumo>
+  <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="Fechar o resumo">{% icone "x" %}</button>
+  <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>{% include "viagens/oficios/_resumo_carregando.html" %}</div>
+  <nav class="resumo-navegavel__barra" aria-label="Documentos da viagem" data-r-barra>
+    <button type="button" class="botao botao--icone" data-r-anterior aria-label="Documento anterior">{% icone "chevron-left" %}</button>
+    <span class="resumo-navegavel__posicao" data-r-posicao aria-live="polite"></span>
+    <button type="button" class="botao botao--icone" data-r-proximo aria-label="Próximo documento">{% icone "chevron-right" %}</button>
+  </nav>
+</dialog>
