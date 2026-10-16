@@ -143,7 +143,8 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
               f"{' · ofício assinado' if p.pk in s.vias else ''}",
               not falta_docs),
         Folha("leitura", "Leitura dos anexos", "scan-text",
-              "O que está escrito nos comprovantes, no RT e no diário assinados, para copiar e conferir.",
+              "O que está escrito nos comprovantes, no RT e no diário assinados, "
+              "para copiar e conferir.",
               reverse("viagens:leitura_prestacao", args=[p.pk]),
               Chip("Com o que ler", "neutro") if comprovantes_lidos or rts or p.pk in s.db_assinados
               else Chip("Nada anexado ainda", "neutro"),

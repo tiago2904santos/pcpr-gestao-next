@@ -82,7 +82,8 @@ def test_tela_previa_trava_e_permissoes(c):
     op.force_login(c.usuarios["operador"])
     outra.force_login(c.usuarios["outra"])
     html = op.get(reverse("viagens:documentos_prestacao", args=[p.pk])).content.decode()
-    assert "Número da solicitação no ofício assinado" in html and "sem posição" in html
+    assert "Posição do número da solicitação no ofício assinado" in html
+    assert "sem posição" in html
     r = op.post(reverse("viagens:carimbar_numero", args=[a.pk]),
                 {"pagina": "1", "x": "70", "y": "40,5"})
     assert r["Location"].endswith("#oficio_assinado")

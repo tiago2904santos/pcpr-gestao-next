@@ -9,12 +9,10 @@ diário assinado transcrito em campos para copiar (como os dados para o eProtoco
 ofício). No comprovante, o nº de autorização, a data e o valor, conferidos com a diária do
 ofício e com a do RT; "Usar no comprovante" grava valor, data e operação lidos no anexo.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental pagina--prestacao{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas · Etapa 4 de 4" rotulo="Ofício" numero=oficio.numero_formatado titulo="Leitura dos anexos" complemento="O que está escrito nos comprovantes, no relatório e no diário assinados, pronto para copiar e conferir." %}
-{% include "viagens/prestacao/_etapas.html" %}
+{% include "viagens/prestacao/_topo.html" %}
 
-<div class="prestacao-folha"><div class="prestacao-folha__principal">
 <div class="documento documento--preparacao">
   {# 1. Comprovantes: por servidor, o que foi lido e a conferência. #}
   <section class="secao" id="comprovantes" aria-labelledby="t-comprovantes">
@@ -24,7 +22,7 @@ ofício e com a do RT; "Usar no comprovante" grava valor, data e operação lido
     </div>
     <div class="pilha">
     {% for s in servidores %}{% with ps=s.ps %}
-      <article class="cartao" id="ps-{{ ps.pk }}" aria-labelledby="t-ps-{{ ps.pk }}">
+      <article class="cartao{% if servidor_atual and ps.pk == servidor_atual.ps.pk %} cartao--destaque{% endif %}" id="ps-{{ ps.pk }}" aria-labelledby="t-ps-{{ ps.pk }}">
         <div class="cartao__cabecalho">
           <span class="avatar" aria-hidden="true">{{ ps.servidor.iniciais }}</span>
           <div class="pessoa__texto"><h3 class="pessoa__nome" id="t-ps-{{ ps.pk }}">{{ ps.servidor.nome }}</h3>
@@ -68,7 +66,7 @@ ofício e com a do RT; "Usar no comprovante" grava valor, data e operação lido
             {% endif %}
           </div>
         {% empty %}
-          <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}#ps-{{ ps.pk }}">Anexar em Documentos</a>.</p>
+          <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}">Anexar em Documentos</a>.</p>
         {% endfor %}
         </div>
       </article>
@@ -89,7 +87,7 @@ ofício e com a do RT; "Usar no comprovante" grava valor, data e operação lido
       <article class="cartao" aria-labelledby="t-rt-{{ ps.pk }}">
         <div class="cartao__cabecalho"><span class="avatar" aria-hidden="true">{{ ps.servidor.iniciais }}</span><div class="pessoa__texto"><h3 class="pessoa__nome" id="t-rt-{{ ps.pk }}">{{ ps.servidor.nome }}</h3>{% if c %}<p class="pessoa__meta">{% icone "file-pen-line" classe="icone--sm" %}<a href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{{ c.titulo }}</a></p>{% endif %}</div></div>
         <div class="cartao__corpo pilha">
-          {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}#ps-{{ ps.pk }}">Anexar em Documentos</a>.</p>
+          {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}">Anexar em Documentos</a>.</p>
           {% elif not c.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
           {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=c prefixo="rt" %}{% endif %}
         </div>
@@ -104,19 +102,16 @@ ofício e com a do RT; "Usar no comprovante" grava valor, data e operação lido
       <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">3</span>Diário de bordo assinado</h2>
       <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado.</p>
     </div>
-    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}#db_assinado">Anexar em Documentos</a>.</p>
+    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}#db_assinado">Anexar em Documentos</a>.</p>
     {% elif not diario.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ diario.aviso }}</span></p>
     {% else %}<div class="cartao"><div class="cartao__corpo pilha"><p class="texto-sm">{% icone "gauge" classe="icone--sm" %}<a href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{{ diario.titulo }}</a></p>{% include "viagens/prestacao/_leitura_campos.html" with c=diario prefixo="db" %}</div></div>{% endif %}
   </section>
 </div>
 
-</div>
-{% include "viagens/prestacao/_lateral.html" %}
-</div>
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" role="status">{% icone "scan-text" classe="icone--sm" %}<span>{{ lidos|pluralizar:"documento lido,documentos lidos" }}. Nada é gravado ao abrir esta página.</span></div>
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:documentos_prestacao' p.pk %}">Voltar: documentos</a>
-  <a class="botao botao--primario" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">Concluir: voltar à lista{% icone "arrow-right" %}</a></div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar aos documentos</a>
+  {% include "viagens/prestacao/_acao_leitura.html" %}</div>
 </div>
 {% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

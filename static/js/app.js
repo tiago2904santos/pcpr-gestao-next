@@ -15,6 +15,8 @@ import "./componentes/acao.js";
 /** @type {Array<[string, () => Promise<unknown>]>} */
 const sobDemanda = [
   ["[data-copiar-alvo]", () => import("./componentes/copiar.js")],
+  ["iframe[data-previa-documento]", () => import("./componentes/previa-documento.js")],
+  ["[data-preencher-distancias]", () => import("./componentes/diario-distancias.js")],
   ["#conferencia, .prontidao-documental", () => import("./componentes/conferencia.js")],
   ["pc-combobox", () => import("./componentes/combobox.js")],
   ["pc-abas", () => import("./componentes/abas.js")],

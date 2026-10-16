@@ -317,21 +317,16 @@ def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
     _anexar_documentos(c, a)
     _anexar_documentos(c, b)
     op = _cliente(c, "operador")
-    with django_assert_max_num_queries(30):
+    with django_assert_max_num_queries(40):
         r = op.get(reverse("viagens:prestacoes"))
     html = r.content.decode()
     assert r.status_code == 200
-    # A lista é uma linha por equipe, como a das viagens: leva à folha da equipe.
-    equipe = reverse("viagens:prestacao_equipe", args=[a.prestacao_id])
-    assert f'href="{equipe}"' in html and f'id="ps-{a.pk}-numero"' not in html
-    # Os cartões (um formulário por servidor) moram na folha da equipe.
-    with django_assert_max_num_queries(40):
-        r = op.get(equipe)
-    html = r.content.decode()
-    assert r.status_code == 200
+    # Um bloco por ofício e uma linha por servidor, com a solicitação e o prazo de saque
+    # gravando na própria lista (como o sistema modelo).
     assert a.servidor.nome in html and b.servidor.nome in html
-    assert f'id="ps-{a.pk}-numero"' in html
+    assert f'id="ps-{a.pk}-numero"' in html and f'id="ps-{a.pk}-saque"' in html
     assert reverse("viagens:autosave_prestacao", args=[a.pk]) in html
+    assert f'id="equipe-{a.prestacao_id}"' in html
     # Autosave do cartão (contrato do autosave.js).
     r = op.post(reverse("viagens:autosave_prestacao", args=[a.pk]),
                 {"numero": "2026/0099", "liberacao": "06/01/2030", "prazo": "09/01/2030"})
@@ -422,14 +417,40 @@ def test_estado_da_equipe_independe_do_recorte(c):
     assert not bloco["reabrivel"] and not bloco["por_enviar"]
 
 
-def test_dialogos_de_envio_ficam_na_folha_da_equipe(c):
+def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
+    """A troca HTMX dos resultados leva os diálogos junto: eles moram em #resultados."""
+    from html.parser import HTMLParser
+
+    class Dialogos(HTMLParser):
+        profundidade = 0
+
+        def __init__(self):
+            super().__init__()
+            self.envios = []
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == "div" and (self.profundidade or attrs.get("id") == "resultados"):
+                self.profundidade += 1
+            if tag == "dialog" and attrs.get("id", "").startswith("envio-"):
+                self.envios.append(self.profundidade > 0)
+
+        def handle_endtag(self, tag):
+            if tag == "div" and self.profundidade:
+                self.profundidade -= 1
+
     a, _ = _linhas(c)
     PrestacaoServidor.objects.filter(pk=a.pk).update(finalizada_em=timezone.now())
     op = _cliente(c, "operador")
-    assert 'id="envio-' not in op.get(reverse("viagens:prestacoes")).content.decode()
-    html = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id])).content.decode()
-    assert f'<dialog id="envio-{a.pk}"' in html
+    html = op.get(reverse("viagens:prestacoes")).content.decode()
+    parser = Dialogos()
+    parser.feed(html)
+    assert parser.envios and all(parser.envios)
     assert f'data-abrir-dialogo="envio-{a.pk}"' in html
+    # Nos documentos do servidor finalizado, o mesmo diálogo.
+    html = op.get(reverse("viagens:documentos_prestacao", args=[a.prestacao_id]),
+                  {"servidor": a.pk}).content.decode()
+    assert f'<dialog id="envio-{a.pk}"' in html
 
 
 def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
@@ -437,11 +458,11 @@ def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
     op = _cliente(c, "operador")
     r = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id]))
     assert r.status_code == 200
-    assert [e.titulo for e in r.context["etapas"]] == [
-        "Solicitações", "Diário de bordo", "Relatório técnico", "Documentos", "Finalização",
-        "Envio"]
-    assert r.context["etapas"][0].estado == "atual"  # ninguém tem o nº ainda
-    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "documentos"]
+    assert [e.titulo for e in r.context["etapas_folha"]] == [
+        "Diário de bordo", "Relatório técnico", "Documentos", "Leitura e conferência"]
+    assert all(e.estado == "pendente" for e in r.context["etapas_folha"])  # nada feito
+    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "documentos",
+                                                      "leitura"]
     conf = r.context["conferencia"]
     assert conf.total == 2 and not conf.pronta
     # Cada pendência leva aonde se resolve.

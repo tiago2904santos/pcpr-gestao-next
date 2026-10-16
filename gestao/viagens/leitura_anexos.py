@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 import re
 import shutil
-import subprocess
+import subprocess  # nosec B404 — só `pdftotext`, argumentos fixos
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
@@ -101,8 +101,9 @@ def _com_pdftotext(dados: bytes) -> str:
     if not programa:
         return ""
     try:
-        saida = subprocess.run([programa, "-layout", "-l", str(PAGINAS_LIDAS), "-", "-"],
-                               input=dados, capture_output=True, timeout=20, check=False)
+        saida = subprocess.run(  # noqa: S603  # nosec B603 — programa fixo, sem shell
+            [programa, "-layout", "-l", str(PAGINAS_LIDAS), "-", "-"],
+            input=dados, capture_output=True, timeout=20, check=False)
     except (OSError, subprocess.SubprocessError):
         return ""
     return saida.stdout.decode("utf-8", "replace") if saida.returncode == 0 else ""
@@ -186,7 +187,7 @@ def ler_comprovante(texto: str) -> dict:
     if rotulado:
         valor = _valor(rotulado.group(1))
     if valor is None and valores:
-        valor = max(valores)
+        valor = max(v for v in valores if v is not None)
     datas = [_data(f"{d}/{m}/{a}") for d, m, a in _RX_DATA.findall(texto)]
     datas = [d for d in datas if d]
     autorizacao = ""

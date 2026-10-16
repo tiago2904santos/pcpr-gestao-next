@@ -22,16 +22,11 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
       <label class="campo__rotulo" for="ps-{{ ps.pk }}-numero">Nº da solicitação</label>
       <input class="entrada" id="ps-{{ ps.pk }}-numero" name="numero" value="{{ ps.numero_solicitacao }}" maxlength="60" autocomplete="off" placeholder="0000000">
     </div>
-    <div class="prestacao-servidor__prazo" role="group" aria-label="Prazo de saque de {{ ps.servidor.nome }}">
-      <div class="campo prestacao-servidor__campo">
-        <label class="campo__rotulo" for="ps-{{ ps.pk }}-liberacao">Liberação das diárias</label>
-        <pc-data class="seletor"><input class="entrada" id="ps-{{ ps.pk }}-liberacao" name="liberacao" value="{{ ps.data_liberacao_diarias|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
-      </div>
-      <span class="prestacao-servidor__seta" aria-hidden="true">{% icone "arrow-right" classe="icone--sm" %}</span>
-      <div class="campo prestacao-servidor__campo">
-        <label class="campo__rotulo" for="ps-{{ ps.pk }}-prazo">Prazo limite de saque</label>
-        <pc-data class="seletor"><input class="entrada" id="ps-{{ ps.pk }}-prazo" name="prazo" value="{{ ps.prazo_limite_saque|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
-      </div>
+    <div class="campo prestacao-servidor__campo prestacao-servidor__campo--prazo">
+      <label class="campo__rotulo" for="ps-{{ ps.pk }}-saque">Prazo de saque</label>
+      {# Liberação → limite num campo só (pc-data data-periodo); os escondidos levam as datas ao formulário. #}
+      <pc-data class="seletor" data-periodo><input class="entrada" type="text" id="ps-{{ ps.pk }}-saque" value="{% if ps.data_liberacao_diarias %}{{ ps.data_liberacao_diarias|date:'d/m/Y' }}{% if ps.prazo_limite_saque %} a {{ ps.prazo_limite_saque|date:'d/m/Y' }}{% endif %}{% endif %}" placeholder="dd/mm/aaaa a dd/mm/aaaa" autocomplete="off" aria-describedby="ps-{{ ps.pk }}-saque-ajuda"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button><input type="hidden" id="ps-{{ ps.pk }}-liberacao" name="liberacao" value="{{ ps.data_liberacao_diarias|date:'d/m/Y' }}" data-periodo-de><input type="hidden" id="ps-{{ ps.pk }}-prazo" name="prazo" value="{{ ps.prazo_limite_saque|date:'d/m/Y' }}" data-periodo-ate></pc-data>
+      <span class="sr-only" id="ps-{{ ps.pk }}-saque-ajuda">Liberação das diárias e prazo limite de saque.</span>
     </div>
     {% endif %}
 
@@ -43,19 +38,17 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
         {% if l.feitos.rt == "assinado" %}<span class="feito" title="Relatório técnico assinado anexado">{% icone "check" %}Relatório</span>{% elif l.feitos.rt == "gerado" %}<span class="feito feito--gerado" title="Relatório preenchido; falta anexar o assinado">{% icone "file-text" %}Relatório gerado</span>{% endif %}
         {% if l.feitos.comprovante %}<span class="feito" title="Comprovante de saque/transferência anexado">{% icone "check" %}Comprovante{% if l.feitos.comprovante_valor %} <span class="feito__dado">{{ l.feitos.comprovante_valor|moeda }}</span>{% endif %}</span>{% endif %}
         {% if l.feitos.despacho %}<span class="feito" title="Despacho assinado do ofício anexado">{% icone "check" %}Despacho</span>{% endif %}
-        {% if ps.situacao == "enviada" %}<span class="selo selo--info selo--sem-ponto" title="Enviada em {{ ps.enviada_em|date:'d/m/Y' }}{% if ps.protocolo_envio %} · {{ ps.protocolo_envio }}{% endif %}">Enviada{% if aberta %}, aguardando decisão{% endif %}</span>
-        {% elif ps.situacao == "aprovada" %}<span class="selo selo--sucesso selo--sem-ponto">Aprovada</span>
-        {% elif ps.situacao == "devolvida" %}<span class="selo selo--perigo selo--sem-ponto">Devolvida</span>
-        {% elif ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}
+        <span class="selo selo--{{ l.situacao.1 }} selo--sem-ponto"{% if ps.enviada_em %} title="Enviada em {{ ps.enviada_em|date:'d/m/Y' }}{% if ps.protocolo_envio %} · {{ ps.protocolo_envio }}{% endif %}"{% endif %}>{{ l.situacao.0 }}</span>
         {% if ps.arquivada %}<span class="selo selo--neutro selo--sem-ponto">Arquivada</span>{% endif %}
         {% for s in l.selos %}<span class="selo {% if s.tom == 'vencido' %}selo--perigo{% elif s.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %} selo--sem-ponto" title="{{ s.detalhe }}">{{ s.texto }}</span>{% endfor %}
       </span>
       <span class="prestacao-servidor__info" id="nota-ps-{{ ps.pk }}" data-vivo>
-        {% if ps.servidor.cargo %}<span>{{ ps.servidor.cargo }}</span>{% endif %}
-        <span>{% if not l.diaria %}Diária ainda não calculada{% elif ps.data_liberacao_diarias %}Diária liberada <strong>{{ l.diaria|moeda }}</strong>{% else %}Diária prevista <strong>{{ l.diaria|moeda }}</strong>{% endif %}</span>
+        <span>{{ ps.servidor.cargo|default:"Sem cargo" }}</span>
+        <span>CPF {{ ps.servidor.cpf_formatado|default:"—" }}</span>
+        <span>{{ ps.servidor.telefone_formatado|default:"Sem telefone" }}</span>
+        {% if l.diaria and l.diaria != b.por_servidor %}<span>Diária <strong>{{ l.diaria|moeda }}</strong></span>{% endif %}
         {% if l.prestar_ate and not ps.finalizada %}<span>{% icone "clock" classe="icone--sm" %}Prestar contas até <strong>{{ l.prestar_ate|date:"d/m/Y" }}</strong></span>{% endif %}
         {% if ps.protocolo_envio %}<span>Protocolo do envio {{ ps.protocolo_envio }}</span>{% endif %}
-        {% if l.pendencias_links and not ps.finalizada %}{% include "componentes/linha_pendencias.html" with pendencias=l.pendencias_links url=l.url_pendencias titulo="Falta para finalizar" %}{% endif %}
       </span>
     </div>
 

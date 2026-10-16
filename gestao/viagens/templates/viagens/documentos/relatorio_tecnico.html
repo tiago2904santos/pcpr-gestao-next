@@ -9,7 +9,7 @@ referência ao ofício e local/data na mesma linha; tabela do servidor; tabela d
 usados — diária, translado, combustível, passagem; as seções do relato; a linha de assinatura
 com o CPF). Dados em relatorio.dados_do_documento.
 {% endcomment %}
-<style>
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
   @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
   @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
   @page { size: A4; margin: 18mm 20mm 24mm 20mm; @bottom-center { content: element(rodape); } }

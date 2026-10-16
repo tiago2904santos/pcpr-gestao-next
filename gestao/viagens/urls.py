@@ -92,6 +92,8 @@ urlpatterns = [
          name="motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/realizada/<str:acao>/",
          views_diario.viagem_realizada, name="viagem_realizada"),
+    path("prestacoes/equipe/<int:pk>/diario/folha/", views_diario.folha_documento,
+         name="folha_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
     path("prestacoes/equipe/<int:pk>/documentos/", views_anexos.folha,
@@ -115,6 +117,8 @@ urlpatterns = [
          name="autosave_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/sugerir/<str:campo>/", views_relatorio.sugerir,
          name="sugerir_relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/folha/",
+         views_relatorio.folha_documento, name="folha_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/<str:formato>/",
          views_relatorio.documento, name="documento_relatorio"),
     # Depois das rotas literais do diário e do RT: <acao> capturaria "diario".

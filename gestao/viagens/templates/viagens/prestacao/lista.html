@@ -1,7 +1,7 @@
 {% extends "arquetipos/lista.html" %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block titulo %}Prestação de contas{% endblock %}
-{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block classe_conteudo %}pagina--documental pagina--prestacoes colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestação de contas" complemento="Da solicitação ao envio. Confira e prepare cada equipe." %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
@@ -37,9 +37,9 @@ servidor na linha, as da equipe no cabeçalho. Os diálogos de envio moram em #r
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-prestacoes" type="search" name="q" value="{{ busca }}" placeholder="Servidor, ofício, protocolo…" autocomplete="off"></div>
   </div>
   {# "Pedem atenção" no desenho do filtro Documento dos Ofícios: rótulo na borda e atalhos em segmentado com contagem. #}
-  <div class="filtros__lado">
+  <div class="filtros__lado filtros__lado--flexivel">
   <div class="filtros__documento" role="group" aria-labelledby="atalhos-atencao-rotulo">
-    <span class="filtros__documento-rotulo" id="atalhos-atencao-rotulo">Pedem atenção</span>
+    <span class="filtros__documento-rotulo" id="atalhos-atencao-rotulo">Pendências</span>
     <nav class="segmentado segmentado--contagem" id="atalhos-atencao" aria-labelledby="atalhos-atencao-rotulo" data-rola-lado>
       {% for chave, rotulo in abas_atencao %}{% with n=contagens|get_item:chave %}
         <a href="?aba={{ chave }}{% if busca %}&amp;q={{ busca|urlencode }}{% endif %}"{% if chave in abas_selecionadas %} aria-current="page"{% endif %}>{{ rotulo }} <span class="segmentado__conta">{{ n }}</span></a>

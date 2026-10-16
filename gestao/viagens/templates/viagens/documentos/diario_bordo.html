@@ -8,7 +8,7 @@ Diário de bordo da viatura (paridade com o documento da referência: cabeçalho
 protocolo do motorista, viatura, placa, combustível, motorista e CPF; uma linha por trecho com
 datas, horas, km e necessidade de abastecimento). Dados em diario.dados_do_documento.
 {% endcomment %}
-<style>
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
   @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
   @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
   @page { size: A4 landscape; margin: 14mm 14mm 18mm 14mm; @bottom-center { content: element(rodape); } }

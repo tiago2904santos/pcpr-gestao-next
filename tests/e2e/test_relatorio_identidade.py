@@ -1,4 +1,4 @@
-"""Relato legível e conclusão que preserva a gravação pendente."""
+"""Relato legível e "Salvar e continuar" que preserva a gravação pendente."""
 
 import re
 
@@ -11,12 +11,13 @@ pytestmark = pytest.mark.e2e
 
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
-def test_relato_conclusao_e_valores_individuais(logado, dados_e2e, largura):
+def test_relato_continuar_e_valores_individuais(logado, dados_e2e, largura):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 600})
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/relatorio/")
-    expect(pg.get_by_role("heading", level=1)).to_contain_text("Relatório técnico")
+    expect(pg.get_by_role("heading", level=1)).to_have_count(1)  # o servidor da folha
+    expect(pg.get_by_role("heading", name="Relatório técnico", exact=True)).to_be_visible()
     linha = pg.locator("#diarias .registro-valor").first
     valor = linha.get_by_label(re.compile("Valor recebido"))
     expect(valor).to_be_visible()
@@ -27,10 +28,10 @@ def test_relato_conclusao_e_valores_individuais(logado, dados_e2e, largura):
     expect(pg.locator("[data-status-salvamento]")).to_be_visible()
     texto = "Relato salvo antes de sair pelo teclado."
     pg.get_by_label("Objetivo da participação").fill(texto)
-    # Não aguarda o anúncio de autosave: Finalizar precisa coordenar a gravação.
-    pg.get_by_role("button", name="Finalizar", exact=True).focus()
+    # Não aguarda o anúncio de autosave: continuar precisa coordenar a gravação.
+    pg.get_by_role("button", name="Salvar e continuar").last.focus()
     pg.keyboard.press("Enter")
-    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/\??$"))
+    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/documentos/\?servidor=\d+$"))
     assert RelatorioTecnico.objects.get(prestacao=p).atividade == texto
     assert not p.servidores.filter(finalizada_em__isnull=False).exists()
     assert pg.erros_console == []

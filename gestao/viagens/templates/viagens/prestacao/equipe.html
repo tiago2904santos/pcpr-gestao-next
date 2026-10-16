@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}Prestação de contas · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Folha da prestação de uma equipe, organizada como a da viagem (cabeçalho, seções numeradas,
-barra de ações) e com as etapas no topo, como a solicitação de evento:
+Visão da equipe (ADR 0042): cabeçalho, a barra das etapas (diário → relatório → documentos →
+leitura) e as seções numeradas:
 1 Servidores — um cartão por servidor (nº da solicitação, liberação e prazo gravam sozinhos;
   finalizar, arquivar, registrar envio, aprovar e devolver); os ids, formulários e regiões
   vivas são os da lista antiga (autosave.js);
@@ -19,10 +19,7 @@ No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e
 {% with titulo_hero=b.destinos|default:"Sem destino informado" %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo=titulo_hero situacao_template="viagens/prestacao/_situacao_equipe.html" complemento_template="viagens/prestacao/_cabecalho_equipe.html" acoes_template="viagens/prestacao/_acoes_equipe.html" %}
 {% endwith %}
-<ol class="etapas-progresso mt-4 mb-4" aria-label="Etapas da prestação">
-  {% for e in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ e.estado }}"{% if e.estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if e.estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ e.titulo }}</span></li>{% endfor %}
-</ol>
-{% include "viagens/prestacao/_abas.html" with atual="equipe" %}
+<div class="mt-4">{% include "viagens/prestacao/_etapas.html" %}</div>
 
 {% if b.todas_finalizadas %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Todos finalizados: o diário, o relatório e os documentos da equipe estão travados. Reabra para editar.</p></div></div>
@@ -37,7 +34,7 @@ No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e
       <p class="secao__nota">Número da solicitação, liberação das diárias e prazo de saque de cada servidor. Grava sozinho; as ações levam o que está digitado.</p>
     </div>
     {% if linhas %}
-    <ul class="registros grade grade--2" aria-labelledby="t-servidores">
+    <ul class="prestacao-equipe__servidores" aria-labelledby="t-servidores">
       {% for l in linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
     </ul>
     {% else %}

@@ -161,8 +161,24 @@ ABAS = [
     ("devolvidas", "Devolvidas"), ("arquivados", "Arquivados"),
     ("finalizados", "Finalizados"), ("saque_vencendo", "Saque vencendo"),
     ("prestacao_vencida", "Prestação vencida"),
-    ("sem_solicitacao", "Sem nº de solicitação"), ("finalizadas_mes", "Finalizadas no mês"),
+    # Pendências (referência): para cobrar em lote — e o número do mês.
+    ("sem_solicitacao", "Sem solicitação"), ("sem_despacho", "Sem despacho"),
+    ("sem_comprovante", "Sem comprovante"), ("comprovante_diferente", "Valor ≠ diária"),
+    ("finalizadas_mes", "Finalizadas no mês"),
 ]
+PENDENCIAS = {"sem_solicitacao", "sem_despacho", "sem_comprovante", "comprovante_diferente",
+              "finalizadas_mes"}
+
+
+def _anexo_ativo(tipo: str, do_servidor: bool):
+    from .models import AnexoPrestacao
+    filtro = {"tipo": tipo, "removido_em__isnull": True}
+    if do_servidor:
+        filtro["servidor_id"] = OuterRef("pk")
+    else:
+        filtro["prestacao_id"] = OuterRef("prestacao_id")
+        filtro["servidor__isnull"] = True
+    return Exists(AnexoPrestacao.objects.filter(**filtro))
 
 
 def _pendente_na_prestacao():
@@ -197,6 +213,18 @@ def filtrar(qs: QuerySet[PrestacaoServidor], aba: str, hoje: date | None = None)
         return qs.filter(pk__in=ids)
     if aba == "sem_solicitacao":
         return qs.filter(aberto, numero_solicitacao="")
+    if aba == "sem_despacho":
+        return qs.filter(aberto).annotate(_tem=_anexo_ativo("despacho", False)).filter(_tem=False)
+    if aba == "sem_comprovante":
+        return qs.filter(aberto).annotate(_tem=_anexo_ativo("comprovante", True)).filter(_tem=False)
+    if aba == "comprovante_diferente":
+        from . import anexos
+        com = list(qs.filter(aberto).annotate(_tem=_anexo_ativo("comprovante", True))
+                   .filter(_tem=True).select_related("prestacao__oficio"))
+        s = anexos.situacao({ps.prestacao_id for ps in com})
+        ids = [ps.pk for ps in com
+               if anexos.divergencia(ps, s.comprovantes.get(ps.pk, []), diaria_liberada(ps))]
+        return qs.filter(pk__in=ids)
     if aba == "finalizadas_mes":
         return qs.filter(finalizada_em__year=hoje.year, finalizada_em__month=hoje.month)
     return qs

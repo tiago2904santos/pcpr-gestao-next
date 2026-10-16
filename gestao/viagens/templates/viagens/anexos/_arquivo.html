@@ -1,0 +1,22 @@
+{% comment %}Um arquivo anexado, como pílula: abrir, baixar, remover; o comprovante mostra valor · data · operação e deixa corrigir. Contexto: `a`, `editavel`, `operacoes`.{% endcomment %}
+<li class="prestacao-doc__arquivo">
+  {% if a.tipo == "comprovante" %}{% icone "receipt" classe="icone--sm" %}{% else %}{% icone "file-signature" classe="icone--sm" %}{% endif %}
+  <a href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener" title="{{ a.nome_original|default:a.get_tipo_display }} · {{ a.enviado_em|date:'d/m/Y H:i' }} · {{ a.tamanho|filesizeformat }}">{{ a.nome_original|default:a.get_tipo_display }}</a>
+  {% if a.tipo == "comprovante" %}<span class="texto-secundario">{% if a.valor %}{{ a.valor|moeda }}{% else %}sem valor{% endif %}{% if a.data_operacao %} · {{ a.data_operacao|date:"d/m/Y" }}{% endif %}{% if a.operacao %} · {{ a.get_operacao_display }}{% endif %}</span>{% endif %}
+  <a class="botao botao--icone botao--sutil botao--sm" href="{% url 'viagens:abrir_anexo' a.pk %}?baixar=1">{% icone "download" classe="icone--sm" %}<span class="sr-only">Baixar {{ a.nome_original|default:a.get_tipo_display }}</span></a>
+  {% if editavel and a.tipo == "comprovante" %}<button type="button" class="botao botao--icone botao--sutil botao--sm" data-abrir-dialogo="corrigir-{{ a.pk }}">{% icone "pencil" classe="icone--sm" %}<span class="sr-only">Corrigir valor, data ou operação de {{ a.nome_original }}</span></button>
+  <dialog id="corrigir-{{ a.pk }}" class="dialogo" aria-labelledby="corrigir-{{ a.pk }}-titulo">
+    <form method="post" action="{% url 'viagens:acao_anexo' a.pk 'comprovante' %}" novalidate>
+      {% csrf_token %}<input type="hidden" name="servidor_atual" value="{{ a.servidor_id }}">
+      <div class="dialogo__cabecalho"><h2 class="dialogo__titulo" id="corrigir-{{ a.pk }}-titulo">Corrigir o comprovante</h2></div>
+      <div class="dialogo__corpo pilha">
+        <p class="texto-secundario texto-sm">{{ a.nome_original }} — o arquivo não muda; só o valor, a data e a operação.</p>
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-valor">Valor</label><input class="entrada" id="a{{ a.pk }}-valor" name="valor" value="{% if a.valor %}{{ a.valor|moeda }}{% endif %}" inputmode="decimal" autocomplete="off"></div>
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-data">Data da operação</label><input class="entrada" id="a{{ a.pk }}-data" name="data_operacao" value="{{ a.data_operacao|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" data-mascara="data" autocomplete="off"></div>
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-operacao">Operação</label><pc-select class="seletor"><select class="selecao" id="a{{ a.pk }}-operacao" name="operacao"><option value="">—</option>{% for v, r in operacoes %}<option value="{{ v }}"{% if a.operacao == v %} selected{% endif %}>{{ r }}</option>{% endfor %}</select></pc-select></div>
+      </div>
+      <div class="dialogo__rodape"><button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar</button></div>
+    </form>
+  </dialog>{% endif %}
+  {% if editavel %}<form method="post" action="{% url 'viagens:acao_anexo' a.pk 'remover' %}" data-confirmar="O arquivo fica 30 dias em versões anteriores e pode voltar." data-confirmar-titulo="Remover {{ a.nome_original|default:a.get_tipo_display }}?" data-confirmar-rotulo="Remover">{% csrf_token %}<input type="hidden" name="servidor_atual" value="{{ a.servidor_id|default:'' }}"><button type="submit" class="botao botao--icone botao--sutil botao--sm">{% icone "trash-2" classe="icone--sm" %}<span class="sr-only">Remover {{ a.nome_original|default:a.get_tipo_display }}</span></button></form>{% endif %}
+</li>

@@ -13,12 +13,12 @@ from django.views.decorators.http import require_GET, require_POST
 
 from gestao.cadastros import policies as politicas_cadastros
 
-from . import views_prestacao
-from . import diario, policies, relatorio
+from . import diario, policies, relatorio, views_prestacao
 from . import prestacao as servico
 from .dominio import relatorio as dominio
 from .models import PrestacaoContas, PrestacaoServidor, RelatorioTecnico
 from .views import _migalhas
+from .views_editor import moldura_da_folha, resposta_de_folha
 
 
 def _prestacao(request: HttpRequest, pk: int) -> PrestacaoContas:
@@ -147,3 +147,21 @@ def documento(request: HttpRequest, pk: int, ps_pk: int, formato: str) -> HttpRe
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
         resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
     return resposta
+
+
+@require_GET
+@moldura_da_folha
+def folha_documento(request: HttpRequest, pk: int, ps_pk: int) -> HttpResponse:
+    """O RT de um servidor como sai (HTML), para a prévia embutida na folha; só leitura."""
+    from django.template.loader import render_to_string
+
+    from .documentos.pdf import _recursos
+    p = _prestacao(request, pk)
+    ps = get_object_or_404(servico.ativos(PrestacaoServidor.objects.select_related("servidor")),
+                           pk=ps_pk, prestacao=p)
+    rt = (relatorio.obter(p) if diario.pode_editar(request.user, p)
+          else get_object_or_404(RelatorioTecnico, prestacao=p))
+    return resposta_de_folha(request, lambda nonce: render_to_string(
+        "viagens/documentos/relatorio_tecnico.html",
+        {"d": relatorio.dados_do_documento(rt, ps), "folha": True, "nonce": nonce,
+         **_recursos(True)}))

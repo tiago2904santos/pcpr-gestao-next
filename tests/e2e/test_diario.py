@@ -4,8 +4,6 @@ diário (os campos do modo aparecem ao marcar)."""
 
 from __future__ import annotations
 
-import re
-
 import pytest
 from playwright.sync_api import expect
 
@@ -18,9 +16,9 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.goto("/viagens/prestacoes/")
-    pg.locator(f"#equipe-{p.pk} .registro__link").click()  # a folha da equipe
-    pg.locator("#folhas").get_by_role("link", name=re.compile("^Diário de bordo")).click()
-    expect(pg.get_by_role("heading", name="Trechos")).to_be_visible()
+    pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
+    pg.get_by_role("menuitem", name="1 · Diário de bordo").click()
+    expect(pg.get_by_role("heading", name="Diário de bordo", exact=True)).to_be_visible()
     d = DiarioBordo.objects.get(prestacao=p)
     a, b = d.linhas.order_by("ordem")
     pg.locator(f"#l-{a.pk}-km_inicial").fill("10000")
@@ -33,12 +31,13 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     assert (a.km_inicial, a.km_final) == (10000, 10400)
 
     # Viatura à mão: os campos do modo aparecem só ao marcar.
+    pg.locator("#motorista > summary").click()
     expect(pg.get_by_label("Modelo", exact=True)).to_be_hidden()
     pg.get_by_text("Preencher à mão").click()
     pg.get_by_label("Modelo", exact=True).fill("Hilux")
     pg.get_by_role("button", name="Aplicar motorista e viatura").click()
     expect(pg.locator(".toast").first).to_contain_text("o ofício não muda")
-    expect(pg.locator("#motorista")).to_contain_text("Trocado só neste diário")
+    expect(pg.locator("#motorista")).to_contain_text("trocado só neste diário")
 
 
 def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
@@ -47,6 +46,7 @@ def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+    pg.locator("#realizada > summary").click()
     pg.get_by_role("button", name="Ajustar horários do que aconteceu").click()
     expect(pg.locator("#realizada")).to_contain_text("Ajustada")
     volta = p.trechos_realizados.order_by("-ordem").first()
