@@ -19,6 +19,7 @@ from gestao.cadastros.models import Viatura
 from gestao.cadastros.validacoes import formatar_cpf
 
 from . import diario, policies, realizado, views_prestacao
+from .dominio.diario import comparar_rodado
 from .dominio.diario import km as dominio_km
 from .models import DiarioBordo, PrestacaoContas
 from .views import _migalhas
@@ -60,13 +61,19 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     def km(valor):
         return dominio_km(valor) if valor is not None else ""
 
-    linhas = [{"l": linha, "rota": diario.rota(linha), "prevista": diario.prevista(linha),
-               "origem": diario.rota(linha).split(" → ")[0],
-               "destino": diario.rota(linha).split(" → ")[-1],
-               "rodado": conf.rodados[i] if conf else None,
-               "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
-               "fonte": diario.fonte(linha)}
-              for i, linha in enumerate(lista)]
+    def item(i, linha):
+        prevista, rodado = diario.prevista(linha), conf.rodados[i] if conf else None
+        situacao, diferenca = comparar_rodado(rodado, prevista)
+        return {"l": linha, "rota": diario.rota(linha), "prevista": prevista,
+                "origem": diario.rota(linha).split(" → ")[0],
+                "destino": diario.rota(linha).split(" → ")[-1],
+                "rodado": km(rodado), "situacao": situacao,
+                "diferenca": (f"{'+' if diferenca > 0 else '−'}{dominio_km(abs(diferenca))}"
+                              if diferenca else ""),
+                "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
+                "fonte": diario.fonte(linha)}
+
+    linhas = [item(i, linha) for i, linha in enumerate(lista)]
     preenchidas = sum(1 for linha in lista
                       if linha.km_inicial is not None and linha.km_final is not None)
     realizados = realizado.trechos(p)

@@ -76,17 +76,28 @@
 .recurso-diario__atual--vazio .pessoa__nome { color: var(--cor-texto-secundario); font-weight: var(--peso-medio); }
 
 /* Diário de bordo · trechos e horários realizados com os cartões de trecho do ofício
-   (itin--operacional): só as colunas mudam — km inicial, km final, abastecimento e o rodado
-   (no lugar da chegada calculada); nos horários, saída e chegada realizadas. */
-@media (max-width: 1279px) {
+   (itin--operacional): só as colunas mudam — km inicial, km final e abastecimento; o rodado
+   desce para o cartão do trecho, embaixo da rota, comparado ao previsto. Nos horários,
+   saída e chegada realizadas. */
+.diario-itin .itin__trecho-cabecalho:has(.diario-rodado) { grid-template-areas: "numero etapa km" "numero rota rota" "numero rodado rodado"; }
+.diario-rodado { grid-area: rodado; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); margin: var(--esp-1) 0 0; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.diario-rodado .icone { flex: none; }
+.diario-rodado strong { font-weight: var(--peso-forte); color: var(--cor-texto); }
+.diario-rodado__comparacao { padding-left: var(--esp-2); border-left: var(--borda-sutil); }
+.diario-rodado--vazio { color: var(--cor-texto-terciario); }
+.diario-rodado--conforme .icone, .diario-rodado--conforme .diario-rodado__comparacao { color: var(--cor-sucesso); }
+.diario-rodado--fora .icone, .diario-rodado--fora .diario-rodado__comparacao { color: var(--cor-aviso); }
+.diario-rodado--invalido { color: var(--cor-perigo); }
+@media (max-width: 767px) {
   .diario-itin .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .diario-itin .itin__tempos > .campo:nth-child(3):last-child { grid-column: 1 / -1; }
 }
 @media (min-width: 768px) and (max-width: 1279px) {
-  .diario-itin .itin__tempos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .diario-itin .itin__tempos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1280px) {
-  .itin.diario-itin { --trechos-colunas: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1fr); }
+  .itin.diario-itin { --trechos-colunas: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr); }
   .itin.diario-itin .diario-realizada { --trechos-colunas: minmax(0, 2fr) minmax(0, 1.6fr) minmax(0, 1.6fr); }
 }
 .diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }

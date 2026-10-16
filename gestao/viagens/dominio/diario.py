@@ -21,6 +21,21 @@ def tolerancia_km(prevista: int) -> int:
     return max(TOLERANCIA_KM_MINIMA, (prevista * TOLERANCIA_KM_PERCENTUAL + 99) // 100)
 
 
+def comparar_rodado(rodado: int | None, prevista: int | None) -> tuple[str, int | None]:
+    """O rodado de um trecho frente à distância prevista → (situação, diferença em km).
+
+    Situações: "vazio" (km a preencher), "invalido" (o hodômetro voltou), "sem_previsao",
+    "conforme" (dentro da tolerância) ou "fora" (além dela, a conferência avisa)."""
+    if rodado is None:
+        return "vazio", None
+    if rodado < 0:
+        return "invalido", None
+    if not prevista:
+        return "sem_previsao", None
+    diferenca = rodado - prevista
+    return ("fora" if abs(diferenca) > tolerancia_km(prevista) else "conforme"), diferenca
+
+
 def km(valor: int) -> str:
     """1234 → "1.234"."""
     return f"{int(valor):,}".replace(",", ".")
