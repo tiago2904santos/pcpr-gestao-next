@@ -17,7 +17,7 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
     <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
     {% if aberta and not ps.finalizada and not ps.arquivada %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar</button>{% endif %}
 
-    <span class="avatar{% if l.motorista %} avatar--escuro{% endif %}" aria-hidden="true" title="{% if l.motorista %}Motorista do ofício{% endif %}">{% if l.motorista %}{% icone "car" classe="icone--sm" %}{% else %}{{ ps.servidor.iniciais }}{% endif %}</span>
+    <span class="avatar{% if l.motorista %} avatar--escuro{% endif %}" aria-hidden="true"{% if l.motorista %} title="Motorista do ofício"{% endif %}>{% if l.motorista %}{% icone "car" classe="icone--sm" %}{% else %}{{ ps.servidor.iniciais }}{% endif %}</span>
 
     <div class="registro__corpo">
       <div class="registro__titulo" id="estado-ps-{{ ps.pk }}" data-vivo>
@@ -36,7 +36,7 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
       <div class="registro__meta" id="nota-ps-{{ ps.pk }}" data-vivo>
         <span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.cargo|default:"Sem cargo" }}</span></span>
         <span class="registro__meta-item">{% icone "id-card" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.cpf_formatado|default:"sem CPF" }}</span></span>
-        <span class="registro__meta-item{% if not ps.servidor.telefone %} registro__meta-item--vazio{% endif %}">{% icone "phone" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.telefone_formatado|default:"sem telefone" }}</span></span>
+        <span class="registro__meta-item">{% icone "phone" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.telefone_formatado|default:"sem telefone" }}</span></span>
         {% if l.diaria and l.diaria != b.por_servidor %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Diária {{ l.diaria|moeda }}</span></span>{% endif %}
         {% if l.prestar_ate and not ps.finalizada %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar contas até <strong>{{ l.prestar_ate|date:"d/m/Y" }}</strong></span></span>{% endif %}
         {% if ps.protocolo_envio %}<span class="registro__meta-item">{% icone "send" classe="icone--sm" %}<span class="registro__meta-texto">Envio {{ ps.protocolo_envio }}</span></span>{% endif %}

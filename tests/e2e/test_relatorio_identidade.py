@@ -16,8 +16,8 @@ def test_relato_continuar_e_valores_individuais(logado, dados_e2e, largura):
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 600})
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/relatorio/")
-    expect(pg.get_by_role("heading", level=1)).to_have_count(1)  # o servidor da folha
-    expect(pg.get_by_role("heading", name="Relatório técnico", exact=True)).to_be_visible()
+    expect(pg.get_by_role("heading", level=1)).to_have_count(1)
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Relatório técnico")
     linha = pg.locator("#diarias .registro-valor").first
     valor = linha.get_by_label(re.compile("Valor recebido"))
     expect(valor).to_be_visible()

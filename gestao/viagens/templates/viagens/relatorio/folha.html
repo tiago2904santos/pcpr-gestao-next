@@ -70,7 +70,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
     {% endif %}
 
     {% for c in campos %}
-    <div class="secao__bloco" id="grupo-{{ c.nome }}" aria-labelledby="t-{{ c.nome }}">
+    <div class="secao__bloco" id="grupo-{{ c.nome }}">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-{{ c.nome }}">{% icone "file-pen-line" classe="icone--sm" %}{{ c.rotulo }}{% if c.obrigatorio %} <span class="texto-terciario texto-xs">(para finalizar)</span>{% endif %}</h3>
         <div class="secao__estado">{% if editavel and c.nome in sugeriveis %}<button type="button" class="botao botao--sm botao--sutil" data-sugerir="{% url 'viagens:sugerir_relatorio' p.pk c.nome %}" data-alvo="rt-{{ c.nome }}" data-form="form-rt">{% icone "text-quote" %}Sugerir texto<span class="sr-only"> para {{ c.rotulo|lower }}</span></button>{% endif %}</div>

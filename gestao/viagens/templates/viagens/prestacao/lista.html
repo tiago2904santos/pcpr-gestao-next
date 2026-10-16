@@ -63,10 +63,11 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
   {% for b in blocos %}{% with p=b.p o=b.p.oficio %}
   <li class="registro registro-operacional registro--prestacao{% if b.todas_finalizadas %} registro--fechado{% endif %}" id="equipe-{{ p.pk }}">
     {# A mesma linha operacional do ofício: placa (abre o resumo), destinos, situação da equipe, período e protocolo, equipe e viatura, diárias, ⋮. #}
-    <a class="placa" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML" aria-label="Resumo do {{ o }}">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True only %}</a>
+    <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado compacta=True only %}</div>
     <div class="registro__corpo">
       <div class="registro__titulo">
-        <a class="registro__link" href="{{ b.url }}" id="equipe-{{ p.pk }}-titulo"><span class="sr-only">Prestação do {{ o }} · </span><span class="registro__link-texto">{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</span></a>
+        {# Como na lista de ofícios: clicar abre o resumo do ofício numa janela; sem JavaScript, vai para a visão da equipe. #}
+        <a class="registro__link" href="{{ b.url }}" id="equipe-{{ p.pk }}-titulo" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML"><span class="sr-only">Resumo do {{ o }} · </span><span class="registro__link-texto">{% if b.destinos %}{{ b.destinos }}{% else %}Sem destino informado{% endif %}</span></a>
         {% include "viagens/prestacao/_situacao_equipe.html" %}
       </div>
       <div class="registro__agenda">

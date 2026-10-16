@@ -98,8 +98,9 @@ def test_filtros_combinados_exportacao_e_leitura(logado, dados_e2e):
     expect(pg.get_by_role("button", name="Finalizar", exact=True)).to_have_count(0)
     expect(pg.locator(f"#equipe-{a.prestacao_id} .registro__link")).to_be_visible()
     _axe_estavel(pg)
-    # Consulta: a visão da equipe sem campos nem ações de edição.
-    pg.locator(f"#equipe-{a.prestacao_id} .registro__link").click()
+    # Consulta: a visão da equipe (pelo ⋮) sem campos nem ações de edição.
+    pg.locator(f"#equipe-{a.prestacao_id}").get_by_role("button", name=re.compile("^Ações da prestação")).click()
+    pg.get_by_role("menuitem", name="Visão da equipe").click()
     expect(pg.locator('[id^="form-ps-"] input[name="numero"]')).to_have_count(0)
     expect(pg.locator("form[data-autosave]")).to_have_count(0)
     expect(pg.get_by_role("button", name="Finalizar equipe")).to_have_count(0)
@@ -144,7 +145,7 @@ def test_resumo_existente_e_trilha_das_folhas(logado, dados_e2e, largura):
     pg.goto("/viagens/prestacoes/")
     equipe = pg.locator(f"#equipe-{p.pk}")
     antes = list(PrestacaoServidor.objects.order_by("pk").values())
-    equipe.get_by_role("link", name=re.compile("^Resumo do")).click()
+    equipe.locator(".registro__link").click()  # o título abre o resumo, como na lista de ofícios
     dialogo = pg.locator("#dialogo-resumo")
     expect(dialogo).to_be_visible()
     expect(dialogo.locator(".registro-hero")).to_contain_text(p.oficio.numero_formatado)

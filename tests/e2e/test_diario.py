@@ -18,7 +18,7 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     pg.goto("/viagens/prestacoes/")
     pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
     pg.get_by_role("menuitem", name="1 · Diário de bordo").click()
-    expect(pg.get_by_role("heading", name="Diário de bordo", exact=True)).to_be_visible()
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Diário de bordo")
     d = DiarioBordo.objects.get(prestacao=p)
     a, b = d.linhas.order_by("ordem")
     pg.locator(f"#l-{a.pk}-km_inicial").fill("10000")

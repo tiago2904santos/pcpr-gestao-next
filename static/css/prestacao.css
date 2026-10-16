@@ -35,7 +35,6 @@
 .registro--servidor .registro__campo--prazo { width: 15.5rem; }
 .registro--servidor .registro__salvo { margin: var(--esp-1) 0 0; }
 .registro--servidor .registro__salvo:empty { display: none; }
-.registro--fechado > .registro__corpo-form > .avatar { opacity: 0.7; }
 /* Até 1023px: avatar e corpo na primeira faixa; os campos e as ações numa faixa inteira embaixo. */
 @media (max-width: 1023.98px) {
   .registro.registro--servidor { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "avatar corpo" "acoes acoes"; }

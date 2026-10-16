@@ -19,7 +19,7 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     pg.goto("/viagens/prestacoes/")
     pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
     pg.get_by_role("menuitem", name="2 · Relatório técnico").click()
-    expect(pg.get_by_role("heading", name="Relatório técnico", exact=True)).to_be_visible()
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Relatório técnico")
     pg.get_by_label("Objetivo da participação").fill("Atendimento ao público no evento.")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     assert RelatorioTecnico.objects.get(prestacao=p).atividade.startswith("Atendimento")
