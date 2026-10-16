@@ -16,6 +16,7 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
     <div class="secao__bloco-cabecalho">
       <h3 class="secao__bloco-titulo">{% icone "user" classe="icone--sm" %}Motorista</h3>
     </div>
+    <div class="recurso-diario__escolha">
     <div class="recurso-diario__campos">
       <div class="campo"><label class="campo__rotulo" for="motorista-modo">Motorista</label>
         <pc-select class="seletor"><select class="selecao" id="motorista-modo" name="motorista_modo">{% for valor, rotulo in d.Motorista.choices %}<option value="{{ valor }}"{% if d.motorista_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}O do ofício{% elif valor == 'servidor' %}Outro servidor da equipe{% else %}De outro ofício{% endif %}</option>{% endfor %}</select></pc-select></div>
@@ -26,12 +27,13 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
       <div class="modos__campos" data-modo="outro_oficio">
         <div class="campo campo--lg"><label class="campo__rotulo" for="oficio-do-motorista">Ofício do motorista</label>
           <pc-combobox class="combobox" data-fonte="{{ fonte_oficios }}?com_prestacao=1&amp;exceto={{ p.oficio_id }}&amp;q=" data-minimo="1">
-            <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="oficio-do-motorista" type="text" role="combobox" value="{% if d.oficio_do_motorista_id %}Ofício {{ d.oficio_do_motorista.numero_formatado }}{% endif %}" placeholder="Número, protocolo, destino ou servidor" autocomplete="off" aria-describedby="oficio-do-motorista-ajuda"></div>
+            <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="oficio-do-motorista" type="text" role="combobox" value="{% if d.oficio_do_motorista_id %}Ofício {{ d.oficio_do_motorista.numero_formatado }}{% endif %}" placeholder="Número, motorista, destino ou protocolo" autocomplete="off" aria-describedby="oficio-do-motorista-ajuda"></div>
             <input type="hidden" name="oficio_do_motorista" value="{{ d.oficio_do_motorista_id|default_if_none:'' }}" data-valor-id>
           </pc-combobox>
           <p class="campo__ajuda sr-only" id="oficio-do-motorista-ajuda">Busque o ofício pelo qual o motorista viajou e escolha na lista: o diário de bordo passa a ser o daquele ofício.</p>
         </div>
       </div>
+    </div>
     </div>
     <div id="motorista-atual" data-vivo>
       <article class="pessoa recurso-selecionado recurso-diario__atual{% if not motorista.nome %} recurso-diario__atual--vazio{% endif %}" aria-label="Motorista do diário">
@@ -48,6 +50,7 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
     <div class="secao__bloco-cabecalho">
       <h3 class="secao__bloco-titulo">{% icone "car" classe="icone--sm" %}Transporte</h3>
     </div>
+    <div class="recurso-diario__escolha">
     <p class="recurso-diario__vinculo texto-sm texto-secundario">{% icone "info" classe="icone--sm" %}<span>Com motorista de outro ofício, a viatura é a do diário daquele ofício.</span></p>
     <div class="recurso-diario__campos">
       <div class="campo"><label class="campo__rotulo" for="viatura-modo">Viatura</label>
@@ -62,6 +65,7 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
       <div class="campo"><label class="campo__rotulo" for="viatura-tipo">Tipo</label>
         <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
       <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
+    </div>
     </div>
     <div id="viatura-atual" data-vivo>
       <article class="pessoa recurso-selecionado recurso-diario__atual{% if not viatura.modelo %} recurso-diario__atual--vazio{% endif %}" aria-label="Transporte do diário">

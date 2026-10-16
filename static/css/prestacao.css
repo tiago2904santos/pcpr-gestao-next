@@ -54,11 +54,16 @@
 /* Diário de bordo · motorista e transporte, no desenho do "Equipe e transporte" do ofício:
    dois blocos lado a lado; em cada um, a linha de campos (de onde vem · o que a escolha pede),
    os campos de escrever à mão e o cartão do recurso como ficou (o da viatura do ofício). */
-@media (min-width: 1024px) {
-  .recursos-diario { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 .secao__bloco.recurso-diario { display: grid; align-content: start; gap: var(--esp-3); }
 .recurso-diario > .secao__bloco-cabecalho { margin-bottom: 0; }
+.recurso-diario__escolha { display: grid; align-content: start; gap: var(--esp-3); }
+/* Lado a lado, os dois blocos dividem as mesmas linhas (cabeçalho · escolha · cartão): os
+   cartões do motorista e da viatura ficam sempre na mesma altura, qualquer que seja a
+   escolha de cada lado. */
+@media (min-width: 1024px) {
+  .recursos-diario { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto auto; }
+  .recursos-diario > .secao__bloco.recurso-diario { grid-row: span 3; grid-template-rows: subgrid; }
+}
 .recurso-diario__campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
 @media (min-width: 768px) {
   .recurso-diario__campos { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); }
@@ -66,7 +71,7 @@
 .recurso-diario__campos > .modos__campos { grid-template-columns: minmax(0, 1fr); }
 .recurso-diario .modos__campos[data-modo="manual"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 /* Motorista de outro ofício: a viatura é a do diário de lá — sem escolha aqui, só a nota. */
-.recurso-diario__vinculo { display: none; align-items: center; gap: var(--esp-2); margin: 0; }
+.recurso-diario__vinculo { display: none; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle); margin: 0; }
 .recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .recurso-diario__campos,
 .recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .modos__campos { display: none; }
 .recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario__vinculo { display: flex; }
