@@ -88,6 +88,9 @@ urlpatterns = [
          name="regenerar_documento"),
     path("prestacoes/", views_prestacao.lista, name="prestacoes"),
     path("prestacoes/exportar/", views_prestacao.exportar, name="exportar_prestacoes"),
+    path("prestacoes/equipe/<int:pk>/", views_prestacao.equipe, name="prestacao_equipe"),
+    path("prestacoes/equipe/<int:pk>/leitura/", views_prestacao.leitura,
+         name="leitura_prestacao"),
     path("prestacoes/equipe/<int:pk>/diario/", views_diario.folha, name="diario"),
     path("prestacoes/equipe/<int:pk>/diario/salvar/", views_diario.salvar,
          name="salvar_diario"),
@@ -97,6 +100,21 @@ urlpatterns = [
          name="motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/realizada/<str:acao>/",
          views_diario.viagem_realizada, name="viagem_realizada"),
+    # Editor do texto do diário e dos RTs (as mesmas rotas relativas do ofício; a chave diz
+    # o documento: "diario" ou "rt-<pk do servidor>").
+    *[path(f"prestacoes/equipe/<int:pk>/editor/<str:chave>/{caminho}", visao,
+           name=f"editor_prestacao_{nome}")
+      for nome, caminho, visao in [
+          ("estado", "estado/", views_editor_avulso.prestacao["estado"]),
+          ("salvar", "salvar/", views_editor_avulso.prestacao["salvar"]),
+          ("restaurar", "restaurar/<int:numero>/", views_editor_avulso.prestacao["restaurar"]),
+          ("modelo", "modelo/", views_editor_avulso.prestacao["modelo"]),
+          ("original", "original/", views_editor_avulso.prestacao["original"]),
+          ("paginas", "paginas/", views_editor_avulso.prestacao["paginas"]),
+          ("presenca", "presenca/", views_editor_avulso.prestacao["presenca"]),
+          ("textos", "textos/", views_editor_avulso.prestacao["textos"])]],
+    path("prestacoes/equipe/<int:pk>/diario/folha/", views_diario.folha_documento,
+         name="folha_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
     path("prestacoes/equipe/<int:pk>/documentos/", views_anexos.folha,
@@ -120,6 +138,8 @@ urlpatterns = [
          name="autosave_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/sugerir/<str:campo>/", views_relatorio.sugerir,
          name="sugerir_relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/folha/",
+         views_relatorio.folha_documento, name="folha_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/<str:formato>/",
          views_relatorio.documento, name="documento_relatorio"),
     # Depois das rotas literais do diário e do RT: <acao> capturaria "diario".

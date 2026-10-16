@@ -1,0 +1,8 @@
+{# O que identifica a equipe, numa linha: período, unidade, diárias e o prazo para prestar. #}
+<p class="registro-hero__metadados">
+  <span class="registro-hero__metadado{% if not b.periodo %} registro-hero__metadado--vazio{% endif %}">{% icone "calendar-days" classe="icone--sm" %}{{ b.periodo|default:"sem período" }}</span>
+  <span class="registro-hero__metadado" title="{{ oficio.unidade.nome }}">{% icone "building-2" classe="icone--sm" %}{{ oficio.unidade.sigla|default:oficio.unidade.nome }}</span>
+  <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ b.total|pluralizar:"servidor,servidores" }}</span>
+  <span class="registro-hero__metadado{% if not oficio.diarias_total %} registro-hero__metadado--vazio{% endif %}">{% icone "banknote" classe="icone--sm" %}{% if oficio.diarias_total %}{{ oficio.diarias_total|moeda }} em diárias{% else %}sem diárias calculadas{% endif %}</span>
+  {% if b.prestar_ate %}<span class="registro-hero__metadado">{% icone "clock" classe="icone--sm" %}Prestar contas até {{ b.prestar_ate|date:"d/m/Y" }}</span>{% endif %}
+</p>

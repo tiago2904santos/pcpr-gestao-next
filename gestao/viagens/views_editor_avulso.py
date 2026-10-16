@@ -258,6 +258,41 @@ def _adaptador_plano() -> Adaptador:
     )
 
 
+# ---------------------------------------------------------------- prestação de contas
+def _prestacao(request: HttpRequest, pk: int, chave: str):
+    from . import policies, prestacao_texto
+    from .models import PrestacaoContas
+    p = PrestacaoContas.objects.select_related("oficio__unidade").filter(pk=pk).first()
+    if p is None or not policies.pode_ver_equipe_prestacao(request.user, p):
+        raise Http404
+    try:
+        prestacao_texto.tipo_da_chave(chave)
+        if chave != prestacao_texto.CHAVE_DIARIO:
+            prestacao_texto.servidor_da_chave(p, chave)
+    except prestacao_texto.PrestacaoInvalida as exc:
+        raise Http404 from exc
+    return p
+
+
+def _adaptador_prestacao() -> Adaptador:
+    from . import prestacao_texto
+    return Adaptador(
+        rotulos={"corpo": "Texto do documento", "assinatura": "Assinatura"},
+        obter=_prestacao,
+        dados=prestacao_texto.dados_do_documento,
+        html_modelo=prestacao_texto.html_do_modelo,
+        regioes_modelo=prestacao_texto.regioes_do_modelo,
+        versoes=prestacao_texto._versoes,
+        vigente=prestacao_texto.edicao_vigente,
+        salvar=lambda o, u, c, r, b: prestacao_texto.salvar_texto(o, u, c, r, versao_base=b),
+        restaurar=prestacao_texto.restaurar_texto,
+        modelo=prestacao_texto.voltar_texto_ao_modelo,
+        pode_editar=prestacao_texto.pode_editar,
+        invalido=prestacao_texto.PrestacaoInvalida,
+        conflito=prestacao_texto.ConflitoDeEdicao,
+    )
+
+
 @require_POST
 def aplicar_em_todos_termo(request: HttpRequest, pk: int, chave: str) -> JsonResponse:
     """Leva o texto editado deste documento do termo para os outros (o que é texto comum;
@@ -276,3 +311,4 @@ def aplicar_em_todos_termo(request: HttpRequest, pk: int, chave: str) -> JsonRes
 termo = montar(_adaptador_termo())
 ordem = montar(_adaptador_ordem())
 plano = montar(_adaptador_plano())
+prestacao = montar(_adaptador_prestacao())

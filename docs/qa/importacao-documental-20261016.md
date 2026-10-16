@@ -126,5 +126,38 @@ aplicadas e sem operações destrutivas. O script `scripts/verificar.sh` passou 
 O primeiro navegador integrado passou 7/8 testes e revelou que a fita disputava
 espaço com a seta do visualizador em 1440 px (`navegador-main-antes.log`). A fita
 agora fica oculta durante janelas modais, com teste explícito de retorno ao fechar.
-Revalidação em andamento. Na aba local antiga, o acesso estava ausente até
+Revalidação: **8/8 passaram em 351,18 s**, incluindo acessibilidade, lote/revisão,
+downloads em 360/1440 e o visualizador (`navegador-main-final.log`).
+Na aba local antiga, o acesso estava ausente até
 recarregar a listagem; após atualizar, o link abriu a janela de seleção múltipla.
+
+Antes do push, chegou também `3e95b69` (refino da prestação). Os três conflitos
+foram reconciliados: preservados o novo layout e a correção de feriados da agenda;
+mantidos os imports e endpoints de downloads em fila. Os três novos menus de
+pacotes da prestação passaram de ZIP para fila. A migração 0062 une a edição da
+prestação à cadeia da importação sem alterar as migrações existentes. Migrações
+0060 de edição e 0062 aplicadas no PREVIEW local sem erro. Checagem complementar
+do segundo estado integrado: **99 testes passaram em 188,79 s**, todas as checagens
+do `scripts/verificar.sh` verdes; navegador de importação/fila e anexos: **5 passaram
+em 295,68 s**. Logs `integracao-main-prestacao.log` e `navegador-main-prestacao.log`.
+Capturas de envio 360/1440 em `main/` revisadas, sem cortes nos controles.
+
+## Ativação autorizada no PREVIEW hospedado
+
+O usuário confirmou explicitamente a ativação no servidor. SSH por chave e host
+conhecido (IP) confirmou `APP_ENV=preview`, settings preview e versão `3e95b69`.
+O nome DNS não estava em known_hosts; usado o IP já conhecido, sem desativar a
+verificação de identidade. Nenhum segredo foi lido ou publicado.
+
+Executor automático atualizado para incluir importador na imagem da release,
+parada de backup/migração, rede interna (alias db, banco não recriado), retomada
+por versão e checagem final. Duas conversões simultâneas na VPS. `bash -n`, testes
+de política e teste simulado do ciclo do importador passaram; ShellCheck 0.11.0
+sem avisos. Não alterado o fluxo separado de produção.
+
+Executor instalado administrativamente sob lock. Configuração anterior do executor
+e do Nginx preservadas em `/srv/pcpr/automatico/backups/config-importacao-20261016`.
+Somente o teto de upload do site PCPR mudou de 16m para 32m. `nginx -t` aprovado,
+reload sem reinício, saúde pública 200 com banco ok. Outros sites não alterados.
+SHA-256 do executor instalado: `c2e086c50c1f83d7a88ce4c1812c372969cb0558117f1bd59fc64424aa385319`.
+Publicação e verificação do lote real sintético no HTTPS ainda pendentes.

@@ -19,3 +19,10 @@ Credencial exclusiva no GitHub Secrets, comando SSH restrito e host key fixada.
 Nenhuma chave privada ou `.env` entra no Git. Logs/versionamento permitem conferir
 qual SHA está no ar. Falha bloqueia a troca e aparece na execução do GitHub Actions.
 Backups não são apagados automaticamente; espaço insuficiente impede nova troca.
+
+Autorização de 16/10/2026: ativar também o importador no PREVIEW hospedado.
+Web, worker e importador usam a mesma imagem e param antes de backup/migrações.
+O banco existente entra adicionalmente na rede interna de processamento, com alias
+`db`, sem recriar seu contêiner nem publicar portas. A reversão respeita os serviços
+presentes na versão anterior. O proxy desta aplicação aceita 32 MB; demais sites
+e regras de autenticação permanecem intactos. Validar envio e processamento no HTTPS.

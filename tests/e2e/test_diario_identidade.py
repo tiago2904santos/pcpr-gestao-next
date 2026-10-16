@@ -1,7 +1,7 @@
-"""O resultado do trecho acompanha o autosave; concluir não finaliza a prestação."""
+"""O resultado do trecho acompanha o autosave; "Salvar e continuar" leva ao relatório do
+mesmo servidor sem finalizar a prestação."""
 
 import re
-from urllib.parse import quote
 
 import pytest
 from playwright.sync_api import expect
@@ -12,7 +12,7 @@ pytestmark = pytest.mark.e2e
 
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
-def test_resultado_vivo_estado_visivel_e_conclusao(logado, dados_e2e, largura):
+def test_resultado_vivo_estado_visivel_e_continuar(logado, dados_e2e, largura):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 600})
@@ -34,11 +34,10 @@ def test_resultado_vivo_estado_visivel_e_conclusao(logado, dados_e2e, largura):
     chegada.fill("10470")
     expect(resultado).to_contain_text("470 km")
     expect(chegada).to_be_focused()
-    finalizar = pg.get_by_role("button", name="Finalizar", exact=True)
-    finalizar.focus()
-    finalizar.press("Enter")
-    expect(pg).to_have_url(re.compile(
-        r"/viagens/prestacoes/\?q=" + re.escape(quote(p.oficio.numero_formatado, safe=""))))
+    continuar = pg.get_by_role("button", name="Salvar e continuar").last
+    continuar.focus()
+    continuar.press("Enter")
+    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/relatorio/\?servidor=\d+$"))
     trecho.refresh_from_db()
     assert trecho.km_final == 10470
     assert not p.servidores.filter(finalizada_em__isnull=False).exists()

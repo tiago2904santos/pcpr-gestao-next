@@ -11,14 +11,13 @@ os limites existentes: 15 MiB por via assinada e 10 MiB por anexo da prestação
 
 ### Atenção ao executor da VPS
 
-Os executores atuais `deploy/automatico/atualizar.sh` e `deploy/vps/implantar.sh`
-selecionam explicitamente `web worker`; o novo serviço não é ativado apenas pelo
-push no main. Antes de disponibilizar a importação nessa instalação, o responsável
-deve integrar `importador` ao executor: mesma imagem da release, rede interna do
-banco conectada, parada nas migrações/restaurações e pausa nos backups, subida e
-verificação de saúde. A atualização do executor instalado e do proxy exige uma
-operação separada no servidor. Sem isso, os arquivos permanecem aguardando na fila.
-O ambiente local já tem o importador ativo; o push não comprova essa ativação na VPS.
+O executor `deploy/automatico/atualizar.sh` inclui o importador na mesma imagem da
+release (duas conversões simultâneas), na parada de backup/migração e na verificação
+final. Conecta o banco existente à rede interna sem recriá-lo. É necessário instalar
+administrativamente essa versão do executor e ajustar o proxy para 32 MB; o push
+sozinho não atualiza o executor instalado. O fluxo separado de produção em
+`deploy/vps/implantar.sh` ainda requer integração equivalente antes de usar importação
+nessa arquitetura. Esta ativação é somente do PREVIEW hospedado existente.
 
 O worker usa a rede interna do banco, sem saída à internet. Os subprocessos recebem
 ambiente mínimo, sem credenciais do banco. Perfil do LibreOffice exclusivo por

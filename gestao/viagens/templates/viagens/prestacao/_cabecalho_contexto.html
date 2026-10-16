@@ -1,0 +1,17 @@
+{% load viagens %}{% comment %}
+A frase do cabeçalho das folhas da prestação (o `complemento_template` do registro_hero),
+como a do termo e a da OS: a situação do servidor da folha, o ofício (abre o resumo), os
+destinos, o período, a unidade e a equipe. Contexto: `servidor_atual` (linha de
+views_prestacao._linha), `b` (bloco), `oficio`, `equipe_linhas`.
+{% endcomment %}
+    <p class="registro-hero__metadados" id="frase-prestacao" data-vivo>
+      <span class="sr-only">Resumo da prestação: </span>
+      {% if servidor_atual %}<span class="selo selo--{{ servidor_atual.situacao.1 }}">{{ servidor_atual.situacao.0 }}</span>{% if servidor_atual.ps.arquivada %}<span class="selo selo--neutro">Arquivada</span>{% endif %}{% endif %}
+      {% if b.selo %}<span class="selo {% if b.selo.tom == 'vencido' %}selo--perigo{% elif b.selo.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %}" title="{{ b.selo.detalhe }}">{{ b.selo.texto }}</span>{% endif %}
+      <a class="registro-hero__metadado" href="{% url 'viagens:editar' oficio.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "file-text" classe="icone--sm" %}Ofício {{ oficio.numero_formatado }}{% if oficio.protocolo %} · {{ oficio.protocolo_formatado }}{% endif %}</a>
+      <span class="registro-hero__metadado{% if not b.destinos %} registro-hero__metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ b.destinos|default:"sem destino" }}</span>
+      <span class="registro-hero__metadado{% if not b.periodo %} registro-hero__metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ b.periodo|default:"sem datas" }}</span>
+      <span class="registro-hero__metadado">{% icone "building-2" classe="icone--sm" %}{{ oficio.unidade.sigla|default:oficio.unidade.nome }}</span>
+      <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ equipe_linhas|length|pluralizar:"servidor,servidores" }}{% if b.por_servidor %} · {{ b.por_servidor|moeda }} cada{% endif %}</span>
+      {% if servidor_atual.prestar_ate and not servidor_atual.ps.finalizada %}<span class="registro-hero__metadado">{% icone "clock" classe="icone--sm" %}prestar contas até {{ servidor_atual.prestar_ate|date:"d/m/Y" }}</span>{% endif %}
+    </p>

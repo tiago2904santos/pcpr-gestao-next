@@ -102,6 +102,8 @@
 .pagina-cabecalho--documental .pagina-cabecalho__titulo { font-size: var(--texto-4xl); letter-spacing: var(--rastreio-display); }
 .pagina-cabecalho--documental .frase-oficio { margin-top: var(--esp-3); gap: var(--esp-2) var(--esp-4); }
 .pagina--documental [data-status-salvamento] { padding: var(--esp-3) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca); background: var(--cor-superficie-sutil); }
+/* Sem nada a dizer (ainda não gravou), o aviso do cartão não ocupa lugar. */
+.pagina--documental p[data-status-salvamento]:empty { display: none; }
 .documento.documento--continuo { padding: 0; border: var(--borda); box-shadow: var(--sombra-2); }
 .documento.documento--continuo > .secao { padding: var(--esp-8); border-top: var(--borda); }
 .documento.documento--continuo > .secao:first-child,

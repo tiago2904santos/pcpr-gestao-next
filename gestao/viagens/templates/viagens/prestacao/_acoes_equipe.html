@@ -1,0 +1,19 @@
+{% comment %}
+Ações da equipe no cabeçalho e no rodapé (`rodape`): o resumo e a folha do ofício, as folhas
+da equipe, os pacotes em fila e, para quem edita, reabrir/arquivar. Os formulários das ações da
+equipe (`equipe-{pk}-{acao}`) ficam uma vez só em equipe.html.
+{% endcomment %}
+<pc-menu class="menu">
+  <button type="button" class="botao{% if not rodape %} botao--icone{% endif %}" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da equipe do {{ oficio }}{% if rodape %} (rodapé){% endif %}">{% icone "ellipsis-vertical" %}{% if rodape %}<span>Ações</span>{% endif %}</button>
+  <div class="menu__painel{% if rodape %} menu__painel--acima{% endif %}" role="menu" hidden>
+    <button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Resumo do ofício</button>
+    <a class="menu__item" role="menuitem" data-baixar-arquivo href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "files" %}Pacotes da equipe (fila)</a>
+    <a class="menu__item" role="menuitem" href="{% url 'viagens:exportar_prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">{% icone "download" %}Exportar planilha</a>
+    {% if b.editavel %}
+    <div class="menu__separador" role="separator"></div>
+    {% if b.reabrivel %}<button type="submit" form="equipe-{{ p.pk }}-reabrir" class="menu__item" role="menuitem">{% icone "undo-2" %}Reabrir as finalizadas</button>{% endif %}
+    <button type="submit" form="equipe-{{ p.pk }}-arquivar" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar equipe</button>
+    {% if b.alguma_arquivada %}<button type="submit" form="equipe-{{ p.pk }}-desarquivar" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar equipe</button>{% endif %}
+    {% endif %}
+  </div>
+</pc-menu>

@@ -39,6 +39,15 @@ A instância única pode ter breve indisponibilidade durante backup e troca.
 Backups são preservados; falta de espaço ou falha exige ação administrativa.
 Regras de produção continuam separadas; mudar para dados reais bloqueia o executor.
 
+### Extensão de 16/10/2026 — importação documental
+
+Por autorização explícita, o executor passa a incluir o importador na mesma release,
+parada para backup/migrações e verificação de execução. A seleção de serviços considera
+o compose de cada versão, inclusive no rollback. A rede interna do conversor recebe
+o banco já existente por conexão adicional com alias `db`, sem recriação do banco.
+O executor instalado é atualizado administrativamente e preservado em backup; não
+passa a executar scripts arbitrários recebidos do repositório.
+
 Referências primárias:
 [GitHub — deploy e concorrência](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments),
 [OpenSSH — restrict, command e SSH_ORIGINAL_COMMAND](https://man.openbsd.org/sshd).

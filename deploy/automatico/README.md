@@ -25,9 +25,11 @@ O repositório é público, portanto a VPS não recebe credencial GitHub.
 2. Sparse checkout e contexto de runtime do commit, sem evidências/imagens de docs.
 3. Build rotulado com SHA, sem `.env`/chaves no contexto de build.
 4. Checks e plano de migração; ambiente/banco diferentes são recusados.
-5. Parada breve de web/worker; dump validado, mídia e hashes consistentes.
+5. Parada breve de web/worker/importador (se presente); dump validado, mídia e hashes consistentes.
 6. Migrações pendentes do PREVIEW, sem reset e sem seed.
-7. Troca de código/imagem, saúde pública, worker e gravação da versão ativa.
+7. Troca de código/imagem, saúde pública, workers e gravação da versão ativa.
+   O importador usa a mesma imagem e uma rede interna; o banco existente recebe
+   essa conexão adicional com alias `db`, sem recriação. Duas leituras simultâneas.
 
 Sem migração, falha após a troca retorna automaticamente ao código anterior.
 Após tentativa de migração, falha deixa serviços parados para intervenção: nunca
@@ -53,4 +55,7 @@ authorized_keys e o secret correspondente. Rotação exige nova chave restrita;
 não modificar outras chaves. Nunca guardar chave privada no Git.
 
 Validação específica: `bash deploy/automatico/testar-politica.sh`, `bash -n` nos
-scripts, ShellCheck e execução real do workflow com comparação do SHA na VPS.
+scripts, `bash deploy/automatico/testar-importador.sh`, ShellCheck e execução real
+do workflow com comparação do SHA na VPS. Atualizar o executor instalado por
+acesso administrativo antes de ativar o novo serviço; o push não substitui scripts
+instalados em `/usr/local/lib/pcpr-main/`.

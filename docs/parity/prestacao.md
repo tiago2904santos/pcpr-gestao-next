@@ -81,3 +81,44 @@ após migrar seu último consumidor no UI Lab; componentes compartilhados mantid
 Referência funcional é o levantamento documentado anterior, não uma nova auditoria
 da referência. Lacunas históricas não foram implementadas nem simuladas. Evidências
 da rodada, crítica e validação em `docs/visual-agents/qa/prestacao-refino-2026-10-15.md`.
+
+## Organizada como a gestão de viagens — 16/10/2026 (ADR 0041)
+
+- Lista: uma linha por equipe, como a das viagens — placa do ofício, destinos, "N de M
+  finalizadas", enviadas/devolvidas, o selo mais urgente (saque ou prestação), período,
+  unidade, "Prestar até", as pendências com o atalho de cada uma, servidores e diárias; o ⋮
+  leva à prestação, às três folhas e ao resumo do ofício. Abas, "pedem atenção", busca,
+  paginação por 25 equipes e exportação sem mudança.
+- Folha da equipe (`/viagens/prestacoes/equipe/<pk>/`): etapas Solicitações → Diário →
+  Relatório → Documentos → Finalização → Envio (a primeira que falta é a atual); 1
+  Servidores com os cartões de sempre (autosave, finalizar com justificativa, arquivar,
+  registrar envio, aprovar, devolver); 2 Diário, relatório e documentos, cada um com a
+  situação e o que tem; 3 Conferência por servidor, cada pendência levando aonde se resolve.
+  Barra: Voltar, Finalizar equipe (ou Registrar envio da equipe) e Ações (resumo do ofício,
+  pacotes ZIP, planilha, reabrir, arquivar, desarquivar). Consulta vê tudo sem edição.
+- Diário, RT e documentos: abas Equipe · Diário · Relatório · Documentos; Voltar e
+  Finalizar voltam à folha da equipe; migalhas passam pelo ofício.
+- Preservados: ids `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`, nomes
+  dos campos, regiões `data-vivo`, `data-esperar-salvamento`, regras e documentos oficiais.
+
+## No padrão do sistema modelo, com as peças das folhas — 16/10/2026 (ADR 0042)
+
+- Lista: a linha operacional da lista de ofícios por ofício e, colada, uma linha de registro
+  por servidor com o nº da solicitação e o prazo de saque gravando sozinhos na própria lista
+  (como a lista real do sistema modelo), o que já foi feito (diário, relatório, comprovante,
+  despacho), situação, prazos, pendências (pílula das listas) e as ações; as da equipe no ⋮
+  do ofício. Atalhos de pendência: sem solicitação, sem despacho, sem comprovante, valor ≠
+  diária, finalizadas no mês. Preservados: abas, busca HTMX, 25 ofícios por página,
+  exportação, `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`, nomes dos
+  campos (`numero`, `liberacao`, `prazo`, `justificativa`), regiões `data-vivo`.
+- Folhas com o `registro_hero`, a barra `etapas-progresso` (1 Diário → 2 RT → 3 Documentos →
+  4 Leitura), os cartões `secao` e a barra do rodapé do termo/OS; o servidor da folha no
+  cabeçalho (`?servidor=`); "Salvar e continuar" espera o autosave. O diário e os RTs saem no
+  mesmo editor do ofício (texto por região com versões, EdicaoPrestacao) e o PDF/DOCX/pacote
+  levam o texto editado. Leitura e conferência (nova): transcrição com "Copiar", nº de
+  autorização/data/valor do comprovante conferidos com a diária do ofício e a do RT assinado.
+- Documentos iguais aos do sistema modelo: diário de bordo em A4 deitado (doze colunas,
+  motorista na tabela) e RT na folha ASCOM (tabelas, declaração, assinatura com CPF).
+- Não regrediu: motorista/viatura (3 modos), viagem realizada, conferência do hodômetro,
+  textos prontos, sugerir e copiar RT, limite da diária, carimbo do nº da solicitação,
+  versões anteriores, pacotes, envio/aprovação/devolução, consulta sem edição, planilha.

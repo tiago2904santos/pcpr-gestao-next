@@ -1,61 +1,92 @@
-<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <title>{{ d.titulo }}</title>
+<meta name="author" content="{{ d.unidade }}">
 {% comment %}
-Relatório técnico de viagem, um por servidor (paridade com o documento da referência:
-referência ao ofício e local/data na mesma linha; tabela do servidor; tabela dos valores
-usados — diária, translado, combustível, passagem; as seções do relato; a linha de assinatura
-com o CPF). Dados em relatorio.dados_do_documento.
+Relatório técnico de viagem, um por servidor, com a mesma composição do documento do sistema
+modelo (a folha ASCOM): cabeçalho com o brasão e três linhas em negrito, referência ao ofício
+à esquerda e local e data à direita, o título sublinhado, a tabela do servidor (nome e CPF),
+"VALORES UTILIZADOS NA VIAGEM" (diária, translado, combustível, passagem), as cinco seções do
+relato numa tabela de grade com os títulos centralizados, a declaração em negrito e a linha
+de assinatura com o CPF; no pé, a marca e o endereço da unidade. Dados em
+relatorio.dados_do_documento; o texto editado no visualizador (EdicaoPrestacao, regiões
+"corpo" e "assinatura") entra no lugar do que o modelo gera.
 {% endcomment %}
-<style>
-  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
-  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
-  @page { size: A4; margin: 18mm 20mm 24mm 20mm; @bottom-center { content: element(rodape); } }
-  html { font-family: "Doc Serif", serif; font-size: 11pt; color: #000; line-height: 1.45; }
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+  @font-face { font-family: "Doc Sans"; src: url("{{ fontes.sans_regular }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; src: url("{{ fontes.sans_negrito }}"); }
+  @font-face { font-family: "Doc Sans"; font-style: italic; src: url("{{ fontes.sans_italico }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; font-style: italic; src: url("{{ fontes.sans_negrito_italico }}"); }
+  @page { size: A4; margin: 14mm 13mm 24mm 13mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Doc Sans", Arial, "Liberation Sans", Helvetica, sans-serif; font-size: 10pt; color: #000; line-height: 1.15; }
   body { margin: 0; }
-  header.timbre { text-align: center; margin-bottom: 6mm; }
-  header.timbre img { height: 18mm; display: block; margin: 0 auto 2mm; }
-  header.timbre p { margin: 0; font-weight: bold; font-size: 9.5pt; }
-  h1 { font-size: 12.5pt; text-align: center; margin: 2mm 0 5mm; letter-spacing: 0.05em; }
-  .ref { display: flex; justify-content: space-between; margin-bottom: 4mm; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
-  th, td { border: 0.6pt solid #000; padding: 2mm 2.5mm; vertical-align: top; text-align: left; }
-  table.dados th { width: 30%; background: #efefef; }
-  table.relato th { background: #efefef; }
-  table.relato td { white-space: pre-line; text-align: justify; min-height: 10mm; }
-  .assinatura { margin-top: 16mm; text-align: center; }
+  header.timbre { text-align: center; line-height: 1.15; margin-bottom: 8mm; }
+  header.timbre img { height: 28mm; display: block; margin: 0 auto 4.5mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 12pt; text-transform: uppercase; }
+  .ref { display: flex; justify-content: space-between; gap: 10mm; margin: 0; }
+  h1, h2 { margin: 5mm 0 2.5mm; font-size: 10pt; font-weight: bold; text-align: center; text-transform: uppercase; text-decoration: underline; }
+  h2 { margin-top: 3mm; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 0.75pt solid #000; padding: 3.5pt 6pt; vertical-align: top; }
+  th { font-weight: bold; text-align: center; }
+  td { text-align: left; }
+  table.servidor th { width: 19.8%; }
+  table.servidor td { font-weight: bold; }
+  table.valores th, table.valores td { width: 50%; }
+  table.relato { margin-top: 3.5mm; font-size: 9.5pt; }
+  table.relato th { font-size: 10pt; text-transform: uppercase; page-break-after: avoid; break-after: avoid; }
+  table.relato td { min-height: 1.2em; text-align: justify; white-space: pre-line; }
+  table.relato td:empty::after { content: "\00a0"; }
+  .declaracao { margin: 3mm 0 0; font-size: 8pt; font-weight: bold; line-height: 1.5; text-align: center; }
+  .assinatura { margin-top: 16mm; text-align: center; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
   .assinatura p { margin: 0; }
-  .linha { display: inline-block; min-width: 90mm; border-top: 0.6pt solid #000; padding-top: 1mm; }
-  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .assinatura .linha { width: 87mm; margin: 0 auto 3pt; border-top: 1pt solid #000; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7pt; font-weight: bold; font-style: italic; line-height: 1.15; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; letter-spacing: 1pt; color: #555; }
+  {% if folha %}
+  html body { padding: 14mm 13mm 24mm; }
+  {% endif %}
 </style>
 </head>
 <body>
-  <div class="rodape">{{ d.rodape }}</div>
+  <div class="rodape" role="contentinfo"><strong>PCPR</strong>{{ d.rodape }}</div>
   <header class="timbre">
     <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
-    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
-    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>Secretaria de Estado da Segurança Pública</p>
+    <p>Polícia Civil do Paraná</p>
     <p>{{ d.unidade }}</p>
   </header>
   <main>
-    <h1>RELATÓRIO TÉCNICO DE VIAGEM</h1>
-    <div class="ref"><span>Ref. ao Ofício {{ d.oficio }}</span><span>{% if d.sede %}{{ d.sede }}, {% endif %}{{ d.data_extenso }}</span></div>
-    <table class="dados">
+    <p class="ref"><span>Ref. ao Ofício {{ d.oficio }}</span><span>{% if d.sede %}{{ d.sede }}, {% endif %}{{ d.data_extenso }}</span></p>
+    {% regiao "corpo" "Relatório" %}
+    <h1 data-bloco="titulo" data-rotulo="Título">Relatório técnico de viagem</h1>
+    <table class="servidor" data-bloco="servidor" data-rotulo="Servidor">
       <tr><th scope="row">Nome</th><td>{{ d.nome }}</td></tr>
       <tr><th scope="row">CPF</th><td>{{ d.cpf }}</td></tr>
     </table>
-    <table class="dados">
+    <h2 data-bloco="titulo_valores" data-rotulo="Título dos valores">Valores utilizados na viagem:</h2>
+    <table class="valores" data-bloco="valores" data-rotulo="Valores utilizados">
       <tr><th scope="row">Diária:</th><td>{{ d.diaria }}</td></tr>
       <tr><th scope="row">Translado:</th><td>{{ d.translado }}</td></tr>
       <tr><th scope="row">Combustível:</th><td>{{ d.combustivel }}</td></tr>
       <tr><th scope="row">Passagem:</th><td>{{ d.passagem }}</td></tr>
     </table>
     <table class="relato">
-      {% for s in d.secoes %}<tr><th scope="row">{{ s.titulo }}</th></tr><tr><td>{{ s.texto }}</td></tr>{% endfor %}
+      {% for s in d.secoes %}<tbody data-bloco="secao-{{ forloop.counter }}" data-rotulo="{{ s.titulo }}"><tr><th scope="rowgroup">{{ s.titulo }}</th></tr><tr><td>{{ s.texto }}</td></tr></tbody>{% endfor %}
     </table>
-    <div class="assinatura"><p><span class="linha">{{ d.nome }}</span></p><p>CPF {{ d.cpf }}</p></div>
+    <p class="declaracao" data-bloco="declaracao" data-rotulo="Declaração">Declaramos que o trabalho previsto na programação de viagem foi realizado, assim como cumprido o período de realização da viagem e a documentação encaminhada ao setor responsável</p>
+    {% endregiao %}
+    {% regiao "assinatura" "Assinatura" %}
+    <div class="assinatura" data-bloco="assinatura" data-rotulo="Assinatura">
+      <p class="linha"></p>
+      <p>CPF {{ d.cpf }}</p>
+    </div>
+    {% endregiao %}
   </main>
 </body>
 </html>

@@ -1,0 +1,5 @@
+{% load viagens %}{# Itens do ⋮ do cabeçalho na folha do diário. #}
+{% if editavel %}<a class="menu__item" role="menuitem" href="#motorista">{% icone "car" %}Trocar motorista / viatura</a>
+<a class="menu__item" role="menuitem" href="#realizada">{% icone "clock" %}Ajustar horários realizados</a>{% endif %}
+{% if d %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_diario' p.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}Diário em PDF<span class="sr-only"> (nova aba)</span></a>
+<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_diario' p.pk 'xlsx' %}">{% icone "download" %}Planilha (XLSX)</a>{% endif %}

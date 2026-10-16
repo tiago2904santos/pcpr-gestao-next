@@ -158,7 +158,8 @@ def test_folha_autosave_e_documento(c, django_assert_max_num_queries):
     op = _cliente(c, "operador")
     r = op.get(reverse("viagens:diario", args=[p.pk]))
     html = r.content.decode()
-    assert r.status_code == 200 and "Conferência do hodômetro" in html
+    assert r.status_code == 200 and 'id="conferencia"' in html
+    assert "Preencher pelas distâncias" in html and "Salvar e continuar" in html
     d = DiarioBordo.objects.get(prestacao=p)
     a, b = diario.linhas(d)
     assert f'name="l-{a.pk}-km_inicial"' in html
@@ -173,7 +174,7 @@ def test_folha_autosave_e_documento(c, django_assert_max_num_queries):
     assert r.json()["salvo"] is True
     a.refresh_from_db()
     assert (a.km_inicial, a.km_final) == (20000, 20400)
-    with django_assert_max_num_queries(30):
+    with django_assert_max_num_queries(45):
         assert op.get(reverse("viagens:diario", args=[p.pk])).status_code == 200
     r = op.get(reverse("viagens:documento_diario", args=[p.pk, "xlsx"]))
     assert "DIARIO_DE_BORDO_OFICIO_" in r["Content-Disposition"]

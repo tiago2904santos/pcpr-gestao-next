@@ -18,6 +18,8 @@ from django.db.models import F, Q
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from gestao.cadastros.validacoes import formatar_cpf
+
 from . import policies
 from .dominio import diario as dominio
 from .models import (
@@ -422,22 +424,22 @@ def dados_do_documento(diario: DiarioBordo) -> dict:
         "rodape": config.rodape if config else "",
         "oficio_motorista": numero_mot, "ano": ano_mot, "protocolo": protocolo or "",
         "viatura": v.rotulo.upper(), "placa": v.placa, "combustivel": v.combustivel.upper(),
-        "motorista": nome.upper(), "cpf": cpf, "linhas": itens,
+        "motorista": nome.upper(), "cpf": formatar_cpf(cpf), "linhas": itens,
+        # O texto editado no visualizador (EdicaoPrestacao) vale para a folha e o PDF.
+        "chave": "diario",
+        "regioes_editadas": _regioes_editadas(diario.prestacao),
     }
 
 
+def _regioes_editadas(prestacao: PrestacaoContas) -> dict[str, str]:
+    from . import prestacao_texto
+    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.CHAVE_DIARIO)
+
+
 def pdf_do_documento(dados: dict) -> bytes:
-    import hashlib
-
-    from django.template.loader import render_to_string
-    from weasyprint import HTML
-
-    from .documentos.pdf import ASSETS, _recursos, buscar_recurso
-    html = render_to_string("viagens/documentos/diario_bordo.html",
-                            {"d": dados, **_recursos(False)})
-    return HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf(
-        pdf_variant="pdf/a-2a", pdf_identifier=hashlib.sha256(html.encode()).digest()[:16],
-        pdf_tags=True, custom_metadata=True, presentational_hints=True)
+    """O PDF do diário, com o texto editado no visualizador (prestacao_texto)."""
+    from . import prestacao_texto
+    return prestacao_texto.pdf_do_documento(dados)
 
 
 def planilha_do_documento(dados: dict) -> bytes:

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/copiar.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -693,37 +693,49 @@
 
     <!-- 14. EQUIPE DA PRESTAÇÃO DE CONTAS -->
     <section class="cartao" id="equipe-prestacao" aria-labelledby="t-equipe-prestacao">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe-prestacao"><span class="cartao__numero">14</span>Equipe da prestação de contas</h2><span class="texto-secundario texto-sm">Um bloco por ofício, um cartão (formulário) por servidor: os campos gravam sozinhos e o estado aparece no próprio cartão; as ações vêm depois dos campos.</span></div>
-      <div class="cartao__corpo">
-        <article class="cartao" aria-labelledby="lab-equipe-t">
-          <header class="registro">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe-prestacao"><span class="cartao__numero">14</span>Equipe da prestação de contas</h2><span class="texto-secundario texto-sm">A linha operacional do ofício (§23) com uma linha de registro por servidor dentro: avatar (o motorista em grafite), nome com a situação e o que já foi feito, a nota e, à direita, o nº da solicitação e o prazo de saque que gravam sozinhos, a ação da vez e o ⋮. Dados sintéticos, sem operações.</span></div>
+      <div class="cartao__corpo colecao-operacional">
+        <ul class="registros registros--operacionais" aria-label="Exemplo de prestação por ofício">
+          <li class="registro registro-operacional registro--prestacao">
             <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="12/2026" compacta=True only %}</div>
-            <div class="registro__corpo"><h3 class="registro__titulo" id="lab-equipe-t">Londrina/PR</h3>
-              <div class="registro__meta"><span>07/10 a 09/10/2026</span><span>R$ 1.240,00 em diárias</span><span>2 servidores</span></div></div>
-            <div class="registro__acoes registro__acoes--fixas"><button type="button" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button></div>
-          </header>
-          <div class="cartao__corpo"><ul class="registros grade grade--2">
-            <li class="cartao">
-              <div class="cartao__cabecalho"><span class="avatar" aria-hidden="true">AE</span><div class="pessoa__texto"><h4 class="pessoa__nome">Ana Exemplo</h4><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></div></div>
-              <div class="cartao__corpo pilha">
-                <dl class="metadados grade grade--2"><div class="metadado"><dt>Diária liberada</dt><dd>R$ 620,00</dd></div><div class="metadado"><dt>Prestar contas até</dt><dd>14/10/2026</dd></div></dl>
-                <div class="grade grade--3">
-                  <div class="campo"><label class="campo__rotulo" for="lab-ps-n">Nº da solicitação</label><input class="entrada" id="lab-ps-n" value="2026/0412"></div>
-                  <div class="campo"><label class="campo__rotulo" for="lab-ps-l">Liberação das diárias</label><input class="entrada" id="lab-ps-l" value="06/10/2026" inputmode="numeric" data-mascara="data"></div>
-                  <div class="campo"><label class="campo__rotulo" for="lab-ps-p">Prazo limite de saque</label><input class="entrada" id="lab-ps-p" value="09/10/2026" inputmode="numeric" data-mascara="data"></div>
-                </div>
-                <div class="linha"><button type="button" class="botao botao--sm">{% icone "check" %}Finalizar</button><span class="texto-xs texto-secundario">Exemplo de solicitação editável</span></div>
-              </div>
-            </li>
-            <li class="cartao">
-              <div class="cartao__cabecalho"><span class="avatar" aria-hidden="true">BE</span><div class="pessoa__texto"><h4 class="pessoa__nome">Bruno Exemplo</h4><span class="selo selo--sucesso selo--sem-ponto">Finalizada</span></div></div>
-              <div class="cartao__corpo pilha">
-                <dl class="metadados grade grade--2"><div class="metadado"><dt>Diária liberada</dt><dd>R$ 620,00</dd></div><div class="metadado"><dt>Solicitação</dt><dd>2026/0413</dd></div><div class="metadado"><dt>Liberação</dt><dd>06/10/2026</dd></div><div class="metadado"><dt>Saque até</dt><dd>09/10/2026</dd></div></dl>
-                <div class="linha"><button type="button" class="botao botao--sm">{% icone "send" %}Registrar envio</button><button type="button" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button></div>
-              </div>
-            </li>
-          </ul></div>
-        </article>
+            <div class="registro__corpo">
+              <div class="registro__titulo"><a class="registro__link" href="#equipe-prestacao"><span class="sr-only">Prestação do Ofício 12/2026 · </span><span class="registro__link-texto">Londrina/PR</span></a><span class="registro__selos"><span class="selo selo--neutro selo--sem-ponto">1 de 2 finalizadas</span><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></span></div>
+              <div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">07/10 a 09/10/2026</span></span><span class="registro__meta-item registro__meta-item--protocolo">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">00.232.280-7</span></span><span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">ASCOM</span></span><span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar até 14/10/2026</span></span></div>
+            </div>
+            <div class="registro-operacional__recursos"><span class="registro__meta-item registro__meta-item--equipe">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">2 servidores · 1 finalizada</span></span><span class="registro__meta-item registro__meta-item--transporte">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">ABC1D23 · Renault Duster</span></span></div>
+            <div class="registro-operacional__conferencia"><span class="registro__meta-item registro__meta-item--diarias">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">R$ 620,00</span><span class="registro__meta-detalhe">por servidor · 2 × 100% + 1 × 15%</span></span></span></div>
+            <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Ações da prestação (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
+          </li>
+          <li class="registro-operacional__servidores">
+            <ul class="registros" aria-label="Servidores do exemplo">
+                <li class="registro registro--servidor">
+                  <form class="registro__corpo-form" aria-label="Prestação de Ana Exemplo" action="#equipe-prestacao">
+                    <span class="avatar avatar--escuro" aria-hidden="true" title="Motorista do ofício">{% icone "car" classe="icone--sm" %}</span>
+                    <div class="registro__corpo">
+                      <div class="registro__titulo"><span class="registro__link-texto">Ana Exemplo <span class="registro__motorista">(motorista)</span></span><span class="registro__selos"><span class="selo selo--info selo--situacao-rascunho">Em preenchimento</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Diário</span><span class="selo selo--neutro selo--sem-ponto">Relatório gerado</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Comprovante R$ 620,00</span><span class="selo selo--aviso">Saque vence em 2 dias</span></span></div>
+                      <div class="registro__meta"><span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">Escrivã de Polícia</span></span><span class="registro__meta-item">{% icone "id-card" classe="icone--sm" %}<span class="registro__meta-texto">529.982.247-25</span></span><span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar contas até <strong>14/10/2026</strong></span></span></div>
+                    </div>
+                    <div class="registro__acoes registro__acoes--fixas">
+                      <div class="campo campo--sm registro__campo registro__campo--solicitacao"><label class="campo__rotulo" for="lab-ps-n">Nº da solicitação</label><input class="entrada" id="lab-ps-n" value="2026/0412" autocomplete="off"></div>
+                      <div class="campo campo--sm registro__campo registro__campo--prazo"><label class="campo__rotulo" for="lab-ps-s">Prazo de saque</label><pc-data class="seletor" data-periodo><input class="entrada" type="text" id="lab-ps-s" value="06/10/2026 a 09/10/2026" placeholder="dd/mm/aaaa a dd/mm/aaaa" autocomplete="off"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button><input type="hidden" value="06/10/2026" data-periodo-de><input type="hidden" value="09/10/2026" data-periodo-ate></pc-data></div>
+                      <button type="button" class="botao botao--sm">{% icone "check" %}Finalizar</button>
+                      <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Mais ações de Ana Exemplo">{% icone "ellipsis-vertical" %}</button>
+                    </div>
+                  </form>
+                </li>
+                <li class="registro registro--servidor registro--fechado">
+                  <form class="registro__corpo-form" aria-label="Prestação de Bruno Exemplo" action="#equipe-prestacao">
+                    <span class="avatar" aria-hidden="true">BE</span>
+                    <div class="registro__corpo">
+                      <div class="registro__titulo"><span class="registro__link-texto">Bruno Exemplo</span><span class="registro__selos"><span class="selo selo--sucesso selo--situacao-emitido">Finalizada</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Diário</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Relatório</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Comprovante R$ 620,00</span></span></div>
+                      <div class="registro__meta"><span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">Agente de Polícia Judiciária</span></span><span class="registro__meta-item">{% icone "hash" classe="icone--sm" %}<span class="registro__meta-texto">Solicitação 2026/0413</span></span><span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Saque 06/10/2026 a 09/10/2026</span></span></div>
+                    </div>
+                    <div class="registro__acoes registro__acoes--fixas"><button type="button" class="botao botao--sm">{% icone "send" %}Registrar envio</button><button type="button" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Mais ações de Bruno Exemplo">{% icone "ellipsis-vertical" %}</button></div>
+                  </form>
+                </li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </section>
 

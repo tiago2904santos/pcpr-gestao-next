@@ -290,6 +290,7 @@ def test_prestacao_de_contas_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/viagens/prestacoes/")
     _avaliar(logado, "/viagens/prestacoes/?aba=finalizados")
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{a.prestacao_id}/")
 
 
 @pytest.mark.parametrize("largura", [360, 1440])
@@ -322,6 +323,7 @@ def test_documentos_da_prestacao_sem_violacoes(logado, dados_e2e, largura):
                   nome="comprovante.pdf", conteudo=b"%PDF-1.4 t")
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

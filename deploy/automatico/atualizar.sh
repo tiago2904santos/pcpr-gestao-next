@@ -36,6 +36,32 @@ saude() {
   curl -fsS --retry 3 --retry-delay 2 --max-time 10 "$URL" |
     python3 -c 'import json,sys; r=json.load(sys.stdin); sys.exit(0 if r.get("status")=="ok" and r.get("banco")=="ok" else 1)'
 }
+servicos_aplicacao() {
+  local lista
+  lista="$(compose "$1" config --services)" || return
+  printf '%s\n' "$lista" | grep -E '^(web|worker|importador)$'
+}
+operar_aplicacao() {
+  local pasta="$1" lista; shift
+  lista="$(servicos_aplicacao "$pasta")" || return
+  local servicos=()
+  mapfile -t servicos <<<"$lista"
+  compose "$pasta" "$@" "${servicos[@]}"
+}
+preparar_importador() {
+  local lista rede=pcpr-preview_processamento
+  lista="$(servicos_aplicacao "$1")" || return
+  if ! grep -qx importador <<<"$lista"; then return 0; fi
+  if ! docker network inspect "$rede" >/dev/null 2>&1; then
+    docker network create --internal --label com.docker.compose.project=pcpr-preview \
+      --label com.docker.compose.network=processamento "$rede" >/dev/null
+  fi
+  [ "$(docker network inspect "$rede" --format '{{.Internal}}')" = true ] || return 1
+  [ "$(docker network inspect "$rede" --format '{{index .Labels "com.docker.compose.project"}}')" = pcpr-preview ] || return 1
+  if [ "$(docker inspect pcpr-preview-db-1 --format '{{with index .NetworkSettings.Networks "pcpr-preview_processamento"}}true{{end}}')" != true ]; then
+    docker network connect --alias db "$rede" pcpr-preview-db-1
+  fi
+}
 PAROU=0
 TROCOU=0
 MIGROU=0
@@ -46,15 +72,15 @@ recuperar() {
   trap - EXIT
   if [ "$SUCESSO" = 0 ] && [ "$PAROU" = 1 ]; then
     if [ "$MIGROU" = 1 ]; then
-      compose "$APP" stop web worker || true
+      operar_aplicacao "$APP" stop || true
       log "CRÍTICO: houve tentativa de migração. Serviços parados; intervenção necessária. Backup: $BACKUP"
     else
       if [ "$TROCOU" = 1 ]; then
-        compose "$APP" stop web worker || true
+        operar_aplicacao "$APP" stop || true
         mv "$APP" "$BACKUP/app-falhou"
         mv "$BACKUP/app-anterior" "$APP"
       fi
-      if compose "$APP" up -d --no-deps --wait --wait-timeout 180 web worker; then
+      if preparar_importador "$APP" && operar_aplicacao "$APP" up -d --no-deps --wait --wait-timeout 180; then
         log 'Código anterior restaurado; nenhum dado foi restaurado/apagado.'
       else
         log "CRÍTICO: reversão não ficou saudável. Backup: $BACKUP"
@@ -102,6 +128,9 @@ fi
 install -m 600 "$APP/.env" "$STAGE/.env"
 install -m 600 "$APP/compose.vps.yml" "$STAGE/compose.vps.yml"
 printf 'services:\n  web:\n    image: %s\n    environment:\n      PREVIEW_SEMEAR: nunca\n  worker:\n    image: %s\n' "$IMAGEM" "$IMAGEM" >"$STAGE/compose.release.yml"
+if compose "$STAGE" config --services | grep -qx importador; then
+  printf '  importador:\n    image: %s\n    command: ["python", "manage.py", "processar_importacoes", "--concorrencia", "2"]\n' "$IMAGEM" >>"$STAGE/compose.release.yml"
+fi
 mapfile -t CONFIG < <(compose "$STAGE" run --rm --no-deps -T web printenv APP_ENV DJANGO_SETTINGS_MODULE POSTGRES_HOST POSTGRES_DB POSTGRES_USER </dev/null)
 preview_esperado "${CONFIG[@]}" || falhar 'Novo ambiente/banco não corresponde ao PREVIEW autorizado.'
 compose "$STAGE" run --rm --no-deps -T web python manage.py check </dev/null
@@ -118,7 +147,7 @@ espaco
 BACKUP="$RAIZ/backups/$ID"
 mkdir "$BACKUP"
 PAROU=1
-compose "$APP" stop web worker
+operar_aplicacao "$APP" stop
 docker exec pcpr-preview-db-1 pg_dump -U pcpr_preview -d pcpr_preview -Fc >"$BACKUP/banco.dump"
 test -s "$BACKUP/banco.dump"
 docker exec -i pcpr-preview-db-1 pg_restore --list <"$BACKUP/banco.dump" >"$BACKUP/banco-conteudo.txt"
@@ -137,10 +166,16 @@ if ! mv "$STAGE" "$APP"; then
   exit 1
 fi
 TROCOU=1
-compose "$APP" up -d --no-deps --wait --wait-timeout 180 web worker
+preparar_importador "$APP"
+operar_aplicacao "$APP" up -d --no-deps --wait --wait-timeout 180
 saude
 [ "$(docker inspect pcpr-preview-worker-1 --format '{{.State.Running}}')" = true ]
 [ "$(docker inspect pcpr-preview-worker-1 --format '{{.RestartCount}}')" = 0 ]
+if servicos_aplicacao "$APP" | grep -qx importador; then
+  [ "$(docker inspect pcpr-preview-importador-1 --format '{{.State.Running}}')" = true ]
+  [ "$(docker inspect pcpr-preview-importador-1 --format '{{.RestartCount}}')" = 0 ]
+  docker exec pcpr-preview-importador-1 python manage.py migrate --check </dev/null
+fi
 printf '%s\n' "$SHA" >"$APP/versao-main.txt"
 printf '%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$IMAGEM" "$BACKUP" >>"$RAIZ/implantacoes.tsv"
 SUCESSO=1

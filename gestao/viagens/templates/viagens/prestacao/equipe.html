@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Prestação de contas · {{ oficio }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Visão da equipe (ADR 0042): cabeçalho, a barra das etapas (diário → relatório → documentos →
+leitura) e as seções numeradas:
+1 Servidores — um cartão por servidor (nº da solicitação, liberação e prazo gravam sozinhos;
+  finalizar, arquivar, registrar envio, aprovar e devolver); os ids, formulários e regiões
+  vivas são os da lista antiga (autosave.js);
+2 Diário, relatório e documentos — as três folhas da equipe, cada uma com a situação e o
+  que tem;
+3 Conferência — o que falta para cada servidor finalizar, com o atalho até onde se resolve.
+No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e o menu.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% with titulo_hero=b.destinos|default:"Sem destino informado" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo=titulo_hero situacao_template="viagens/prestacao/_situacao_equipe.html" complemento_template="viagens/prestacao/_cabecalho_equipe.html" acoes_template="viagens/prestacao/_acoes_equipe.html" %}
+{% endwith %}
+<div class="mt-4">{% include "viagens/prestacao/_etapas.html" %}</div>
+
+{% if b.todas_finalizadas %}
+<div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Todos finalizados: o diário, o relatório e os documentos da equipe estão travados. Reabra para editar.</p></div></div>
+{% endif %}
+
+<div class="documento documento--preparacao">
+  {# 1. Servidores: os cartões gravam sozinhos. #}
+  <section class="secao{% if b.todas_finalizadas %} secao--ok{% endif %}" id="servidores" aria-labelledby="t-servidores">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-servidores"><span class="secao__numero">1</span>Servidores</h2>
+      <div class="secao__estado"><span class="selo {% if b.todas_finalizadas %}selo--sucesso{% else %}selo--aviso{% endif %} selo--sem-ponto">{{ b.finalizadas }} de {{ b.total }} finalizadas</span></div>
+      <p class="secao__nota">Número da solicitação, liberação das diárias e prazo de saque de cada servidor. Grava sozinho; as ações levam o que está digitado.</p>
+    </div>
+    {% if linhas %}
+    <ul class="registros" aria-labelledby="t-servidores">
+      {% for l in linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
+    </ul>
+    {% else %}
+    {% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor nesta prestação" texto="A equipe vem do ofício emitido." %}
+    {% endif %}
+  </section>
+
+  {# 2. As folhas da equipe. #}
+  <section class="secao{% if folhas_feitas == folhas|length %} secao--ok{% endif %}" id="folhas" aria-labelledby="t-folhas">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-folhas"><span class="secao__numero">2</span>Diário, relatório e documentos</h2>
+      <div class="secao__estado"><span class="selo {% if folhas_feitas == folhas|length %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ folhas_feitas }} de {{ folhas|length }} prontas</span></div>
+      <p class="secao__nota">As folhas são da equipe inteira: travam quando todos estão finalizados.</p>
+    </div>
+    <ul class="viagem-lista" aria-labelledby="t-folhas">
+      {% for f in folhas %}<li class="viagem-lista__item">
+        <a class="viagem-lista__link" href="{{ f.url }}">
+          <span class="viagem-lista__linha"><span class="viagem-lista__nome">{{ f.titulo }}</span><span class="selo selo--{{ f.chip.tom }} selo--sem-ponto">{{ f.chip.texto }}</span></span>
+          <span class="viagem-lista__sub">{{ f.subtexto }}</span>
+          <span class="viagem-lista__ver" aria-hidden="true">Abrir{% icone "arrow-right" classe="icone--sm" %}</span>
+        </a>
+      </li>{% endfor %}
+    </ul>
+  </section>
+
+  {# 3. Conferência: o que falta para cada servidor finalizar. #}
+  <section class="secao{% if conferencia.pronta %} secao--ok{% endif %}" id="conferencia-equipe" aria-labelledby="t-conferencia-equipe">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-conferencia-equipe"><span class="secao__numero">3</span>Conferência</h2>
+      <div class="secao__estado"><span class="selo {% if conferencia.pronta %}selo--sucesso{% else %}selo--aviso{% endif %} selo--sem-ponto">{{ conferencia.concluidas }} de {{ conferencia.total }} prontas</span></div>
+    </div>
+    <div class="viagem-conferencia{% if conferencia.pronta %} viagem-conferencia--pronta{% endif %}">
+      <div class="viagem-conferencia__resumo">
+        <span class="viagem-conferencia__marca" aria-hidden="true">{% if conferencia.pronta %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}</span>
+        <div class="viagem-conferencia__texto">
+          <p class="viagem-conferencia__titulo">{% if not conferencia.total %}Sem servidores para conferir{% elif conferencia.pronta %}Todos prontos para finalizar{% else %}{{ conferencia.abertas|length|pluralizar:"servidor tem,servidores têm" }} o que resolver{% endif %}</p>
+          <p class="viagem-conferencia__sub">{{ conferencia.concluidas }} de {{ conferencia.total }} sem pendência ou finalizados</p>
+        </div>
+        <progress class="viagem-conferencia__barra" max="{{ conferencia.total|default:1 }}" value="{{ conferencia.concluidas }}" aria-label="{{ conferencia.concluidas }} de {{ conferencia.total }} servidores prontos"></progress>
+      </div>
+      {% if conferencia.abertas %}
+      <ol class="viagem-etapas" aria-label="Servidores com o que resolver">
+        {% for ps, itens in conferencia.abertas %}
+        <li class="viagem-etapa">
+          <h3 class="viagem-etapa__nome"><span class="viagem-etapa__marca" aria-hidden="true">{% icone "circle-dot" classe="icone--sm" %}</span>{{ ps.servidor.nome }}<small>{{ itens|length|pluralizar:"item,itens" }}</small></h3>
+          <ul class="viagem-etapa__itens" aria-label="Pendências de {{ ps.servidor.nome }}">
+            {% for i in itens %}<li><a href="{{ i.url }}"><span>{{ i.mensagem }}</span>{% icone "arrow-right" classe="icone--sm" %}</a></li>{% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+      </ol>
+      {% endif %}
+      {% if conferencia.prontas %}
+      <div class="viagem-concluidas">
+        <h3 class="viagem-concluidas__titulo">{% if conferencia.abertas %}Prontos{% else %}Todos prontos{% endif %}</h3>
+        <ul class="viagem-concluidas__lista" aria-label="Servidores prontos">
+          {% for ps, rotulo in conferencia.prontas %}<li class="viagem-concluida">{% icone "check" classe="icone--sm" %}<span>{{ ps.servidor.nome }} · {{ rotulo }}</span></li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span>{% if b.editavel %}Os cartões gravam sozinhos. {% endif %}{{ b.finalizadas }} de {{ b.total }} finalizadas.</span></div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a>
+  {% if b.editavel %}
+    {% if not b.todas_finalizadas %}
+      <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--primario">{% icone "list-checks" %}Finalizar equipe</button>
+    {% elif b.por_enviar %}
+      <button type="button" class="botao botao--primario" data-abrir-dialogo="envio-{{ b.por_enviar.0.ps.pk }}-equipe">{% icone "send" %}Registrar envio da equipe</button>
+    {% endif %}
+  {% endif %}
+  {% include "viagens/prestacao/_acoes_equipe.html" with rodape=True %}</div>
+</div>
+
+{% if b.editavel %}{% for acao in acoes_equipe %}
+<form id="equipe-{{ p.pk }}-{{ acao }}" method="post" action="{% url 'viagens:acao_equipe_prestacao' p.pk acao %}" hidden data-esperar-salvamento>{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.get_full_path }}"></form>
+{% endfor %}{% endif %}
+{% for l in linhas %}{% if l.editavel and l.ps.finalizada and l.ps.situacao != "enviada" and l.ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=l.ps equipe=False %}{% endif %}{% endfor %}
+{% if b.editavel and b.todas_finalizadas and b.por_enviar %}{% include "viagens/prestacao/_envio.html" with ps=b.por_enviar.0.ps equipe=True %}{% endif %}
+{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% include "componentes/dialogo_motivo.html" %}
+{% include "componentes/dialogo_assinado.html" %}
+{% include "componentes/dialogo_baixar.html" %}
+{% endblock %}
