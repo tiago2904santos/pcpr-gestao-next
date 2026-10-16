@@ -160,4 +160,25 @@ e do Nginx preservadas em `/srv/pcpr/automatico/backups/config-importacao-202610
 Somente o teto de upload do site PCPR mudou de 16m para 32m. `nginx -t` aprovado,
 reload sem reinício, saúde pública 200 com banco ok. Outros sites não alterados.
 SHA-256 do executor instalado: `c2e086c50c1f83d7a88ce4c1812c372969cb0558117f1bd59fc64424aa385319`.
-Publicação e verificação do lote real sintético no HTTPS ainda pendentes.
+Primeira publicação (`ceb7fea`): migrações e subida concluídas; a checagem adicional
+por `docker exec python` não herdava a chave efêmera criada pelo entrypoint. O
+executor parou os serviços por precaução. Corrigido para passar pelo entrypoint,
+sem criar/mostrar credenciais. Serviços iniciados novamente na mesma versão nova;
+checagem e saúde aprovadas, sem reversão de esquema nem perda de dados.
+
+Correção publicada em `31766715827251354e7d309949f2f9f4981b6347`. A segunda execução
+concluiu às **13:46:06 UTC de 16/10/2026**, com esse SHA em `versao-main.txt`,
+importador executando sem reinícios e rede `processamento` confirmada interna.
+Backup da segunda publicação:
+`/srv/pcpr/automatico/backups/20261016T134515-886470689-317667158272`.
+
+Validação no navegador pelo HTTPS hospedado: fita visível na borda direita, janela
+aberta e envio múltiplo real de dois TXT sintéticos sem dados pessoais. Ambos saíram
+da fila e foram convertidos em PDF; sem tipo/número intencionalmente, ambos pediram
+revisão, sem vincular nada a cadastros existentes. Prévia renderizada, texto correto,
+zoom 200% confirmado. Os dois testes foram marcados como ignorados pela interface,
+mantendo originais/histórico e sem deixar revisão pendente. Capturas locais:
+`hospedado-fitinha.jpg`, `hospedado-envio.jpg`, `hospedado-revisao.jpg`. A janela de
+envio foi deixada aberta no endereço hospedado. Logs da implantação preservados em
+`vps-publicacao.log`. Evidências pós-publicação são locais, sem novo push apenas
+para disparar outra implantação.
