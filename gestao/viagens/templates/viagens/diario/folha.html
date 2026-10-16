@@ -2,6 +2,7 @@
 {% load static viagens %}
 {% block titulo %}Diário de bordo · {{ oficio }}{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block modulos %}{% if editavel %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endif %}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}

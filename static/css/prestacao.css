@@ -71,10 +71,10 @@
 .recurso-diario__campos > .modos__campos { grid-template-columns: minmax(0, 1fr); }
 .recurso-diario .modos__campos[data-modo="manual"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 /* Motorista de outro ofício: a viatura é a do diário de lá — sem escolha aqui, só a nota. */
-.recurso-diario__vinculo { display: none; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle); margin: 0; }
-.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .recurso-diario__campos,
+.recurso-diario__campos.recurso-diario__vinculo { display: none; }
+.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .recurso-diario__escolha-viatura,
 .recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario--transporte .modos__campos { display: none; }
-.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario__vinculo { display: flex; }
+.recursos-diario:has(#motorista-modo option[value="outro_oficio"]:checked) .recurso-diario__campos.recurso-diario__vinculo { display: grid; }
 /* A escolha é um <select>: o campo do modo aparece com a opção marcada. */
 @supports selector(:has(*)) {
   .recurso-diario:has(option[value="servidor"]:checked) .modos__campos[data-modo="servidor"],

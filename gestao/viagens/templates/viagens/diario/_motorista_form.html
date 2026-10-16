@@ -7,7 +7,9 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
   prestação). Escolhido o ofício, o diário passa a ser o da prestação dele — motorista,
   viatura, trechos e km vêm de lá — e o bloco de transporte só mostra a viatura de lá.
 - Viatura do cadastro: a mesma escolha do ofício (viagens/_campo_viatura.html), com busca
-  por placa ou modelo e o "+" que cadastra sem sair da folha.
+  por placa ou modelo e o "+" que cadastra sem sair da folha (o mesmo modal do cadastro de
+  viaturas). Não há mais viatura escrita à mão; com motorista de outro ofício, a viatura
+  vem junto, já escolhida.
 {% endcomment %}
 <form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="secao__grupo recursos-diario" id="form-motorista" novalidate data-autosave="{% url 'viagens:autosave_motorista_diario' p.pk %}">
   {% csrf_token %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar motorista e transporte</button>
@@ -51,21 +53,26 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
       <h3 class="secao__bloco-titulo">{% icone "car" classe="icone--sm" %}Transporte</h3>
     </div>
     <div class="recurso-diario__escolha">
-    <p class="recurso-diario__vinculo texto-sm texto-secundario">{% icone "info" classe="icone--sm" %}<span>Com motorista de outro ofício, a viatura é a do diário daquele ofício.</span></p>
-    <div class="recurso-diario__campos">
+    {# Motorista de outro ofício: a viatura vem junto, já escolhida — a do diário de lá. #}
+    <div class="recurso-diario__campos recurso-diario__vinculo">
+      <div class="campo"><label class="campo__rotulo" for="viatura-vinculo-modo">Viatura</label><input class="entrada" id="viatura-vinculo-modo" value="A do motorista" disabled></div>
+      <div class="campo"><label class="campo__rotulo" for="viatura-vinculo">{% if de_la %}Viatura do Ofício {{ de_la.prestacao.oficio.numero_formatado }}{% else %}Viatura do ofício do motorista{% endif %}</label><input class="entrada" id="viatura-vinculo" value="{% if de_la %}{% if viatura.placa %}{{ viatura.placa }} · {% endif %}{{ viatura.modelo|default:'Sem viatura' }}{% endif %}" placeholder="Vem com o ofício do motorista" disabled></div>
+    </div>
+    <div class="recurso-diario__campos recurso-diario__escolha-viatura">
       <div class="campo"><label class="campo__rotulo" for="viatura-modo">Viatura</label>
-        <pc-select class="seletor"><select class="selecao" id="viatura-modo" name="viatura_modo">{% for valor, rotulo in d.ViaturaModo.choices %}<option value="{{ valor }}"{% if d.viatura_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}A do ofício{% elif valor == 'cadastro' %}Outra do cadastro{% else %}Informar à mão{% endif %}</option>{% endfor %}</select></pc-select></div>
+        {# "Informar à mão" saiu: viatura nova se cadastra pelo "+" (o mesmo modal do cadastro). Só os diários antigos ainda a mostram. #}
+        <pc-select class="seletor"><select class="selecao" id="viatura-modo" name="viatura_modo">{% for valor, rotulo in d.ViaturaModo.choices %}{% if valor != 'manual' or d.viatura_modo == 'manual' %}<option value="{{ valor }}"{% if d.viatura_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}A do ofício{% elif valor == 'cadastro' %}Outra do cadastro{% else %}Informada à mão{% endif %}</option>{% endif %}{% endfor %}</select></pc-select></div>
       <div class="modos__campos" data-modo="cadastro">
         {% include "viagens/_campo_viatura.html" with campo=form_viatura_diario.viatura rotulo="Viatura do cadastro" cadastrar=True %}
       </div>
     </div>
-    <div class="modos__campos" data-modo="manual">
+    {% if d.viatura_modo == 'manual' %}<div class="modos__campos" data-modo="manual">
       <div class="campo"><label class="campo__rotulo" for="viatura-modelo">Modelo</label><input class="entrada" id="viatura-modelo" name="viatura_modelo" value="{{ d.viatura_modelo }}" maxlength="120" autocomplete="off"></div>
       <div class="campo"><label class="campo__rotulo" for="viatura-placa">Placa</label><input class="entrada" id="viatura-placa" name="viatura_placa" value="{{ d.viatura_placa }}" maxlength="8" autocomplete="off"></div>
       <div class="campo"><label class="campo__rotulo" for="viatura-tipo">Tipo</label>
         <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
       <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
-    </div>
+    </div>{% endif %}
     </div>
     <div id="viatura-atual" data-vivo>
       <article class="pessoa recurso-selecionado recurso-diario__atual{% if not viatura.modelo %} recurso-diario__atual--vazio{% endif %}" aria-label="Transporte do diário">
