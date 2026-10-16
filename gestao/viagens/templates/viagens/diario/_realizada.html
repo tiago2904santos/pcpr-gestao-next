@@ -1,10 +1,4 @@
 {% comment %}Viagem realizada (9b-2): os horários do que de fato aconteceu, sem mudar o ofício.{% endcomment %}
-{% if realizados %} secao--ok{% endif %}" id="realizada" aria-labelledby="t-realizada">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-realizada"><span class="secao__numero">3</span>Viagem realizada</h2>
-      <div class="secao__estado">{% if realizados %}<span class="selo selo--info selo--sem-ponto">Ajustada</span>{% endif %}</div>
-      <p class="secao__nota">Se os horários de saída ou chegada mudaram, ajuste aqui o que de fato aconteceu: as diárias se recalculam, o diário segue os horários realizados e o relatório técnico registra a mudança. O ofício emitido não muda.</p>
-    </div>
     {% if realizados %}
       {% if p.diarias_realizadas_erro %}<p class="alerta alerta--perigo">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ p.diarias_realizadas_erro }}</span></p>{% endif %}
       {% if editavel %}

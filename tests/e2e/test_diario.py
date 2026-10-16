@@ -31,7 +31,7 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     assert (a.km_inicial, a.km_final) == (10000, 10400)
 
     # Viatura à mão: os campos do modo aparecem só ao marcar.
-    pg.locator("#motorista summary").click()
+    expect(pg.locator("#motorista form")).to_be_visible()
     expect(pg.get_by_label("Modelo", exact=True)).to_be_hidden()
     pg.get_by_text("Preencher à mão").click()
     pg.get_by_label("Modelo", exact=True).fill("Hilux")

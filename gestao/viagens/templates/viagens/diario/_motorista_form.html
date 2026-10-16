@@ -1,12 +1,13 @@
 {% comment %}Trocar motorista e viatura (3 modos cada), só neste diário.{% endcomment %}
 <form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="pilha" novalidate>
       {% csrf_token %}
-      <div class="grade grade--2">
-      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
-        <legend class="campo__rotulo">Motorista</legend>
-        <div class="opcoes">
-          {% for valor, rotulo in d.Motorista.choices %}<label class="opcao"><input type="radio" name="motorista_modo" value="{{ valor }}"{% if d.motorista_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
-        </div>
+      <div class="secao__grupo">
+      <div class="secao__bloco"><fieldset class="modos">
+        <legend class="secao__bloco-titulo">{% icone "user" classe="icone--sm" %}Motorista</legend>
+        <div class="campos"><div class="opcoes opcoes--compactas opcoes--estende">
+          {% for valor, rotulo in d.Motorista.choices %}<label class="opcao"><input type="radio" name="motorista_modo" value="{{ valor }}"{% if d.motorista_modo == valor %} checked{% endif %}><span>{% if valor == 'oficio' %}Do ofício{% elif valor == 'servidor' %}Da equipe{% else %}Outro ofício{% endif %}</span></label>{% endfor %}
+        </div></div>
+        <p class="texto-sm texto-secundario">No ofício: <strong>{{ motorista_oficio|default:"Sem motorista" }}</strong></p>
         <div class="modos__campos" data-modo="servidor">
           <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor do ofício</label>
             <pc-select class="seletor"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione um servidor</option>{% for s in equipe %}<option value="{{ s.pk }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-select></div>
@@ -18,11 +19,12 @@
           <div class="campo"><label class="campo__rotulo" for="motorista-protocolo">Protocolo do motorista</label><input class="entrada" id="motorista-protocolo" name="motorista_protocolo" value="{{ d.motorista_protocolo }}" inputmode="numeric" maxlength="30" autocomplete="off"></div>
         </div>
       </fieldset></div>
-      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
-        <legend class="campo__rotulo">Viatura</legend>
-        <div class="opcoes">
-          {% for valor, rotulo in d.ViaturaModo.choices %}<label class="opcao"><input type="radio" name="viatura_modo" value="{{ valor }}"{% if d.viatura_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
-        </div>
+      <div class="secao__bloco"><fieldset class="modos">
+        <legend class="secao__bloco-titulo">{% icone "car" classe="icone--sm" %}Transporte</legend>
+        <div class="campos"><div class="opcoes opcoes--compactas opcoes--estende">
+          {% for valor, rotulo in d.ViaturaModo.choices %}<label class="opcao"><input type="radio" name="viatura_modo" value="{{ valor }}"{% if d.viatura_modo == valor %} checked{% endif %}><span>{% if valor == 'oficio' %}Do ofício{% elif valor == 'cadastro' %}Do cadastro{% else %}{{ rotulo }}{% endif %}</span></label>{% endfor %}
+        </div></div>
+        <p class="texto-sm texto-secundario">No ofício: <strong>{{ viatura_oficio.rotulo|default:viatura_oficio.modelo|default:"Sem viatura" }}{% if viatura_oficio.placa %} · {{ viatura_oficio.placa }}{% endif %}</strong></p>
         <div class="modos__campos" data-modo="cadastro">
           <div class="campo"><label class="campo__rotulo" for="viatura-cadastro">Viatura do cadastro</label>
             <pc-select class="seletor"><select class="selecao" id="viatura-cadastro" name="viatura"><option value="">Selecione uma viatura</option>{% for vt in viaturas %}<option value="{{ vt.pk }}"{% if d.viatura_id == vt.pk %} selected{% endif %}>{{ vt.modelo }} · {{ vt.placa }}</option>{% endfor %}</select></pc-select></div>
@@ -36,5 +38,6 @@
         </div>
       </fieldset></div>
       </div>
+      {% if alteracoes %}<p class="texto-sm texto-secundario">Recurso trocado só neste diário: {% for a in alteracoes %}{{ a }}{% if not forloop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
       <div><button type="submit" class="botao">{% icone "save" %}Aplicar motorista e viatura</button></div>
     </form>

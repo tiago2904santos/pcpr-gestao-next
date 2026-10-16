@@ -1,0 +1,86 @@
+......FF                                                                 [100%]
+=================================== FAILURES ===================================
+______________ test_diario_refinado_sem_tabela_e_acessivel[1440] _______________
+
+logado = <Page url='http://localhost:39005/viagens/prestacoes/equipe/7/diario/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 31, 'oficio_rascunho': 32, 'oficio_vazio': 33, 'oficio_cancelado': 34, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_diario_refinado_sem_tabela_e_acessivel(logado, dados_e2e, largura):
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 1000})
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+        estabilizar(pg)
+        expect(pg.locator("#tabela-trechos")).to_have_attribute("aria-label", "Trechos do diário")
+        expect(pg.locator("#trechos table")).to_have_count(0)
+        expect(pg.locator("#realizada")).to_have_count(1)
+        expect(pg.locator("#trechos label")).to_have_count(6)
+        expect(pg.locator("#previa [data-editores]")).to_have_count(1)
+        assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        assert rodar_axe(pg) == []
+        destino = ARTEFATOS / "diario-refino"
+        destino.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(destino / f"diario-{largura}.png"), full_page=True)
+        pg.locator("#realizada > summary").click()
+        expect(pg.locator("#realizada")).not_to_contain_text('aria-labelledby="t-realizada"')
+>       expect(pg.get_by_role("button", name="Ajustar horários do que aconteceu")).to_be_visible()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert [{'id': 'targ... space', ...}] == []
+E
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests/e2e/test_diario_refino.py:32: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-16 12:04:13,415 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/7/diario/: 43 consultas (limite 25)
+------------------------------ Captured log call -------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/prestacoes/equipe/7/diario/: 43 consultas (limite 25)
+_____________ test_sugestao_em_linhas_preserva_hodometro_digitado ______________
+
+logado = <Page url='http://localhost:39005/viagens/prestacoes/equipe/8/diario/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 36, 'oficio_rascunho': 37, 'oficio_vazio': 38, 'oficio_cancelado': 39, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+
+    def test_sugestao_em_linhas_preserva_hodometro_digitado(logado, dados_e2e):
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        pg = logado
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+        d = DiarioBordo.objects.get(prestacao=p)
+        a, b = d.linhas.order_by("ordem")
+        botao = pg.get_by_role("button", name="Preencher pelas distâncias")
+        # Sem o hodômetro inicial, não inventa zero nem preenche o trecho.
+        botao.click()
+        inicial = pg.locator(f"#l-{a.pk}-km_inicial")
+        expect(inicial).to_be_focused()
+        expect(pg.locator(f"#l-{a.pk}-km_final")).to_have_value("")
+        inicial.fill("0")
+        pg.locator(f"#l-{a.pk}-km_final").fill("450")
+        botao.click()
+        expect(inicial).to_have_value("0")
+        expect(pg.locator(f"#l-{a.pk}-km_final")).to_have_value("450")
+        expect(pg.locator(f"#l-{b.pk}-km_inicial")).to_have_value("450")
+>       prevista = int(pg.locator(f"#linha-{b.pk}").get_attribute("data-prevista"))
+E       AssertionError: Locator expected to have Value '450'
+E       Actual value:
+E       Call log:
+E         - Expect "to_have_value" with timeout 5000ms
+E         - waiting for locator("#l-16-km_final")
+E           8 × locator resolved to <input value="" maxlength="9" class="entrada" id="l-16-km_final" autocomplete="off" inputmode="numeric" name="l-16-km_final" placeholder="Hodômetro" aria-label="Km final do trecho 2"/>
+E             - unexpected value ""
+
+tests/e2e/test_diario_refino.py:54: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-16 12:05:20,173 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 43 consultas (limite 25)
+2026-10-16 12:05:27,574 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/autosave/: 26 consultas (limite 25)
+2026-10-16 12:05:28,882 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 34 consultas (limite 25)
+------------------------------ Captured log call -------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 43 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/autosave/: 26 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 34 consultas (limite 25)
+=========================== short test summary info ============================
+FAILED tests/e2e/test_diario_refino.py::test_diario_refinado_sem_tabela_e_acessivel[1440]
+FAILED tests/e2e/test_diario_refino.py::test_sugestao_em_linhas_preserva_hodometro_digitado
+2 failed, 6 passed in 781.16s (0:13:01)

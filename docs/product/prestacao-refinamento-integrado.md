@@ -46,6 +46,36 @@ Testes funcionais + navegador + axe e capturas 360/1440, com evidência em docs.
 
 ## Remoção da apresentação antiga
 
+## Diário de bordo — revisão integral em 16/10/2026
+
+Pedido: reconstruir a apresentação, preservando o editor de documento aprovado.
+Evidência inicial: `../visual-agents/evidencias/diario-20261016/antes-{360,1440}.png`.
+A tabela de sete colunas dificulta a leitura no celular; recursos ocupam linhas
+inteiras; horários têm cabeçalho duplicado e um fragmento de HTML exposto.
+
+A folha DOCUMENT passa a compor cartões existentes: identificação compartilhada
+da equipe; resumo de motorista/viatura em duas colunas; trechos com rota, agenda,
+campos rotulados e distância rodada; horários excepcionais em divulgação.
+Reutilizar `diario-linha`, `campo`, `grade`, `pessoa`, `divulgacao` e `secao`.
+Não criar componentes nem mudar o editor, o PDF, os cálculos ou os endpoints.
+Manter IDs, nomes, autosave, foco, consulta, trava e continuidade por servidor.
+As sugestões de distância só preenchem campos vazios e permanecem estimativas.
+Validar edição em banco sintético isolado, acessibilidade e capturas 360/1440.
+
+## Histórico da recomposição anterior
+
+### Revisão solicitada: base literal no cadastro do Ofício (16/10/2026)
+
+A composição em cartões acima foi rejeitada pelo usuário. Substituí-la pela
+composição de `oficios/editar.html`: hero, documento contínuo de preparação,
+seções numeradas com cabeçalho e conteúdo, campos de recursos e barra fixa.
+Motorista/transporte ficam diretamente editáveis; roteiro agrupa hodômetro e
+ajuste de horários; documento mantém integralmente o editor aprovado. Remover
+o índice de etapas e os cartões de resumo duplicados. Não criar campos do Ofício
+que não pertencem ao diário. Manter todos os contratos e estados anteriores.
+Referência visual: cadastro existente 266, consultado sem salvar alterações.
+
+
 Busca de consumidores encontrou as classes `prestacao-equipe`/`prestacao-servidor`
 somente na lista, em Anexos e no catálogo UI Lab. Os três foram recompostos com
 cartão/registro/metadados/grade; retirado o bloco específico de 235 linhas

@@ -1,4 +1,3 @@
-    {% if d %}
-    <a class="botao" href="{% url 'viagens:documento_diario' p.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Diário (PDF)</a>
-    <a class="botao" href="{% url 'viagens:documento_diario' p.pk 'xlsx' %}">{% icone "download" %}Planilha</a>
-    {% endif %}
+{% load viagens %}
+<a href="#previa" class="botao botao--sm">{% icone "file-text" classe="icone--sm" %}Ver documento</a>
+{% include "viagens/prestacao/_cabecalho_acoes.html" with servidor_atual=None menu_folha="viagens/diario/_menu.html" %}

@@ -19,7 +19,7 @@ document.addEventListener("click", (e) => {
   const tabela = document.getElementById(botao.dataset.preencherDistancias || "");
   if (!tabela) return;
   let atual = NaN;
-  for (const linha of tabela.querySelectorAll("tr[data-prevista]")) {
+  for (const linha of tabela.querySelectorAll("[data-prevista]")) {
     const prevista = Number(linha.getAttribute("data-prevista"));
     const saida = /** @type {HTMLInputElement | null} */ (linha.querySelector("input[name$='-km_inicial']"));
     const chegada = /** @type {HTMLInputElement | null} */ (linha.querySelector("input[name$='-km_final']"));

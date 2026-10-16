@@ -1,0 +1,129 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 629 files, 3404 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (18 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de Cadastros KEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 320 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pdftotext is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: programa is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: sem is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: shell is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao/viagens/management/commands/semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+/opt/venv/lib/python3.13/site-packages/django/core/management/commands/makemigrations.py:162: RuntimeWarning: Got an error checking a consistent migration history performed for database connection 'default': connection failed: connection to server at "127.0.0.1", port 5432 failed: FATAL:  database "pcpr_diario_verificacao2_20261016" does not exist
+  warnings.warn(
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [ 10%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+.....
+=============================== warnings summary ===============================
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  /opt/venv/lib/python3.13/site-packages/pypdf/_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/usr/local/lib/python3.13/threading.py:363: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+581 passed, 3 warnings in 927.72s (0:15:27)

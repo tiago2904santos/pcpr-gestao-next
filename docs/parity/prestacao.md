@@ -103,6 +103,24 @@ da rodada, crítica e validação em `docs/visual-agents/qa/prestacao-refino-202
 
 ## No padrão do sistema modelo, com as peças das folhas — 16/10/2026 (ADR 0042)
 
+### Revisão visual do diário — ADR 0043
+
+O diário mantém paridade funcional (hodômetro, abastecimento, sugestão pelas
+distâncias, motorista/viatura, horários realizados, conferência e editor).
+A apresentação deixa a tabela de sete colunas e passa a usar linhas responsivas
+existentes, recursos lado a lado e ajuste excepcional de horários em divulgação.
+O editor e os documentos oficiais não mudaram. Não se declara nova comparação
+com o sistema de referência: a base é o contrato já registrado nesta matriz.
+Evidências e resultados: `../qa/diario-refino-20261016.md`.
+
+### Base anterior preservada
+
+Revisão posterior por solicitação expressa: o Diário agora segue diretamente o
+cadastro do Ofício (`documento--preparacao`): recursos abertos, roteiro/quilometragem
+e documento em três seções numeradas. Substitui os cartões e etapas descritos na
+revisão anterior. Editor e contratos preservados; evidências da implementação e
+validação em `../qa/diario-base-oficio-20261016.md`.
+
 - Lista: a linha operacional da lista de ofícios por ofício e, colada, uma linha de registro
   por servidor com o nº da solicitação e o prazo de saque gravando sozinhos na própria lista
   (como a lista real do sistema modelo), o que já foi feito (diário, relatório, comprovante,

@@ -1,0 +1,6 @@
+{% load viagens %}
+<p class="registro-hero__metadados" id="frase-prestacao" data-vivo>
+  <span class="registro-hero__metadado">{% icone "map-pin" classe="icone--sm" %}{{ b.destinos|default:"Destino não informado" }}</span>
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ b.periodo|default:"Datas não informadas" }}</span>
+  <a class="registro-hero__metadado" href="{% url 'viagens:editar' oficio.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "file-text" classe="icone--sm" %}Ver ofício</a>
+</p>
