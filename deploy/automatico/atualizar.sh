@@ -174,7 +174,7 @@ saude
 if servicos_aplicacao "$APP" | grep -qx importador; then
   [ "$(docker inspect pcpr-preview-importador-1 --format '{{.State.Running}}')" = true ]
   [ "$(docker inspect pcpr-preview-importador-1 --format '{{.RestartCount}}')" = 0 ]
-  docker exec pcpr-preview-importador-1 python manage.py migrate --check </dev/null
+  docker exec pcpr-preview-importador-1 scripts/preview-entrypoint.sh python manage.py migrate --check </dev/null
 fi
 printf '%s\n' "$SHA" >"$APP/versao-main.txt"
 printf '%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$IMAGEM" "$BACKUP" >>"$RAIZ/implantacoes.tsv"
