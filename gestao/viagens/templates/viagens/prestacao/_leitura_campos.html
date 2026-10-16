@@ -1,0 +1,18 @@
+{% comment %}Os campos lidos de um documento (RT ou diário), cada um com Copiar; Copiar tudo e o texto completo. `c` (Leitura), `prefixo` (ids únicos).{% endcomment %}
+<div class="dados-copiaveis">
+  {% for campo in c.campos %}
+  <div class="campo dado-copiavel{% if campo.longo %} dado-copiavel--largo{% endif %}">
+    <label class="campo__rotulo" for="{{ prefixo }}-{{ c.anexo.pk }}-{{ forloop.counter }}">{{ campo.rotulo }}</label>
+    <div class="linha">
+      {% if campo.longo %}<textarea class="entrada" id="{{ prefixo }}-{{ c.anexo.pk }}-{{ forloop.counter }}" rows="3" readonly placeholder="Não encontrado">{{ campo.valor }}</textarea>
+      {% else %}<input class="entrada" id="{{ prefixo }}-{{ c.anexo.pk }}-{{ forloop.counter }}" value="{{ campo.valor }}" placeholder="Não encontrado" readonly>{% endif %}
+      <button type="button" class="botao botao--sm" data-copiar-alvo="{{ prefixo }}-{{ c.anexo.pk }}-{{ forloop.counter }}" aria-live="polite"{% if not campo.valor %} disabled{% endif %}>{% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> {{ campo.rotulo }}</span></button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="linha mt-2">
+  <button type="button" class="botao botao--sm" data-copiar-alvo="{{ prefixo }}-tudo-{{ c.anexo.pk }}" data-copiar-revelar="{{ prefixo }}-selecao-{{ c.anexo.pk }}" aria-controls="{{ prefixo }}-selecao-{{ c.anexo.pk }}" aria-live="polite">{% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar tudo</span></button>
+  <details class="divulgacao mt-2"><summary>{% icone "file-text" classe="icone--sm" %}Texto completo do PDF</summary><div class="divulgacao__corpo"><textarea class="entrada" rows="10" readonly aria-label="Texto de {{ c.titulo }}">{{ c.texto }}</textarea></div></details>
+  <div class="campo" id="{{ prefixo }}-selecao-{{ c.anexo.pk }}" hidden><label class="campo__rotulo" for="{{ prefixo }}-tudo-{{ c.anexo.pk }}">Todos os dados para copiar</label><textarea class="entrada" id="{{ prefixo }}-tudo-{{ c.anexo.pk }}" rows="6" readonly>{{ c.copiar_tudo }}</textarea><p class="campo__ajuda">O texto foi selecionado. Pressione Ctrl+C para copiar.</p></div>
+</div>

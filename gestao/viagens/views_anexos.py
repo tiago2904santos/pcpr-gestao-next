@@ -16,7 +16,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, assinados, carimbo, diario, pacote_prestacao, policies
+from . import (
+    anexos,
+    assinados,
+    carimbo,
+    diario,
+    eprotocolo,
+    pacote_prestacao,
+    policies,
+    views_prestacao,
+)
 from . import prestacao as servico
 from .dominio import relatorio as dominio_rt
 from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, ViaAssinada
@@ -96,13 +105,24 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "db": next(iter(da_equipe["db_assinado"]), None), "servidores": servidores,
         "editavel_equipe": pode and not equipe_travada, "equipe_finalizada": equipe_travada,
         "operacoes": AnexoPrestacao.Operacao.choices,
+        "copia": eprotocolo.projetar_dados_eprotocolo(oficio),
         "anteriores": list(anexos.versoes_anteriores(p)), "pode": pode,
+        **views_prestacao.contexto_folha(request, p, "documentos"),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Documentos · {oficio}", ""))})
+                              (f"Ofício {oficio.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Documentos", ""))})
 
 
-def _voltar(p: PrestacaoContas, ancora: str) -> str:
-    return reverse("viagens:documentos_prestacao", args=[p.pk]) + f"#{ancora}"
+def _voltar(p: PrestacaoContas, ancora: str, servidor: str | int | None = "") -> str:
+    """De volta aos documentos, no servidor que estava aberto (?servidor=) e na âncora."""
+    base = reverse("viagens:documentos_prestacao", args=[p.pk])
+    consulta = f"?servidor={servidor}" if str(servidor or "").isdigit() else ""
+    return f"{base}{consulta}#{ancora}"
+
+
+def _servidor_aberto(request: HttpRequest) -> str:
+    return str(request.POST.get("servidor_atual") or request.POST.get("servidor") or "")
 
 
 @require_POST
@@ -126,7 +146,7 @@ def anexar(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, str(exc))
     else:
         messages.success(request, "Documento anexado.")
-    return redirect(_voltar(p, ancora))
+    return redirect(_voltar(p, ancora, _servidor_aberto(request)))
 
 
 @require_GET
@@ -152,7 +172,7 @@ def pacote_servidor(request: HttpRequest, ps_pk: int) -> HttpResponse:
         conteudo = pacote_prestacao.pdf(ps)
     except pacote_prestacao.PacoteIncompleto as exc:
         messages.error(request, f"{ps.servidor.nome}: {exc}")
-        return redirect(_voltar(ps.prestacao, f"ps-{ps.pk}"))
+        return redirect(_voltar(ps.prestacao, f"ps-{ps.pk}", ps.pk))
     resposta = HttpResponse(conteudo, content_type="application/pdf")
     resposta["Content-Disposition"] = (
         f'attachment; filename="{pacote_prestacao.nome_do_pdf(ps)}"')
@@ -196,7 +216,7 @@ def carimbar(request: HttpRequest, ps_pk: int) -> HttpResponse:
         messages.error(request, str(exc))
     else:
         messages.success(request, "Posição do número salva — confira na prévia.")
-    return redirect(_voltar(ps.prestacao, "oficio_assinado"))
+    return redirect(_voltar(ps.prestacao, "oficio_assinado", ps.pk))
 
 
 @require_GET
@@ -232,4 +252,4 @@ def acao(request: HttpRequest, anexo_pk: int, nome: str) -> HttpResponse:
             raise Http404
     except (anexos.AnexoInvalido, dominio_rt.ValorInvalido, PermissionDenied) as exc:
         messages.error(request, str(exc))
-    return redirect(_voltar(a.prestacao, ancora))
+    return redirect(_voltar(a.prestacao, ancora, _servidor_aberto(request) or a.servidor_id))

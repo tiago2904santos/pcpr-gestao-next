@@ -1,0 +1,45 @@
+/* Prestação de contas (ADR 0042). Só tokens. A lista é a linha operacional do ofício com uma
+   linha de registro por servidor dentro; as folhas usam as peças do termo/OS (secao, editores).
+   Aqui só fica o que essas peças não cobrem: o encaixe dos servidores no registro do ofício, os
+   campos da solicitação na linha, o trilho de pendências da barra de filtros e o km na tabela. */
+
+/* Pendências na barra de filtros: cinco atalhos; o trilho encolhe e rola de lado em vez de estourar a largura. */
+.filtros--barra .filtros__lado--flexivel { flex: 1 1 22rem; min-width: 0; }
+.filtros__lado--flexivel > .filtros__documento { flex: 0 1 auto; }
+.filtros__lado--flexivel > .filtros__documento > .segmentado { display: flex; max-width: 100%; }
+/* O ⋮ do cabeçalho do primeiro bloco abre para cima quando não cabe embaixo: o recorte
+   arredondado da caixa de resultados (listas.css) não pode cortar o painel. */
+.pagina--prestacoes .lista-resultados { clip-path: none; }
+
+/* ---------------------------------------------------------------- folhas (diário): km na tabela */
+.tabela .num > .entrada { width: 6.5rem; text-align: right; }
+
+/* ---------------------------------------------------------------- lista: os servidores dentro do registro do ofício */
+/* O registro do ofício e, colado a ele (sem o vão da lista), o bloco dos servidores: um
+   cartão só — o de cima com as quinas de cima, o de baixo com as de baixo. */
+.registros--operacionais > .registro-operacional.registro--prestacao { border-radius: var(--raio-lg) var(--raio-lg) 0 0; }
+.registros--operacionais > .registro-operacional__servidores { margin-top: calc(-1 * var(--esp-2)); border: var(--borda); border-top: 0; border-radius: 0 0 var(--raio-lg) var(--raio-lg); background: var(--cor-superficie); }
+.registro-operacional__servidores > .registros > .registro { padding: var(--esp-3) var(--esp-4); border-top: var(--borda-sutil); }
+.registro-operacional__servidores > .registros > .registro:last-child { border-radius: 0 0 var(--raio-lg) var(--raio-lg); }
+/* A linha do servidor: avatar, corpo e, à direita, os campos da solicitação e as ações. */
+.registro--servidor { grid-template-columns: auto minmax(0, 1fr) auto; }
+.registro--servidor > .registro__corpo-form { display: contents; }
+.registro--servidor .registro__link-texto { font-weight: var(--peso-semi); color: var(--cor-texto); }
+.registro--servidor .registro__motorista { font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.registro--servidor .registro__acoes { flex-wrap: wrap; align-items: flex-end; justify-content: flex-end; }
+.registro--servidor .registro__campo { margin: 0; }
+.registro--servidor .registro__campo--solicitacao { width: 8.5rem; }
+.registro--servidor .registro__campo--prazo { width: 15.5rem; }
+.registro--servidor .registro__salvo { margin: var(--esp-1) 0 0; }
+.registro--servidor .registro__salvo:empty { display: none; }
+/* Até 1023px: avatar e corpo na primeira faixa; os campos e as ações numa faixa inteira embaixo. */
+@media (max-width: 1023.98px) {
+  .registro.registro--servidor { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "avatar corpo" "acoes acoes"; }
+  .registro--servidor > .registro__corpo-form > .avatar { grid-area: avatar; }
+  .registro--servidor > .registro__corpo-form > .registro__corpo { grid-area: corpo; }
+  .registro--servidor > .registro__corpo-form > .registro__acoes { grid-area: acoes; justify-content: flex-start; }
+}
+@media (max-width: 767.98px) {
+  .registro--servidor .registro__campo--solicitacao { width: 7.5rem; }
+  .registro--servidor .registro__campo--prazo { flex: 1 1 12rem; width: auto; }
+}

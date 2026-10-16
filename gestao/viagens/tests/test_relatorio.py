@@ -122,9 +122,9 @@ def test_permissoes(c):
 def test_folha_autosave_e_documentos(c, django_assert_max_num_queries):
     p = _p(c)
     op = _cliente(c, "operador")
-    with django_assert_max_num_queries(40):
+    with django_assert_max_num_queries(55):
         r = op.get(reverse("viagens:relatorio", args=[p.pk]))
-    assert r.status_code == 200 and "Valores usados" in r.content.decode()
+    assert r.status_code == 200 and 'id="custeio"' in r.content.decode()
     r = op.post(reverse("viagens:autosave_relatorio", args=[p.pk]),
                 {"motivo": "Feira em Arapongas.", "atividade": "Atendimento.",
                  "conclusao": "Tudo certo.", "passagem": "Não houve"})

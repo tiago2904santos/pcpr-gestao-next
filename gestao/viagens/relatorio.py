@@ -354,27 +354,26 @@ def dados_do_documento(rt: RelatorioTecnico, ps: PrestacaoServidor) -> dict:
         "secoes": [{"titulo": dominio.ROTULOS[c],
                     "texto": (rt.motivo or oficio.motivo) if c == "motivo"
                     else getattr(rt, c)} for c in dominio.CAMPOS_TEXTO],
+        # O texto editado no visualizador (EdicaoPrestacao) vale para a folha, o PDF e o DOCX.
+        "chave": f"rt-{ps.pk}",
+        "regioes_editadas": _regioes_editadas(rt.prestacao, ps),
     }
 
 
-def html_do_documento(dados: dict) -> str:
-    from django.template.loader import render_to_string
+def _regioes_editadas(prestacao: PrestacaoContas, ps: PrestacaoServidor) -> dict[str, str]:
+    from . import prestacao_texto
+    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.chave_rt(ps.pk))
 
-    from .documentos.pdf import _recursos
-    return render_to_string("viagens/documentos/relatorio_tecnico.html",
-                            {"d": dados, **_recursos(False)})
+
+def html_do_documento(dados: dict) -> str:
+    """O HTML do RT com o texto editado no visualizador (prestacao_texto)."""
+    from . import prestacao_texto
+    return prestacao_texto.html_do_documento(dados)
 
 
 def pdf_do_documento(dados: dict) -> bytes:
-    import hashlib
-
-    from weasyprint import HTML
-
-    from .documentos.pdf import ASSETS, buscar_recurso
-    html = html_do_documento(dados)
-    return HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf(
-        pdf_variant="pdf/a-2a", pdf_identifier=hashlib.sha256(html.encode()).digest()[:16],
-        pdf_tags=True, custom_metadata=True, presentational_hints=True)
+    from . import prestacao_texto
+    return prestacao_texto.pdf_do_documento(dados)
 
 
 def docx_do_documento(dados: dict) -> bytes:

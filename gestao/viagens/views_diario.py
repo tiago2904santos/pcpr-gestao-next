@@ -16,11 +16,13 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from gestao.cadastros.models import Viatura
+from gestao.cadastros.validacoes import formatar_cpf
 
-from . import diario, policies, realizado
+from . import diario, policies, realizado, views_prestacao
 from .dominio.diario import km as dominio_km
 from .models import DiarioBordo, PrestacaoContas
 from .views import _migalhas
+from .views_editor import moldura_da_folha, resposta_de_folha
 
 CAMPO_LINHA = re.compile(r"^l-(\d+)-(km_inicial|km_final|abastecimento)$")
 
@@ -59,6 +61,8 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         return dominio_km(valor) if valor is not None else ""
 
     linhas = [{"l": linha, "rota": diario.rota(linha), "prevista": diario.prevista(linha),
+               "origem": diario.rota(linha).split(" → ")[0],
+               "destino": diario.rota(linha).split(" → ")[-1],
                "rodado": conf.rodados[i] if conf else None,
                "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
                "fonte": diario.fonte(linha)}
@@ -77,7 +81,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "editavel": editavel, "equipe_finalizada": finalizada,
         "preenchidas": preenchidas, "completo": bool(lista) and preenchidas == len(lista),
         "faltam": len(lista) - preenchidas,
-        "motorista": {"nome": nome, "cpf": cpf}, "viatura": v,
+        "motorista": {"nome": nome, "cpf": formatar_cpf(cpf)}, "viatura": v,
         "motorista_oficio": mot_oficio[0], "viatura_oficio": via_oficio,
         "alteracoes": (diario.alteracoes(d, do_oficio=mot_oficio, viatura_oficio=via_oficio)
                        if d else []),
@@ -85,8 +89,11 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                    .order_by("ordem")],
         "viaturas": Viatura.objects.filter(ativo=True).order_by("modelo", "placa"),
         "tipos_viatura": Viatura.Tipo.choices,
+        **views_prestacao.contexto_folha(request, p, "diario"),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Diário de bordo · {oficio}", ""))})
+                              (f"Ofício {oficio.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Diário de bordo", ""))})
 
 
 @require_POST
@@ -202,3 +209,22 @@ def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
     nome = diario.nome_do_arquivo(d, formato)
     resposta["Content-Disposition"] = f'{disposicao}; filename="{nome}"'
     return resposta
+
+
+@require_GET
+@moldura_da_folha
+def folha_documento(request: HttpRequest, pk: int) -> HttpResponse:
+    """O diário como sai (HTML), para o visualizador/editor da folha. ?versao=N mostra uma
+    versão do texto (o histórico do editor); 0 é o modelo."""
+    from . import prestacao_texto
+    p = _prestacao(request, pk)
+    if not diario.pode_editar(request.user, p):
+        get_object_or_404(DiarioBordo, prestacao=p)  # consulta: só o diário já aberto
+    regioes, marcados = prestacao_texto.regioes_da_versao(
+        p, prestacao_texto.CHAVE_DIARIO, request.GET.get("versao") or "")
+    if marcados is None:
+        raise Http404
+    return resposta_de_folha(request, lambda nonce: prestacao_texto.html_do_documento(
+        prestacao_texto.dados_do_documento(p, prestacao_texto.CHAVE_DIARIO), folha=True,
+        nonce=nonce, regioes=regioes, blocos_alterados=marcados),
+        erros=(diario.DiarioInvalido, prestacao_texto.PrestacaoInvalida))

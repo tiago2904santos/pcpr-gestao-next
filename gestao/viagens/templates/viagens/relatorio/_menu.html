@@ -1,0 +1,3 @@
+{% load viagens %}{# Itens do ⋮ do cabeçalho na folha do relatório técnico. #}
+{% if rt and servidor_atual %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_relatorio' p.pk servidor_atual.ps.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}RT de {{ servidor_atual.ps.servidor.nome }} em PDF<span class="sr-only"> (nova aba)</span></a>
+<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_relatorio' p.pk servidor_atual.ps.pk 'docx' %}">{% icone "download" %}RT de {{ servidor_atual.ps.servidor.nome }} (DOCX)</a>{% endif %}

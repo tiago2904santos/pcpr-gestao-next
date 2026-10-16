@@ -17,8 +17,9 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     a = PrestacaoServidor.objects.filter(prestacao=p).order_by("servidor__nome").first()
     pg = logado
     pg.goto("/viagens/prestacoes/")
-    pg.locator(f"#equipe-{p.pk}").get_by_role("link", name="Relatório técnico").click()
-    expect(pg.get_by_role("heading", name="Relato")).to_be_visible()
+    pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
+    pg.get_by_role("menuitem", name="2 · Relatório técnico").click()
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Relatório técnico")
     pg.get_by_label("Objetivo da participação").fill("Atendimento ao público no evento.")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     assert RelatorioTecnico.objects.get(prestacao=p).atividade.startswith("Atendimento")
@@ -32,7 +33,8 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("liberado")
 
     # O PDF do servidor (o visualizador de PDF não abre no navegador sem interface).
-    href = pg.get_by_role("link", name=f"PDF do RT de {a.servidor.nome}").get_attribute("href")
+    pg.get_by_role("button", name="Mais ações da prestação").click()
+    href = pg.get_by_role("menuitem", name=f"RT de {a.servidor.nome} em PDF").get_attribute("href")
     resposta = pg.request.get(href)
     assert resposta.ok and resposta.headers["content-type"] == "application/pdf"
 

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static viagens %}
+{% block titulo %}Leitura e conferência · {{ oficio }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Etapa 4 da prestação de contas (ADR 0042), com as peças da folha do termo e da OS: o que
+está escrito nos anexos transcrito em campos para copiar (os mesmos "dados copiáveis" dos
+dados para o eProtocolo do ofício). 1 Comprovantes — por servidor, o nº de autorização, a
+data, o valor e a operação lidos do PDF do banco, conferidos com a diária do ofício e com a
+do RT assinado; "Usar no comprovante" grava o lido no anexo. 2 Relatório técnico assinado e
+3 Diário de bordo assinado — os campos como estão no PDF. Nada é gravado ao abrir.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Leitura e conferência" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
+
+<div class="documento documento--preparacao">
+  {# 1. Comprovantes: por servidor, o que foi lido e a conferência. #}
+  <section class="secao" id="comprovantes" aria-labelledby="t-comprovantes">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-comprovantes"><span class="secao__numero">1</span>Comprovantes de saque e transferência</h2>
+      <div class="secao__estado"><span class="texto-terciario texto-xs">{{ lidos|pluralizar:"documento lido,documentos lidos" }}</span></div>
+      <p class="secao__nota">Nº de autorização (o código do banco), data e valor lidos do PDF. O valor é conferido com a diária do ofício e com a escrita no relatório técnico assinado. PDF digitalizado ou imagem não têm texto para ler.</p>
+    </div>
+    {% for s in servidores %}{% with ps=s.ps %}
+    <div class="secao__bloco" id="ps-{{ ps.pk }}" aria-labelledby="t-ps-{{ ps.pk }}">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-ps-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">diária do ofício {% if s.liberada %}{{ s.liberada|moeda }}{% else %}não calculada{% endif %}{% if s.diaria_rt %} · do RT {{ s.diaria_rt|moeda }}{% endif %}</span></div>
+      </div>
+      <div class="pilha">
+      {% for c in s.comprovantes %}
+        <div class="secao__bloco" id="anexo-{{ c.anexo.pk }}">
+          <div class="secao__bloco-cabecalho">
+            <h4 class="secao__bloco-titulo">{% icone "receipt" classe="icone--sm" %}<a href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{{ c.titulo }}</a></h4>
+            {% if c.legivel %}<div class="secao__estado">{% for texto, tom in c.conferencias %}<span class="selo selo--{{ tom }}">{{ texto }}</span>{% endfor %}</div>{% endif %}
+          </div>
+          {% if c.legivel %}
+          <div class="dados-copiaveis">
+            {% for campo in c.campos %}
+            <div class="campo dado-copiavel">
+              <label class="campo__rotulo" for="lido-{{ c.anexo.pk }}-{{ forloop.counter }}">{{ campo.rotulo }}</label>
+              <div class="linha">
+                <input class="entrada" id="lido-{{ c.anexo.pk }}-{{ forloop.counter }}" value="{{ campo.valor }}" placeholder="Não encontrado" readonly>
+                <button type="button" class="botao botao--sm" data-copiar-alvo="lido-{{ c.anexo.pk }}-{{ forloop.counter }}" aria-live="polite"{% if not campo.valor %} disabled{% endif %}>{% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> {{ campo.rotulo }}</span></button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="linha mt-2">
+            <button type="button" class="botao botao--sm" data-copiar-alvo="tudo-{{ c.anexo.pk }}" data-copiar-revelar="selecao-{{ c.anexo.pk }}" aria-controls="selecao-{{ c.anexo.pk }}" aria-live="polite">{% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar tudo</span></button>
+            {% if s.editavel and c.valor %}
+            <form method="post" action="{% url 'viagens:acao_anexo' c.anexo.pk 'comprovante' %}" class="linha">{% csrf_token %}
+              <input type="hidden" name="servidor_atual" value="{{ ps.pk }}">
+              <input type="hidden" name="valor" value="{{ c.valor|stringformat:'.2f' }}">
+              <input type="hidden" name="data_operacao" value="{% if c.data %}{{ c.data|date:'d/m/Y' }}{% endif %}">
+              <input type="hidden" name="operacao" value="{{ c.operacao|lower }}">
+              <button type="submit" class="botao botao--sm botao--sutil">{% icone "check" %}Usar no comprovante</button>
+              <span class="texto-xs texto-secundario">Grava valor, data e operação lidos{% if c.anexo.valor %} (hoje: {{ c.anexo.valor|moeda }}{% if c.anexo.data_operacao %} em {{ c.anexo.data_operacao|date:"d/m/Y" }}{% endif %}){% endif %}.</span>
+            </form>
+            {% endif %}
+          </div>
+          <details class="divulgacao mt-2"><summary>{% icone "file-text" classe="icone--sm" %}Texto completo do PDF</summary><div class="divulgacao__corpo"><textarea class="area-texto" rows="8" readonly aria-label="Texto do comprovante {{ c.titulo }}">{{ c.texto }}</textarea></div></details>
+          <div class="campo" id="selecao-{{ c.anexo.pk }}" hidden><label class="campo__rotulo" for="tudo-{{ c.anexo.pk }}">Todos os dados para copiar</label><textarea class="area-texto" id="tudo-{{ c.anexo.pk }}" rows="4" readonly>{{ c.copiar_tudo }}</textarea><p class="campo__ajuda">O texto foi selecionado. Pressione Ctrl+C para copiar.</p></div>
+          {% else %}
+          <p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
+          {% endif %}
+        </div>
+      {% empty %}
+        <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}#comprovantes">Anexar em Documentos</a>.</p>
+      {% endfor %}
+      </div>
+    </div>
+    {% endwith %}{% empty %}
+      {% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor nesta prestação" texto="A equipe vem do ofício emitido." %}
+    {% endfor %}
+  </section>
+
+  {# 2. Relatório técnico assinado, por servidor. #}
+  <section class="secao" id="relatorios" aria-labelledby="t-relatorios">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-relatorios"><span class="secao__numero">2</span>Relatório técnico assinado</h2>
+      <p class="secao__nota">Os campos do RT como estão no PDF anexado, para copiar; a diária escrita nele entra na conferência do comprovante.</p>
+    </div>
+    {% for s in servidores %}{% with ps=s.ps c=s.rt %}
+    <div class="secao__bloco" aria-labelledby="t-rt-{{ ps.pk }}">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-rt-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
+        {% if c %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{% icone "file-pen-line" classe="icone--sm" %}{{ c.titulo }}</a></div>{% endif %}
+      </div>
+      {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}?servidor={{ ps.pk }}#rt_assinado">Anexar em Documentos</a>.</p>
+      {% elif not c.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
+      {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=c prefixo="rt" %}{% endif %}
+    </div>
+    {% endwith %}{% endfor %}
+  </section>
+
+  {# 3. Diário de bordo assinado (da equipe). #}
+  <section class="secao" id="diario-lido" aria-labelledby="t-diario-lido">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">3</span>Diário de bordo assinado</h2>
+      {% if diario and diario.legivel %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{% icone "gauge" classe="icone--sm" %}{{ diario.titulo }}</a></div>{% endif %}
+      <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado.</p>
+    </div>
+    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}#db_assinado">Anexar em Documentos</a>.</p>
+    {% elif not diario.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ diario.aviso }}</span></p>
+    {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=diario prefixo="db" %}{% endif %}
+  </section>
+</div>
+
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "scan-text" classe="icone--sm" %}<span>{{ lidos|pluralizar:"documento lido,documentos lidos" }}. Nada é gravado ao abrir esta página.</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
+    <a class="botao botao--primario" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "list" %}Concluir: voltar à lista</a>
+  </div>
+</div>
+{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}

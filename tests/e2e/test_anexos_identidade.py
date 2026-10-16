@@ -1,5 +1,7 @@
 """Documentos da prestação: correção operável em cada largura."""
 
+import re
+
 import pytest
 from playwright.sync_api import expect
 
@@ -22,12 +24,11 @@ def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
-    titulo = pg.get_by_role("heading", level=1)
-    expect(titulo).to_be_visible()
-    expect(titulo).to_contain_text("Documentos da prestação")
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos e fechamento")
+    expect(pg.get_by_role("button", name=re.compile("^Servidor da folha"))).to_contain_text(ps.servidor.nome)
     cartao = pg.locator(f"#ps-{ps.pk}")
-    resumo = cartao.locator("summary").first
-    resumo.focus()
+    corrigir = cartao.get_by_role("button", name=re.compile("^Corrigir valor"))
+    corrigir.focus()
     pg.keyboard.press("Enter")
     campo = cartao.locator(f"#a{a.pk}-valor")
     expect(campo).to_be_visible()
@@ -72,7 +73,7 @@ def test_carimbo_responsivo_preserva_via_assinada(logado, dados_e2e):
     prestacao.salvar_solicitacao(operador, ps.pk, numero="2030/1", liberacao=None, prazo=None)
     pg = logado
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
-    pg.get_by_text("Número da solicitação no ofício assinado", exact=True).click()
+    pg.get_by_text("Posição do número da solicitação no ofício assinado", exact=True).click()
     for largura in [360, 768, 1440]:
         pg.set_viewport_size({"width": largura, "height": 900})
         expect(pg.locator(f"#c{ps.pk}-x")).to_be_visible()

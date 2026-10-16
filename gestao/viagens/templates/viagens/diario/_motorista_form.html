@@ -1,0 +1,40 @@
+{% comment %}Trocar motorista e viatura (3 modos cada), só neste diário.{% endcomment %}
+<form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="pilha" novalidate>
+      {% csrf_token %}
+      <div class="grade grade--2">
+      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
+        <legend class="campo__rotulo">Motorista</legend>
+        <div class="opcoes">
+          {% for valor, rotulo in d.Motorista.choices %}<label class="opcao"><input type="radio" name="motorista_modo" value="{{ valor }}"{% if d.motorista_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
+        </div>
+        <div class="modos__campos" data-modo="servidor">
+          <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor do ofício</label>
+            <pc-select class="seletor"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione um servidor</option>{% for s in equipe %}<option value="{{ s.pk }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-select></div>
+        </div>
+        <div class="modos__campos" data-modo="outro_oficio">
+          <div class="campo"><label class="campo__rotulo" for="motorista-nome">Nome do motorista</label><input class="entrada" id="motorista-nome" name="motorista_nome" value="{{ d.motorista_nome }}" maxlength="255" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="motorista-cpf">CPF</label><input class="entrada" id="motorista-cpf" name="motorista_cpf" value="{{ d.motorista_cpf }}" inputmode="numeric" maxlength="14" autocomplete="off" data-mascara="cpf"></div>
+          <div class="campo"><label class="campo__rotulo" for="motorista-oficio">Ofício do motorista</label><input class="entrada" id="motorista-oficio" name="motorista_oficio" value="{{ d.motorista_oficio }}" placeholder="15/2026" maxlength="16" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="motorista-protocolo">Protocolo do motorista</label><input class="entrada" id="motorista-protocolo" name="motorista_protocolo" value="{{ d.motorista_protocolo }}" inputmode="numeric" maxlength="30" autocomplete="off"></div>
+        </div>
+      </fieldset></div>
+      <div class="cartao cartao__corpo"><fieldset class="modos modos--recurso">
+        <legend class="campo__rotulo">Viatura</legend>
+        <div class="opcoes">
+          {% for valor, rotulo in d.ViaturaModo.choices %}<label class="opcao"><input type="radio" name="viatura_modo" value="{{ valor }}"{% if d.viatura_modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
+        </div>
+        <div class="modos__campos" data-modo="cadastro">
+          <div class="campo"><label class="campo__rotulo" for="viatura-cadastro">Viatura do cadastro</label>
+            <pc-select class="seletor"><select class="selecao" id="viatura-cadastro" name="viatura"><option value="">Selecione uma viatura</option>{% for vt in viaturas %}<option value="{{ vt.pk }}"{% if d.viatura_id == vt.pk %} selected{% endif %}>{{ vt.modelo }} · {{ vt.placa }}</option>{% endfor %}</select></pc-select></div>
+        </div>
+        <div class="modos__campos" data-modo="manual">
+          <div class="campo"><label class="campo__rotulo" for="viatura-modelo">Modelo</label><input class="entrada" id="viatura-modelo" name="viatura_modelo" value="{{ d.viatura_modelo }}" maxlength="120" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="viatura-placa">Placa</label><input class="entrada" id="viatura-placa" name="viatura_placa" value="{{ d.viatura_placa }}" maxlength="8" autocomplete="off"></div>
+          <div class="campo"><label class="campo__rotulo" for="viatura-tipo">Tipo</label>
+            <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
+          <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
+        </div>
+      </fieldset></div>
+      </div>
+      <div><button type="submit" class="botao">{% icone "save" %}Aplicar motorista e viatura</button></div>
+    </form>

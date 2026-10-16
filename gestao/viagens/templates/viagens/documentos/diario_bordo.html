@@ -1,62 +1,105 @@
-<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <title>{{ d.titulo }}</title>
+<meta name="author" content="{{ d.unidade }}">
 {% comment %}
-Diário de bordo da viatura (paridade com o documento da referência: cabeçalho com ofício e
-protocolo do motorista, viatura, placa, combustível, motorista e CPF; uma linha por trecho com
-datas, horas, km e necessidade de abastecimento). Dados em diario.dados_do_documento.
+Diário de bordo da viatura, com a mesma composição do documento do sistema modelo: página A4
+deitada, cabeçalho institucional curto (brasão e três linhas em negrito), os dados do ofício e
+da viatura numa tabela de duas colunas com os rótulos no próprio texto, os trechos numa tabela
+de doze colunas iguais (saída e chegada com data, hora e km; origem, destino e necessidade de
+abastecimento com duas colunas cada) e, fechando a tabela, o motorista — nome, CPF e o espaço
+da assinatura. Sem rodapé. Dados em diario.dados_do_documento; o texto editado no
+visualizador (EdicaoPrestacao, região "corpo") entra no lugar do que o modelo gera.
 {% endcomment %}
-<style>
-  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
-  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
-  @page { size: A4 landscape; margin: 14mm 14mm 18mm 14mm; @bottom-center { content: element(rodape); } }
-  html { font-family: "Doc Serif", serif; font-size: 10pt; color: #000; }
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+  @font-face { font-family: "Doc Sans"; src: url("{{ fontes.sans_regular }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; src: url("{{ fontes.sans_negrito }}"); }
+  @font-face { font-family: "Doc Sans"; font-style: italic; src: url("{{ fontes.sans_italico }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; font-style: italic; src: url("{{ fontes.sans_negrito_italico }}"); }
+  @page { size: A4 landscape; margin: 12mm 18mm 15mm 18mm; }
+  html { font-family: "Doc Sans", Arial, "Liberation Sans", Helvetica, sans-serif; font-size: 8pt; color: #000; line-height: 1.2; }
   body { margin: 0; }
-  header.timbre { text-align: center; margin-bottom: 4mm; }
-  header.timbre img { height: 15mm; display: block; margin: 0 auto 1mm; }
-  header.timbre p { margin: 0; font-weight: bold; font-size: 9pt; }
-  h1 { font-size: 13pt; text-align: center; margin: 2mm 0 4mm; letter-spacing: 0.08em; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 0.6pt solid #000; padding: 1.6mm 2mm; vertical-align: middle; }
-  th { background: #e8e8e8; font-size: 8.5pt; }
-  table.cabecalho { margin-bottom: 4mm; }
-  table.cabecalho th { text-align: left; width: 18%; }
-  table.trechos td { text-align: center; font-size: 9pt; }
-  table.trechos td.cidade { text-align: left; }
-  .assinatura { margin-top: 14mm; text-align: center; }
-  .assinatura p { margin: 0; }
-  .linha-assinatura { display: inline-block; min-width: 90mm; border-top: 0.6pt solid #000; padding-top: 1mm; }
-  .rodape { position: running(rodape); text-align: center; font-size: 7pt; font-style: italic; }
+  header.timbre { text-align: center; line-height: 1.2; margin-bottom: 6mm; }
+  header.timbre img { height: 17.5mm; display: block; margin: 0 auto 3mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 7.5pt; text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  td, th { border: 0.75pt solid #000; padding: 0 5pt; height: 6.2mm; vertical-align: middle; }
+  table.dados td { font-weight: bold; text-align: left; }
+  table.trechos { margin-top: 5.5mm; }
+  table.trechos th { font-weight: bold; text-align: center; }
+  table.trechos td { text-align: center; }
+  table.trechos td.abastecimento { white-space: pre; }
+  table.trechos tbody tr { page-break-inside: avoid; break-inside: avoid; }
+  tr.motorista td { height: 13mm; font-weight: bold; text-align: left; }
+  {% if folha %}
+  /* Na tela: a folha deitada, com as margens deste modelo (folha.css assume o retrato). */
+  html body { width: min(297mm, 100%); min-height: 210mm; padding: 12mm 18mm 15mm; }
+  {% endif %}
 </style>
 </head>
 <body>
-  <div class="rodape">{{ d.rodape }}</div>
   <header class="timbre">
     <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
-    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
-    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>Secretaria de Estado da Segurança Pública</p>
+    <p>Polícia Civil do Paraná</p>
     <p>{{ d.unidade }}</p>
   </header>
   <main>
-    <h1>DIÁRIO DE BORDO</h1>
-    <table class="cabecalho">
-      <tr><th scope="row">Ofício do motorista</th><td>{{ d.oficio_motorista }}{% if d.ano %}/{{ d.ano }}{% endif %}</td><th scope="row">Protocolo</th><td>{{ d.protocolo }}</td></tr>
-      <tr><th scope="row">Viatura</th><td>{{ d.viatura }}</td><th scope="row">Placa</th><td>{{ d.placa }}</td></tr>
-      <tr><th scope="row">Combustível</th><td>{{ d.combustivel }}</td><th scope="row">Placa reservada</th><td></td></tr>
-      <tr><th scope="row">Motorista</th><td>{{ d.motorista }}</td><th scope="row">CPF</th><td>{{ d.cpf }}</td></tr>
+    {% regiao "corpo" "Diário de bordo" %}
+    <table class="dados" data-bloco="dados" data-rotulo="Ofício e viatura">
+      <tr>
+        <td>Referente ao Ofício: {{ d.oficio_motorista }}{% if d.ano %}/{{ d.ano }}{% endif %}</td>
+        <td>E-protocolo: {{ d.protocolo }}</td>
+      </tr>
+      <tr>
+        <td>Ficha individual do veículo (tipo): {{ d.viatura }}</td>
+        <td>Combustível: {{ d.combustivel }}</td>
+      </tr>
+      <tr>
+        <td>Placa oficial: {{ d.placa }}</td>
+        <td>Placa reservada:</td>
+      </tr>
     </table>
-    <table class="trechos">
+    <table class="trechos" data-bloco="trechos" data-rotulo="Trechos">
+      <colgroup><col><col><col><col><col><col><col><col><col><col><col><col></colgroup>
       <thead>
-        <tr><th scope="col">Data saída</th><th scope="col">Hora saída</th><th scope="col">Km inicial</th><th scope="col">Data chegada</th><th scope="col">Hora chegada</th><th scope="col">Km final</th><th scope="col">Origem</th><th scope="col">Destino</th><th scope="col">Abastecimento</th></tr>
+        <tr>
+          <th colspan="3" scope="colgroup">Saída</th>
+          <th colspan="3" scope="colgroup">Chegada</th>
+          <th colspan="2" rowspan="2" scope="col">Origem</th>
+          <th colspan="2" rowspan="2" scope="col">Destino</th>
+          <th colspan="2" rowspan="2" scope="col">Necessidade de abastecimento</th>
+        </tr>
+        <tr>
+          <th scope="col">Data</th><th scope="col">Hora</th><th scope="col">KM (inicial)</th>
+          <th scope="col">Data</th><th scope="col">Hora</th><th scope="col">KM (final)</th>
+        </tr>
       </thead>
       <tbody>
-        {% for l in d.linhas %}<tr><td>{{ l.data_saida }}</td><td>{{ l.hora_saida }}</td><td>{{ l.km_inicial }}</td><td>{{ l.data_chegada }}</td><td>{{ l.hora_chegada }}</td><td>{{ l.km_final }}</td><td class="cidade">{{ l.origem }}</td><td class="cidade">{{ l.destino }}</td><td>{{ l.abastecimento }}</td></tr>
-        {% empty %}<tr><td colspan="9">Sem trechos no ofício.</td></tr>{% endfor %}
+        {% for l in d.linhas %}
+        <tr>
+          <td>{{ l.data_saida }}</td><td>{{ l.hora_saida }}</td><td>{{ l.km_inicial }}</td>
+          <td>{{ l.data_chegada }}</td><td>{{ l.hora_chegada }}</td><td>{{ l.km_final }}</td>
+          <td colspan="2">{{ l.origem|upper }}</td>
+          <td colspan="2">{{ l.destino|upper }}</td>
+          <td colspan="2" class="abastecimento">{% if l.abastecimento == "Sim" %}( X ) Sim   (   ) Não{% elif l.abastecimento == "Não" %}(   ) Sim   ( X ) Não{% else %}(   ) Sim   (   ) Não{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td colspan="2"></td><td colspan="2"></td><td colspan="2" class="abastecimento">(   ) Sim   (   ) Não</td></tr>
+        {% endfor %}
+        <tr class="motorista">
+          <td colspan="3">Nome: {{ d.motorista }}</td>
+          <td colspan="3">CPF: {{ d.cpf }}</td>
+          <td colspan="6">Assinatura:</td>
+        </tr>
       </tbody>
     </table>
-    <div class="assinatura"><p><span class="linha-assinatura">{{ d.motorista|default:"Motorista" }}</span></p><p>Motorista</p></div>
+    {% endregiao %}
   </main>
 </body>
 </html>

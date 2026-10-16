@@ -317,13 +317,16 @@ def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
     _anexar_documentos(c, a)
     _anexar_documentos(c, b)
     op = _cliente(c, "operador")
-    with django_assert_max_num_queries(30):
+    with django_assert_max_num_queries(40):
         r = op.get(reverse("viagens:prestacoes"))
     html = r.content.decode()
     assert r.status_code == 200
+    # Um bloco por ofício e uma linha por servidor, com a solicitação e o prazo de saque
+    # gravando na própria lista (como o sistema modelo).
     assert a.servidor.nome in html and b.servidor.nome in html
-    assert f'id="ps-{a.pk}-numero"' in html
+    assert f'id="ps-{a.pk}-numero"' in html and f'id="ps-{a.pk}-saque"' in html
     assert reverse("viagens:autosave_prestacao", args=[a.pk]) in html
+    assert f'id="equipe-{a.prestacao_id}"' in html
     # Autosave do cartão (contrato do autosave.js).
     r = op.post(reverse("viagens:autosave_prestacao", args=[a.pk]),
                 {"numero": "2026/0099", "liberacao": "06/01/2030", "prazo": "09/01/2030"})
@@ -415,6 +418,7 @@ def test_estado_da_equipe_independe_do_recorte(c):
 
 
 def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
+    """A troca HTMX dos resultados leva os diálogos junto: eles moram em #resultados."""
     from html.parser import HTMLParser
 
     class Dialogos(HTMLParser):
@@ -437,10 +441,42 @@ def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
 
     a, _ = _linhas(c)
     PrestacaoServidor.objects.filter(pk=a.pk).update(finalizada_em=timezone.now())
-    html = _cliente(c, "operador").get(reverse("viagens:prestacoes")).content.decode()
+    op = _cliente(c, "operador")
+    html = op.get(reverse("viagens:prestacoes")).content.decode()
     parser = Dialogos()
     parser.feed(html)
     assert parser.envios and all(parser.envios)
+    assert f'data-abrir-dialogo="envio-{a.pk}"' in html
+    # Nos documentos do servidor finalizado, o mesmo diálogo.
+    html = op.get(reverse("viagens:documentos_prestacao", args=[a.prestacao_id]),
+                  {"servidor": a.pk}).content.decode()
+    assert f'<dialog id="envio-{a.pk}"' in html
+
+
+def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
+    a, _ = _linhas(c)
+    op = _cliente(c, "operador")
+    r = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id]))
+    assert r.status_code == 200
+    assert [e.titulo for e in r.context["etapas_folha"]] == [
+        "Diário de bordo", "Relatório técnico", "Documentos", "Leitura e conferência"]
+    assert all(e.estado == "pendente" for e in r.context["etapas_folha"])  # nada feito
+    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "documentos",
+                                                      "leitura"]
+    conf = r.context["conferencia"]
+    assert conf.total == 2 and not conf.pronta
+    # Cada pendência leva aonde se resolve.
+    urls = [i.url for _, itens in conf.abertas for i in itens]
+    assert any(u.endswith(f"#ps-{a.pk}") for u in urls)
+    assert any("/documentos/#despacho" in u for u in urls)
+    # Abrir não cria diário nem relatório (GET).
+    from gestao.viagens.models import DiarioBordo, RelatorioTecnico
+    assert not DiarioBordo.objects.filter(prestacao_id=a.prestacao_id).exists()
+    assert not RelatorioTecnico.objects.filter(prestacao_id=a.prestacao_id).exists()
+    # Consulta vê, sem formulário de edição.
+    html = _cliente(c, "consulta").get(
+        reverse("viagens:prestacao_equipe", args=[a.prestacao_id])).content.decode()
+    assert "data-autosave" not in html and "Finalizar equipe" not in html
 
 
 def test_voltar_externo_e_ignorado(c):

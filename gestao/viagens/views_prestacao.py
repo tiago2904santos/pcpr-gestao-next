@@ -1,12 +1,14 @@
-"""Prestação de contas (módulo 9a): a lista (um bloco por ofício, um cartão por servidor),
-a solicitação de cada cartão (grava sozinha, como a referência), arquivar/finalizar
-(servidor e equipe), envio ao financeiro e a planilha. Regra em `prestacao.py`; ficha em
-docs/migration/prestacao.md."""
+"""Prestação de contas (módulo 9a), organizada como a gestão de viagens: a lista (uma linha
+por ofício/equipe, com o que falta) e a folha da equipe (etapas, um cartão por servidor, as
+folhas da equipe e a conferência). A solicitação de cada cartão grava sozinha (como a
+referência); arquivar/finalizar (servidor e equipe), envio ao financeiro e a planilha.
+Regra em `prestacao.py`; ficha em docs/migration/prestacao.md."""
 
 from __future__ import annotations
 
 import re
 from datetime import date, datetime
+from decimal import Decimal
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -19,14 +21,14 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, exportacao, policies, prestacao
+from . import anexos, exportacao, leitura_anexos, policies, prestacao, prestacao_equipe
 from .dominio.prestacao import prazo_para_prestar
-from .models import PrestacaoContas, PrestacaoServidor, Trecho
+from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, Trecho
 from .viagem import periodo_curto
 from .views import _migalhas
 
 POR_PAGINA = 25  # ofícios por página (referência)
-ATENCAO = {"saque_vencendo", "prestacao_vencida", "sem_solicitacao", "finalizadas_mes"}
+ATENCAO = prestacao.PENDENCIAS
 NUMERO_OFICIO = re.compile(r"^\s*(\d{1,5})\s*/\s*(\d{4})\s*$")
 VAZIOS = {
     "nao_liberadas": "Nenhum servidor com diárias pendentes de liberação.",
@@ -37,6 +39,9 @@ VAZIOS = {
     "saque_vencendo": "Nenhum saque perto do prazo sem comprovante.",
     "prestacao_vencida": "Nenhuma prestação com o prazo vencido.",
     "sem_solicitacao": "Nenhuma prestação em aberto sem número de solicitação.",
+    "sem_despacho": "Nenhuma prestação em aberto sem o despacho assinado.",
+    "sem_comprovante": "Nenhuma prestação em aberto sem comprovante.",
+    "comprovante_diferente": "Nenhum comprovante com valor diferente da diária.",
     "finalizadas_mes": "Nenhuma prestação finalizada neste mês.",
 }
 ROTULOS = {"arquivar": "arquivada", "desarquivar": "desarquivada", "finalizar": "finalizada",
@@ -118,12 +123,13 @@ def lista(request: HttpRequest) -> HttpResponse:
                .select_related("servidor")
                .annotate(no_recorte=Exists(qs.filter(pk=OuterRef("pk"))))
                .order_by("servidor__nome"))
+    motoristas = _motoristas(list(da_pagina))
     for ps in membros:
         ps.prestacao = da_pagina[ps.prestacao_id]
-        equipes.setdefault(ps.prestacao_id, []).append({"ps": ps})
+        linha = _linha(request, ps, hoje, situacao, motoristas.get(ps.prestacao_id))
+        equipes.setdefault(ps.prestacao_id, []).append(linha)
         if ps.no_recorte:
-            por_prestacao.setdefault(ps.prestacao_id, []).append(
-                _linha(request, ps, hoje, situacao))
+            por_prestacao.setdefault(ps.prestacao_id, []).append(linha)
     blocos = [_bloco(request, p, por_prestacao.get(p.pk, []), equipes.get(p.pk, []))
               for p in pagina.object_list]
     filtros = request.GET.copy()
@@ -141,14 +147,82 @@ def lista(request: HttpRequest) -> HttpResponse:
         "migalhas": _migalhas(("Prestação de contas", ""))})
 
 
+def _feitos(ps: PrestacaoServidor, s: anexos.Situacao) -> dict:
+    """O que já foi feito, como a linha mostra: ✓ com o assinado anexado, "gerado" quando
+    preenchido e o assinado ainda não voltou (nunca só por existir a linha)."""
+    p = ps.prestacao_id
+    valores = [v for v in s.comprovantes.get(ps.pk, []) if v]
+    return {
+        "diario": "assinado" if p in s.db_assinados else "gerado" if p in s.diarios else "",
+        "rt": "assinado" if ps.pk in s.rt_assinados else "gerado" if p in s.relatorios else "",
+        "comprovante": ps.pk in s.comprovantes,
+        "comprovante_valor": sum(valores) if valores else None,
+        "despacho": p in s.despachos,
+    }
+
+
+def _whatsapp(ps: PrestacaoServidor, diaria) -> str:
+    """O aviso de liberação das diárias por WhatsApp (só um link wa.me; nada é enviado)."""
+    from urllib.parse import quote
+    telefone = re.sub(r"\D", "", ps.servidor.telefone or "")
+    if not telefone or not ps.data_liberacao_diarias:
+        return ""
+    from .dominio.relatorio import moeda
+    o = ps.prestacao.oficio
+    prazo = (f"; o prazo para saque é {ps.prazo_limite_saque:%d/%m/%Y}"
+             if ps.prazo_limite_saque else "")
+    texto = (f"Olá, {ps.servidor.nome.split()[0]}. As diárias do Ofício {o.numero_formatado}"
+             f"{f' ({moeda(diaria)})' if diaria else ''} foram liberadas em "
+             f"{ps.data_liberacao_diarias:%d/%m/%Y}"
+             f"{prazo}."
+             f" Depois do saque, envie o comprovante para a prestação de contas.")
+    return f"https://wa.me/55{telefone}?text={quote(texto)}"
+
+
+def _situacao_texto(ps: PrestacaoServidor, feitos: dict) -> tuple[str, str]:
+    """O selo da situação (texto, tom): enviada/aprovada/devolvida contam mais que
+    finalizada; em aberto, "Em preenchimento" quando já há algo e "Pendente" quando nada."""
+    if ps.situacao == "enviada":
+        return "Enviada", "info"
+    if ps.situacao == "aprovada":
+        return "Aprovada", "sucesso"
+    if ps.situacao == "devolvida":
+        return "Devolvida", "perigo"
+    if ps.finalizada:
+        return "Finalizada", "sucesso"
+    comecou = (ps.numero_solicitacao.strip() or ps.data_liberacao_diarias or feitos["diario"]
+               or feitos["rt"] or feitos["comprovante"] or feitos["despacho"])
+    return ("Em preenchimento", "info") if comecou else ("Pendente", "aviso")
+
+
 def _linha(request: HttpRequest, ps: PrestacaoServidor, hoje: date,
-           situacao: anexos.Situacao) -> dict:
+           situacao: anexos.Situacao, motoristas: set[int] | None = None) -> dict:
     selos = prestacao.selos(ps, hoje, tem_comprovante=bool(situacao.comprovantes.get(ps.pk)))
-    return {"ps": ps, "selos": selos,
-            "pendencias": prestacao.pendencias(ps, situacao),
-            "diaria": prestacao.diaria_liberada(ps, getattr(ps.prestacao, "equipe", None)),
-            "prestar_ate": prazo_para_prestar(ps.prazo_limite_saque),
+    pendencias = prestacao.pendencias(ps, situacao)
+    diaria = prestacao.diaria_liberada(ps, getattr(ps.prestacao, "equipe", None))
+    p = ps.prestacao
+    feitos = _feitos(ps, situacao)
+    return {"ps": ps, "selos": selos, "pendencias": pendencias,
+            "situacao": _situacao_texto(ps, feitos),
+            "pendencias_links": [prestacao_equipe.Pendencia(t, prestacao_equipe.destino(p, ps, t))
+                                 for t in pendencias],
+            "url_pendencias": f"{reverse('viagens:prestacao_equipe', args=[p.pk])}#ps-{ps.pk}",
+            "diaria": diaria, "prestar_ate": prazo_para_prestar(ps.prazo_limite_saque),
+            "feitos": feitos,
+            "motorista": ps.servidor_id in (motoristas or set()),
+            "whatsapp": _whatsapp(ps, diaria),
             "editavel": policies.pode_editar_prestacao(request.user, ps)}
+
+
+def _motoristas(prestacao_ids: list[int]) -> dict[int, set[int]]:
+    """{prestação: {servidores que dirigem no ofício}} — o crachá com o volante."""
+    from .models import Viajante
+    saida: dict[int, set[int]] = {}
+    for prestacao_id, servidor_id in (Viajante.objects
+                                      .filter(oficio__prestacao__in=prestacao_ids, motorista=True)
+                                      .values_list("oficio__prestacao", "servidor_id")):
+        saida.setdefault(prestacao_id, set()).add(servidor_id)
+    return saida
 
 
 def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list, equipe: list) -> dict:
@@ -160,11 +234,58 @@ def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list, equipe: list)
     abertas = [linha for linha in equipe if not linha["ps"].finalizada]
     por_enviar = [linha for linha in equipe if linha["ps"].finalizada
                   and linha["ps"].situacao not in ("enviada", "aprovada")]
+    # A linha da lista: o que falta (com o nome de quem), o prazo mais perto e o selo mais
+    # urgente da equipe — como a linha da viagem.
+    pendencias = [prestacao_equipe.Pendencia(f"{linha['ps'].servidor.nome}: {t}",
+                                             prestacao_equipe.destino(p, linha["ps"], t))
+                  for linha in abertas for t in linha.get("pendencias", [])]
+    prazos = [linha["prestar_ate"] for linha in abertas if linha.get("prestar_ate")]
+    selos = [s for linha in abertas for s in linha.get("selos", [])]
+    ordem = {"vencido": 0, "alerta": 1}
     return {"p": p, "linhas": linhas, "destinos": ", ".join(destinos), "periodo": periodo,
             "editavel": policies.pode_editar_equipe_prestacao(request.user, p),
             "todas_finalizadas": bool(equipe) and not abertas,
             "reabrivel": bool(por_enviar), "por_enviar": por_enviar,
-            "alguma_arquivada": any(linha["ps"].arquivada for linha in equipe)}
+            "alguma_arquivada": any(linha["ps"].arquivada for linha in equipe),
+            "total": len(equipe), "finalizadas": len(equipe) - len(abertas),
+            "devolvidas": sum(1 for linha in equipe if linha["ps"].situacao == "devolvida"),
+            "enviadas": sum(1 for linha in equipe
+                            if linha["ps"].situacao in ("enviada", "aprovada")),
+            "pendencias": pendencias, "prestar_ate": min(prazos) if prazos else None,
+            "selo": min(selos, key=lambda s: ordem.get(s.tom, 2)) if selos else None,
+            "trechos": len(trechos), "url": reverse("viagens:prestacao_equipe", args=[p.pk]),
+            "por_servidor": (equipe[0]["diaria"] if equipe else None),
+            # Para os avatares da linha (componentes/avatares_mini.html): o motorista primeiro.
+            "pessoas": sorted(({"servidor": linha["ps"].servidor, "motorista": linha["motorista"]}
+                               for linha in equipe), key=lambda x: not x["motorista"]),
+            "quantidade_diarias": (p.oficio.diarias_calculo or {}).get("resumo", "")}
+
+
+@require_GET
+def equipe(request: HttpRequest, pk: int) -> HttpResponse:
+    """A visão da equipe: etapas, servidores (as mesmas linhas da lista), as folhas da equipe
+    e a conferência. Nada é criado ao abrir."""
+    p = get_object_or_404(
+        PrestacaoContas.objects.select_related("oficio__unidade").prefetch_related(
+            Prefetch("oficio__trechos", queryset=Trecho.objects.select_related("destino")
+                     .order_by("ordem")))
+        .annotate(equipe=Count("oficio__viajantes", distinct=True)), pk=pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, p):
+        raise Http404
+    contexto = contexto_folha(request, p, "")
+    linhas = contexto["equipe_linhas"]
+    situacao = anexos.situacao([p.pk])
+    membros = [linha["ps"] for linha in linhas]
+    folhas = prestacao_equipe.folhas(p, membros, situacao, contexto["b"]["trechos"])
+    o = p.oficio
+    return render(request, "viagens/prestacao/equipe.html", {
+        **contexto, "linhas": linhas, "folhas": folhas,
+        "etapas": prestacao_equipe.etapas(membros, folhas),
+        "conferencia": prestacao_equipe.conferencia(p, linhas),
+        "folhas_feitas": sum(1 for f in folhas if f.feito),
+        "acoes_equipe": list(ROTULOS),
+        "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
+                              (f"Ofício {o.numero_formatado}", ""))})
 
 
 def _ps(request: HttpRequest, pk: int) -> PrestacaoServidor:
@@ -291,3 +412,80 @@ def exportar(request: HttpRequest) -> HttpResponse:
     resposta["Content-Disposition"] = (
         f'attachment; filename="prestacoes_{timezone.localdate():%Y-%m-%d}.xlsx"')
     return resposta
+
+
+@require_GET
+def leitura(request: HttpRequest, pk: int) -> HttpResponse:
+    """Leitura dos anexos: o texto do RT assinado, do diário assinado e dos comprovantes em
+    campos para copiar; no comprovante, autorização, data e valor conferidos com a diária do
+    ofício e a do RT. Só leitura (nada é gravado ao abrir)."""
+    p = get_object_or_404(PrestacaoContas.objects.select_related("oficio__unidade"), pk=pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, p):
+        raise Http404
+    membros = list(PrestacaoServidor.objects.filter(prestacao=p, removida_em__isnull=True)
+                   .select_related("servidor").order_by("servidor__nome"))
+    for ps in membros:
+        ps.prestacao = p
+    todos = list(anexos.ativos(AnexoPrestacao.objects.filter(prestacao=p))
+                 .select_related("servidor__servidor").order_by("servidor__servidor__nome",
+                                                               "data_operacao", "pk"))
+    tipos = AnexoPrestacao.Tipo
+    diario = next((leitura_anexos.ler(a) for a in todos if a.tipo == tipos.DB_ASSINADO), None)
+    servidores = []
+    lidos = 0
+    for ps in membros:
+        liberada = prestacao.diaria_liberada(ps)
+        rt_anexo = next((a for a in todos if a.servidor_id == ps.pk
+                         and a.tipo == tipos.RT_ASSINADO), None)
+        rt = leitura_anexos.ler(rt_anexo) if rt_anexo else None
+        # A diária do RT: a que está escrita no RT assinado; sem ela, a do RT gerado.
+        diaria_rt = ps.diaria_valor_override or liberada
+        if rt and rt.legivel:
+            escrita = next((c.valor for c in rt.campos if c.rotulo == "Diária"), "")
+            lida = leitura_anexos.ler_comprovante(escrita)["valor"] if escrita else None
+            diaria_rt = lida or diaria_rt
+        comprovantes = [a for a in todos if a.servidor_id == ps.pk
+                        and a.tipo == tipos.COMPROVANTE]
+        soma = sum((a.valor for a in comprovantes if a.valor), Decimal("0")) or None
+        leituras = [leitura_anexos.ler(a, diaria_oficio=liberada, diaria_rt=diaria_rt,
+                                       soma_comprovantes=soma) for a in comprovantes]
+        servidores.append({"ps": ps, "liberada": liberada, "diaria_rt": diaria_rt,
+                           "comprovantes": leituras, "rt": rt,
+                           "editavel": policies.pode_editar_prestacao(request.user, ps)
+                           and not ps.finalizada})
+        lidos += sum(1 for c in leituras if c.legivel) + (1 if rt and rt.legivel else 0)
+    lidos += 1 if diario and diario.legivel else 0
+    o = p.oficio
+    return render(request, "viagens/prestacao/leitura.html", {
+        "p": p, "oficio": o, "servidores": servidores, "diario": diario,
+        "lidos": lidos,
+        **contexto_folha(request, p, "leitura"),
+        "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
+                              (f"Ofício {o.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Leitura dos anexos", ""))})
+
+
+def contexto_folha(request: HttpRequest, p: PrestacaoContas, atual: str) -> dict:
+    """O que as folhas da prestação (diário, relatório, documentos, leitura) têm em comum:
+    as etapas, a equipe (as linhas da lista) e o bloco do ofício para a lateral."""
+    if not hasattr(p, "equipe"):
+        p.equipe = p.oficio.viajantes.count()  # type: ignore[attr-defined]
+    hoje = timezone.localdate()
+    situacao = anexos.situacao([p.pk])
+    membros = list(PrestacaoServidor.objects.filter(prestacao=p, removida_em__isnull=True)
+                   .select_related("servidor").order_by("servidor__nome"))
+    for ps in membros:
+        ps.prestacao = p
+    motoristas = _motoristas([p.pk])
+    linhas = [_linha(request, ps, hoje, situacao, motoristas.get(p.pk)) for ps in membros]
+    b = _bloco(request, p, linhas, linhas)
+    folhas = prestacao_equipe.folhas(p, membros, situacao, b["trechos"])
+    # O servidor da folha (?servidor=): troca de servidor na mesma etapa; sem ele, o primeiro.
+    pedido = request.GET.get("servidor") or ""
+    atual_linha = next((linha for linha in linhas
+                        if pedido.isdigit() and linha["ps"].pk == int(pedido)),
+                       linhas[0] if linhas else None)
+    return {"equipe_linhas": linhas, "b": b, "oficio": p.oficio, "p": p,
+            "servidor_atual": atual_linha,
+            "etapas_folha": prestacao_equipe.etapas_folha(folhas, b, atual)}

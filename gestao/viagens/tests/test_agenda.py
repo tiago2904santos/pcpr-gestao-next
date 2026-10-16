@@ -116,7 +116,12 @@ def test_tela_semana_dia_e_navegacao(c):
     r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": hoje.isoformat()})
     html = r.content.decode()
     assert "Apoio à feira (teste)" in html and 'aria-label="Próximo dia"' in html
-    amanha = (hoje + timedelta(days=400)).isoformat()
+    # Um dia longe e sem feriado nacional (a agenda mostra os feriados).
+    from gestao.viagens.dominio.prestacao import feriados_nacionais
+    longe = hoje + timedelta(days=400)
+    while longe in feriados_nacionais(longe.year):
+        longe += timedelta(days=1)
+    amanha = longe.isoformat()
     r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": amanha})
     assert "Nada na agenda neste dia" in r.content.decode()
     r = cliente.get(reverse("painel:agenda"), {"vista": "semana", "dia": "lixo"})
