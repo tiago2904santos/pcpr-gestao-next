@@ -17,7 +17,8 @@ from gestao.cadastros.services import assinante
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from ..dominio.extenso import reais_por_extenso
-from ..models import Oficio
+from ..models import Oficio, PrestacaoServidor
+from ..prestacao import ativos
 from ..queries import trechos_de, viajantes_de
 
 
@@ -45,6 +46,10 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "substituicoes", queryset=SubstituicaoAssinante.objects.select_related("servidor__cargo")))
     viajantes = viajantes_de(oficio)
     trechos = trechos_de(oficio)
+    # O nº da solicitação (Central de Viagens) nasce na prestação de contas, depois da emissão:
+    # a coluna do documento sai preenchida quando a prestação já o tem (nova versão/retificação).
+    solicitacoes = dict(ativos(PrestacaoServidor.objects.filter(prestacao__oficio=oficio))
+                        .values_list("servidor_id", "numero_solicitacao"))
     destinos = []
     for t in trechos:
         rotulo = f"{t.destino.nome}/{t.destino.uf}"
@@ -105,7 +110,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "viajantes": [
             {"id": v.servidor_id, "nome": v.servidor.nome, "cpf": v.servidor.cpf_formatado,
              "rg": v.servidor.rg, "cargo": getattr(v.servidor.cargo, "nome", ""),
-             "motorista": v.motorista}
+             "motorista": v.motorista,
+             "solicitacao": solicitacoes.get(v.servidor_id, "")}
             for v in viajantes
         ],
         "destinos": destinos,

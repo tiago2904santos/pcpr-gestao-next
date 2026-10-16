@@ -316,3 +316,13 @@ OS: PDF15MB, permissão no GET/POST, validação de conteúdo, erro422 associado
 retorno seguro e versão anterior preservada. Fluxo semJS verificado em360/768/1440,
 teclado e axe no erro. Nenhum documento oficial ou regra de assinatura alterado.
 QA: `docs/visual-agents/qa/assinados-2026-10-12.md`, com ressalva de automação.
+
+## Documento do ofício — a folha do sistema modelo, 16/10/2026
+
+O PDF, a folha do editor e o DOCX do ofício passaram a sair com a folha do sistema modelo
+(ADR 0043): cabeçalho de 4,85 cm com o brasão de 2,4 cm e as linhas do órgão em Arial
+negrito, rodapé de 3,4 cm com o destinatário à esquerda, a marca da PCPR e a linha da
+unidade, corpo em Times 8 e **todas as tabelas com colunas iguais** (`table-layout: fixed`).
+Os textos fixos são os do modelo (abertura, declaração do cartão, fecho). O PDF é refeito em
+dois degraus de compactação para caber numa página. A coluna "Nº solicitação" sai preenchida
+quando a prestação de contas já gravou o número. Teste: `test_views.TestDocumentoDoOficio`.
