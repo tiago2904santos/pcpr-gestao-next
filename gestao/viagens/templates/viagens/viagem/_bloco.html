@@ -29,7 +29,7 @@ lista dos documentos — título, chip da situação e subtexto.
     {% if passo.itens %}
     <ul class="viagem-lista" aria-labelledby="t-passo-{{ passo.chave }}">
       {% for item in passo.itens %}<li class="viagem-lista__item">
-        <a class="viagem-lista__link" href="{{ item.abrir_url }}"{% if item.visualizar %} data-visualizar data-grupo="{{ item.grupo }}" data-tipo="{{ passo.titulo }}" data-titulo="{{ item.titulo }}" data-resumo="{{ item.resumo_url }}" data-abrir="{{ item.abrir_url }}"{% if item.paginas_json %} data-paginas="{{ item.paginas_json }}"{% endif %} aria-haspopup="dialog"{% else %} download{% endif %}>
+        <a class="viagem-lista__link" href="{{ item.abrir_url }}"{% if item.visualizar %} data-visualizar data-grupo="{{ item.grupo }}" data-tipo="{{ passo.titulo }}" data-titulo="{{ item.titulo }}" data-resumo="{{ item.resumo_url }}" data-abrir="{{ item.abrir_url }}"{% if item.paginas_json %} data-paginas="{{ item.paginas_json }}"{% endif %}{% if item.baixar_url %} data-baixar="{{ item.baixar_url }}"{% endif %} aria-haspopup="dialog"{% else %} download{% endif %}>
           <span class="viagem-lista__linha"><span class="viagem-lista__nome">{{ item.titulo }}</span><span class="selo selo--{{ item.chip.tom }} selo--sem-ponto">{{ item.chip.texto }}</span></span>
           <span class="viagem-lista__sub">{{ item.subtexto }}</span>
           <span class="viagem-lista__ver" aria-hidden="true">{% if item.visualizar %}{% icone "eye" classe="icone--sm" %}Ver{% else %}{% icone "download" classe="icone--sm" %}Baixar{% endif %}</span>

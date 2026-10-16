@@ -6,9 +6,9 @@ Passos: 1 Solicitação (o e-mail ou ofício que pediu o evento, anexado), 2 Rot
 3 Ofícios, 4 OS ou plano de trabalho (basta um dos dois) e 5 Termos.
 
 No visualizador, um documento **pronto** (ofício emitido; OS e plano gerados e sem pendência;
-termo com período e destino; anexo em PDF ou imagem) abre a folha (o documento como sai) ao
-lado do resumo, com as ações. O que ainda não foi gerado, tem pendência ou não gera documento
-(roteiro) abre só o resumo.
+termo com período e destino; anexo em PDF ou imagem) abre a folha (o documento como sai) com
+as ações; "Baixar" abre a janela "Baixar documentos" com as peças dele. O que ainda não foi
+gerado, tem pendência ou não gera documento (roteiro) abre a janela de resumo das listas.
 """
 
 from __future__ import annotations
@@ -59,6 +59,7 @@ class Item:
     pronto: bool = False
     paginas: list[Pagina] = field(default_factory=list)
     remover_url: str = ""  # só nos anexos da solicitação
+    baixar_url: str = ""  # a janela "Baixar documentos" (só quem pode gerar o pacote)
     visualizar: bool = True  # o e-mail (.eml/.msg) não abre no modal: baixa
 
     @property
@@ -165,13 +166,15 @@ def _oficio(o: Oficio, usuario, pdfs: dict[tuple[int, str], str]) -> Item:
                       anexar=reverse("viagens:anexar_assinado", args=[tipo, o.pk])
                       if anexa and emitido else "") for rotulo, tipo in tipos]
     protocolo = o.protocolo_formatado if o.protocolo else ""
+    baixa = usuario is not None and not _cancelado(o) and policies.edita_oficios(usuario)
     return Item(o, "oficio", str(o), _situacao(o, emitido, "Emitido"),
                 f"Protocolo {protocolo}" if protocolo else "Sem protocolo",
                 reverse("viagens:editar", args=[o.pk]), reverse("viagens:resumo", args=[o.pk]),
-                pronto=emitido, paginas=paginas)
+                pronto=emitido, paginas=paginas,
+                baixar_url=reverse("viagens:baixar_oficio", args=[o.pk]) if baixa else "")
 
 
-def _plano(p: PlanoTrabalho) -> Item:
+def _plano(p: PlanoTrabalho, usuario) -> Item:
     gerado = p.documento_gerado_em is not None or p.situacao == PlanoTrabalho.Situacao.GERADO
     pronto = gerado and not _cancelado(p) and not planos.pendencias(p)
     atividades = len(p.atividades.all())  # pré-carregados (viagem.documentos)
@@ -182,7 +185,9 @@ def _plano(p: PlanoTrabalho) -> Item:
                 reverse("viagens:editar_plano", args=[p.pk]),
                 reverse("viagens:resumo_plano", args=[p.pk]), pronto=pronto,
                 paginas=[Pagina("Plano de trabalho", reverse("viagens:folha_plano", args=[p.pk]),
-                                pdf=reverse("viagens:documento_plano", args=[p.pk, "pdf"]))])
+                                pdf=reverse("viagens:documento_plano", args=[p.pk, "pdf"]))],
+                baixar_url=reverse("viagens:baixar_plano", args=[p.pk])
+                if usuario is not None and policies.pode_editar_plano(usuario, p) else "")
 
 
 def _ordem(o: OrdemServico, usuario) -> Item:
@@ -190,6 +195,7 @@ def _ordem(o: OrdemServico, usuario) -> Item:
     pronto = gerada and not _cancelado(o) and not ordens.faltando(o)
     tipo = o.modelo.nome if o.modelo is not None else "OS padrão"
     servidores = len(o.servidores.all())  # pré-carregados (viagem.documentos)
+    edita = usuario is not None and policies.pode_editar_ordem(usuario, o)
     return Item(o, "os-plano", str(o), _situacao(o, gerada, "Gerada"),
                 f"{tipo} · {_plural(servidores, 'servidor', 'servidores')}",
                 reverse("viagens:editar_ordem", args=[o.pk]),
@@ -198,8 +204,8 @@ def _ordem(o: OrdemServico, usuario) -> Item:
                     "Ordem de serviço", reverse("viagens:folha_ordem", args=[o.pk]),
                     pdf=reverse("viagens:documento_ordem", args=[o.pk, "pdf"]),
                     anexar=reverse("viagens:anexar_assinado", args=["ordem", o.pk])
-                    if usuario is not None and policies.pode_editar_ordem(usuario, o) and gerada
-                    else "")])
+                    if edita and gerada else "")],
+                baixar_url=reverse("viagens:baixar_ordem", args=[o.pk]) if edita else "")
 
 
 def _termo(t: TermoAutorizacao, usuario) -> Item:
@@ -219,13 +225,15 @@ def _termo(t: TermoAutorizacao, usuario) -> Item:
     if t.oficio is not None:
         sub += f" · pelo Ofício {t.oficio.numero_formatado}"
     return Item(t, "termo", str(t), chip, sub, reverse("viagens:editar_termo", args=[t.pk]),
-                reverse("viagens:resumo_termo", args=[t.pk]), pronto=pronto, paginas=paginas)
+                reverse("viagens:resumo_termo", args=[t.pk]), pronto=pronto, paginas=paginas,
+                baixar_url=reverse("viagens:baixar_termo", args=[t.pk])
+                if anexa and not _cancelado(t) else "")
 
 
 def trilha(docs: Documentos, anexos=(), usuario=None) -> list[Passo]:
     """`usuario`: quem vê — decide o "Anexar assinado" de cada documento."""
     documentos_da_os = ([_ordem(o, usuario) for o in docs.ordens]
-                        + [_plano(p) for p in docs.planos])
+                        + [_plano(p, usuario) for p in docs.planos])
     solicitacao = [_anexo(a) for a in anexos]
     pdfs = _pdfs_dos_oficios(docs.oficios)
     return [

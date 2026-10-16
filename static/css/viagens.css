@@ -77,7 +77,6 @@ dialog.visualizador::backdrop { background: color-mix(in srgb, var(--grafite-950
 .visualizador__documento { width: min(100%, 56rem); height: 100%; min-height: 0; }
 .visualizador__folha { display: block; width: 100%; height: 100%; border: 0; background: transparent; color-scheme: light; }
 .visualizador--anexo .visualizador__folha { border-radius: var(--raio-md); background: var(--cor-superficie); }
-.visualizador__cartao { display: flex; flex-direction: column; align-self: start; width: min(100%, 52rem); max-height: 100%; border-radius: var(--raio-xl); background: var(--cor-superficie); color: var(--cor-texto); box-shadow: var(--sombra-4); overflow: hidden; }
 .visualizador__seta { position: absolute; top: 50%; z-index: 1; display: grid; place-items: center; width: var(--esp-12); height: var(--esp-12); translate: 0 -50%; border: var(--esp-px) solid var(--luz-16); border-radius: var(--raio-pilula); background: var(--luz-10); color: var(--cor-texto-inverso); cursor: pointer; }
 .visualizador__seta:hover:not(:disabled) { background: var(--luz-28); }
 .visualizador__seta:disabled { opacity: 0.35; cursor: default; }
@@ -90,6 +89,14 @@ dialog.visualizador::backdrop { background: color-mix(in srgb, var(--grafite-950
   .visualizador__palco { padding: 0 var(--esp-2) var(--esp-16); }
   .visualizador__seta { top: auto; bottom: var(--esp-2); translate: none; width: var(--esp-10); height: var(--esp-10); }
 }
+
+/* Resumo navegável: a janela de resumo das listas, sem mudança; embaixo dela, fora do
+   cartão, a barra com as setas e a posição na viagem. A janela encolhe para caber a barra. */
+dialog.resumo-navegavel:has(> .resumo-navegavel__barra:not([hidden])) { max-height: calc(100dvh - 2 * var(--esp-5) - 2 * var(--esp-16)); }
+.resumo-navegavel__barra { position: fixed; left: 50%; bottom: var(--esp-4); translate: -50% 0; display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-superficie-elevada); box-shadow: var(--sombra-4); }
+.resumo-navegavel__barra[hidden] { display: none; }
+.resumo-navegavel__barra > .botao { border-radius: var(--raio-pilula); }
+.resumo-navegavel__posicao { min-width: 4.5rem; text-align: center; font-size: var(--texto-sm); font-variant-numeric: tabular-nums; color: var(--cor-texto-secundario); }
 
 /* 3 Vincular documentos existentes: grupos recolhidos; cada lista mostra até três linhas e rola. */
 .viagem-vinculos > summary { cursor: pointer; list-style: none; }

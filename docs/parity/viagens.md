@@ -51,11 +51,16 @@ Evidência/limites: `../visual-agents/periodo-propagacao-20261014.md`.
   … em …".
 - **Visualizador** (`_visualizador.html`, `visualizador.js`), simples: o documento flutua
   sobre a página escurecida (a folha sem a mesa cinza; o ofício emitido sem a marca de
-  minuta, `?final=1`), setas nas laterais (e ← →) para o anterior e o próximo do mesmo passo,
-  e no topo o nome e as **ações rápidas** — Imprimir, Baixar (o PDF), Baixar todos (o ZIP da
-  viagem), Anexar assinado (a janela da via assinada, para quem pode) e Editar — e Fechar
-  (também Esc ou clique no véu). Documento ainda não pronto (ou o roteiro) flutua como o
-  resumo, com as ações dele no rodapé. O anexo da solicitação (PDF ou imagem) flutua como é.
+  minuta, `?final=1`), setas nas laterais (e ← →) e no topo o nome e as **ações rápidas** —
+  Imprimir, Baixar (a janela "Baixar documentos": quais peças e como — PDF/DOCX, separados ou
+  um PDF só), Baixar todos (a mesma janela com os documentos da viagem), Anexar assinado (a
+  janela da via assinada, para quem pode) e Editar — e Fechar (também Esc ou clique no véu).
+  Sem permissão para gerar o pacote (ou no anexo), Baixar é o PDF direto.
+- **As setas passam por todos os documentos da viagem**, na ordem da trilha (solicitação,
+  roteiros, ofícios, OS/plano, termos), não só os do mesmo tipo; a posição diz "3 de 9".
+- **Documento não pronto (ou o roteiro) abre a janela de resumo de sempre** — a mesma das
+  listas (`dialogo--resumo dialogo--mesa`, já aprovada), sem mudança; as setas ficam numa
+  barra flutuando embaixo dela. O anexo da solicitação (PDF ou imagem) flutua como é.
 - **Solicitação dispensa OS e plano**: com a solicitação anexada, o passo "OS ou plano de
   trabalho" fica ✓ ("Dispensado: a solicitação está anexada.") e a conferência não o pede.
 - **"Finalizar" volta para a viagem**: ofício, OS, plano, termo e roteiro de uma viagem
