@@ -1,19 +1,41 @@
-{% comment %}Linha padrão da OS (lista, painel): placa, evento, selos da situação, do tempo e "parada há N dias", fatos e Abrir/Ver. Espera `l` (de views_pedidos._linha) com `l.s`.{% endcomment %}{% with s=l.s %}
-<li class="registro{% if s.cancelada %} registro--inativo{% endif %}">
-  <span class="placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
+{% comment %}
+Uma OS na lista e no painel, na linha operacional de Viagens (oficios/_registro.html): placa da
+OS; o evento com a situação financeira e no máximo um alerta ("parada há N dias", senão o
+tempo do evento); data, município, lote, local, nota e quando foi pedida; à direita as
+pessoas atendidas e o valor; o ⋮ com abrir, a ordem de serviço, duplicar e o protocolo.
+Espera `l` (de views_pedidos._linha) com `l.s`.
+{% endcomment %}
+{% with s=l.s %}
+<li class="registro registro-operacional{% if s.cancelada %} registro--inativo{% endif %}">
+  <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="OS" numero=s.numero|default:"—" compacta=True only %}</div>
   <div class="registro__corpo">
     <div class="registro__titulo">
-      <a class="registro__link" href="{% url 'coffee:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{{ s.descricao|truncatechars:90 }}</a>
-      <span class="selo selo--{{ s.situacao_tom }} selo--sem-ponto">{{ s.situacao_rotulo }}</span>
-      {% if l.tempo and not l.parada %}<span class="selo selo--{{ l.tempo.1 }} selo--sem-ponto">{{ l.tempo.0 }}</span>{% endif %}
-      {% if l.parada %}<span class="selo selo--aviso selo--sem-ponto">{% icone "hourglass" classe="icone--sm" %}{{ l.parada }}</span>{% endif %}
+      <a class="registro__link" href="{% url 'coffee:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span><span class="registro__link-texto">{{ s.descricao|truncatechars:90 }}</span></a>
+      <span class="registro__selos">
+        <span class="selo selo--{{ s.situacao_tom }} selo--sem-ponto">{{ s.situacao_rotulo }}</span>
+        {% if l.parada %}<span class="selo selo--aviso selo--sem-ponto">{% icone "hourglass" classe="icone--sm" %}{{ l.parada }}</span>
+        {% elif l.tempo %}<span class="selo selo--{{ l.tempo.1 }} selo--sem-ponto">{{ l.tempo.0 }}</span>{% endif %}
+      </span>
     </div>
-    <div class="registro__meta">
-      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+    <div class="registro__agenda">
+      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item{% if ausente %} registro__meta-item--vazio{% endif %}" title="{{ rotulo }}: {{ texto }}">{% icone icone_fato classe="icone--sm" %}<span class="sr-only">{{ rotulo }}: </span><span class="registro__meta-texto">{{ texto }}</span></span>{% endfor %}
     </div>
   </div>
-  <div class="registro__acoes registro__acoes--fixas">
-    <a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacao' s.pk %}">{% if s.bloqueada %}{% icone "eye" %}Ver{% else %}{% icone "pencil" %}Abrir{% endif %}<span class="sr-only"> {{ s }}</span></a>
+  <div class="registro-operacional__conferencia">
+    <span class="registro__meta-item" title="Pessoas atendidas">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">{{ s.quantidade }}</span><span class="registro__meta-detalhe">{% if s.quantidade == 1 %}pessoa{% else %}pessoas{% endif %}</span></span></span>
+    {% if s.valor is not None %}<span class="registro__meta-item" title="Valor">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">{{ s.valor|moeda }}</span></span></span>{% endif %}
+  </div>
+  <div class="registro__acoes">
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações da {{ s }}">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel menu__painel--descrito" role="menu" hidden>
+        <p class="menu__folha-titulo" aria-hidden="true">OS {{ s.numero|default:"—" }} · {{ s.descricao|truncatechars:40 }}</p>
+        <a class="menu__item" role="menuitem" href="{% url 'coffee:solicitacao' s.pk %}">{% if s.bloqueada %}{% icone "eye" %}Ver a solicitação{% else %}{% icone "pencil" %}Abrir a solicitação{% endif %}</a>
+        {% if not s.cancelada %}<a class="menu__item" role="menuitem" href="{% url 'coffee:documento' s.pk 'os' %}">{% icone "file-text" %}Ordem de serviço<span class="menu__item-descricao">o PDF que vai ao fornecedor</span></a>{% endif %}
+        <a class="menu__item" role="menuitem" href="{% url 'coffee:nova' %}?duplicar={{ s.pk }}">{% icone "copy" %}Duplicar<span class="menu__item-descricao">nova OS com os mesmos dados</span></a>
+        {% if s.nota_fiscal and not s.cancelada %}<div class="menu__separador" role="separator"></div><a class="menu__item" role="menuitem" href="{% url 'coffee:protocolo' s.pk %}">{% icone "stamp" %}Protocolo de pagamento<span class="menu__item-descricao">o pacote para o processo</span></a>{% endif %}
+      </div>
+    </pc-menu>
   </div>
 </li>
 {% endwith %}

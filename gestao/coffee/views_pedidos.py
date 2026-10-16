@@ -106,9 +106,10 @@ def _linha(s: Solicitacao, hoje: date) -> dict:
         tempo = ("Previsto", "neutro")
     fatos = [("calendar", "Evento", f"{s.data_evento:%d/%m/%Y}" if s.data_evento
               else "Sem data do evento", s.data_evento is None),
-             ("users", "Quantidade", f"{s.quantidade} pessoas", False),
-             ("layers", "Lote", f"{s.lote} · {s.lote.contrato.fornecedor}", False),
-             ("map-pin", "Município", s.municipio.nome, False)]
+             ("map-pin", "Município", s.municipio.nome, False),
+             ("layers", "Lote", f"{s.lote} · {s.lote.contrato.fornecedor}", False)]
+    if s.local_entrega:
+        fatos.append(("building-2", "Local de entrega", s.local_entrega, False))
     if s.nota_fiscal:
         fatos.append(("receipt", "Nota fiscal", f"NF {s.nota_fiscal}", False))
     fatos.append(("clock", "Solicitada", f"Solicitada em {s.data_solicitacao:%d/%m/%Y}", False))
@@ -136,7 +137,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     _exigir(request)
     hoje = timezone.localdate()
     f = _filtros(request.GET)
-    ativos = sum(bool(f[k]) for k in ("lote", "fornecedor", "de", "ate"))
+    ativos = sum(bool(f[k]) for k in ("lote", "fornecedor", "pendentes"))
+    ativos += bool(f["de"] or f["ate"])
     sem_situacao = queries.filtrar(_base(), **{**f, "situacao": "", "pendentes": False})
     contagens = queries.contagens_por_situacao(sem_situacao)
     qs = (queries.filtrar(_base(), **f).annotate(ultimo=Max("movimentos__em"))
@@ -154,8 +156,40 @@ def lista(request: HttpRequest) -> HttpResponse:
         "lotes": Lote.objects.select_related("contrato").order_by("-exercicio", "numero"),
         "fornecedores": Fornecedor.objects.order_by("razao_social"),
         "url_exportar": reverse("coffee:exportar") + (f"?{base}" if base else ""),
+        "fichas": _fichas(request, f), "url_limpar_tudo": request.path + "?" + _sem(
+            request, "pagina", "de", "ate", "lote", "fornecedor", "pendentes"),
+        "mais": [{"url": reverse("coffee:exportar") + (f"?{base}" if base else ""),
+                  "icone": "download", "titulo": "Exportar CSV",
+                  "descricao": "as solicitações deste recorte, separadas por ponto e vírgula"},
+                 {"url": reverse("coffee:lotes"), "icone": "layers", "titulo": "Lotes e saldo",
+                  "descricao": "o consumo de cada lote contratado"}],
         "migalhas": _migalhas(("Solicitações", "")),
     })
+
+
+def _sem(request: HttpRequest, *campos: str) -> str:
+    return urlencode([(k, v) for k, vs in request.GET.lists() for v in vs
+                      if k not in campos and v])
+
+
+def _fichas(request: HttpRequest, f: dict) -> list[dict]:
+    """Os filtros da gaveta que valem agora, cada um com o link que tira só ele."""
+    def sem(*campos: str) -> str:
+        return request.path + "?" + _sem(request, "pagina", *campos)
+
+    fichas = []
+    if f["de"] or f["ate"]:
+        de, ate = (f"{d:%d/%m/%Y}" if d else "" for d in (f["de"], f["ate"]))
+        rotulo = (f"Eventos de {de} a {ate}" if de and ate
+                  else f"Eventos a partir de {de}" if de else f"Eventos até {ate}")
+        fichas.append({"rotulo": rotulo, "url": sem("de", "ate")})
+    if f["lote"] and (lote := Lote.objects.filter(pk=f["lote"]).first()):
+        fichas.append({"rotulo": str(lote), "url": sem("lote")})
+    if f["fornecedor"] and (fo := Fornecedor.objects.filter(pk=f["fornecedor"]).first()):
+        fichas.append({"rotulo": fo.razao_social, "url": sem("fornecedor")})
+    if f["pendentes"]:
+        fichas.append({"rotulo": "Pendências financeiras", "url": sem("pendentes")})
+    return fichas
 
 
 def _celula(valor):
