@@ -250,7 +250,8 @@ class ViaturaDoDiarioForm(forms.Form):
 
     def __init__(self, *args, diario=None, **kwargs):
         atual = diario.viatura_id if diario is not None else None
-        super().__init__(*args, initial={"viatura": atual}, **kwargs)
+        kwargs.setdefault("initial", {"viatura": atual})
+        super().__init__(*args, **kwargs)
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
         viatura.queryset = (Viatura.objects.filter(Q(ativo=True) | Q(pk=atual))
                             .order_by("placa").select_related("combustivel", "unidade")

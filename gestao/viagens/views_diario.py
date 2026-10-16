@@ -91,7 +91,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "de_la": de_la, "editavel_km": editavel and de_la is None,
         "protocolo_de_la": (diario.protocolo_formatado(de_la.prestacao.oficio.protocolo)
                             if de_la else ""),
-        **(_contexto_da_escolha(d) if editavel else {}),
+        **(_contexto_da_escolha(d) if editavel and d is not None else {}),
         "preenchidas": preenchidas, "completo": bool(lista) and preenchidas == len(lista),
         "faltam": len(lista) - preenchidas,
         "motorista": {"nome": nome, "cpf": formatar_cpf(cpf)}, "viatura": v,

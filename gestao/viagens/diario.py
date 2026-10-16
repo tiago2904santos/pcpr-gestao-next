@@ -118,11 +118,12 @@ def origem(diario: DiarioBordo) -> DiarioBordo | None:
     if (diario.motorista_modo != DiarioBordo.Motorista.OUTRO
             or not diario.oficio_do_motorista_id):
         return None
-    if not hasattr(diario, "_origem"):
+    memo = diario.__dict__  # uma busca por instância (a folha pergunta várias vezes)
+    if "_origem" not in memo:
         p = (PrestacaoContas.objects.select_related("oficio")
              .filter(oficio_id=diario.oficio_do_motorista_id).first())
-        diario._origem = obter(p) if p else None
-    return diario._origem
+        memo["_origem"] = obter(p) if p else None
+    return memo["_origem"]
 
 
 def vigente(diario: DiarioBordo) -> DiarioBordo:
@@ -436,8 +437,7 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
     diario.motorista_nome = diario.motorista_cpf = ""
     diario.motorista_oficio = diario.motorista_protocolo = ""
     diario.oficio_do_motorista_id = oficio_do_motorista_id if outro else None
-    if hasattr(diario, "_origem"):
-        del diario._origem
+    diario.__dict__.pop("_origem", None)
     cadastro = viatura_modo == DiarioBordo.ViaturaModo.CADASTRO
     manual = viatura_modo == DiarioBordo.ViaturaModo.MANUAL
     diario.viatura_id = viatura_id if cadastro else None
