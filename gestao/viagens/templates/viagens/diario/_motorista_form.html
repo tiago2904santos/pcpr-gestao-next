@@ -1,43 +1,70 @@
-{% comment %}Trocar motorista e viatura (3 modos cada), só neste diário.{% endcomment %}
-<form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="pilha" novalidate>
-      {% csrf_token %}
-      <div class="secao__grupo">
-      <div class="secao__bloco"><fieldset class="modos">
-        <legend class="secao__bloco-titulo">{% icone "user" classe="icone--sm" %}Motorista</legend>
-        <div class="campos"><div class="opcoes opcoes--compactas opcoes--estende">
-          {% for valor, rotulo in d.Motorista.choices %}<label class="opcao"><input type="radio" name="motorista_modo" value="{{ valor }}"{% if d.motorista_modo == valor %} checked{% endif %}><span>{% if valor == 'oficio' %}Do ofício{% elif valor == 'servidor' %}Da equipe{% else %}Outro ofício{% endif %}</span></label>{% endfor %}
-        </div></div>
-        <p class="texto-sm texto-secundario">No ofício: <strong>{{ motorista_oficio|default:"Sem motorista" }}</strong></p>
-        <div class="modos__campos" data-modo="servidor">
-          <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor do ofício</label>
-            <pc-select class="seletor"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione um servidor</option>{% for s in equipe %}<option value="{{ s.pk }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-select></div>
-        </div>
-        <div class="modos__campos" data-modo="outro_oficio">
-          <div class="campo"><label class="campo__rotulo" for="motorista-nome">Nome do motorista</label><input class="entrada" id="motorista-nome" name="motorista_nome" value="{{ d.motorista_nome }}" maxlength="255" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="motorista-cpf">CPF</label><input class="entrada" id="motorista-cpf" name="motorista_cpf" value="{{ d.motorista_cpf }}" inputmode="numeric" maxlength="14" autocomplete="off" data-mascara="cpf"></div>
-          <div class="campo"><label class="campo__rotulo" for="motorista-oficio">Ofício do motorista</label><input class="entrada" id="motorista-oficio" name="motorista_oficio" value="{{ d.motorista_oficio }}" placeholder="15/2026" maxlength="16" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="motorista-protocolo">Protocolo do motorista</label><input class="entrada" id="motorista-protocolo" name="motorista_protocolo" value="{{ d.motorista_protocolo }}" inputmode="numeric" maxlength="30" autocomplete="off"></div>
-        </div>
-      </fieldset></div>
-      <div class="secao__bloco"><fieldset class="modos">
-        <legend class="secao__bloco-titulo">{% icone "car" classe="icone--sm" %}Transporte</legend>
-        <div class="campos"><div class="opcoes opcoes--compactas opcoes--estende">
-          {% for valor, rotulo in d.ViaturaModo.choices %}<label class="opcao"><input type="radio" name="viatura_modo" value="{{ valor }}"{% if d.viatura_modo == valor %} checked{% endif %}><span>{% if valor == 'oficio' %}Do ofício{% elif valor == 'cadastro' %}Do cadastro{% else %}{{ rotulo }}{% endif %}</span></label>{% endfor %}
-        </div></div>
-        <p class="texto-sm texto-secundario">No ofício: <strong>{{ viatura_oficio.rotulo|default:viatura_oficio.modelo|default:"Sem viatura" }}{% if viatura_oficio.placa %} · {{ viatura_oficio.placa }}{% endif %}</strong></p>
-        <div class="modos__campos" data-modo="cadastro">
-          <div class="campo"><label class="campo__rotulo" for="viatura-cadastro">Viatura do cadastro</label>
-            <pc-select class="seletor"><select class="selecao" id="viatura-cadastro" name="viatura"><option value="">Selecione uma viatura</option>{% for vt in viaturas %}<option value="{{ vt.pk }}"{% if d.viatura_id == vt.pk %} selected{% endif %}>{{ vt.modelo }} · {{ vt.placa }}</option>{% endfor %}</select></pc-select></div>
-        </div>
-        <div class="modos__campos" data-modo="manual">
-          <div class="campo"><label class="campo__rotulo" for="viatura-modelo">Modelo</label><input class="entrada" id="viatura-modelo" name="viatura_modelo" value="{{ d.viatura_modelo }}" maxlength="120" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="viatura-placa">Placa</label><input class="entrada" id="viatura-placa" name="viatura_placa" value="{{ d.viatura_placa }}" maxlength="8" autocomplete="off"></div>
-          <div class="campo"><label class="campo__rotulo" for="viatura-tipo">Tipo</label>
-            <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
-          <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
-        </div>
-      </fieldset></div>
+{% comment %}
+Motorista e transporte do diário, só deste diário (o ofício não muda), no desenho do "Equipe e
+transporte" do ofício: em cada bloco, uma linha de campos — de onde vem (como o "Meio de
+transporte") e, ao lado, o que a escolha pede (servidor da equipe ou viatura do cadastro, como
+o "Selecionar viatura"); escrever à mão abre os campos embaixo — e o cartão do recurso como
+ficou (o mesmo da viatura escolhida no ofício; região viva, refeita a cada gravação). Grava
+sozinho (autosave); sem JavaScript, Enter envia o formulário.
+{% endcomment %}
+<form method="post" action="{% url 'viagens:motorista_diario' p.pk %}" class="secao__grupo recursos-diario" id="form-motorista" novalidate data-autosave="{% url 'viagens:autosave_motorista_diario' p.pk %}">
+  {% csrf_token %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar motorista e transporte</button>
+
+  <div class="secao__bloco modos recurso-diario">
+    <div class="secao__bloco-cabecalho">
+      <h3 class="secao__bloco-titulo">{% icone "user" classe="icone--sm" %}Motorista</h3>
+    </div>
+    <div class="recurso-diario__campos">
+      <div class="campo"><label class="campo__rotulo" for="motorista-modo">Motorista</label>
+        <pc-select class="seletor"><select class="selecao" id="motorista-modo" name="motorista_modo">{% for valor, rotulo in d.Motorista.choices %}<option value="{{ valor }}"{% if d.motorista_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}O do ofício{% elif valor == 'servidor' %}Outro servidor da equipe{% else %}De outro ofício{% endif %}</option>{% endfor %}</select></pc-select></div>
+      <div class="modos__campos" data-modo="servidor">
+        <div class="campo"><label class="campo__rotulo" for="motorista-servidor">Servidor da equipe</label>
+          <pc-select class="seletor"><select class="selecao" id="motorista-servidor" name="motorista_servidor"><option value="">Selecione um servidor</option>{% for s in equipe %}<option value="{{ s.pk }}"{% if d.motorista_servidor_id == s.pk %} selected{% endif %}>{{ s.nome }}</option>{% endfor %}</select></pc-select></div>
       </div>
-      {% if alteracoes %}<p class="texto-sm texto-secundario">Recurso trocado só neste diário: {% for a in alteracoes %}{{ a }}{% if not forloop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
-      <div><button type="submit" class="botao">{% icone "save" %}Aplicar motorista e viatura</button></div>
-    </form>
+    </div>
+    <div class="modos__campos" data-modo="outro_oficio">
+      <div class="campo"><label class="campo__rotulo" for="motorista-nome">Nome do motorista</label><input class="entrada" id="motorista-nome" name="motorista_nome" value="{{ d.motorista_nome }}" maxlength="255" autocomplete="off"></div>
+      <div class="campo"><label class="campo__rotulo" for="motorista-cpf">CPF</label><input class="entrada" id="motorista-cpf" name="motorista_cpf" value="{{ d.motorista_cpf }}" inputmode="numeric" maxlength="14" autocomplete="off" data-mascara="cpf"></div>
+      <div class="campo"><label class="campo__rotulo" for="motorista-oficio">Ofício do motorista</label><input class="entrada" id="motorista-oficio" name="motorista_oficio" value="{{ d.motorista_oficio }}" placeholder="15/2026" maxlength="16" autocomplete="off"></div>
+      <div class="campo"><label class="campo__rotulo" for="motorista-protocolo">Protocolo</label><input class="entrada" id="motorista-protocolo" name="motorista_protocolo" value="{{ d.motorista_protocolo }}" inputmode="numeric" maxlength="30" autocomplete="off"></div>
+    </div>
+    <div id="motorista-atual" data-vivo>
+      <article class="pessoa recurso-selecionado recurso-diario__atual{% if not motorista.nome %} recurso-diario__atual--vazio{% endif %}" aria-label="Motorista do diário">
+        <span class="avatar{% if motorista.nome %} avatar--escuro{% endif %}" aria-hidden="true">{% if motorista.nome %}{% icone "volante" classe="icone--sm" %}{% else %}{% icone "user" classe="icone--sm" %}{% endif %}</span>
+        <span class="pessoa__texto">
+          <strong class="pessoa__nome">{{ motorista.nome|default:"Sem motorista" }}</strong>
+          <span class="pessoa__meta">{% if motorista.cpf %}CPF {{ motorista.cpf }} · {% endif %}{% if d.motorista_modo == 'servidor' %}da equipe, só neste diário{% elif d.motorista_modo == 'outro_oficio' %}de outro ofício{% if d.motorista_oficio %} ({{ d.motorista_oficio }}){% endif %}, só neste diário{% elif motorista.nome %}o do ofício{% else %}o ofício não indica quem dirige{% endif %}</span>
+        </span>
+      </article>
+    </div>
+  </div>
+
+  <div class="secao__bloco modos recurso-diario">
+    <div class="secao__bloco-cabecalho">
+      <h3 class="secao__bloco-titulo">{% icone "car" classe="icone--sm" %}Transporte</h3>
+    </div>
+    <div class="recurso-diario__campos">
+      <div class="campo"><label class="campo__rotulo" for="viatura-modo">Viatura</label>
+        <pc-select class="seletor"><select class="selecao" id="viatura-modo" name="viatura_modo">{% for valor, rotulo in d.ViaturaModo.choices %}<option value="{{ valor }}"{% if d.viatura_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}A do ofício{% elif valor == 'cadastro' %}Outra do cadastro{% else %}Informar à mão{% endif %}</option>{% endfor %}</select></pc-select></div>
+      <div class="modos__campos" data-modo="cadastro">
+        <div class="campo"><label class="campo__rotulo" for="viatura-cadastro">Viatura do cadastro</label>
+          <pc-select class="seletor"><select class="selecao" id="viatura-cadastro" name="viatura"><option value="">Selecione uma viatura</option>{% for vt in viaturas %}<option value="{{ vt.pk }}"{% if d.viatura_id == vt.pk %} selected{% endif %}>{{ vt.placa }} · {{ vt.modelo }}</option>{% endfor %}</select></pc-select></div>
+      </div>
+    </div>
+    <div class="modos__campos" data-modo="manual">
+      <div class="campo"><label class="campo__rotulo" for="viatura-modelo">Modelo</label><input class="entrada" id="viatura-modelo" name="viatura_modelo" value="{{ d.viatura_modelo }}" maxlength="120" autocomplete="off"></div>
+      <div class="campo"><label class="campo__rotulo" for="viatura-placa">Placa</label><input class="entrada" id="viatura-placa" name="viatura_placa" value="{{ d.viatura_placa }}" maxlength="8" autocomplete="off"></div>
+      <div class="campo"><label class="campo__rotulo" for="viatura-tipo">Tipo</label>
+        <pc-select class="seletor"><select class="selecao" id="viatura-tipo" name="viatura_tipo"><option value="">Selecione</option>{% for valor, rotulo in tipos_viatura %}<option value="{{ valor }}"{% if d.viatura_tipo == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
+      <div class="campo"><label class="campo__rotulo" for="viatura-combustivel">Combustível</label><input class="entrada" id="viatura-combustivel" name="viatura_combustivel" value="{{ d.viatura_combustivel }}" maxlength="60" autocomplete="off"></div>
+    </div>
+    <div id="viatura-atual" data-vivo>
+      <article class="pessoa recurso-selecionado recurso-diario__atual{% if not viatura.modelo %} recurso-diario__atual--vazio{% endif %}" aria-label="Transporte do diário">
+        <span class="avatar{% if viatura.modelo %} avatar--escuro{% endif %}" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+        <span class="pessoa__texto">
+          <strong class="pessoa__nome">{% if viatura.placa %}{{ viatura.placa }} · {% endif %}{{ viatura.modelo|default:"Sem viatura" }}</strong>
+          <span class="pessoa__meta">{% if viatura.combustivel %}{{ viatura.combustivel }} · {% endif %}{% if viatura.tipo %}{{ viatura.tipo }} · {% endif %}{% if d.viatura_modo == 'cadastro' %}do cadastro, só neste diário{% elif d.viatura_modo == 'manual' %}informada à mão, só neste diário{% elif viatura.modelo %}a do ofício{% else %}o ofício não indica a viatura{% endif %}</span>
+        </span>
+      </article>
+    </div>
+  </div>
+</form>

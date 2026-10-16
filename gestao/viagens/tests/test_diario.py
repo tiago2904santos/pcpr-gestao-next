@@ -204,3 +204,23 @@ def test_troca_pela_tela(c):
     d = DiarioBordo.objects.get(prestacao=p)
     assert (d.viatura_modelo, d.viatura_placa) == ("Hilux", "ABC1D23")
     assert Oficio.objects.get(pk=p.oficio_id).viatura_id is not None
+
+
+def test_motorista_e_transporte_gravam_sozinhos(c):
+    p = _p(c)
+    op = _cliente(c, "operador")
+    url = reverse("viagens:autosave_motorista_diario", args=[p.pk])
+    # Escolha sem o que ela pede: avisa e não grava.
+    r = op.post(url, {"motorista_modo": "servidor", "viatura_modo": "oficio"}).json()
+    assert r == {"salvo": False, "mensagem": "Selecione um servidor do ofício."}
+    r = op.post(url, {"motorista_modo": "oficio", "viatura_modo": "manual",
+                      "viatura_modelo": "Hilux"}).json()
+    assert r["salvo"] is True
+    d = DiarioBordo.objects.get(prestacao=p)
+    assert (d.viatura_modo, d.viatura_modelo) == ("manual", "Hilux")
+    html = op.get(reverse("viagens:diario", args=[p.pk])).content.decode()
+    assert 'id="viatura-atual"' in html and "informada à mão, só neste diário" in html
+    assert "Aplicar motorista e viatura" not in html
+    consulta = _cliente(c, "consulta")
+    assert consulta.post(url, {"motorista_modo": "oficio", "viatura_modo": "oficio"}).json()[
+        "salvo"] is False

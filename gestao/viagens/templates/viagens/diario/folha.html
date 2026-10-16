@@ -1,7 +1,7 @@
 {% extends "arquetipos/formulario.html" %}
 {% load static viagens %}
 {% block titulo %}Diário de bordo · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
@@ -11,17 +11,14 @@
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O diário é da equipe e trava quando todos estão finalizados.</p></div></div>
 {% endif %}
-{% if realizados and diaria_realizada and diaria_oficio and diaria_realizada != diaria_oficio %}
-<div class="alerta alerta--aviso mb-4" role="status">{% icone "banknote" %}<div class="alerta__corpo"><p class="alerta__titulo">Diárias recalculadas pela viagem realizada</p><p>Por servidor: {{ diaria_oficio }} no ofício → {{ diaria_realizada }} pela viagem realizada. O relatório técnico e o comprovante usam o valor novo.</p></div></div>
-{% endif %}
 
 <div class="documento documento--preparacao">
 
   <section class="secao" id="recursos" aria-labelledby="t-recursos">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-recursos"><span class="secao__numero">1</span>Motorista e transporte</h2>
-      <div class="secao__estado">{% if alteracoes %}<span class="selo selo--info selo--sem-ponto">Trocados só neste diário</span>{% endif %}</div>
-      <p class="secao__nota">Um diário para toda a equipe. As alterações abaixo não mudam o ofício.</p>
+      <div class="secao__estado" id="estado-recursos" data-vivo>{% if alteracoes %}<span class="selo selo--info selo--sem-ponto">Trocados só neste diário</span>{% endif %}</div>
+      <p class="secao__nota">Vêm do ofício; troque aqui se outro motorista ou outro veículo fez a viagem. Vale só para este diário, e grava sozinho.</p>
     </div>
     <div class="secao__conteudo">
       {% if editavel %}

@@ -30,14 +30,17 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     a.refresh_from_db()
     assert (a.km_inicial, a.km_final) == (10000, 10400)
 
-    # Viatura à mão: os campos do modo aparecem só ao marcar.
+    # Viatura à mão: os campos do modo aparecem só ao marcar, e grava sozinho.
     expect(pg.locator("#motorista form")).to_be_visible()
     expect(pg.get_by_label("Modelo", exact=True)).to_be_hidden()
-    pg.get_by_text("Preencher à mão").click()
+    pg.get_by_role("combobox", name="Viatura", exact=True).click()
+    pg.get_by_role("option", name="Informar à mão").click()
     pg.get_by_label("Modelo", exact=True).fill("Hilux")
-    pg.get_by_role("button", name="Aplicar motorista e viatura").click()
-    expect(pg.locator(".toast").first).to_contain_text("o ofício não muda")
-    expect(pg.locator("#motorista")).to_contain_text("trocado só neste diário")
+    expect(pg.locator("#viatura-atual")).to_contain_text("Hilux")
+    expect(pg.locator("#viatura-atual")).to_contain_text("só neste diário")
+    expect(pg.locator("#estado-recursos")).to_contain_text("Trocados só neste diário")
+    d.refresh_from_db()
+    assert (d.viatura_modo, d.viatura_modelo) == ("manual", "Hilux")
 
 
 def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
@@ -46,11 +49,10 @@ def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/diario/")
-    pg.locator("#realizada > summary").click()
-    pg.get_by_role("button", name="Ajustar horários do que aconteceu").click()
-    expect(pg.locator("#realizada")).to_contain_text("Ajustada")
+    pg.get_by_role("button", name="Ajustar horários").click()
+    expect(pg.locator("#realizada")).to_contain_text("Ajustados")
     volta = p.trechos_realizados.order_by("-ordem").first()
     pg.locator(f"#r-{volta.pk}-chegada_hora").fill("23:30")
     pg.get_by_role("button", name="Salvar horários e recalcular").click()
     expect(pg.locator(".toast").first).to_contain_text("diárias foram recalculadas")
-    expect(pg.locator("#realizada")).to_contain_text("Mudanças em relação ao ofício")
+    expect(pg.locator("#realizada")).to_contain_text("Em relação ao ofício")

@@ -38,9 +38,7 @@ def test_diario_refinado_sem_tabela_e_acessivel(logado, dados_e2e, largura):
     destino = ARTEFATOS / "diario-base-oficio"
     destino.mkdir(parents=True, exist_ok=True)
     pg.screenshot(path=str(destino / f"diario-{largura}.png"), full_page=True)
-    pg.locator("#realizada > summary").click()
-    expect(pg.locator("#realizada")).not_to_contain_text('aria-labelledby="t-realizada"')
-    expect(pg.get_by_role("button", name="Ajustar horários do que aconteceu")).to_be_visible()
+    expect(pg.get_by_role("button", name="Ajustar horários")).to_be_visible()
     validar_acessibilidade(pg)
 
 

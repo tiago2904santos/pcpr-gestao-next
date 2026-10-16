@@ -98,6 +98,8 @@ urlpatterns = [
          name="autosave_diario"),
     path("prestacoes/equipe/<int:pk>/diario/motorista/", views_diario.motorista,
          name="motorista_diario"),
+    path("prestacoes/equipe/<int:pk>/diario/motorista/autosave/",
+         views_diario.autosave_motorista, name="autosave_motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/realizada/<str:acao>/",
          views_diario.viagem_realizada, name="viagem_realizada"),
     # Editor do texto do diário e dos RTs (as mesmas rotas relativas do ofício; a chave diz

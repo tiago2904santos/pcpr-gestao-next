@@ -50,3 +50,43 @@
 .registros--operacionais > .registro-operacional__servidores:has(.pendencias-linha:is(:hover, :focus-within)) { position: relative; z-index: calc(var(--z-linha-acoes) + 1); }
 /* As ações da linha do servidor com a altura dos campos ao lado (solicitação e saque). */
 .registro--servidor .registro__acoes > .botao.botao--sm { min-height: var(--altura-controle); }
+
+/* Diário de bordo · motorista e transporte, no desenho do "Equipe e transporte" do ofício:
+   dois blocos lado a lado; em cada um, a linha de campos (de onde vem · o que a escolha pede),
+   os campos de escrever à mão e o cartão do recurso como ficou (o da viatura do ofício). */
+@media (min-width: 1024px) {
+  .recursos-diario { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.secao__bloco.recurso-diario { display: grid; align-content: start; gap: var(--esp-3); }
+.recurso-diario > .secao__bloco-cabecalho { margin-bottom: 0; }
+.recurso-diario__campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+@media (min-width: 768px) {
+  .recurso-diario__campos { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); }
+}
+.recurso-diario__campos > .modos__campos { grid-template-columns: minmax(0, 1fr); }
+.recurso-diario .modos__campos[data-modo="outro_oficio"],
+.recurso-diario .modos__campos[data-modo="manual"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* A escolha é um <select>: o campo do modo aparece com a opção marcada. */
+@supports selector(:has(*)) {
+  .recurso-diario:has(option[value="servidor"]:checked) .modos__campos[data-modo="servidor"],
+  .recurso-diario:has(option[value="outro_oficio"]:checked) .modos__campos[data-modo="outro_oficio"],
+  .recurso-diario:has(option[value="cadastro"]:checked) .modos__campos[data-modo="cadastro"],
+  .recurso-diario:has(option[value="manual"]:checked) .modos__campos[data-modo="manual"] { display: grid; }
+}
+.recurso-diario__atual--vazio .pessoa__nome { color: var(--cor-texto-secundario); font-weight: var(--peso-medio); }
+
+/* Diário de bordo · trechos e horários realizados com os cartões de trecho do ofício
+   (itin--operacional): só as colunas mudam — km inicial, km final, abastecimento e o rodado
+   (no lugar da chegada calculada); nos horários, saída e chegada realizadas. */
+@media (max-width: 1279px) {
+  .diario-itin .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .diario-itin .itin__tempos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .diario-itin .diario-realizada .itin__tempos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1280px) {
+  .itin.diario-itin { --trechos-colunas: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1fr); }
+  .itin.diario-itin .diario-realizada { --trechos-colunas: minmax(0, 2fr) minmax(0, 1.6fr) minmax(0, 1.6fr); }
+}
+.diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }

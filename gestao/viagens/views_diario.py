@@ -127,21 +127,38 @@ def _inteiro(texto: str | None) -> int | None:
     return int(texto) if texto and texto.isdigit() else None
 
 
+def _trocar_recursos(request: HttpRequest, d: DiarioBordo) -> None:
+    g = request.POST.get
+    diario.trocar_motorista_e_viatura(
+        request.user, d.pk, motorista_modo=g("motorista_modo", ""),
+        motorista_servidor_id=_inteiro(g("motorista_servidor")),
+        motorista_nome=g("motorista_nome", ""), motorista_cpf=g("motorista_cpf", ""),
+        motorista_oficio=g("motorista_oficio", ""),
+        motorista_protocolo=g("motorista_protocolo", ""),
+        viatura_modo=g("viatura_modo", ""), viatura_id=_inteiro(g("viatura")),
+        viatura_modelo=g("viatura_modelo", ""), viatura_placa=g("viatura_placa", ""),
+        viatura_tipo=g("viatura_tipo", ""), viatura_combustivel=g("viatura_combustivel", ""))
+
+
+@require_POST
+def autosave_motorista(request: HttpRequest, pk: int) -> JsonResponse:
+    """Motorista e transporte gravando sozinhos (contrato do autosave.js); o que falta para
+    a escolha valer (ex.: "Da equipe" sem o servidor) volta como mensagem, sem gravar."""
+    p = _prestacao(request, pk)
+    try:
+        _trocar_recursos(request, diario.obter(p))
+    except (diario.DiarioInvalido, PermissionDenied) as exc:
+        return JsonResponse({"salvo": False, "mensagem": str(exc)})
+    return JsonResponse({"salvo": True, "em": f"{timezone.localtime():%H:%M}", "campos": {},
+                         "recarregar": False})
+
+
 @require_POST
 def motorista(request: HttpRequest, pk: int) -> HttpResponse:
     p = _prestacao(request, pk)
     d = diario.obter(p)
-    g = request.POST.get
     try:
-        diario.trocar_motorista_e_viatura(
-            request.user, d.pk, motorista_modo=g("motorista_modo", ""),
-            motorista_servidor_id=_inteiro(g("motorista_servidor")),
-            motorista_nome=g("motorista_nome", ""), motorista_cpf=g("motorista_cpf", ""),
-            motorista_oficio=g("motorista_oficio", ""),
-            motorista_protocolo=g("motorista_protocolo", ""),
-            viatura_modo=g("viatura_modo", ""), viatura_id=_inteiro(g("viatura")),
-            viatura_modelo=g("viatura_modelo", ""), viatura_placa=g("viatura_placa", ""),
-            viatura_tipo=g("viatura_tipo", ""), viatura_combustivel=g("viatura_combustivel", ""))
+        _trocar_recursos(request, d)
     except (diario.DiarioInvalido, PermissionDenied) as exc:
         messages.error(request, str(exc))
     else:

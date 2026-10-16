@@ -1,74 +1,77 @@
 {% load viagens %}
+{% comment %}
+2. Trechos e quilometragem do diário, com as peças dos trechos do ofício (itin--operacional):
+- Trechos: o mesmo cabeçalho de colunas e um cartão por trecho — à esquerda a rota (número,
+  horário e km previsto), à direita os campos do diário (km inicial, km final, abastecimento)
+  e a distância rodada como resultado, no lugar da "chegada calculada" do ofício. Grava
+  sozinho (autosave); "Preencher pelas distâncias" sugere os vazios (diario-distancias.js).
+- Totais: a faixa de totais do percurso (rodado, previsto, trechos preenchidos) e a
+  conferência do hodômetro.
+- Horários realizados: os mesmos cartões, com saída e chegada do que aconteceu (sem mudar o
+  ofício); salvar recalcula as diárias.
+{% endcomment %}
 <section class="secao" id="trechos" aria-labelledby="t-trechos">
   <div class="secao__cabecalho">
-    <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">2</span>Roteiro e quilometragem</h2>
-    <div class="secao__estado" id="estado-trechos" data-vivo>{% if completo %}<span class="selo selo--sucesso selo--situacao-emitido">Preenchido</span>{% elif linhas %}<span class="selo selo--aviso selo--situacao-rascunho">Falta km em {{ faltam|pluralizar:"trecho,trechos" }}</span>{% endif %}</div>
-    <p class="secao__nota">{% if editavel %}Informe o hodômetro de saída e chegada. Os dados são salvos automaticamente.{% else %}Quilometragem e abastecimento registrados para esta viagem.{% endif %}</p>
+    <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">2</span>Trechos e quilometragem</h2>
+    <div class="secao__estado" id="estado-trechos" data-vivo>{% if completo %}<span class="selo selo--sucesso selo--situacao-emitido">Km preenchido</span>{% elif linhas %}<span class="selo selo--aviso selo--situacao-rascunho">Falta km em {{ faltam|pluralizar:"trecho,trechos" }}</span>{% endif %}</div>
+    <p class="secao__nota">{% if editavel %}Os trechos do ofício, com o hodômetro de saída e de chegada de cada um. Grava sozinho.{% else %}Quilometragem e abastecimento registrados para esta viagem.{% endif %}</p>
   </div>
   <div class="secao__conteudo">
   {% if linhas %}
-  <div class="secao__bloco-cabecalho">
-    <h3 class="secao__bloco-titulo">{% icone "route" classe="icone--sm" %}Trechos da viagem</h3>
-    {% if editavel %}<div class="linha">
-      <button type="button" class="botao botao--sm" data-preencher-distancias="tabela-trechos" aria-describedby="ajuda-distancias">{% icone "route" %}Preencher pelas distâncias</button>
-      <p class="texto-xs texto-secundario" id="ajuda-distancias">Informe o km inicial. Sugerimos os campos vazios; confira com o hodômetro.</p>
-    </div>{% endif %}
-  </div>
-  {% if editavel %}<form method="post" action="{% url 'viagens:salvar_diario' p.pk %}" id="form-diario" novalidate data-autosave="{% url 'viagens:autosave_diario' p.pk %}">{% csrf_token %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar</button>{% endif %}
-    <ol class="diario-linhas" id="tabela-trechos" aria-label="Trechos do diário">
-      {% for item in linhas %}{% with l=item.l t=item.fonte %}
-      <li class="diario-linha diario-linha--hodometro" id="linha-{{ l.pk }}" data-prevista="{{ item.prevista|default:0 }}">
-        <div class="diario-linha__rota">
-          <span class="diario-linha__numero" aria-hidden="true">{{ forloop.counter }}</span>
-          <div class="pilha-sm">
-            <h3 class="texto-sm peso-semi"><span class="sr-only">Trecho {{ forloop.counter }}: </span>{{ item.origem }} → {{ item.destino }}</h3>
-            <p class="texto-xs texto-secundario">{% if t %}Saída {{ t.saida_em|date:"d/m/Y" }} · {{ t.saida_em|date:"H:i" }}<br>Chegada {{ t.chegada_em|date:"d/m/Y" }} · {{ t.chegada_em|date:"H:i" }}{% else %}Horários não informados{% endif %}</p>
+  <div class="itin itin--operacional diario-itin">
+    <section class="itin__bloco" aria-labelledby="t-diario-trechos">
+      <header class="itin__bloco-cabecalho">
+        <h3 class="itin__bloco-titulo" id="t-diario-trechos">{% icone "navigation" %}Trechos</h3>
+        {% if editavel %}<button type="button" class="botao" data-preencher-distancias="tabela-trechos" title="A partir do km inicial do 1.º trecho, sugere os campos vazios pela distância prevista — confira com o hodômetro.">{% icone "route" %}Preencher pelas distâncias</button>{% endif %}
+      </header>
+      <div class="itin__trechos-colunas" aria-hidden="true"><span>{% icone "route" classe="icone--sm" %}Trecho</span><span>{% icone "gauge" classe="icone--sm" %}Km inicial</span><span>{% icone "gauge" classe="icone--sm" %}Km final</span><span>{% icone "fuel" classe="icone--sm" %}Abastecimento</span><span>{% icone "flag" classe="icone--sm" %}Rodado<small>calculado</small></span></div>
+      {% if editavel %}<form method="post" action="{% url 'viagens:salvar_diario' p.pk %}" id="form-diario" novalidate data-autosave="{% url 'viagens:autosave_diario' p.pk %}">{% csrf_token %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar</button>{% endif %}
+      <ol class="itin__trechos" id="tabela-trechos" aria-label="Trechos do diário">
+        {% for item in linhas %}{% with l=item.l t=item.fonte %}
+        <li class="itin__trecho{% if forloop.last and linhas|length > 1 %} itin__trecho--volta{% endif %}" id="linha-{{ l.pk }}" data-prevista="{{ item.prevista|default:0 }}">
+          <header class="itin__trecho-cabecalho">
+            <span class="itin__trecho-numero" aria-hidden="true">{% if forloop.last and linhas|length > 1 %}{% icone "undo-2" %}{% else %}{{ forloop.counter }}{% endif %}</span>
+            <span class="itin__trecho-etapa">{% if t %}{{ t.saida_em|date:"d/m" }} · {{ t.saida_em|date:"H:i" }} → {{ t.chegada_em|date:"H:i" }}{% if t.chegada_em|date:"Ymd" != t.saida_em|date:"Ymd" %} (+1 dia){% endif %}{% else %}Horários não informados{% endif %}</span>
+            <span class="itin__trecho-km">{% if item.prevista %}≈ {{ item.prevista }} km{% endif %}</span>
+            <h4 class="itin__trecho-rota"><span class="sr-only">Trecho {{ forloop.counter }}: </span><span class="itin__trecho-de">{{ item.origem }}</span> {% icone "arrow-right" classe="icone--sm" %} <span class="itin__trecho-para">{{ item.destino }}</span></h4>
+          </header>
+          <div class="itin__tempos">
+            <div class="campo">
+              <label class="campo__rotulo" for="l-{{ l.pk }}-km_inicial">Km inicial</label>
+              {% if editavel %}<input class="entrada" id="l-{{ l.pk }}-km_inicial" name="l-{{ l.pk }}-km_inicial" value="{{ l.km_inicial|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Km inicial do trecho {{ forloop.counter }}" placeholder="Hodômetro">{% else %}<p id="l-{{ l.pk }}-km_inicial" class="entrada">{{ item.km_inicial|default:"—" }}</p>{% endif %}
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="l-{{ l.pk }}-km_final">Km final</label>
+              {% if editavel %}<input class="entrada" id="l-{{ l.pk }}-km_final" name="l-{{ l.pk }}-km_final" value="{{ l.km_final|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Km final do trecho {{ forloop.counter }}" placeholder="Hodômetro">{% else %}<p id="l-{{ l.pk }}-km_final" class="entrada">{{ item.km_final|default:"—" }}</p>{% endif %}
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="l-{{ l.pk }}-abastecimento">Abastecimento</label>
+              {% if editavel %}<pc-select class="seletor"><select class="selecao" id="l-{{ l.pk }}-abastecimento" name="l-{{ l.pk }}-abastecimento" aria-label="Abastecimento no trecho {{ forloop.counter }}"><option value="sim"{% if l.abastecimento is not False %} selected{% endif %}>Sim</option><option value="nao"{% if l.abastecimento is False %} selected{% endif %}>Não</option></select></pc-select>{% else %}<p id="l-{{ l.pk }}-abastecimento" class="entrada">{% if l.abastecimento is False %}Não{% else %}Sim{% endif %}</p>{% endif %}
+            </div>
+            <div class="campo itin__chegada-campo" id="rodado-{{ l.pk }}" data-vivo>
+              <span class="campo__rotulo" id="rd-{{ l.pk }}">Rodado · calculado</span>
+              <div class="indicador indicador--compacto itin__chegada">
+                {% icone "flag" classe="icone--sm itin__chegada-icone" %}<output class="indicador__valor" aria-labelledby="rd-{{ l.pk }}"><span data-chegada-data>{% if item.rodado != None %}rodado{% else %}a preencher{% endif %}</span> <strong data-chegada-hora>{% if item.rodado != None %}{{ item.rodado }} km{% else %}—{% endif %}</strong></output>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="diario-linha__campos">
-          <div class="campo">
-            <label class="campo__rotulo" for="l-{{ l.pk }}-km_inicial">Km inicial</label>
-            {% if editavel %}<input class="entrada" id="l-{{ l.pk }}-km_inicial" name="l-{{ l.pk }}-km_inicial" value="{{ l.km_inicial|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Km inicial do trecho {{ forloop.counter }}" placeholder="Hodômetro">{% else %}<p id="l-{{ l.pk }}-km_inicial" class="entrada">{{ item.km_inicial|default:"—" }}</p>{% endif %}
-          </div>
-          <div class="campo">
-            <label class="campo__rotulo" for="l-{{ l.pk }}-km_final">Km final</label>
-            {% if editavel %}<input class="entrada" id="l-{{ l.pk }}-km_final" name="l-{{ l.pk }}-km_final" value="{{ l.km_final|default_if_none:'' }}" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Km final do trecho {{ forloop.counter }}" placeholder="Hodômetro">{% else %}<p id="l-{{ l.pk }}-km_final" class="entrada">{{ item.km_final|default:"—" }}</p>{% endif %}
-          </div>
-          <div class="campo">
-            <label class="campo__rotulo" for="l-{{ l.pk }}-abastecimento">Abastecimento</label>
-            {% if editavel %}<pc-select class="seletor"><select class="selecao" id="l-{{ l.pk }}-abastecimento" name="l-{{ l.pk }}-abastecimento" aria-label="Abastecimento no trecho {{ forloop.counter }}"><option value="sim"{% if l.abastecimento is not False %} selected{% endif %}>Sim</option><option value="nao"{% if l.abastecimento is False %} selected{% endif %}>Não</option></select></pc-select>{% else %}<p id="l-{{ l.pk }}-abastecimento" class="entrada">{% if l.abastecimento is False %}Não{% else %}Sim{% endif %}</p>{% endif %}
-          </div>
-        </div>
-        <div class="diario-linha__resultado" id="rodado-{{ l.pk }}" data-vivo>
-          <span>Distância rodada</span><strong>{% if item.rodado != None %}{{ item.rodado }} km{% else %}A preencher{% endif %}</strong>
-          {% if item.prevista %}<span>≈ {{ item.prevista }} km previstos</span>{% endif %}
-        </div>
-      </li>
-      {% endwith %}{% endfor %}
-    </ol>
-  {% if editavel %}</form>{% endif %}
-  <div class="secao__bloco pilha">
-    {% if conf %}<dl class="metadados grade grade--3" id="totais-diario" data-vivo>
-      <div class="metadado"><dt>Total rodado</dt><dd>{{ conf.total_rodado }} km</dd></div>
-      <div class="metadado"><dt>Distância prevista</dt><dd>{% if conf.total_previsto %}{{ conf.total_previsto }} km{% else %}Não informada{% endif %}</dd></div>
-      <div class="metadado"><dt>Trechos preenchidos</dt><dd>{{ preenchidas }} de {{ linhas|length }}</dd></div>
-    </dl>{% endif %}
-    <div id="conferencia" data-vivo>
-      {% if conf and conf.avisos %}<ul class="pilha-sm" aria-label="Conferência do hodômetro">{% for a in conf.avisos %}<li class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ a }}</span></li>{% endfor %}</ul>
-      {% elif conf and completo %}<p class="alerta alerta--sucesso">{% icone "check-circle-2" classe="icone--sm" %}<span>Hodômetro coerente em todos os trechos.</span></p>{% endif %}
-    </div>
+        </li>
+        {% endwith %}{% endfor %}
+      </ol>
+      {% if editavel %}</form>{% endif %}
+      {% if conf %}<p class="itin__totais diario-itin__totais" id="totais-diario" data-vivo role="status">
+        <span class="itin__total">{% icone "gauge" classe="icone--sm" %}<span class="itin__total-rotulo">Total rodado</span><span class="itin__total-valor">{{ conf.total_rodado }} km</span><span class="itin__total-valor">{{ preenchidas }} de {{ linhas|length|pluralizar:"trecho,trechos" }}</span></span>
+        <span class="itin__total">{% icone "route" classe="icone--sm" %}<span class="itin__total-rotulo">Distância prevista</span><span class="itin__total-valor">{% if conf.total_previsto %}{{ conf.total_previsto }} km{% else %}—{% endif %}</span><span class="itin__total-valor">pelo roteiro do ofício</span></span>
+      </p>{% endif %}
+      <div id="conferencia" data-vivo>
+        {% if conf and conf.avisos %}<ul class="pilha-sm" aria-label="Conferência do hodômetro">{% for a in conf.avisos %}<li class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ a }}</span></li>{% endfor %}</ul>
+        {% elif conf and completo %}<p class="alerta alerta--sucesso">{% icone "check-circle-2" classe="icone--sm" %}<span>Hodômetro coerente em todos os trechos.</span></p>{% endif %}
+      </div>
+    </section>
+
+    {% include "viagens/diario/_realizada.html" %}
   </div>
   {% else %}{% include "componentes/vazio.html" with icone="route" titulo="O ofício não tem trechos" texto="O diário espelha os trechos do ofício: inclua-os na folha do ofício." compacto=True %}{% endif %}
-<div class="secao__bloco">
-    <details class="divulgacao" id="realizada"{% if realizados %} open{% endif %}>
-      <summary>{% icone "clock" classe="icone--sm" %}Viagem realizada{% if realizados %} <span class="selo selo--info selo--sem-ponto">Ajustada</span>{% else %} <span class="texto-secundario">horários do ofício</span>{% endif %}</summary>
-      <div class="divulgacao__corpo pilha">
-        <p class="texto-secundario texto-sm">Saiu ou chegou em outro horário? Registre o realizado para recalcular as diárias. O ofício permanece igual.</p>
-        {% include "viagens/diario/_realizada.html" %}
-      </div>
-    </details>
-</div>
-
 
   </div>
 </section>
