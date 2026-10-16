@@ -69,28 +69,31 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
     {{ para_copiar|json_script:"rts-para-copiar" }}
     {% endif %}
 
+    {% comment %}Cada texto como o "Motivo da viagem" do ofício: a linha do texto pronto (com
+    "Sugerir texto" e "Guardar texto" na mesma peça) e, embaixo, a área de texto com o rótulo
+    na borda.{% endcomment %}
+    <div class="pilha rt-textos">
     {% for c in campos %}
-    <div class="secao__bloco" id="grupo-{{ c.nome }}">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-{{ c.nome }}">{% icone "file-pen-line" classe="icone--sm" %}{{ c.rotulo }}{% if c.obrigatorio %} <span class="texto-terciario texto-xs">(para finalizar)</span>{% endif %}</h3>
-        <div class="secao__estado">{% if editavel and c.nome in sugeriveis %}<button type="button" class="botao botao--sm botao--sutil" data-sugerir="{% url 'viagens:sugerir_relatorio' p.pk c.nome %}" data-alvo="rt-{{ c.nome }}" data-form="form-rt">{% icone "text-quote" %}Sugerir texto<span class="sr-only"> para {{ c.rotulo|lower }}</span></button>{% endif %}</div>
-      </div>
-      <div class="pilha">
-        {% if editavel and c.prontos %}{% with alvo="rt-"|add:c.nome rotulo="Texto pronto para "|add:c.rotulo %}
-          {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo pode_gerir=pode_gerir_textos %}
-        {% endwith %}{% endif %}
-        <div class="campo">
-          <label class="campo__rotulo sr-only" for="rt-{{ c.nome }}">{{ c.rotulo }}</label>
-          {% if editavel %}
-          <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="3"{% if c.sugerido %} aria-describedby="rt-{{ c.nome }}-sugestao"{% endif %}>{{ c.valor }}</textarea>
-          {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
-          {% else %}
-          <p class="texto-sm">{{ c.valor|default:"—"|linebreaksbr }}</p>
-          {% endif %}
-        </div>
+    <div class="pilha rt-texto" id="grupo-{{ c.nome }}">
+      {% if editavel %}{% with alvo="rt-"|add:c.nome rotulo="Texto pronto — "|add:c.rotulo %}
+        {% if c.nome in sugeriveis %}{% url 'viagens:sugerir_relatorio' p.pk c.nome as url_sugerir %}
+        {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo rotulo_campo=c.rotulo pode_gerir=pode_gerir_textos sugerir_url=url_sugerir sugerir_form="form-rt" %}
+        {% else %}
+        {% include "componentes/texto_pronto.html" with alvo=alvo tipo=c.tipo opcoes=c.prontos rotulo=rotulo pode_gerir=pode_gerir_textos sugerir_url="" %}
+        {% endif %}
+      {% endwith %}{% endif %}
+      <div class="campo">
+        <label class="campo__rotulo" for="rt-{{ c.nome }}" id="t-{{ c.nome }}">{{ c.rotulo }}{% if c.obrigatorio %} <span class="campo__opcional">(<span class="sr-only">necessário </span>para finalizar)</span>{% endif %}</label>
+        {% if editavel %}
+        <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="3"{% if c.sugerido %} aria-describedby="rt-{{ c.nome }}-sugestao"{% endif %}>{{ c.valor }}</textarea>
+        {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
+        {% else %}
+        <p class="entrada area-texto rt-texto__leitura">{{ c.valor|default:"—"|linebreaksbr }}</p>
+        {% endif %}
       </div>
     </div>
     {% endfor %}
+    </div>
   </section>
 
   {% comment %}3. Diária recebida — por servidor; vazio usa a liberada; nunca acima dela.{% endcomment %}

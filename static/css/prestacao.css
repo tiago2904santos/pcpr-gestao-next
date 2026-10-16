@@ -132,3 +132,9 @@
   .itin.diario-itin .diario-trecho .itin__tempos { grid-column: 3 / -1; grid-row: 1; grid-template-columns: subgrid; gap: var(--esp-3); }
 }
 .diario-itin .itin__tempos p.entrada { display: flex; align-items: center; margin: 0; }
+
+/* Relatório técnico · relato: cada texto como o "Motivo da viagem" do ofício — a linha do
+   texto pronto e, logo embaixo, a área de texto; entre um texto e outro, mais ar. */
+.rt-textos { gap: var(--esp-6); }
+.rt-texto { gap: var(--esp-3); }
+.rt-texto__leitura { height: auto; min-height: var(--altura-controle); margin: 0; }
