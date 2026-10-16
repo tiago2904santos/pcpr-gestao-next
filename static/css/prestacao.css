@@ -3,9 +3,6 @@
    Aqui só fica o que essas peças não cobrem: o encaixe dos servidores no registro do ofício, os
    campos da solicitação na linha, o trilho de pendências da barra de filtros e o km na tabela. */
 
-   na qual a solicitação e o prazo de saque gravam sozinhos; as folhas (diário, relatório,
-   documentos, leitura) têm as etapas, a equipe e o ofício na lateral. Só tokens. */
-
 /* Pendências na barra de filtros: cinco atalhos; o trilho encolhe e rola de lado em vez de estourar a largura. */
 .filtros--barra .filtros__lado--flexivel { flex: 1 1 22rem; min-width: 0; }
 .filtros__lado--flexivel > .filtros__documento { flex: 0 1 auto; }
