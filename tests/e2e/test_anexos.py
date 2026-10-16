@@ -35,8 +35,8 @@ def test_documentos_anexar_conferir_e_voltar(logado, dados_e2e):
 
     pg.locator("#comprovantes").get_by_role("button", name="Remover saque.pdf").click()
     confirmar = pg.get_by_role("dialog", name="Remover saque.pdf?")
-    if confirmar.count():
-        confirmar.get_by_role("button", name="Remover", exact=True).click()
+    expect(confirmar).to_be_visible()
+    confirmar.get_by_role("button", name="Remover", exact=True).click()
     pg.locator("#anteriores > summary").click()
     expect(pg.locator("#anteriores")).to_contain_text("saque.pdf")
     pg.locator("#anteriores").get_by_role("button", name="Trazer de volta saque.pdf").click()
