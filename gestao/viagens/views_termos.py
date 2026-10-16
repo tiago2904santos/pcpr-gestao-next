@@ -606,7 +606,8 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
 
     `excluir` (os já escolhidos) sai da lista e restringe o resto aos que se juntam a eles:
     mesma viagem ou mesmo roteiro (vinculos.compativeis). Com `irmaos`, sem busca: todos os
-    que se juntam aos escolhidos (a tela pergunta se devem entrar também)."""
+    que se juntam aos escolhidos (a tela pergunta se devem entrar também). O diário de bordo
+    (motorista de outro ofício) pede `com_prestacao` e `exceto` (o próprio ofício)."""
     from .vinculos import compativeis, resumo
     if not request.user.has_perm("viagens.view_oficio"):
         raise PermissionDenied
@@ -617,6 +618,10 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
     escolhidos = list(Oficio.objects.filter(pk__in=excluir).only("pk", "roteiro_id", "viagem_id"))
     if excluir:
         qs = compativeis(qs.exclude(pk__in=excluir), escolhidos)
+    if request.GET.get("com_prestacao"):
+        qs = qs.filter(prestacao__isnull=False)
+    if (exceto := request.GET.get("exceto") or "").isascii() and exceto.isdecimal():
+        qs = qs.exclude(pk=int(exceto))
     if request.GET.get("irmaos"):
         # Os da mesma ação que ainda faltam (a tela pergunta se entram também): sem busca.
         roteiros = {o.roteiro_id for o in escolhidos} - {None}

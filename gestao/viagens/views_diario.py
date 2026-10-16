@@ -52,8 +52,10 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     d = (diario.obter(p) if editavel
          else DiarioBordo.objects.filter(prestacao=p).select_related("prestacao__oficio")
          .first())  # consulta, diário ainda não aberto: mostra sem criar nada
-    lista = diario.linhas(d) if d else []
-    conf = diario.conferencia(d, lista) if d else None
+    # Motorista de outro ofício: os trechos e os km são os do diário daquele ofício.
+    de_la = diario.origem(d) if d else None
+    lista = diario.linhas(de_la or d) if d else []
+    conf = diario.conferencia(de_la or d, lista) if d else None
     oficio = p.oficio
     mot_oficio, via_oficio = diario.motorista_do_oficio(oficio), diario.viatura_do_oficio(oficio)
     nome, cpf = diario.motorista(d) if d else mot_oficio
@@ -86,6 +88,10 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "diaria_realizada": moeda(nova) if nova is not None else "",
         "p": p, "oficio": oficio, "d": d, "linhas": linhas, "conf": conf,
         "editavel": editavel, "equipe_finalizada": finalizada,
+        "de_la": de_la, "editavel_km": editavel and de_la is None,
+        "protocolo_de_la": (diario.protocolo_formatado(de_la.prestacao.oficio.protocolo)
+                            if de_la else ""),
+        **(_contexto_da_escolha(d) if editavel else {}),
         "preenchidas": preenchidas, "completo": bool(lista) and preenchidas == len(lista),
         "faltam": len(lista) - preenchidas,
         "motorista": {"nome": nome, "cpf": formatar_cpf(cpf)}, "viatura": v,
@@ -101,6 +107,17 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                               (f"Ofício {oficio.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),
                               ("Diário de bordo", ""))})
+
+
+def _contexto_da_escolha(d: DiarioBordo) -> dict:
+    """O que a troca de motorista e viatura usa: a busca de ofícios (a mesma do termo) e a
+    escolha de viatura do ofício, com o "+" que cadastra sem sair da folha."""
+    from gestao.cadastros.forms import formularios_de_cadastro_rapido
+
+    from .forms import ViaturaDoDiarioForm
+    return {"fonte_oficios": reverse("viagens:buscar_oficios"),
+            "form_viatura_diario": ViaturaDoDiarioForm(diario=d),
+            **formularios_de_cadastro_rapido()}
 
 
 @require_POST
@@ -134,14 +151,15 @@ def _inteiro(texto: str | None) -> int | None:
     return int(texto) if texto and texto.isdigit() else None
 
 
-def _trocar_recursos(request: HttpRequest, d: DiarioBordo) -> None:
+def _trocar_recursos(request: HttpRequest, d: DiarioBordo) -> DiarioBordo:
     g = request.POST.get
-    diario.trocar_motorista_e_viatura(
+    return diario.trocar_motorista_e_viatura(
         request.user, d.pk, motorista_modo=g("motorista_modo", ""),
         motorista_servidor_id=_inteiro(g("motorista_servidor")),
         motorista_nome=g("motorista_nome", ""), motorista_cpf=g("motorista_cpf", ""),
         motorista_oficio=g("motorista_oficio", ""),
         motorista_protocolo=g("motorista_protocolo", ""),
+        oficio_do_motorista_id=_inteiro(g("oficio_do_motorista")),
         viatura_modo=g("viatura_modo", ""), viatura_id=_inteiro(g("viatura")),
         viatura_modelo=g("viatura_modelo", ""), viatura_placa=g("viatura_placa", ""),
         viatura_tipo=g("viatura_tipo", ""), viatura_combustivel=g("viatura_combustivel", ""))
@@ -152,12 +170,15 @@ def autosave_motorista(request: HttpRequest, pk: int) -> JsonResponse:
     """Motorista e transporte gravando sozinhos (contrato do autosave.js); o que falta para
     a escolha valer (ex.: "Da equipe" sem o servidor) volta como mensagem, sem gravar."""
     p = _prestacao(request, pk)
+    d = diario.obter(p)
+    antes = d.oficio_do_motorista_id if d.motorista_modo == DiarioBordo.Motorista.OUTRO else None
     try:
-        _trocar_recursos(request, diario.obter(p))
+        d = _trocar_recursos(request, d)
     except (diario.DiarioInvalido, PermissionDenied) as exc:
         return JsonResponse({"salvo": False, "mensagem": str(exc)})
+    # Ligar ou trocar o ofício do motorista troca o diário inteiro (trechos e documento).
     return JsonResponse({"salvo": True, "em": f"{timezone.localtime():%H:%M}", "campos": {},
-                         "recarregar": False})
+                         "recarregar": d.oficio_do_motorista_id != antes})
 
 
 @require_POST

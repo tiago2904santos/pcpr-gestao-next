@@ -1523,6 +1523,11 @@ class DiarioBordo(models.Model):
     motorista_oficio = models.CharField("ofício do motorista", max_length=16, blank=True)
     motorista_protocolo = models.CharField("protocolo do motorista", max_length=30,
                                            blank=True)
+    # Motorista de outro ofício: o diário passa a ser o da prestação daquele ofício
+    # (motorista, viatura, trechos e km vêm de lá). Os campos de texto acima ficam só para
+    # os diários antigos, preenchidos à mão.
+    oficio_do_motorista = models.ForeignKey(Oficio, on_delete=models.PROTECT, null=True,
+                                            blank=True, related_name="+")
     viatura_modo = models.CharField(max_length=10, choices=ViaturaModo.choices,
                                     default=ViaturaModo.OFICIO)
     viatura = models.ForeignKey(Viatura, on_delete=models.PROTECT, null=True, blank=True,

@@ -41,14 +41,15 @@ def test_nasce_com_padroes_e_marcadores(c):
     ModeloTexto.objects.create(tipo="rt_motivo", nome="Padrão", padrao=True,
                                texto="Evento em {destino} ({periodo}). {desconhecido}")
     d = diario.obter(p)
-    diario.trocar_motorista_e_viatura(c.usuarios["operador"], d.pk, motorista_modo="outro_oficio",
-                                      motorista_nome="Fulano de Tal", viatura_modo="oficio")
+    colega = p.oficio.viajantes.filter(motorista=False).select_related("servidor").first().servidor
+    diario.trocar_motorista_e_viatura(c.usuarios["operador"], d.pk, motorista_modo="servidor",
+                                      motorista_servidor_id=colega.pk, viatura_modo="oficio")
     rt = relatorio.obter(p)
     assert (rt.translado, rt.combustivel, rt.passagem) == ("Não houve", "Cartão Prime",
                                                            "Não houve")
     assert rt.diaria.startswith("R$ ")
     assert rt.motivo.startswith("Evento em Arapongas/PR (") and "{desconhecido}" in rt.motivo
-    assert "Fulano de Tal" in rt.info_complementares
+    assert colega.nome in rt.info_complementares
     # Abrir de novo não sobrescreve o que a equipe escreveu.
     relatorio.salvar(c.usuarios["operador"], rt.pk, {"motivo": "Escrito pela equipe."})
     assert relatorio.obter(p).motivo == "Escrito pela equipe."

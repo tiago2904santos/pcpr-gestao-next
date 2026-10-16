@@ -909,7 +909,7 @@ class _Gerador:
         from weasyprint import HTML
 
         from . import anexos, diario, prestacao, realizado, relatorio
-        from .models import AnexoPrestacao, PrestacaoServidor
+        from .models import AnexoPrestacao, DiarioBordo, PrestacaoServidor
 
         def pdf_demo(titulo):
             return HTML(string=f"<h1>{titulo}</h1><p>Documento fictício do preview "
@@ -991,6 +991,13 @@ class _Gerador:
                 if i == 4:
                     prestacao.devolver(autor, linhas[0].pk,
                                        "Comprovante do saque ilegível; anexe de novo (DEMO).")
+            grupos = list(equipes.values())
+            if len(grupos) > 1:  # motorista de outro ofício: o diário é o da 1.ª prestação
+                d = diario.obter(grupos[1][0].prestacao)
+                diario.trocar_motorista_e_viatura(
+                    autor, d.pk, motorista_modo=DiarioBordo.Motorista.OUTRO,
+                    oficio_do_motorista_id=grupos[0][0].prestacao.oficio_id,
+                    viatura_modo=DiarioBordo.ViaturaModo.OFICIO)
         except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido,
                 relatorio.RelatorioInvalido, anexos.AnexoInvalido, realizado.AjusteInvalido):
             return  # base sem os papéis (testes de unidade)

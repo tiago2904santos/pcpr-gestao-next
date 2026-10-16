@@ -112,6 +112,24 @@ def sincronizar(diario: DiarioBordo) -> list[DiarioBordoTrecho]:
     return list(diario.linhas.order_by("ordem", "pk"))
 
 
+def origem(diario: DiarioBordo) -> DiarioBordo | None:
+    """Motorista de outro ofício: o diário da prestação daquele ofício, que vale por este
+    (motorista, viatura, trechos e km). None quando este diário é o próprio."""
+    if (diario.motorista_modo != DiarioBordo.Motorista.OUTRO
+            or not diario.oficio_do_motorista_id):
+        return None
+    if not hasattr(diario, "_origem"):
+        p = (PrestacaoContas.objects.select_related("oficio")
+             .filter(oficio_id=diario.oficio_do_motorista_id).first())
+        diario._origem = obter(p) if p else None
+    return diario._origem
+
+
+def vigente(diario: DiarioBordo) -> DiarioBordo:
+    """O diário que vale: o do ofício do motorista, quando há, senão este."""
+    return origem(diario) or diario
+
+
 def linhas(diario: DiarioBordo) -> list[DiarioBordoTrecho]:
     return list(diario.linhas.select_related("trecho__origem", "trecho__destino",
                                              "realizado__origem", "realizado__destino")
@@ -143,6 +161,7 @@ def preenchido(prestacao: PrestacaoContas) -> bool:
     diario = DiarioBordo.objects.filter(prestacao=prestacao).first()
     if diario is None:
         return False
+    diario = vigente(diario)
     return dominio.preenchido([dominio.Linha("", lin.km_inicial, lin.km_final, None)
                                for lin in diario.linhas.all()])
 
@@ -150,11 +169,19 @@ def preenchido(prestacao: PrestacaoContas) -> bool:
 def preenchidos(prestacao_ids) -> set[int]:
     """As prestações (dentre as dadas) com o diário preenchido, numa consulta só (lista)."""
     from django.db.models import Count
-    return set(DiarioBordo.objects.filter(prestacao_id__in=list(prestacao_ids))
-               .annotate(n=Count("linhas"),
-                         faltam=Count("linhas", filter=Q(linhas__km_inicial__isnull=True)
-                                      | Q(linhas__km_final__isnull=True)))
-               .filter(n__gt=0, faltam=0).values_list("prestacao_id", flat=True))
+    ids = list(prestacao_ids)
+    # O diário que vale de cada prestação: o do ofício do motorista, quando há.
+    vinculos = dict(DiarioBordo.objects.filter(
+        prestacao_id__in=ids, motorista_modo=DiarioBordo.Motorista.OUTRO,
+        oficio_do_motorista__prestacao__isnull=False)
+        .values_list("prestacao_id", "oficio_do_motorista__prestacao"))
+    completos = set(DiarioBordo.objects
+                    .filter(prestacao_id__in=[*ids, *vinculos.values()])
+                    .annotate(n=Count("linhas"),
+                              faltam=Count("linhas", filter=Q(linhas__km_inicial__isnull=True)
+                                           | Q(linhas__km_final__isnull=True)))
+                    .filter(n__gt=0, faltam=0).values_list("prestacao_id", flat=True))
+    return {pid for pid in ids if vinculos.get(pid, pid) in completos}
 
 
 def viatura_id(diario: DiarioBordo) -> int | None:
@@ -217,6 +244,8 @@ def motorista_do_oficio(oficio: Oficio) -> tuple[str, str]:
 
 
 def motorista(diario: DiarioBordo) -> tuple[str, str]:
+    if (de_la := origem(diario)) is not None:
+        return motorista(de_la)
     if diario.motorista_modo == DiarioBordo.Motorista.SERVIDOR and diario.motorista_servidor:
         return diario.motorista_servidor.nome, diario.motorista_servidor.cpf
     if diario.motorista_modo == DiarioBordo.Motorista.OUTRO:
@@ -249,6 +278,8 @@ def viatura_do_oficio(oficio: Oficio) -> DadosViatura:
 
 
 def viatura(diario: DiarioBordo) -> DadosViatura:
+    if (de_la := origem(diario)) is not None:
+        return viatura(de_la)
     if diario.viatura_modo == DiarioBordo.ViaturaModo.CADASTRO and diario.viatura:
         return _da_viatura(diario.viatura)
     if diario.viatura_modo == DiarioBordo.ViaturaModo.MANUAL:
@@ -264,6 +295,8 @@ def alteracoes(diario: DiarioBordo, *, do_oficio: tuple[str, str] | None = None,
     motorista e a viatura do ofício passa (a folha), para não consultar de novo."""
     saida = []
     oficio = diario.prestacao.oficio
+    if (de_la := origem(diario)) is not None:
+        return [troca_de_motorista(de_la)]
     if diario.motorista_modo != DiarioBordo.Motorista.OFICIO:
         de = (do_oficio or motorista_do_oficio(oficio))[0]
         para = motorista(diario)[0]
@@ -275,6 +308,28 @@ def alteracoes(diario: DiarioBordo, *, do_oficio: tuple[str, str] | None = None,
             saida.append(f"viatura trocada de {de_v.rotulo or '—'} {de_v.placa}".rstrip()
                          + f" para {para_v.rotulo or '—'} {para_v.placa}".rstrip())
     return saida
+
+
+def protocolo_formatado(protocolo: str) -> str:
+    return (f"{protocolo[:2]}.{protocolo[2:5]}.{protocolo[5:8]}-{protocolo[8]}"
+            if len(protocolo or "") == 9 else protocolo or "")
+
+
+def troca_de_motorista(de_la: DiarioBordo) -> str:
+    """A frase do RT quando o motorista veio de outro ofício: quem dirigiu, em que viatura,
+    por qual ofício e protocolo — e que o diário de bordo é o de lá."""
+    nome, cpf = motorista(de_la)
+    v = viatura(de_la)
+    of = de_la.prestacao.oficio
+    quem = (f"o motorista {nome}" + (f" (CPF {formatar_cpf(cpf)})" if cpf else "")
+            if nome else "o motorista")
+    carro = " ".join(p for p in (v.rotulo, v.placa) if p)
+    protocolo = protocolo_formatado(of.protocolo)
+    return (f"houve troca de motorista: a viagem foi feita com {quem}"
+            + (f", na viatura {carro}" if carro else "")
+            + f", do Ofício {of.numero_formatado}"
+            + (f" (protocolo {protocolo})" if protocolo else "")
+            + "; o diário de bordo é o daquele ofício")
 
 
 # ---------------------------------------------------------------- escrita
@@ -323,11 +378,29 @@ def salvar_linhas(usuario, diario_pk: int,
 OFICIO_DE_REFERENCIA = re.compile(r"^\d{1,5}/\d{4}$")
 
 
+def _conferir_oficio_do_motorista(diario: DiarioBordo, oficio_id: int | None) -> list[str]:
+    if not oficio_id:
+        return ["Busque e escolha o ofício pelo qual o motorista viajou."]
+    if oficio_id == diario.prestacao.oficio_id:
+        return ["Escolha outro ofício: este é o da própria prestação."]
+    p = PrestacaoContas.objects.filter(oficio_id=oficio_id).select_related("oficio").first()
+    if p is None:
+        return ["Esse ofício ainda não tem prestação de contas (nasce quando ele é emitido): "
+                "sem ela, não há diário de bordo para usar."]
+    de_la = DiarioBordo.objects.filter(prestacao=p).first()
+    if (de_la is not None and de_la.motorista_modo == DiarioBordo.Motorista.OUTRO
+            and de_la.oficio_do_motorista_id):
+        return [f"O diário do Ofício {p.oficio.numero_formatado} também usa o de outro "
+                "ofício: escolha o ofício em que os km foram registrados."]
+    return []
+
+
 @transaction.atomic
 def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
                                motorista_servidor_id: int | None = None,
                                motorista_nome: str = "", motorista_cpf: str = "",
                                motorista_oficio: str = "", motorista_protocolo: str = "",
+                               oficio_do_motorista_id: int | None = None,
                                viatura_modo: str, viatura_id: int | None = None,
                                viatura_modelo: str = "", viatura_placa: str = "",
                                viatura_tipo: str = "", viatura_combustivel: str = ""
@@ -339,17 +412,16 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
         motorista_modo = DiarioBordo.Motorista.OFICIO
     if viatura_modo not in DiarioBordo.ViaturaModo.values:
         viatura_modo = DiarioBordo.ViaturaModo.OFICIO
-    nome = " ".join((motorista_nome or "").split())
     if motorista_modo == DiarioBordo.Motorista.SERVIDOR:
         equipe = set(diario.prestacao.oficio.viajantes.values_list("servidor_id", flat=True))
         if motorista_servidor_id not in equipe:
             erros.append("Selecione um servidor do ofício.")
     elif motorista_modo == DiarioBordo.Motorista.OUTRO:
-        if not nome:
-            erros.append("Informe o nome do motorista.")
-        if motorista_oficio.strip() and not OFICIO_DE_REFERENCIA.match(motorista_oficio.strip()):
-            erros.append("Informe o ofício do motorista no formato número/ano (ex.: 15/2026).")
+        erros += _conferir_oficio_do_motorista(diario, oficio_do_motorista_id)
     modelo = " ".join((viatura_modelo or "").split())
+    vinculado = motorista_modo == DiarioBordo.Motorista.OUTRO
+    if vinculado:  # a viatura é a do diário do outro ofício
+        viatura_modo = DiarioBordo.ViaturaModo.OFICIO
     if viatura_modo == DiarioBordo.ViaturaModo.CADASTRO and not viatura_id:
         erros.append("Selecione uma viatura do cadastro.")
     elif viatura_modo == DiarioBordo.ViaturaModo.MANUAL and not modelo:
@@ -360,10 +432,12 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
     servidor = motorista_modo == DiarioBordo.Motorista.SERVIDOR
     outro = motorista_modo == DiarioBordo.Motorista.OUTRO
     diario.motorista_servidor_id = motorista_servidor_id if servidor else None
-    diario.motorista_nome = nome if outro else ""
-    diario.motorista_cpf = re.sub(r"\D", "", motorista_cpf or "")[:11] if outro else ""
-    diario.motorista_oficio = motorista_oficio.strip()[:16] if outro else ""
-    diario.motorista_protocolo = re.sub(r"\D", "", motorista_protocolo or "")[:30] if outro else ""
+    # Os campos à mão eram dos diários antigos: escolhido o ofício, tudo vem de lá.
+    diario.motorista_nome = diario.motorista_cpf = ""
+    diario.motorista_oficio = diario.motorista_protocolo = ""
+    diario.oficio_do_motorista_id = oficio_do_motorista_id if outro else None
+    if hasattr(diario, "_origem"):
+        del diario._origem
     cadastro = viatura_modo == DiarioBordo.ViaturaModo.CADASTRO
     manual = viatura_modo == DiarioBordo.ViaturaModo.MANUAL
     diario.viatura_id = viatura_id if cadastro else None
@@ -390,6 +464,8 @@ def nome_do_arquivo(diario: DiarioBordo, formato: str) -> str:
 def dados_do_documento(diario: DiarioBordo) -> dict:
     from gestao.cadastros.models import ConfiguracaoInstitucional
 
+    # Motorista de outro ofício: o documento é o diário daquele ofício.
+    diario = vigente(diario)
     oficio = diario.prestacao.oficio
     config = ConfiguracaoInstitucional.objects.filter(unidade=oficio.unidade).first()
     nome, cpf = motorista(diario)
@@ -400,8 +476,7 @@ def dados_do_documento(diario: DiarioBordo) -> dict:
     else:
         ref_oficio, protocolo = oficio.numero_formatado, oficio.protocolo
     numero_mot, _, ano_mot = (ref_oficio or "").partition("/")
-    if len(protocolo or "") == 9:
-        protocolo = f"{protocolo[:2]}.{protocolo[2:5]}.{protocolo[5:8]}-{protocolo[8]}"
+    protocolo = protocolo_formatado(protocolo)
     itens = []
     for lin in linhas(diario):
         t = fonte(lin)

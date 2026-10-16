@@ -116,29 +116,73 @@ def test_motorista_e_viatura_so_neste_diario(c):
     with pytest.raises(diario.DiarioInvalido, match="servidor do ofício"):
         diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="servidor",
                                           motorista_servidor_id=None, viatura_modo="oficio")
-    with pytest.raises(diario.DiarioInvalido, match="nome do motorista"):
+    with pytest.raises(diario.DiarioInvalido, match="ofício pelo qual o motorista"):
         diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="outro_oficio",
                                           viatura_modo="oficio")
     with pytest.raises(diario.DiarioInvalido, match="modelo da viatura"):
         diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="oficio",
                                           viatura_modo="manual")
     outra = Viatura.objects.exclude(pk=oficio.viatura_id).first()
+    colega = oficio.viajantes.filter(motorista=False).select_related("servidor").first().servidor
     diario.trocar_motorista_e_viatura(
-        op, d.pk, motorista_modo="outro_oficio", motorista_nome="  Fulano   de Tal ",
-        motorista_cpf="123.456.789-09", motorista_oficio="15/2026",
+        op, d.pk, motorista_modo="servidor", motorista_servidor_id=colega.pk,
         viatura_modo="cadastro", viatura_id=outra.pk)
     d.refresh_from_db()
-    assert diario.motorista(d) == ("Fulano de Tal", "12345678909")
+    assert diario.motorista(d) == (colega.nome, colega.cpf)
     assert diario.viatura(d).placa == outra.placa
     alteracoes = diario.alteracoes(d)
-    assert len(alteracoes) == 2 and "Fulano de Tal" in alteracoes[0]
+    assert len(alteracoes) == 2 and colega.nome in alteracoes[0]
     oficio.refresh_from_db()
     assert (oficio.viatura_id, list(oficio.viajantes.filter(motorista=True).values_list(
         "servidor_id", flat=True))) == antes  # o ofício não muda
     # Voltar para o do ofício limpa o que não vale mais.
     diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="oficio", viatura_modo="oficio")
     d.refresh_from_db()
-    assert d.motorista_nome == "" and d.viatura_id is None and diario.alteracoes(d) == []
+    assert d.motorista_servidor_id is None and d.viatura_id is None
+    assert diario.alteracoes(d) == []
+
+
+def test_motorista_de_outro_oficio_usa_o_diario_de_la(c):
+    """Escolhido o ofício pelo qual o motorista viajou, o diário que vale é o da prestação
+    daquele ofício: motorista, viatura, km, pendência e documento vêm de lá; o RT conta a
+    troca com motorista, viatura, ofício e protocolo."""
+    p = _p(c)
+    op = c.usuarios["operador"]
+    d = diario.obter(p)
+    de_la = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+
+    def trocar(oficio_id, **extra):
+        diario.trocar_motorista_e_viatura(op, d.pk, motorista_modo="outro_oficio",
+                                          oficio_do_motorista_id=oficio_id,
+                                          viatura_modo="oficio", **extra)
+
+    with pytest.raises(diario.DiarioInvalido, match="ainda não tem prestação"):
+        trocar(de_la.pk)
+    with pytest.raises(diario.DiarioInvalido, match="própria prestação"):
+        trocar(p.oficio_id)
+    p2 = PrestacaoContas.objects.create(oficio=de_la)
+    d2 = diario.obter(p2)
+    diario.salvar_linhas(op, d2.pk, {linha.pk: {"km_inicial": 500 + i * 100,
+                                                "km_final": 580 + i * 100}
+                                     for i, linha in enumerate(diario.linhas(d2))})
+    trocar(de_la.pk, viatura_id=Viatura.objects.first().pk)
+    d.refresh_from_db()
+    assert d.oficio_do_motorista_id == de_la.pk and d.viatura_modo == "oficio"
+    assert diario.vigente(d).pk == d2.pk
+    assert diario.motorista(d) == diario.motorista(d2)
+    assert diario.viatura(d) == diario.viatura(d2)
+    # Os km são os de lá: este diário fica preenchido sem digitar nada aqui.
+    assert diario.preenchido(p) and diario.preenchidos([p.pk]) == {p.pk}
+    assert diario.dados_do_documento(d)["linhas"][0]["km_inicial"] == "500"
+    nome, _ = diario.motorista(d2)
+    [texto] = diario.alteracoes(d)
+    assert texto.startswith("houve troca de motorista") and nome in texto
+    assert f"Ofício {de_la.numero_formatado}" in texto
+    # O diário de lá não pode, por sua vez, apontar para um terceiro.
+    with pytest.raises(diario.DiarioInvalido, match="também usa o de outro"):
+        diario.trocar_motorista_e_viatura(op, d2.pk, motorista_modo="outro_oficio",
+                                          oficio_do_motorista_id=p.oficio_id,
+                                          viatura_modo="oficio")
 
 
 def test_permissoes(c):
@@ -193,9 +237,9 @@ def test_troca_pela_tela(c):
     p = _p(c)
     op = _cliente(c, "operador")
     r = op.post(reverse("viagens:motorista_diario", args=[p.pk]),
-                {"motorista_modo": "outro_oficio", "motorista_nome": "",
+                {"motorista_modo": "outro_oficio", "oficio_do_motorista": "",
                  "viatura_modo": "oficio"}, follow=True)
-    assert "Informe o nome do motorista." in r.content.decode()
+    assert "Busque e escolha o ofício pelo qual o motorista viajou." in r.content.decode()
     r = op.post(reverse("viagens:motorista_diario", args=[p.pk]),
                 {"motorista_modo": "oficio", "viatura_modo": "manual",
                  "viatura_modelo": "Hilux", "viatura_placa": "abc-1d23",
