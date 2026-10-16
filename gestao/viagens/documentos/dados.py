@@ -48,8 +48,15 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     trechos = trechos_de(oficio)
     # O nº da solicitação (Central de Viagens) nasce na prestação de contas, depois da emissão:
     # a coluna do documento sai preenchida quando a prestação já o tem (nova versão/retificação).
-    solicitacoes = dict(ativos(PrestacaoServidor.objects.filter(prestacao__oficio=oficio))
-                        .values_list("servidor_id", "numero_solicitacao"))
+    # Carregado uma vez por instância, como a equipe: montar de novo não repete a consulta.
+    prefetch_related_objects([oficio], Prefetch(
+        "prestacao__servidores", queryset=ativos(PrestacaoServidor.objects.all()),
+        to_attr="linhas_ativas"))
+    try:
+        linhas = getattr(oficio.prestacao, "linhas_ativas", [])
+    except Oficio.prestacao.RelatedObjectDoesNotExist:
+        linhas = []
+    solicitacoes = {ps.servidor_id: ps.numero_solicitacao for ps in linhas}
     destinos = []
     for t in trechos:
         rotulo = f"{t.destino.nome}/{t.destino.uf}"
