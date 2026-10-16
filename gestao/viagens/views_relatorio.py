@@ -53,12 +53,14 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     editavel = diario.pode_editar(request.user, p, finalizada)
     rt = (relatorio.obter(p) if editavel
           else RelatorioTecnico.objects.filter(prestacao=p).first())
-    sugestoes = relatorio.sugestoes(p) if editavel else {}
+    # A sugestão fica no fundo do campo vazio (placeholder): some quando a pessoa digita e
+    # entra de verdade pelo "Sugerir texto".
+    sugestoes = relatorio.sugestoes_de_texto(p) if editavel else {}
     prontos = relatorio.textos_prontos(p) if editavel else {}
     campos = [{"nome": c, "rotulo": dominio.ROTULOS[c], "tipo": dominio.TIPO_DO_CAMPO[c],
                "icone": APRESENTACAO[c][0], "dica": APRESENTACAO[c][1],
-               "valor": (getattr(rt, c) if rt else "") or sugestoes.get(c, ""),
-               "sugerido": bool(rt) and not getattr(rt, c) and c in sugestoes,
+               "valor": getattr(rt, c) if rt else "",
+               "sugestao": sugestoes.get(c, ""),
                "prontos": prontos.get(c, []),
                "obrigatorio": c in ("motivo", "atividade", "conclusao")}
               for c in dominio.CAMPOS_TEXTO]

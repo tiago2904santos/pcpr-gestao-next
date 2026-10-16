@@ -5,6 +5,7 @@ na finalização; permissões; a folha e o documento por servidor."""
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 
 import pytest
@@ -55,13 +56,18 @@ def test_nasce_com_padroes_e_marcadores(c):
     assert relatorio.obter(p).motivo == "Escrito pela equipe."
 
 
-def test_sugestoes_so_como_valor_inicial(c):
+def test_sugestoes_so_no_fundo_do_campo(c):
+    """A sugestão aparece no fundo do campo vazio (placeholder): o campo continua vazio e
+    nada é gravado até a pessoa escrever ou pedir "Sugerir texto"."""
     p = _p(c)
     s = relatorio.sugestoes(p)
     assert s["motivo"] == p.oficio.motivo
     relatorio.obter(p)
     html = _cliente(c, "operador").get(reverse("viagens:relatorio", args=[p.pk])).content.decode()
-    assert "Sugestão — ainda não gravada" in html
+    sugestao = relatorio.sugestoes_de_texto(p)["motivo"]
+    assert sugestao.startswith(p.oficio.motivo.rstrip("."))
+    assert 'placeholder="Sugestão: ' in html and 'name="motivo"' in html
+    assert re.search(r'name="motivo"[^>]*></textarea>', html)  # o campo segue vazio
     assert RelatorioTecnico.objects.get(prestacao=p).motivo == ""
 
 

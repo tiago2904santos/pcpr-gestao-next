@@ -63,7 +63,10 @@ function ligar(raiz) {
   const guardar = /** @type {HTMLButtonElement | null} */ (raiz.querySelector("[data-guardar-texto]"));
   const janela = /** @type {HTMLDialogElement | null} */ (document.getElementById("dialogo-guardar-texto"));
   if (!guardar || !janela) return;
-  guardar.hidden = false;
+  // Só há o que guardar quando o campo tem texto: vazio, o botão nem aparece.
+  const mostrarGuardar = () => { guardar.hidden = !alvo.value.trim(); };
+  mostrarGuardar();
+  alvo.addEventListener("input", mostrarGuardar);
   guardar.addEventListener("click", () => {
     const texto = alvo.value.trim();
     if (!texto) {

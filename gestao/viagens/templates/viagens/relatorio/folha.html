@@ -90,8 +90,8 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
       <div class="campo">
         <label class="campo__rotulo sr-only" for="rt-{{ c.nome }}">{{ c.rotulo }}</label>
         {% if editavel %}
-        <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="4" aria-describedby="dica-{{ c.nome }}{% if c.sugerido %} rt-{{ c.nome }}-sugestao{% endif %}" placeholder="{{ c.dica }}">{{ c.valor }}</textarea>
-        {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
+        {# Vazio, a sugestão aparece no fundo (some ao digitar; "Sugerir texto" a põe no campo). #}
+        <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="4" aria-describedby="dica-{{ c.nome }}" placeholder="{% if c.sugestao %}Sugestão: {{ c.sugestao }}{% else %}{{ c.dica }}{% endif %}">{{ c.valor }}</textarea>
         {% else %}
         <p class="entrada area-texto rt-texto__leitura">{{ c.valor|default:"—"|linebreaksbr }}</p>
         {% endif %}
