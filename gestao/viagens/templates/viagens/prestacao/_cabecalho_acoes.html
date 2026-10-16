@@ -1,0 +1,32 @@
+{% load viagens %}{% comment %}
+Ações do cabeçalho das folhas da prestação (o `acoes_template` do registro_hero): o
+**servidor** da folha num menu da equipe — trocar de servidor fica na mesma etapa
+(`?servidor=`) — e o ⋮ com o que vale para a prestação inteira (visão da equipe, pacotes,
+a lista). Cada folha acrescenta os seus itens pelo `menu_folha` (um template incluído no ⋮).
+Contexto: `servidor_atual`, `equipe_linhas`, `p`, `oficio`, `menu_folha` (opcional).
+{% endcomment %}
+{% if servidor_atual %}{% with ps=servidor_atual.ps %}
+<pc-menu class="menu">
+  <button type="button" class="botao" data-menu-botao aria-haspopup="menu" aria-label="Servidor da folha: {{ ps.servidor.nome }}{% if equipe_linhas|length > 1 %} — trocar de servidor{% endif %}">{% icone "user" %}<span>{{ ps.servidor.nome }}</span>{% if equipe_linhas|length > 1 %}{% icone "chevron-down" classe="icone--sm" %}{% endif %}</button>
+  {% if equipe_linhas|length > 1 %}
+  <div class="menu__painel menu__painel--descrito" role="menu" aria-label="Servidores do ofício" hidden>
+    <p class="menu__folha-titulo" aria-hidden="true">Equipe do Ofício {{ oficio.numero_formatado }}</p>
+    {% for o in equipe_linhas %}
+    <a class="menu__item{% if o.ps.pk == ps.pk %} menu__item--atual{% endif %}" role="menuitem" href="?servidor={{ o.ps.pk }}"{% if o.ps.pk == ps.pk %} aria-current="true"{% endif %}>
+      {% if o.motorista %}{% icone "car" %}{% else %}{% icone "user" %}{% endif %}<span class="menu__item-texto"><span>{{ o.ps.servidor.nome }}</span><span class="menu__item-descricao">{{ o.situacao.0 }}{% if o.motorista %} · motorista{% endif %}</span></span>
+      {% if o.ps.pk == ps.pk %}{% icone "check" classe="icone--sm" %}{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</pc-menu>
+{% endwith %}{% endif %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da prestação">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if menu_folha %}{% include menu_folha %}<div class="menu__separador" role="separator"></div>{% endif %}
+    <a class="menu__item" role="menuitem" href="{% url 'viagens:prestacao_equipe' p.pk %}">{% icone "users" %}Visão da equipe</a>
+    <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "download" %}Pacotes da equipe (ZIP)</a>
+    <a class="menu__item" role="menuitem" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "list" %}Voltar à lista</a>
+  </div>
+</pc-menu>

@@ -1779,6 +1779,46 @@ class EdicaoTermo(models.Model):
         return not self.regioes
 
 
+class EdicaoPrestacao(models.Model):
+    """Uma versão do texto editado de um documento da prestação de contas — o diário de
+    bordo (um por equipe) e o relatório técnico (um por servidor) — como EdicaoTermo; as
+    regras ficam em edicao_texto.py. `chave` diz qual documento ("diario" ou "rt-<pk do
+    servidor na prestação>", prestacao_texto.py). A versão em vigor é a de maior `numero`
+    do par (prestação, chave); `regioes == {}` significa "como o modelo gera"."""
+
+    prestacao = models.ForeignKey("PrestacaoContas", on_delete=models.CASCADE,
+                                  related_name="edicoes")
+    chave = models.CharField(max_length=20)
+    numero = models.PositiveIntegerField()
+    acao = models.CharField(max_length=10, choices=EdicaoDocumento.Acao.choices,
+                            default=EdicaoDocumento.Acao.EDITADO)
+    regioes = models.JSONField("HTML por região", default=dict, blank=True)
+    blocos_alterados = models.JSONField(default=list, blank=True)
+    impressoes = models.JSONField(default=dict, blank=True)
+    modelos = models.JSONField("HTML do modelo por região, na edição", default=dict, blank=True)
+    restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
+                                      related_name="+")
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   null=True, related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["chave", "-numero"]
+        constraints = [
+            models.UniqueConstraint(fields=["prestacao", "chave", "numero"],
+                                    name="edicao_prestacao_numero_unico"),
+        ]
+        verbose_name = "edição de documento da prestação"
+        verbose_name_plural = "edições de documentos da prestação"
+
+    def __str__(self) -> str:
+        return f"Edição {self.numero} de {self.chave} da prestação {self.prestacao_id}"
+
+    @property
+    def do_modelo(self) -> bool:
+        return not self.regioes
+
+
 class EdicaoOrdem(models.Model):
     """Uma versão do texto editado do documento da Ordem de Serviço (como EdicaoTermo; as
     regras ficam em edicao_texto.py). A OS emite um documento só: não há `chave`."""

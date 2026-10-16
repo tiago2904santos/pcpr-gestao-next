@@ -214,13 +214,17 @@ def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
 @require_GET
 @moldura_da_folha
 def folha_documento(request: HttpRequest, pk: int) -> HttpResponse:
-    """O diário como sai (HTML), para a prévia embutida na folha; só leitura."""
-    from django.template.loader import render_to_string
-
-    from .documentos.pdf import _recursos
+    """O diário como sai (HTML), para o visualizador/editor da folha. ?versao=N mostra uma
+    versão do texto (o histórico do editor); 0 é o modelo."""
+    from . import prestacao_texto
     p = _prestacao(request, pk)
-    d = diario.obter(p) if diario.pode_editar(request.user, p) else get_object_or_404(
-        DiarioBordo, prestacao=p)
-    return resposta_de_folha(request, lambda nonce: render_to_string(
-        "viagens/documentos/diario_bordo.html",
-        {"d": diario.dados_do_documento(d), "folha": True, "nonce": nonce, **_recursos(True)}))
+    if not diario.pode_editar(request.user, p):
+        get_object_or_404(DiarioBordo, prestacao=p)  # consulta: só o diário já aberto
+    regioes, marcados = prestacao_texto.regioes_da_versao(
+        p, prestacao_texto.CHAVE_DIARIO, request.GET.get("versao") or "")
+    if marcados is None:
+        raise Http404
+    return resposta_de_folha(request, lambda nonce: prestacao_texto.html_do_documento(
+        prestacao_texto.dados_do_documento(p, prestacao_texto.CHAVE_DIARIO), folha=True,
+        nonce=nonce, regioes=regioes, blocos_alterados=marcados),
+        erros=(diario.DiarioInvalido, prestacao_texto.PrestacaoInvalida))

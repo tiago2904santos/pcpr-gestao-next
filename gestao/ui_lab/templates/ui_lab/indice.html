@@ -693,54 +693,49 @@
 
     <!-- 14. EQUIPE DA PRESTAÇÃO DE CONTAS -->
     <section class="cartao" id="equipe-prestacao" aria-labelledby="t-equipe-prestacao">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe-prestacao"><span class="cartao__numero">14</span>Equipe da prestação de contas</h2><span class="texto-secundario texto-sm">Um bloco por ofício (placa, destinos, protocolo, período, diária por servidor) e uma linha por servidor: crachá (o motorista leva o volante), nº da solicitação e prazo de saque que gravam sozinhos, o que já foi feito, a situação e as ações. Dados sintéticos, sem operações.</span></div>
-      <div class="cartao__corpo">
-        <section class="prestacao-equipe" aria-labelledby="lab-equipe-t">
-          <header class="prestacao-equipe__cabecalho">
-            <a class="prestacao-equipe__placa" href="#equipe-prestacao" aria-label="Resumo do Ofício 12/2026">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="12/2026" compacta=True only %}</a>
-            <div class="prestacao-equipe__identificacao">
-              <div class="prestacao-equipe__linha">
-                <h3 class="prestacao-equipe__titulo" id="lab-equipe-t"><a class="registro__link" href="#equipe-prestacao">Londrina/PR</a></h3>
-                <span class="registro__selos"><span class="selo selo--neutro selo--sem-ponto">1 de 2 finalizadas</span><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></span>
-              </div>
-              <ul class="prestacao-equipe__dados">
-                <li><span class="prestacao-equipe__rotulo">Protocolo</span><span class="prestacao-equipe__valor">00.232.280-7</span></li>
-                <li><span class="prestacao-equipe__rotulo">Período</span><span class="prestacao-equipe__valor">07/10 a 09/10/2026</span></li>
-                <li><span class="prestacao-equipe__rotulo">Unidade</span><span class="prestacao-equipe__valor">ASCOM</span></li>
-                <li><span class="prestacao-equipe__rotulo">Por servidor</span><span class="prestacao-equipe__valor">R$ 620,00</span><span>2 × 100% + 1 × 15%</span></li>
-                <li><span class="prestacao-equipe__rotulo">Prestar até</span><span class="prestacao-equipe__valor">14/10/2026</span></li>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe-prestacao"><span class="cartao__numero">14</span>Equipe da prestação de contas</h2><span class="texto-secundario texto-sm">A linha operacional do ofício (§23) com uma linha de registro por servidor dentro: avatar (o motorista em grafite), nome com a situação e o que já foi feito, a nota e, à direita, o nº da solicitação e o prazo de saque que gravam sozinhos, a ação da vez e o ⋮. Dados sintéticos, sem operações.</span></div>
+      <div class="cartao__corpo colecao-operacional">
+        <ul class="registros registros--operacionais" aria-label="Exemplo de prestação por ofício">
+          <li class="registro registro-operacional registro--prestacao">
+            <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="12/2026" compacta=True only %}</div>
+            <div class="registro__corpo">
+              <div class="registro__titulo"><a class="registro__link" href="#equipe-prestacao"><span class="sr-only">Prestação do Ofício 12/2026 · </span><span class="registro__link-texto">Londrina/PR</span></a><span class="registro__selos"><span class="selo selo--neutro selo--sem-ponto">1 de 2 finalizadas</span><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></span></div>
+              <div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">07/10 a 09/10/2026</span></span><span class="registro__meta-item registro__meta-item--protocolo">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">00.232.280-7</span></span><span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">ASCOM</span></span><span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar até 14/10/2026</span></span></div>
+            </div>
+            <div class="registro-operacional__recursos"><span class="registro__meta-item registro__meta-item--equipe">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">2 servidores · 1 finalizada</span></span><span class="registro__meta-item registro__meta-item--transporte">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">ABC1D23 · Renault Duster</span></span></div>
+            <div class="registro-operacional__conferencia"><span class="registro__meta-item registro__meta-item--diarias">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">R$ 620,00</span><span class="registro__meta-detalhe">por servidor · 2 × 100% + 1 × 15%</span></span></span></div>
+            <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Ações da prestação (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
+            <div class="registro__servidores">
+              <ul class="registros" aria-label="Servidores do exemplo">
+                <li class="registro registro--servidor">
+                  <form class="registro__corpo-form" aria-label="Prestação de Ana Exemplo" action="#equipe-prestacao">
+                    <span class="avatar avatar--escuro" aria-hidden="true" title="Motorista do ofício">{% icone "car" classe="icone--sm" %}</span>
+                    <div class="registro__corpo">
+                      <div class="registro__titulo"><span class="registro__link-texto">Ana Exemplo <span class="registro__motorista">(motorista)</span></span><span class="registro__selos"><span class="selo selo--info selo--situacao-rascunho">Em preenchimento</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Diário</span><span class="selo selo--neutro selo--sem-ponto">Relatório gerado</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Comprovante R$ 620,00</span><span class="selo selo--aviso">Saque vence em 2 dias</span></span></div>
+                      <div class="registro__meta"><span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">Escrivã de Polícia</span></span><span class="registro__meta-item">{% icone "id-card" classe="icone--sm" %}<span class="registro__meta-texto">529.982.247-25</span></span><span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar contas até <strong>14/10/2026</strong></span></span></div>
+                    </div>
+                    <div class="registro__acoes registro__acoes--fixas">
+                      <div class="campo campo--sm registro__campo registro__campo--solicitacao"><label class="campo__rotulo" for="lab-ps-n">Nº da solicitação</label><input class="entrada" id="lab-ps-n" value="2026/0412" autocomplete="off"></div>
+                      <div class="campo campo--sm registro__campo registro__campo--prazo"><label class="campo__rotulo" for="lab-ps-s">Prazo de saque</label><pc-data class="seletor" data-periodo><input class="entrada" type="text" id="lab-ps-s" value="06/10/2026 a 09/10/2026" placeholder="dd/mm/aaaa a dd/mm/aaaa" autocomplete="off"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button><input type="hidden" value="06/10/2026" data-periodo-de><input type="hidden" value="09/10/2026" data-periodo-ate></pc-data></div>
+                      <button type="button" class="botao botao--sm">{% icone "check" %}Finalizar</button>
+                      <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Mais ações de Ana Exemplo">{% icone "ellipsis-vertical" %}</button>
+                    </div>
+                  </form>
+                </li>
+                <li class="registro registro--servidor registro--fechado">
+                  <form class="registro__corpo-form" aria-label="Prestação de Bruno Exemplo" action="#equipe-prestacao">
+                    <span class="avatar" aria-hidden="true">BE</span>
+                    <div class="registro__corpo">
+                      <div class="registro__titulo"><span class="registro__link-texto">Bruno Exemplo</span><span class="registro__selos"><span class="selo selo--sucesso selo--situacao-emitido">Finalizada</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Diário</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Relatório</span><span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Comprovante R$ 620,00</span></span></div>
+                      <div class="registro__meta"><span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">Agente de Polícia Judiciária</span></span><span class="registro__meta-item">{% icone "hash" classe="icone--sm" %}<span class="registro__meta-texto">Solicitação 2026/0413</span></span><span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Saque 06/10/2026 a 09/10/2026</span></span></div>
+                    </div>
+                    <div class="registro__acoes registro__acoes--fixas"><button type="button" class="botao botao--sm">{% icone "send" %}Registrar envio</button><button type="button" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Mais ações de Bruno Exemplo">{% icone "ellipsis-vertical" %}</button></div>
+                  </form>
+                </li>
               </ul>
             </div>
-            <div class="prestacao-equipe__acoes"><button type="button" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Ações da prestação (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
-          </header>
-          <ul class="prestacao-equipe__servidores" aria-label="Servidores do exemplo">
-            <li class="prestacao-servidor">
-              <form class="prestacao-servidor__form" aria-label="Prestação de Ana Exemplo" action="#equipe-prestacao">
-                <span class="prestacao-servidor__cracha prestacao-servidor__cracha--motorista" aria-hidden="true" title="Motorista do ofício">{% icone "car" %}</span>
-                <div class="campo prestacao-servidor__campo prestacao-servidor__campo--solicitacao"><label class="campo__rotulo" for="lab-ps-n">Nº da solicitação</label><input class="entrada" id="lab-ps-n" value="2026/0412" autocomplete="off"></div>
-                <div class="campo prestacao-servidor__campo prestacao-servidor__campo--prazo"><label class="campo__rotulo" for="lab-ps-s">Prazo de saque</label><pc-data class="seletor" data-periodo><input class="entrada" type="text" id="lab-ps-s" value="06/10/2026 a 09/10/2026" placeholder="dd/mm/aaaa a dd/mm/aaaa" autocomplete="off"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button><input type="hidden" value="06/10/2026" data-periodo-de><input type="hidden" value="09/10/2026" data-periodo-ate></pc-data></div>
-                <div class="prestacao-servidor__quem">
-                  <span class="prestacao-servidor__nome-linha"><span class="prestacao-servidor__nome">Ana Exemplo</span><span class="feito">{% icone "check" %}Diário</span><span class="feito feito--gerado">{% icone "file-text" %}Relatório gerado</span><span class="feito">{% icone "check" %}Comprovante <span class="feito__dado">R$ 620,00</span></span><span class="selo selo--info selo--sem-ponto">Em preenchimento</span><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></span>
-                  <span class="prestacao-servidor__info"><span>Escrivã de Polícia</span><span>CPF 529.982.247-25</span><span>(41) 99999-0000</span><span>{% icone "clock" classe="icone--sm" %}Prestar contas até <strong>14/10/2026</strong></span></span>
-                </div>
-                <div class="prestacao-servidor__acoes"><button type="button" class="botao botao--sm">{% icone "check" %}Finalizar</button><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Mais ações de Ana Exemplo">{% icone "ellipsis-vertical" %}</button></div>
-                <p class="texto-xs texto-secundario prestacao-servidor__status" aria-live="polite">Salvo automaticamente às 10:02</p>
-                <div class="prestacao-servidor__rodape"><details class="divulgacao"><summary>{% icone "list-checks" classe="icone--sm" %}1 pendência para finalizar</summary><div class="divulgacao__corpo"><ul class="checklist"><li class="checklist__item">{% icone "alert-triangle" classe="icone--sm" %}<a href="#equipe-prestacao">Relatório técnico assinado não anexado</a></li></ul></div></details></div>
-              </form>
-            </li>
-            <li class="prestacao-servidor prestacao-servidor--fechado">
-              <form class="prestacao-servidor__form prestacao-servidor__form--leitura" aria-label="Prestação de Bruno Exemplo" action="#equipe-prestacao">
-                <span class="prestacao-servidor__cracha" aria-hidden="true">BE</span>
-                <div class="prestacao-servidor__leitura" aria-label="Solicitação de Bruno Exemplo"><span><span class="prestacao-equipe__rotulo">Solicitação</span>2026/0413</span><span><span class="prestacao-equipe__rotulo">Prazo de saque</span>06/10/2026 → 09/10/2026</span></div>
-                <div class="prestacao-servidor__quem">
-                  <span class="prestacao-servidor__nome-linha"><span class="prestacao-servidor__nome">Bruno Exemplo</span><span class="feito">{% icone "check" %}Diário</span><span class="feito">{% icone "check" %}Relatório</span><span class="feito">{% icone "check" %}Comprovante <span class="feito__dado">R$ 620,00</span></span><span class="selo selo--sucesso selo--sem-ponto">Finalizada</span></span>
-                  <span class="prestacao-servidor__info"><span>Agente de Polícia Judiciária</span><span>CPF 529.982.247-25</span><span>Sem telefone</span></span>
-                </div>
-                <div class="prestacao-servidor__acoes"><button type="button" class="botao botao--sm">{% icone "send" %}Registrar envio</button><button type="button" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Mais ações de Bruno Exemplo">{% icone "ellipsis-vertical" %}</button></div>
-              </form>
-            </li>
-          </ul>
-        </section>
+          </li>
+        </ul>
       </div>
     </section>
 

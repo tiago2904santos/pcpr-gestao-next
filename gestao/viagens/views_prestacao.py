@@ -255,6 +255,9 @@ def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list, equipe: list)
             "selo": min(selos, key=lambda s: ordem.get(s.tom, 2)) if selos else None,
             "trechos": len(trechos), "url": reverse("viagens:prestacao_equipe", args=[p.pk]),
             "por_servidor": (equipe[0]["diaria"] if equipe else None),
+            # Para os avatares da linha (componentes/avatares_mini.html): o motorista primeiro.
+            "pessoas": sorted(({"servidor": linha["ps"].servidor, "motorista": linha["motorista"]}
+                               for linha in equipe), key=lambda x: not x["motorista"]),
             "quantidade_diarias": (p.oficio.diarias_calculo or {}).get("resumo", "")}
 
 
@@ -457,7 +460,6 @@ def leitura(request: HttpRequest, pk: int) -> HttpResponse:
         "p": p, "oficio": o, "servidores": servidores, "diario": diario,
         "lidos": lidos,
         **contexto_folha(request, p, "leitura"),
-        "acao_principal": "viagens/prestacao/_acao_leitura.html",
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {o.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),

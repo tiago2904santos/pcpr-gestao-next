@@ -34,7 +34,7 @@ No rodapé, a ação da equipe (Finalizar equipe ou Registrar envio da equipe) e
       <p class="secao__nota">Número da solicitação, liberação das diárias e prazo de saque de cada servidor. Grava sozinho; as ações levam o que está digitado.</p>
     </div>
     {% if linhas %}
-    <ul class="prestacao-equipe__servidores" aria-labelledby="t-servidores">
+    <ul class="registros" aria-labelledby="t-servidores">
       {% for l in linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
     </ul>
     {% else %}

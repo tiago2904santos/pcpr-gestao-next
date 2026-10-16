@@ -1,1 +1,0 @@
-{% if editavel and linhas %}<button type="submit" form="continuar-diario" class="botao botao--primario">Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Relatório técnico{% icone "arrow-right" %}</a>{% endif %}

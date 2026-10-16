@@ -33,8 +33,8 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("liberado")
 
     # O PDF do servidor (o visualizador de PDF não abre no navegador sem interface).
-    pg.get_by_role("button", name="Mais ações do relatório").click()
-    href = pg.get_by_role("menuitem", name=f"RT de {a.servidor.nome} (PDF)").get_attribute("href")
+    pg.get_by_role("button", name="Mais ações da prestação").click()
+    href = pg.get_by_role("menuitem", name=f"RT de {a.servidor.nome} em PDF").get_attribute("href")
     resposta = pg.request.get(href)
     assert resposta.ok and resposta.headers["content-type"] == "application/pdf"
 

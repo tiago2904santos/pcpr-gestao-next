@@ -1,5 +1,5 @@
 {% comment %}Um arquivo anexado, como pílula: abrir, baixar, remover; o comprovante mostra valor · data · operação e deixa corrigir. Contexto: `a`, `editavel`, `operacoes`.{% endcomment %}
-<li class="prestacao-doc__arquivo">
+<li class="registro__nota">
   {% if a.tipo == "comprovante" %}{% icone "receipt" classe="icone--sm" %}{% else %}{% icone "file-signature" classe="icone--sm" %}{% endif %}
   <a href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener" title="{{ a.nome_original|default:a.get_tipo_display }} · {{ a.enviado_em|date:'d/m/Y H:i' }} · {{ a.tamanho|filesizeformat }}">{{ a.nome_original|default:a.get_tipo_display }}</a>
   {% if a.tipo == "comprovante" %}<span class="texto-secundario">{% if a.valor %}{{ a.valor|moeda }}{% else %}sem valor{% endif %}{% if a.data_operacao %} · {{ a.data_operacao|date:"d/m/Y" }}{% endif %}{% if a.operacao %} · {{ a.get_operacao_display }}{% endif %}</span>{% endif %}

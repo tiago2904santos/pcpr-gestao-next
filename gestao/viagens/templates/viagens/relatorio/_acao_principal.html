@@ -1,1 +1,0 @@
-{% if editavel %}<button type="submit" form="continuar-relatorio" class="botao botao--primario">Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:documentos_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Documentos{% icone "arrow-right" %}</a>{% endif %}

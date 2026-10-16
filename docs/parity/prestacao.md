@@ -101,22 +101,24 @@ da rodada, crítica e validação em `docs/visual-agents/qa/prestacao-refino-202
 - Preservados: ids `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`, nomes
   dos campos, regiões `data-vivo`, `data-esperar-salvamento`, regras e documentos oficiais.
 
-## No padrão do sistema modelo — 16/10/2026 (ADR 0042)
+## No padrão do sistema modelo, com as peças das folhas — 16/10/2026 (ADR 0042)
 
-- Lista: um bloco por ofício e uma linha por servidor com o nº da solicitação e o prazo de
-  saque gravando sozinhos na própria lista (como a lista real do sistema modelo), o que já
-  foi feito (diário, relatório, comprovante com o valor, despacho), situação, prazos e as
-  ações na linha; as da equipe no cabeçalho do bloco. Atalhos de pendência novos: sem
-  despacho, sem comprovante, comprovante ≠ diária. Preservados: abas, busca HTMX, 25 ofícios
-  por página, exportação, `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`,
-  nomes dos campos (`numero`, `liberacao`, `prazo`, `justificativa`), regiões `data-vivo`.
-- Folhas: topo comum com o seletor de servidor (`?servidor=`) e a trilha 1 Diário → 2 RT →
-  3 Documentos → 4 Leitura; documento embutido que se refaz a cada gravação; "Salvar e
-  continuar" espera o autosave. Diário em tabela com "Preencher pelas distâncias"; RT com a
-  diária do servidor no custeio; Documentos e fechamento por servidor; Leitura e conferência
-  (nova): transcrição com "Copiar", nº de autorização/data/valor do comprovante conferidos
-  com a diária do ofício e a do RT assinado, "Usar no comprovante".
+- Lista: a linha operacional da lista de ofícios por ofício e, colada, uma linha de registro
+  por servidor com o nº da solicitação e o prazo de saque gravando sozinhos na própria lista
+  (como a lista real do sistema modelo), o que já foi feito (diário, relatório, comprovante,
+  despacho), situação, prazos, pendências (pílula das listas) e as ações; as da equipe no ⋮
+  do ofício. Atalhos de pendência: sem solicitação, sem despacho, sem comprovante, valor ≠
+  diária, finalizadas no mês. Preservados: abas, busca HTMX, 25 ofícios por página,
+  exportação, `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`, nomes dos
+  campos (`numero`, `liberacao`, `prazo`, `justificativa`), regiões `data-vivo`.
+- Folhas com o `registro_hero`, a barra `etapas-progresso` (1 Diário → 2 RT → 3 Documentos →
+  4 Leitura), os cartões `secao` e a barra do rodapé do termo/OS; o servidor da folha no
+  cabeçalho (`?servidor=`); "Salvar e continuar" espera o autosave. O diário e os RTs saem no
+  mesmo editor do ofício (texto por região com versões, EdicaoPrestacao) e o PDF/DOCX/pacote
+  levam o texto editado. Leitura e conferência (nova): transcrição com "Copiar", nº de
+  autorização/data/valor do comprovante conferidos com a diária do ofício e a do RT assinado.
+- Documentos iguais aos do sistema modelo: diário de bordo em A4 deitado (doze colunas,
+  motorista na tabela) e RT na folha ASCOM (tabelas, declaração, assinatura com CPF).
 - Não regrediu: motorista/viatura (3 modos), viagem realizada, conferência do hodômetro,
   textos prontos, sugerir e copiar RT, limite da diária, carimbo do nº da solicitação,
-  versões anteriores, pacotes, envio/aprovação/devolução, consulta sem edição, documentos
-  oficiais (PDF/DOCX/XLSX) inalterados.
+  versões anteriores, pacotes, envio/aprovação/devolução, consulta sem edição, planilha.

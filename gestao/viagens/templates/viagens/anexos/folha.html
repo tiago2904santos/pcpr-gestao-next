@@ -1,186 +1,198 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static viagens %}
 {% block titulo %}Documentos · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Etapa 3 da prestação (ADR 0042, no padrão do sistema modelo): o cartão "3 Documentos e
-fechamento" do servidor escolhido — nº da solicitação e prazo de saque gravando sozinhos;
-os cinco documentos assinados na ordem do processo (ofício, despacho, RT, diário,
-comprovantes) com Anexado/Pendente, os arquivos e o anexar; "Falta para o pacote final";
-"Antes de finalizar, confira" com a justificativa; os dados para o eProtocolo e as versões
-anteriores recolhidos. Ofício, despacho e diário são da equipe; RT e comprovantes, do
-servidor. O da equipe trava com todos finalizados; o do servidor, com ele finalizado.
+Etapa 3 da prestação de contas, com as peças e o arranjo da folha do termo e da OS (ADR
+0042), para o servidor da folha: cabeçalho, barra das etapas e cartões numerados —
+1 Solicitação (nº e prazo de saque gravando sozinhos), 2 Documentos assinados (os cinco, na
+ordem do processo — ofício assinado com a posição do nº da solicitação, despacho, RT,
+diário, comprovantes — como as linhas das listas de documentos do termo, com Anexado /
+Pendente, os arquivos e o anexar) e 3 Fechamento (a conferência do que falta, como a do
+ofício; finalizar, com justificativa quando falta algo; o envio ao financeiro, aprovar e
+devolver); os dados para o eProtocolo e as versões anteriores recolhidos; e a barra do
+rodapé. Ofício, despacho e diário são da equipe; RT e comprovantes, do servidor.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental pagina--prestacao{% endblock %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-{% include "viagens/prestacao/_topo.html" with acao_principal="viagens/anexos/_acao_principal.html" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos e fechamento" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" menu_folha="viagens/anexos/_menu.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar.</p></div></div>
 {% endif %}
 
-{% for s in servidores %}{% if servidor_atual and s.ps.pk == servidor_atual.ps.pk %}{% with ps=s.ps l=servidor_atual %}
-<section class="prestacao-cartao" id="ps-{{ ps.pk }}" aria-labelledby="t-documentos">
-  <header class="prestacao-cartao__cabecalho">
-    <span class="prestacao-cartao__numero" aria-hidden="true">3</span>
-    <h2 class="prestacao-cartao__titulo" id="t-documentos">Documentos e fechamento</h2>
-    <div class="prestacao-cartao__estado" id="estado-ps-{{ ps.pk }}" data-vivo>{% if ps.situacao == "devolvida" %}<span class="selo selo--perigo selo--sem-ponto">Devolvida</span>{% endif %}{% for sl in l.selos %}<span class="selo {% if sl.tom == 'vencido' %}selo--perigo{% elif sl.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %} selo--sem-ponto" title="{{ sl.detalhe }}">{{ sl.texto }}</span>{% endfor %}{% if l.prestar_ate and not ps.finalizada %}<span class="selo selo--neutro selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Prestar contas até {{ l.prestar_ate|date:"d/m/Y" }}</span>{% endif %}</div>
-    <div class="prestacao-cartao__acoes">
-      <pc-menu class="menu">
-        <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Mais ações dos documentos">{% icone "ellipsis-vertical" %}</button>
-        <div class="menu__painel" role="menu" hidden>
-          {% if not s.falta_pacote %}<a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' ps.pk %}">{% icone "file-check-2" %}Pacote final de {{ ps.servidor.nome }} (PDF)</a>{% endif %}
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "files" %}Pacotes da equipe (ZIP)</a>
-          {% if via %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">{% icone "stamp" %}Prévia do ofício carimbado (PDF)</a>{% endif %}
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}?servidor={{ ps.pk }}">{% icone "scan-text" %}Leitura dos anexos</a>
-          <div class="menu__separador" role="separator"></div>
-          {% if l.editavel and not ps.finalizada and not ps.arquivada %}<button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'arquivar' %}" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar prestação</button>{% endif %}
-          {% if l.editavel and ps.arquivada %}<button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'desarquivar' %}" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar prestação</button>{% endif %}
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">{% icone "list" %}Voltar à lista</a>
-        </div>
-      </pc-menu>
+{% for s in servidores %}{% if servidor_atual and s.ps.pk == servidor_atual.ps.pk %}{% with ps=s.ps l=servidor_atual aberta=servidor_atual.editavel %}
+<div class="documento documento--preparacao" id="ps-{{ ps.pk }}">
+
+  {% comment %}1. Solicitação — o nº da solicitação de diárias e o prazo de saque (liberação → limite); o mesmo formulário da lista.{% endcomment %}
+  <section class="secao{% if ps.numero_solicitacao and ps.prazo_limite_saque %} secao--ok{% endif %}" id="solicitacao" aria-labelledby="t-solicitacao">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-solicitacao"><span class="secao__numero">1</span>Solicitação de diárias</h2>
+      <div class="secao__estado" id="estado-ps-{{ ps.pk }}" data-vivo>{% if ps.situacao == "devolvida" %}<span class="selo selo--perigo">Devolvida</span>{% endif %}{% for sl in l.selos %}<span class="selo {% if sl.tom == 'vencido' %}selo--perigo{% elif sl.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %}" title="{{ sl.detalhe }}">{{ sl.texto }}</span>{% endfor %}{% if not ps.numero_solicitacao %}<span class="selo selo--aviso selo--situacao-rascunho">Sem nº de solicitação</span>{% endif %}</div>
+      <p class="secao__nota">O número vem do sistema de diárias; a liberação e o prazo limite de saque definem o prazo para prestar contas{% if l.prestar_ate and not ps.finalizada %} — até <strong>{{ l.prestar_ate|date:"d/m/Y" }}</strong>{% endif %}.</p>
     </div>
-  </header>
-  <div class="prestacao-cartao__corpo">
-    {# Solicitação e prazo de saque (gravam sozinhos — o mesmo formulário da lista). #}
-    <form method="post" action="{% url 'viagens:salvar_prestacao' ps.pk %}" id="form-ps-{{ ps.pk }}" class="prestacao-grupo"{% if l.editavel and not ps.finalizada and not ps.arquivada %} data-autosave="{% url 'viagens:autosave_prestacao' ps.pk %}"{% endif %} aria-label="Solicitação de {{ ps.servidor.nome }}">
+    <form method="post" action="{% url 'viagens:salvar_prestacao' ps.pk %}" id="form-ps-{{ ps.pk }}"{% if aberta and not ps.finalizada and not ps.arquivada %} data-autosave="{% url 'viagens:autosave_prestacao' ps.pk %}"{% endif %} aria-label="Solicitação de {{ ps.servidor.nome }}">
       {% csrf_token %}
       <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
-      {% if l.editavel and not ps.finalizada and not ps.arquivada %}
-      <button type="submit" hidden>Salvar</button>
+      {% if aberta and not ps.finalizada and not ps.arquivada %}
+      <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar</button>
       <div class="grade grade--2">
         <div class="campo"><label class="campo__rotulo" for="ps-{{ ps.pk }}-numero">Número da solicitação</label><input class="entrada" id="ps-{{ ps.pk }}-numero" name="numero" value="{{ ps.numero_solicitacao }}" maxlength="60" autocomplete="off" placeholder="0000000"></div>
-        <div class="campo"><label class="campo__rotulo" for="ps-{{ ps.pk }}-saque">Prazo de saque (liberação → prazo limite)</label>
+        <div class="campo"><label class="campo__rotulo" for="ps-{{ ps.pk }}-saque">Prazo de saque (liberação a limite)</label>
           <pc-data class="seletor" data-periodo><input class="entrada" type="text" id="ps-{{ ps.pk }}-saque" value="{% if ps.data_liberacao_diarias %}{{ ps.data_liberacao_diarias|date:'d/m/Y' }}{% if ps.prazo_limite_saque %} a {{ ps.prazo_limite_saque|date:'d/m/Y' }}{% endif %}{% endif %}" placeholder="dd/mm/aaaa a dd/mm/aaaa" autocomplete="off"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button><input type="hidden" id="ps-{{ ps.pk }}-liberacao" name="liberacao" value="{{ ps.data_liberacao_diarias|date:'d/m/Y' }}" data-periodo-de><input type="hidden" id="ps-{{ ps.pk }}-prazo" name="prazo" value="{{ ps.prazo_limite_saque|date:'d/m/Y' }}" data-periodo-ate></pc-data></div>
       </div>
-      <p class="texto-xs texto-secundario" data-status-salvamento aria-live="polite"></p>
       {% else %}
       <dl class="metadados grade grade--3"><div class="metadado"><dt>Solicitação</dt><dd>{{ ps.numero_solicitacao|default:"—" }}</dd></div><div class="metadado"><dt>Liberação das diárias</dt><dd>{{ ps.data_liberacao_diarias|date:"d/m/Y"|default:"—" }}</dd></div><div class="metadado"><dt>Prazo limite de saque</dt><dd>{{ ps.prazo_limite_saque|date:"d/m/Y"|default:"—" }}</dd></div></dl>
       {% endif %}
     </form>
+  </section>
 
-    {# Os cinco documentos, na ordem do processo. #}
-    <div class="prestacao-grupo" id="documentos">
-      <div class="prestacao-doc{% if via %} prestacao-doc--ok{% endif %}" id="oficio_assinado">
-        <span class="prestacao-doc__icone" aria-hidden="true">{% if via %}{% icone "check" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-        <div class="prestacao-doc__texto">
-          <span class="prestacao-doc__titulo">Ofício assinado {% if via %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Pendente</span>{% endif %}</span>
-          <span class="prestacao-doc__nota">Compartilhado pela equipe: é a via assinada do próprio ofício.{% if via and ps.numero_solicitacao %} O nº da solicitação entra na prévia e no pacote; o arquivo não muda.{% endif %}</span>
-          {% if via %}<ul class="prestacao-doc__arquivos"><li class="prestacao-doc__arquivo">{% icone "file-signature" classe="icone--sm" %}<a href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a></li></ul>{% endif %}
-        </div>
-        <div class="prestacao-doc__acoes">{% if editavel_equipe %}<a class="botao botao--sm" href="{% url 'viagens:editar' oficio.pk %}#assinados">{% icone "upload" %}{% if via %}Substituir{% else %}Anexar{% endif %}<span class="sr-only"> o ofício assinado, na folha do ofício</span></a>{% endif %}</div>
-        {% if via and ps.numero_solicitacao and s.editavel %}
-        <details class="divulgacao prestacao-doc__mais"><summary>{% icone "stamp" classe="icone--sm" %}Posição do número da solicitação no ofício assinado{% if not s.carimbo %} <span class="selo selo--aviso selo--sem-ponto">sem posição</span>{% endif %}</summary>
-          <div class="divulgacao__corpo pilha">
-            <p class="texto-secundario texto-sm">O ofício volta assinado com a coluna da solicitação em branco. Diga a página e a posição (em % da página, do canto de cima à esquerda) e confira na <a href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">prévia (PDF)</a>.</p>
-            <form method="post" action="{% url 'viagens:carimbar_numero' ps.pk %}" class="anexo-campos" novalidate>
-              {% csrf_token %}<input type="hidden" name="servidor" value="{{ ps.pk }}">
-              <p class="anexo-campos__arquivo texto-sm"><span class="peso-semi">{{ ps.servidor.nome }}</span> · nº {{ ps.numero_solicitacao }}</p>
-              <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-pagina">Página</label><pc-select class="seletor"><select class="selecao" id="c{{ ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></pc-select></div>
-              <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-x">Horizontal (%)</label><input class="entrada" id="c{{ ps.pk }}-x" name="x" value="{{ s.carimbo_x }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
-              <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-y">Vertical (%)</label><input class="entrada" id="c{{ ps.pk }}-y" name="y" value="{{ s.carimbo_y }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
-              <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "stamp" %}Salvar posição<span class="sr-only"> do número de {{ ps.servidor.nome }}</span></button></div>
-            </form>
-          </div></details>
-        {% endif %}
-      </div>
+  {% comment %}2. Documentos assinados — os cinco, na ordem do processo, como as linhas das listas de documentos do termo.{% endcomment %}
+  <section class="secao{% if not s.falta_pacote %} secao--ok{% endif %}" id="documentos" aria-labelledby="t-documentos">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-documentos"><span class="secao__numero">2</span>Documentos assinados</h2>
+      <div class="secao__estado">{% if s.falta_pacote %}<span class="selo selo--aviso selo--situacao-rascunho">{{ s.falta_pacote|length|pluralizar:"pendência,pendências" }} para o pacote</span>{% else %}<span class="selo selo--sucesso selo--situacao-emitido">Pacote completo</span>{% endif %}</div>
+      <p class="secao__nota">O que volta assinado entra aqui, na ordem do processo. Ofício, despacho e diário são da equipe; o RT e os comprovantes são de {{ ps.servidor.nome }}. PDF, PNG ou JPG até 10 MB; o removido fica 30 dias em versões anteriores.</p>
+    </div>
+    <div class="secao__bloco">
+    <ul class="registros" aria-label="Documentos da prestação de {{ ps.servidor.nome }}">
 
-      <div class="prestacao-doc{% if despachos %} prestacao-doc--ok{% endif %}" id="despacho">
-        <span class="prestacao-doc__icone" aria-hidden="true">{% if despachos %}{% icone "check" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-        <div class="prestacao-doc__texto">
-          <span class="prestacao-doc__titulo">Despacho assinado {% if despachos %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Pendente</span>{% endif %}</span>
-          <span class="prestacao-doc__nota">Compartilhado pela equipe do ofício · pode ter mais de um (somam).</span>
-          {% if despachos %}<ul class="prestacao-doc__arquivos">{% for a in despachos %}{% include "viagens/anexos/_arquivo.html" with editavel=editavel_equipe %}{% endfor %}</ul>{% endif %}
+      <li class="registro{% if not via %} registro--rascunho{% endif %}" id="oficio_assinado">
+        <span class="registro__icone" aria-hidden="true">{% if via %}{% icone "check-circle-2" %}{% else %}{% icone "file-signature" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Ofício assinado</span><span class="registro__selos">{% if via %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}{% if via and ps.numero_solicitacao and not s.carimbo %}<span class="selo selo--aviso selo--situacao-rascunho">sem posição do nº</span>{% endif %}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item">Da equipe: a via assinada do próprio ofício.{% if via and ps.numero_solicitacao %} O nº da solicitação entra na prévia e no pacote; o arquivo não muda.{% endif %}</span></div>
+          {% if via %}<ul class="registro__notas"><li class="registro__nota">{% icone "file-signature" classe="icone--sm" %}<a href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a></li></ul>{% endif %}
+          {% if via and ps.numero_solicitacao and s.editavel %}
+          <details class="divulgacao mt-2"><summary>{% icone "stamp" classe="icone--sm" %}Posição do número da solicitação no ofício assinado</summary>
+            <div class="divulgacao__corpo pilha">
+              <p class="texto-secundario texto-sm">O ofício volta assinado com a coluna da solicitação em branco. Diga a página e a posição (em % da página, do canto de cima à esquerda) e confira na <a href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">prévia (PDF)<span class="sr-only"> (nova aba)</span></a>.</p>
+              <form method="post" action="{% url 'viagens:carimbar_numero' ps.pk %}" class="anexo-campos" novalidate>
+                {% csrf_token %}<input type="hidden" name="servidor" value="{{ ps.pk }}">
+                <p class="anexo-campos__arquivo texto-sm"><span class="peso-semi">{{ ps.servidor.nome }}</span> · nº {{ ps.numero_solicitacao }}</p>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-pagina">Página</label><pc-select class="seletor"><select class="selecao" id="c{{ ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></pc-select></div>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-x">Horizontal (%)</label><input class="entrada" id="c{{ ps.pk }}-x" name="x" value="{{ s.carimbo_x }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+                <div class="campo"><label class="campo__rotulo" for="c{{ ps.pk }}-y">Vertical (%)</label><input class="entrada" id="c{{ ps.pk }}-y" name="y" value="{{ s.carimbo_y }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+                <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "stamp" %}Salvar posição<span class="sr-only"> do número de {{ ps.servidor.nome }}</span></button></div>
+              </form>
+            </div></details>
+          {% endif %}
         </div>
-        <div class="prestacao-doc__acoes"></div>
-        {% if editavel_equipe %}<div class="prestacao-doc__mais">{% include "viagens/anexos/_enviar.html" with tipo="despacho" id="enviar-despacho" rotulo="Anexar despacho" servidor_atual_pk=ps.pk %}</div>{% endif %}
-      </div>
+        {% if editavel_equipe %}<div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm" href="{% url 'viagens:editar' oficio.pk %}#assinados">{% icone "upload" %}{% if via %}Substituir{% else %}Anexar{% endif %}<span class="sr-only"> o ofício assinado, na folha do ofício</span></a></div>{% endif %}
+      </li>
 
-      <div class="prestacao-doc{% if s.rt %} prestacao-doc--ok{% endif %}" id="rt_assinado">
-        <span class="prestacao-doc__icone" aria-hidden="true">{% if s.rt %}{% icone "check" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-        <div class="prestacao-doc__texto">
-          <span class="prestacao-doc__titulo">Relatório técnico assinado {% if s.rt %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Pendente</span>{% endif %}</span>
-          <span class="prestacao-doc__nota">Só de {{ ps.servidor.nome }} · sem o assinado, o <a href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">RT preenchido</a> vale para finalizar.</span>
-          {% if s.rt %}<ul class="prestacao-doc__arquivos">{% include "viagens/anexos/_arquivo.html" with a=s.rt editavel=s.editavel %}</ul>{% endif %}
+      <li class="registro{% if not despachos %} registro--rascunho{% endif %}" id="despacho">
+        <span class="registro__icone" aria-hidden="true">{% if despachos %}{% icone "check-circle-2" %}{% else %}{% icone "file-text" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Despacho assinado</span><span class="registro__selos">{% if despachos %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item">Da equipe · pode ter mais de um (somam).</span></div>
+          {% if despachos %}<ul class="registro__notas">{% for a in despachos %}{% include "viagens/anexos/_arquivo.html" with editavel=editavel_equipe %}{% endfor %}</ul>{% endif %}
+          {% if editavel_equipe %}<div class="mt-2">{% include "viagens/anexos/_enviar.html" with tipo="despacho" id="enviar-despacho" rotulo="Anexar despacho" servidor_atual_pk=ps.pk %}</div>{% endif %}
         </div>
-        <div class="prestacao-doc__acoes"></div>
-        {% if s.editavel %}<div class="prestacao-doc__mais">{% include "viagens/anexos/_enviar.html" with tipo="rt_assinado" servidor=ps.pk id="enviar-rt-" rotulo="Anexar RT assinado" substitui=True %}</div>{% endif %}
-      </div>
+      </li>
 
-      <div class="prestacao-doc{% if db %} prestacao-doc--ok{% endif %}" id="db_assinado">
-        <span class="prestacao-doc__icone" aria-hidden="true">{% if db %}{% icone "check" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-        <div class="prestacao-doc__texto">
-          <span class="prestacao-doc__titulo">Diário de bordo assinado {% if db %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Pendente</span>{% endif %}</span>
-          <span class="prestacao-doc__nota">Compartilhado pela equipe do ofício · sem o assinado, o <a href="{% url 'viagens:diario' p.pk %}?servidor={{ ps.pk }}">diário preenchido</a> vale para finalizar.</span>
-          {% if db %}<ul class="prestacao-doc__arquivos">{% include "viagens/anexos/_arquivo.html" with a=db editavel=editavel_equipe %}</ul>{% endif %}
+      <li class="registro{% if not s.rt %} registro--rascunho{% endif %}" id="rt_assinado">
+        <span class="registro__icone" aria-hidden="true">{% if s.rt %}{% icone "check-circle-2" %}{% else %}{% icone "file-pen-line" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Relatório técnico assinado</span><span class="registro__selos">{% if s.rt %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item">De {{ ps.servidor.nome }} · sem o assinado, o <a href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">RT preenchido</a> vale para finalizar.</span></div>
+          {% if s.rt %}<ul class="registro__notas">{% include "viagens/anexos/_arquivo.html" with a=s.rt editavel=s.editavel %}</ul>{% endif %}
+          {% if s.editavel %}<div class="mt-2">{% include "viagens/anexos/_enviar.html" with tipo="rt_assinado" servidor=ps.pk id="enviar-rt-" rotulo="Anexar RT assinado" substitui=True %}</div>{% endif %}
         </div>
-        <div class="prestacao-doc__acoes"></div>
-        {% if editavel_equipe %}<div class="prestacao-doc__mais">{% include "viagens/anexos/_enviar.html" with tipo="db_assinado" id="enviar-db" rotulo="Anexar diário assinado" substitui=True servidor_atual_pk=ps.pk %}</div>{% endif %}
-      </div>
+      </li>
 
-      <div class="prestacao-doc{% if s.comprovantes %} prestacao-doc--ok{% endif %}" id="comprovantes">
-        <span class="prestacao-doc__icone" aria-hidden="true">{% if s.comprovantes %}{% icone "check" %}{% else %}{% icone "receipt" %}{% endif %}</span>
-        <div class="prestacao-doc__texto">
-          <span class="prestacao-doc__titulo">Comprovante de saque ou transferência {% if s.comprovantes %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Pendente</span>{% endif %}{% if s.divergencia %}<span class="selo selo--perigo selo--sem-ponto" title="Os comprovantes somam {{ s.divergencia.0 }}, e a diária deste servidor é {{ s.divergencia.1 }}.">Soma ≠ diária</span>{% endif %}</span>
-          <span class="prestacao-doc__nota">Só de {{ ps.servidor.nome }} · diária esperada {{ s.esperado|default:"—" }}{% if s.divergencia %} · os comprovantes somam {{ s.divergencia.0 }}{% endif %} · a <a href="{% url 'viagens:leitura_prestacao' p.pk %}?servidor={{ ps.pk }}#ps-{{ ps.pk }}">leitura</a> transcreve e confere o valor.</span>
-          {% if s.comprovantes %}<ul class="prestacao-doc__arquivos">{% for a in s.comprovantes %}{% include "viagens/anexos/_arquivo.html" with editavel=s.editavel %}{% endfor %}</ul>{% endif %}
+      <li class="registro{% if not db %} registro--rascunho{% endif %}" id="db_assinado">
+        <span class="registro__icone" aria-hidden="true">{% if db %}{% icone "check-circle-2" %}{% else %}{% icone "gauge" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Diário de bordo assinado</span><span class="registro__selos">{% if db %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item">Da equipe · sem o assinado, o <a href="{% url 'viagens:diario' p.pk %}?servidor={{ ps.pk }}">diário preenchido</a> vale para finalizar.</span></div>
+          {% if db %}<ul class="registro__notas">{% include "viagens/anexos/_arquivo.html" with a=db editavel=editavel_equipe %}</ul>{% endif %}
+          {% if editavel_equipe %}<div class="mt-2">{% include "viagens/anexos/_enviar.html" with tipo="db_assinado" id="enviar-db" rotulo="Anexar diário assinado" substitui=True servidor_atual_pk=ps.pk %}</div>{% endif %}
         </div>
-        <div class="prestacao-doc__acoes"></div>
-        {% if s.editavel %}<div class="prestacao-doc__mais">{% include "viagens/anexos/_enviar.html" with tipo="comprovante" servidor=ps.pk id="enviar-comprovante-" rotulo="Anexar comprovante" %}</div>{% endif %}
-      </div>
-      <p class="texto-xs texto-secundario">PDF, PNG ou JPEG, até 10 MB. Removidos e substituídos ficam 30 dias em versões anteriores.</p>
+      </li>
+
+      <li class="registro{% if not s.comprovantes %} registro--rascunho{% endif %}" id="comprovantes">
+        <span class="registro__icone" aria-hidden="true">{% if s.comprovantes %}{% icone "check-circle-2" %}{% else %}{% icone "receipt" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link-texto">Comprovante de saque ou transferência</span><span class="registro__selos">{% if s.comprovantes %}<span class="selo selo--sucesso selo--situacao-emitido">Anexado</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Pendente</span>{% endif %}{% if s.divergencia %}<span class="selo selo--perigo" title="Os comprovantes somam {{ s.divergencia.0 }}, e a diária deste servidor é {{ s.divergencia.1 }}">Soma ≠ diária</span>{% endif %}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item">De {{ ps.servidor.nome }} · diária esperada {{ s.esperado|default:"—" }}{% if s.divergencia %} · os comprovantes somam {{ s.divergencia.0 }}{% endif %} · a <a href="{% url 'viagens:leitura_prestacao' p.pk %}?servidor={{ ps.pk }}">leitura</a> transcreve e confere o valor.</span></div>
+          {% if s.comprovantes %}<ul class="registro__notas">{% for a in s.comprovantes %}{% include "viagens/anexos/_arquivo.html" with editavel=s.editavel %}{% endfor %}</ul>{% endif %}
+          {% if s.editavel %}<div class="mt-2">{% include "viagens/anexos/_enviar.html" with tipo="comprovante" servidor=ps.pk id="enviar-comprovante-" rotulo="Anexar comprovante" %}</div>{% endif %}
+        </div>
+      </li>
+    </ul>
+    </div>
+  </section>
+
+  {% comment %}3. Fechamento — a conferência (como a do ofício), finalizar, o envio ao financeiro.{% endcomment %}
+  <section class="secao{% if ps.finalizada %} secao--ok{% endif %}" id="fechamento" aria-labelledby="t-fechamento">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-fechamento"><span class="secao__numero">3</span>Fechamento</h2>
+      <div class="secao__estado" id="estado-fechamento" data-vivo>{% if ps.finalizada %}<span class="selo selo--sucesso selo--situacao-emitido">Finalizada{% if ps.finalizada_em %} em {{ ps.finalizada_em|date:"d/m/Y" }}{% endif %}</span>{% if ps.situacao == "enviada" %}<span class="selo selo--info">Enviada{% if ps.enviada_em %} em {{ ps.enviada_em|date:"d/m/Y" }}{% endif %}</span>{% elif ps.situacao == "aprovada" %}<span class="selo selo--sucesso">Aprovada</span>{% endif %}{% elif l.pendencias %}<span class="selo selo--aviso selo--situacao-rascunho">{{ l.pendencias|length|pluralizar:"pendência,pendências" }}</span>{% else %}<span class="selo selo--sucesso selo--situacao-emitido">Pronta para finalizar</span>{% endif %}</div>
+      <p class="secao__nota">Finalizar fecha a prestação de {{ ps.servidor.nome }} e a tira das pendências; depois dela, registre o envio ao financeiro e, com a resposta, aprove ou devolva.</p>
     </div>
 
-    {% if s.falta_pacote %}
-    <div class="alerta alerta--aviso" role="status">{% icone "files" %}<div class="alerta__corpo"><p class="alerta__titulo">Falta para o pacote final</p><ul class="checklist">{% for f in s.falta_pacote %}<li class="checklist__item">{{ f }}</li>{% endfor %}</ul></div></div>
-    {% endif %}
-
-    {% if l.editavel and not ps.finalizada and not ps.arquivada %}
-    <div class="prestacao-grupo" id="finalizar">
+    {% if aberta and not ps.finalizada and not ps.arquivada %}
       {% if l.pendencias %}
-      <div class="alerta alerta--aviso"><div class="alerta__corpo pilha">
-        <p class="alerta__titulo">{% icone "list-checks" classe="icone--sm" %}Antes de finalizar, confira</p>
-        <ul class="checklist">{% for pd in l.pendencias_links %}<li class="checklist__item"><a href="{{ pd.url }}">{{ pd.mensagem }}</a></li>{% endfor %}</ul>
+      <div class="prontidao-documental" role="status" id="conferencia" data-vivo>
+        <div class="prontidao-documental__cabecalho">
+          {% icone "list-checks" %}
+          <div><p class="prontidao-documental__rotulo">Conferência da prestação</p>
+          <p class="prontidao-documental__titulo">{{ l.pendencias|length|pluralizar:"item falta,itens faltam" }} para finalizar sem justificativa</p></div>
+        </div>
+        <ul class="checklist">{% for pd in l.pendencias_links %}<li class="checklist__item"><a href="{{ pd.url }}">{% icone "alert-triangle" classe="icone--sm" %}{{ pd.mensagem }}</a></li>{% endfor %}</ul>
         <div class="campo"><label class="campo__rotulo" for="ps-{{ ps.pk }}-justificativa">Justificativa para finalizar mesmo assim (fica registrada)</label><textarea class="area-texto" id="ps-{{ ps.pk }}-justificativa" name="justificativa" rows="2" maxlength="1000" form="form-ps-{{ ps.pk }}"></textarea></div>
-        <div class="linha"><button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}" class="botao">{% icone "check" %}Finalizar mesmo assim</button></div>
-      </div></div>
+      </div>
       {% else %}
-      <p class="alerta alerta--sucesso">{% icone "check-circle-2" classe="icone--sm" %}<span>Nada falta: a prestação de {{ ps.servidor.nome }} pode ser finalizada.</span></p>
+      <div class="prontidao-documental prontidao-documental--pronta" role="status" id="conferencia" data-vivo>
+        <div class="prontidao-documental__cabecalho">
+          {% icone "stamp" %}
+          <div><p class="prontidao-documental__rotulo">Conferência da prestação</p>
+          <p class="prontidao-documental__titulo">Nada falta: a prestação de {{ ps.servidor.nome }} pode ser finalizada</p></div>
+        </div>
+      </div>
       {% endif %}
-    </div>
     {% elif ps.finalizada %}
-    <div class="prestacao-grupo" id="envio">
-      <p class="texto-sm">{% icone "lock" classe="icone--sm" %}Finalizada{% if ps.finalizada_em %} em {{ ps.finalizada_em|date:"d/m/Y" }}{% endif %}{% if ps.justificativa_finalizacao %} com justificativa: “{{ ps.justificativa_finalizacao }}”{% endif %}.{% if ps.situacao == "enviada" %} Enviada ao financeiro em {{ ps.enviada_em|date:"d/m/Y" }}{% if ps.protocolo_envio %} · {{ ps.protocolo_envio }}{% endif %}.{% elif ps.situacao == "aprovada" %} Aprovada.{% endif %}</p>
-      {% if l.editavel %}<div class="linha">
+      <p class="texto-sm">{% icone "lock" classe="icone--sm" %}Finalizada{% if ps.finalizada_em %} em {{ ps.finalizada_em|date:"d/m/Y" }}{% endif %}{% if ps.justificativa_finalizacao %} com justificativa: “{{ ps.justificativa_finalizacao }}”{% endif %}.{% if ps.situacao == "enviada" %} Enviada ao financeiro em {{ ps.enviada_em|date:"d/m/Y" }}{% if ps.protocolo_envio %} · protocolo {{ ps.protocolo_envio }}{% endif %}.{% elif ps.situacao == "aprovada" %} Aprovada.{% elif ps.situacao == "devolvida" and ps.motivo_devolucao %} Devolvida: {{ ps.motivo_devolucao }}{% endif %}</p>
+      {% if aberta %}<div class="linha mt-2">
         {% if ps.situacao == "enviada" %}<button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'aprovar' %}" class="botao botao--sm">{% icone "badge-check" %}Aprovar</button>
         <button type="button" class="botao botao--sm botao--sutil" data-pedir-motivo="{% url 'viagens:acao_prestacao' ps.pk 'devolver' %}" data-motivo-titulo="Devolver a prestação de {{ ps.servidor.nome }}?" data-motivo-rotulo="Motivo da devolução" data-motivo-acao="Devolver" data-motivo-ajuda="A prestação volta a ficar aberta para correção e a equipe de viagens da unidade é avisada." data-motivo-perigo>{% icone "undo-2" %}Devolver</button>
         {% elif ps.situacao != "aprovada" %}<button type="button" class="botao botao--sm" data-abrir-dialogo="envio-{{ ps.pk }}">{% icone "send" %}Registrar envio ao financeiro</button>
         <button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'reabrir' %}" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button>{% endif %}
       </div>{% endif %}
-    </div>
+    {% elif ps.arquivada %}
+      <p class="texto-sm">{% icone "inbox" classe="icone--sm" %}Prestação arquivada: não aparece nas abas de trabalho. Desarquive pelo ⋮ para voltar a editar.</p>
     {% endif %}
 
-    <details class="divulgacao"><summary>{% icone "copy" classe="icone--sm" %}Dados para o eProtocolo</summary><div class="divulgacao__corpo">{% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-prestacao" compacto=True omitir_estado_pdf=True %}</div></details>
-    <details class="divulgacao" id="anteriores"><summary>{% icone "history" classe="icone--sm" %}Versões anteriores ({{ anteriores|length }})</summary><div class="divulgacao__corpo">
-      {% if anteriores %}<ul class="registros">{% for a in anteriores %}<li class="registro registro--inativo">
-        <span class="registro__icone" aria-hidden="true">{% icone "history" %}</span>
-        <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener">{{ a.nome_original|default:a.get_tipo_display }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ a.get_tipo_display }}{% if a.servidor %} · {{ a.servidor.servidor.nome }}{% endif %} · {{ a.get_removido_motivo_display }} em {{ a.removido_em|date:"d/m/Y H:i" }}</span></div></div>
-        {% if pode %}<div class="registro__acoes registro__acoes--fixas"><form method="post" action="{% url 'viagens:acao_anexo' a.pk 'restaurar' %}">{% csrf_token %}<input type="hidden" name="servidor_atual" value="{{ ps.pk }}"><button type="submit" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Trazer de volta<span class="sr-only"> {{ a.nome_original }}</span></button></form></div>{% endif %}
-      </li>{% endfor %}</ul>{% else %}<p class="texto-secundario texto-sm">Nada removido nos últimos 30 dias.</p>{% endif %}
-    </div></details>
+    <div class="secao__bloco">
+      <details class="divulgacao"><summary>{% icone "copy" classe="icone--sm" %}Dados para o eProtocolo</summary><div class="divulgacao__corpo">{% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-prestacao" compacto=True omitir_estado_pdf=True %}</div></details>
+    </div>
+    <div class="secao__bloco">
+      <details class="divulgacao" id="anteriores"><summary>{% icone "history" classe="icone--sm" %}Versões anteriores ({{ anteriores|length }})</summary><div class="divulgacao__corpo">
+        {% if anteriores %}<ul class="registros">{% for a in anteriores %}<li class="registro registro--inativo">
+          <span class="registro__icone" aria-hidden="true">{% icone "history" %}</span>
+          <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener">{{ a.nome_original|default:a.get_tipo_display }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ a.get_tipo_display }}{% if a.servidor %} · {{ a.servidor.servidor.nome }}{% endif %} · {{ a.get_removido_motivo_display|default:"removido" }} em {{ a.removido_em|date:"d/m/Y H:i" }}</span></div></div>
+          {% if pode %}<div class="registro__acoes registro__acoes--fixas"><form method="post" action="{% url 'viagens:acao_anexo' a.pk 'restaurar' %}">{% csrf_token %}<input type="hidden" name="servidor_atual" value="{{ ps.pk }}"><button type="submit" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Trazer de volta<span class="sr-only"> {{ a.nome_original }}</span></button></form></div>{% endif %}
+        </li>{% endfor %}</ul>{% else %}<p class="texto-secundario texto-sm">Nada removido nos últimos 30 dias.</p>{% endif %}
+      </div></details>
+    </div>
+  </section>
+</div>
+
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  {% if aberta and not ps.finalizada and not ps.arquivada %}{% include "componentes/estado_salvamento.html" with atualizado_em=ps.atualizado_em sem_emissao=True only %}{% else %}<div class="barra-acoes__status" role="status">{% icone "files" classe="icone--sm" %}<span>Os arquivos são salvos ao anexar.</span></div>{% endif %}
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">Voltar</a>
+    <a class="botao" href="{% url 'viagens:leitura_prestacao' p.pk %}?servidor={{ ps.pk }}">{% icone "scan-text" %}Leitura e conferência</a>
+    {% if aberta and not ps.finalizada and not ps.arquivada %}<button type="submit" form="form-ps-{{ ps.pk }}" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}" class="botao botao--primario">{% icone "check" %}Finalizar{% if l.pendencias %} mesmo assim{% endif %}</button>{% endif %}
   </div>
-</section>
-{% if l.editavel and ps.finalizada and ps.situacao != "enviada" and ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=ps equipe=False %}{% endif %}
+</div>
+{% if aberta and ps.finalizada and ps.situacao != "enviada" and ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=ps equipe=False %}{% endif %}
 {% endwith %}{% endif %}{% empty %}
   {% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor nesta prestação" texto="A equipe vem do ofício emitido." %}
 {% endfor %}
-
-<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
-  <div class="barra-acoes__status" role="status">{% icone "upload" classe="icone--sm" %}<span>Os arquivos são salvos ao anexar; a solicitação grava sozinha.</span></div>
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar ao relatório</a>
-  <a class="botao botao--primario" href="{% url 'viagens:leitura_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Continuar: leitura{% icone "arrow-right" %}</a></div>
-</div>
 {% include "componentes/dialogo_motivo.html" %}
 {% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

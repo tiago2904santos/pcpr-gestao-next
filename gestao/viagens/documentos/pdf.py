@@ -29,7 +29,11 @@ TEMPLATES = {"oficio": "viagens/documentos/oficio.html",
              "justificativa": "viagens/documentos/justificativa.html"}
 FONTES = {"regular": "LiberationSerif-Regular.ttf", "negrito": "LiberationSerif-Bold.ttf",
           "italico": "LiberationSerif-Italic.ttf",
-          "negrito_italico": "LiberationSerif-BoldItalic.ttf"}
+          "negrito_italico": "LiberationSerif-BoldItalic.ttf",
+          # Sem serifa (o diário de bordo e o relatório técnico saem em Arial na referência).
+          "sans_regular": "LiberationSans-Regular.ttf", "sans_negrito": "LiberationSans-Bold.ttf",
+          "sans_italico": "LiberationSans-Italic.ttf",
+          "sans_negrito_italico": "LiberationSans-BoldItalic.ttf"}
 
 
 def _so_recursos_dos_documentos():

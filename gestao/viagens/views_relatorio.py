@@ -152,16 +152,20 @@ def documento(request: HttpRequest, pk: int, ps_pk: int, formato: str) -> HttpRe
 @require_GET
 @moldura_da_folha
 def folha_documento(request: HttpRequest, pk: int, ps_pk: int) -> HttpResponse:
-    """O RT de um servidor como sai (HTML), para a prévia embutida na folha; só leitura."""
-    from django.template.loader import render_to_string
-
-    from .documentos.pdf import _recursos
+    """O RT de um servidor como sai (HTML), para o visualizador/editor da folha. ?versao=N
+    mostra uma versão do texto (o histórico do editor); 0 é o modelo."""
+    from . import prestacao_texto
     p = _prestacao(request, pk)
     ps = get_object_or_404(servico.ativos(PrestacaoServidor.objects.select_related("servidor")),
                            pk=ps_pk, prestacao=p)
-    rt = (relatorio.obter(p) if diario.pode_editar(request.user, p)
-          else get_object_or_404(RelatorioTecnico, prestacao=p))
-    return resposta_de_folha(request, lambda nonce: render_to_string(
-        "viagens/documentos/relatorio_tecnico.html",
-        {"d": relatorio.dados_do_documento(rt, ps), "folha": True, "nonce": nonce,
-         **_recursos(True)}))
+    if not diario.pode_editar(request.user, p):
+        get_object_or_404(RelatorioTecnico, prestacao=p)  # consulta: só o RT já aberto
+    chave = prestacao_texto.chave_rt(ps.pk)
+    regioes, marcados = prestacao_texto.regioes_da_versao(p, chave,
+                                                          request.GET.get("versao") or "")
+    if marcados is None:
+        raise Http404
+    return resposta_de_folha(request, lambda nonce: prestacao_texto.html_do_documento(
+        prestacao_texto.dados_do_documento(p, chave), folha=True, nonce=nonce,
+        regioes=regioes, blocos_alterados=marcados),
+        erros=(relatorio.RelatorioInvalido, prestacao_texto.PrestacaoInvalida))

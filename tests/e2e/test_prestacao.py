@@ -65,11 +65,13 @@ def test_prestacao_da_linha_ao_envio(logado, dados_e2e):
     outro = pg.locator(f"#ps-{b.pk}")
     outro.get_by_role("button", name="Finalizar", exact=True).click()
     expect(pg.locator(".toast").first).to_contain_text("pendências")
-    outro = pg.locator(f"#ps-{b.pk}")
-    outro.locator("summary").click()
-    outro.get_by_label("Finalizar mesmo assim — justificativa (fica registrada)").fill("Servidor não chegou a viajar.")
-    outro.get_by_role("button", name="Finalizar com justificativa").click()
-    expect(pg.locator(f"#ps-{b.pk}")).to_contain_text("Justificativa")
+    # A justificativa fica na folha de documentos e fechamento do servidor.
+    pg.goto(f"/viagens/prestacoes/equipe/{b.prestacao_id}/documentos/?servidor={b.pk}")
+    pg.get_by_label("Justificativa para finalizar mesmo assim (fica registrada)").fill("Servidor não chegou a viajar.")
+    pg.get_by_role("button", name="Finalizar mesmo assim").click()
+    expect(pg.locator("#fechamento")).to_contain_text("Finalizada")
+    pg.goto("/viagens/prestacoes/")
+    expect(pg.locator(f"#ps-{b.pk}")).to_contain_text("Finalizada com pendência")
     expect(pg.locator(f"#equipe-{a.prestacao_id}").get_by_text("Equipe finalizada")).to_be_visible()
 
     # Envio ao financeiro (só registra).

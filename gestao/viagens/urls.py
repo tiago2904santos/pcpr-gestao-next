@@ -92,6 +92,19 @@ urlpatterns = [
          name="motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/realizada/<str:acao>/",
          views_diario.viagem_realizada, name="viagem_realizada"),
+    # Editor do texto do diário e dos RTs (as mesmas rotas relativas do ofício; a chave diz
+    # o documento: "diario" ou "rt-<pk do servidor>").
+    *[path(f"prestacoes/equipe/<int:pk>/editor/<str:chave>/{caminho}", visao,
+           name=f"editor_prestacao_{nome}")
+      for nome, caminho, visao in [
+          ("estado", "estado/", views_editor_avulso.prestacao["estado"]),
+          ("salvar", "salvar/", views_editor_avulso.prestacao["salvar"]),
+          ("restaurar", "restaurar/<int:numero>/", views_editor_avulso.prestacao["restaurar"]),
+          ("modelo", "modelo/", views_editor_avulso.prestacao["modelo"]),
+          ("original", "original/", views_editor_avulso.prestacao["original"]),
+          ("paginas", "paginas/", views_editor_avulso.prestacao["paginas"]),
+          ("presenca", "presenca/", views_editor_avulso.prestacao["presenca"]),
+          ("textos", "textos/", views_editor_avulso.prestacao["textos"])]],
     path("prestacoes/equipe/<int:pk>/diario/folha/", views_diario.folha_documento,
          name="folha_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
