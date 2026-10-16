@@ -1,4 +1,5 @@
-"""Prestação: filtros e diálogos HTMX, datas, autosave e equipe inteira."""
+"""Prestação: a lista (uma linha por equipe, busca e filtros HTMX) e a folha da equipe
+(cartões com datas e autosave, diálogos de envio, navegação entre as folhas)."""
 
 import os
 import re
@@ -34,10 +35,16 @@ def test_busca_dialogo_enviar_equipe_completa(logado, dados_e2e, largura):
         busca.fill(a.servidor.nome)
     expect(pg).to_have_url(re.compile("q="))
     expect(busca).to_be_focused()
-    expect(pg.locator('[id^="form-ps-"]')).to_have_count(1)
+    expect(pg.locator("#resultados .registro-operacional")).to_have_count(1)
     expect(pg.locator("#resultados .barra-acoes__status")).to_contain_text("1 servidor")
     expect(pg.get_by_text("Equipe finalizada", exact=True)).to_have_count(0)
-    menu = pg.get_by_role("button", name=re.compile("Mais ações da equipe"))
+    expect(pg.locator("#resultados")).to_contain_text("1 de 2 finalizadas")
+    assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+    _axe_estavel(pg)
+    # A linha leva à folha da equipe: as ações da equipe e os cartões moram lá.
+    pg.locator(f"#equipe-{a.prestacao_id} .registro__link").click()
+    expect(pg.get_by_role("heading", name="Servidores")).to_be_visible()
+    menu = pg.get_by_role("button", name=re.compile("^Mais ações da equipe")).first
     menu.press("Enter")
     expect(pg.get_by_role("menuitem", name="Desarquivar equipe")).to_be_visible()
     pg.keyboard.press("Escape")
@@ -57,7 +64,7 @@ def test_busca_dialogo_enviar_equipe_completa(logado, dados_e2e, largura):
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Enviada em")
     a.refresh_from_db()
     assert a.protocolo_envio == "ENVIO-SINTETICO-HTMX" and a.situacao == "enviada"
-    assert pg.locator(".barra-acoes--colecao").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
+    assert pg.locator(".barra-acoes--registro").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como na viagem
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     pg.wait_for_load_state("networkidle")
     _axe_estavel(pg)
@@ -89,7 +96,13 @@ def test_filtros_combinados_exportacao_e_leitura(logado, dados_e2e):
     pg.goto("/viagens/prestacoes/")
     expect(pg.locator('[id^="form-ps-"] input[name="numero"]')).to_have_count(0)
     expect(pg.get_by_role("button", name="Finalizar", exact=True)).to_have_count(0)
-    expect(pg.get_by_role("link", name="Diário de bordo")).to_be_visible()
+    expect(pg.locator(f"#equipe-{a.prestacao_id} .registro__link")).to_be_visible()
+    _axe_estavel(pg)
+    # Consulta: a folha da equipe sem campos nem ações de edição.
+    pg.locator(f"#equipe-{a.prestacao_id} .registro__link").click()
+    expect(pg.locator('[id^="form-ps-"] input[name="numero"]')).to_have_count(0)
+    expect(pg.locator("form[data-autosave]")).to_have_count(0)
+    expect(pg.get_by_role("button", name="Finalizar equipe")).to_have_count(0)
     _axe_estavel(pg)
     assert pg.erros_console == []
 
@@ -99,7 +112,7 @@ def test_calendario_autosave_e_menu(logado, dados_e2e, largura):
     a, _ = _linhas(dados_e2e)
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 500})
-    pg.goto("/viagens/prestacoes/")
+    pg.goto(f"/viagens/prestacoes/equipe/{a.prestacao_id}/")
     cartao = pg.locator(f"#ps-{a.pk}")
     cartao.get_by_label("Nº da solicitação", exact=True).fill("NUMERO-SALVO-VISUAL")
     expect(cartao.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
@@ -130,9 +143,10 @@ def test_resumo_existente_e_navegacao_da_equipe(logado, dados_e2e, largura):
     pg.set_viewport_size({"width": largura, "height": 800})
     pg.goto("/viagens/prestacoes/")
     equipe = pg.locator(f"#equipe-{p.pk}")
-    resumo = equipe.locator('a[hx-target="#resumo-dialogo"]')
+    menu = equipe.get_by_role("button", name=re.compile("^Ações da prestação"))
     antes = list(PrestacaoServidor.objects.order_by("pk").values())
-    resumo.click()
+    menu.click()
+    equipe.get_by_role("menuitem", name="Resumo do ofício").click()
     dialogo = pg.locator("#dialogo-resumo")
     expect(dialogo).to_be_visible()
     expect(dialogo.locator(".registro-hero")).to_contain_text(p.oficio.numero_formatado)
@@ -142,11 +156,19 @@ def test_resumo_existente_e_navegacao_da_equipe(logado, dados_e2e, largura):
         destino.mkdir(parents=True, exist_ok=True)
         pg.screenshot(path=str(destino / f"prestacao-resumo-{largura}.png"))
     pg.keyboard.press("Escape")
-    expect(resumo).to_be_focused()
+    expect(dialogo).to_be_hidden()
     assert list(PrestacaoServidor.objects.order_by("pk").values()) == antes
 
-    equipe.get_by_role("link", name="Diário de bordo", exact=True).click()
+    equipe.locator(".registro__link").click()
     nav = pg.get_by_role("navigation", name="Páginas da prestação")
+    expect(nav.locator('[aria-current="page"]')).to_have_text("Equipe")
+    _axe_estavel(pg)
+    if os.environ.get("MIGRACAO_CAPTURAS"):
+        pg.screenshot(path=str(destino / f"prestacao-equipe-{largura}.png"), full_page=True)
+    assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
+    # Abrir a folha da equipe não grava nada.
+    assert list(PrestacaoServidor.objects.order_by("pk").values()) == antes
+    nav.get_by_role("link", name="Diário de bordo", exact=True).click()
     expect(nav.locator('[aria-current="page"]')).to_have_text("Diário de bordo")
     assert pg.locator(".documento > section").first.get_attribute("id") == "trechos"
     d = DiarioBordo.objects.get(prestacao=p)
@@ -167,8 +189,8 @@ def test_resumo_existente_e_navegacao_da_equipe(logado, dados_e2e, largura):
         pg.locator(f"#ps-{a.pk}").screenshot(
             path=str(destino / f"prestacao-documentos-servidor-{largura}.png"))
     assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
-    nav.get_by_role("link", name="Solicitações", exact=True).click()
-    expect(equipe).to_be_visible()
+    nav.get_by_role("link", name="Equipe", exact=True).click()
+    expect(pg.locator(f"#ps-{a.pk}")).to_be_visible()
     linha.refresh_from_db()
     assert linha.km_final == 10440
     assert RelatorioTecnico.objects.get(prestacao=p).atividade == "Relato integrado da equipe."

@@ -3,6 +3,8 @@ ver a soma conferida com a diária, remover e trazer de volta."""
 
 from __future__ import annotations
 
+import re
+
 import pytest
 from playwright.sync_api import expect
 
@@ -16,7 +18,8 @@ def test_documentos_anexar_conferir_e_voltar(logado, dados_e2e):
     a = PrestacaoServidor.objects.filter(prestacao=p).order_by("servidor__nome").first()
     pg = logado
     pg.goto("/viagens/prestacoes/")
-    pg.locator(f"#equipe-{p.pk}").get_by_role("link", name="Documentos").click()
+    pg.locator(f"#equipe-{p.pk} .registro__link").click()  # a folha da equipe
+    pg.locator("#folhas").get_by_role("link", name=re.compile("^Documentos")).click()
     expect(pg.get_by_role("heading", name="Despacho assinado")).to_be_visible()
     arquivo = {"name": "despacho.pdf", "mimeType": "application/pdf",
                "buffer": b"%PDF-1.4 teste e2e"}

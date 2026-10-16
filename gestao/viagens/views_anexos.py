@@ -98,7 +98,9 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "operacoes": AnexoPrestacao.Operacao.choices,
         "anteriores": list(anexos.versoes_anteriores(p)), "pode": pode,
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Documentos · {oficio}", ""))})
+                              (f"Ofício {oficio.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Documentos", ""))})
 
 
 def _voltar(p: PrestacaoContas, ancora: str) -> str:

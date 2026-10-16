@@ -1,7 +1,8 @@
-"""Prestação de contas (módulo 9a): a lista (um bloco por ofício, um cartão por servidor),
-a solicitação de cada cartão (grava sozinha, como a referência), arquivar/finalizar
-(servidor e equipe), envio ao financeiro e a planilha. Regra em `prestacao.py`; ficha em
-docs/migration/prestacao.md."""
+"""Prestação de contas (módulo 9a), organizada como a gestão de viagens: a lista (uma linha
+por ofício/equipe, com o que falta) e a folha da equipe (etapas, um cartão por servidor, as
+folhas da equipe e a conferência). A solicitação de cada cartão grava sozinha (como a
+referência); arquivar/finalizar (servidor e equipe), envio ao financeiro e a planilha.
+Regra em `prestacao.py`; ficha em docs/migration/prestacao.md."""
 
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, exportacao, policies, prestacao
+from . import anexos, exportacao, policies, prestacao, prestacao_equipe
 from .dominio.prestacao import prazo_para_prestar
 from .models import PrestacaoContas, PrestacaoServidor, Trecho
 from .viagem import periodo_curto
@@ -120,10 +121,10 @@ def lista(request: HttpRequest) -> HttpResponse:
                .order_by("servidor__nome"))
     for ps in membros:
         ps.prestacao = da_pagina[ps.prestacao_id]
-        equipes.setdefault(ps.prestacao_id, []).append({"ps": ps})
+        linha = _linha(request, ps, hoje, situacao)
+        equipes.setdefault(ps.prestacao_id, []).append(linha)
         if ps.no_recorte:
-            por_prestacao.setdefault(ps.prestacao_id, []).append(
-                _linha(request, ps, hoje, situacao))
+            por_prestacao.setdefault(ps.prestacao_id, []).append(linha)
     blocos = [_bloco(request, p, por_prestacao.get(p.pk, []), equipes.get(p.pk, []))
               for p in pagina.object_list]
     filtros = request.GET.copy()
@@ -160,11 +161,57 @@ def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list, equipe: list)
     abertas = [linha for linha in equipe if not linha["ps"].finalizada]
     por_enviar = [linha for linha in equipe if linha["ps"].finalizada
                   and linha["ps"].situacao not in ("enviada", "aprovada")]
+    # A linha da lista: o que falta (com o nome de quem), o prazo mais perto e o selo mais
+    # urgente da equipe — como a linha da viagem.
+    pendencias = [prestacao_equipe.Pendencia(f"{linha['ps'].servidor.nome}: {t}",
+                                             prestacao_equipe.destino(p, linha["ps"], t))
+                  for linha in abertas for t in linha.get("pendencias", [])]
+    prazos = [linha["prestar_ate"] for linha in abertas if linha.get("prestar_ate")]
+    selos = [s for linha in abertas for s in linha.get("selos", [])]
+    ordem = {"vencido": 0, "alerta": 1}
     return {"p": p, "linhas": linhas, "destinos": ", ".join(destinos), "periodo": periodo,
             "editavel": policies.pode_editar_equipe_prestacao(request.user, p),
             "todas_finalizadas": bool(equipe) and not abertas,
             "reabrivel": bool(por_enviar), "por_enviar": por_enviar,
-            "alguma_arquivada": any(linha["ps"].arquivada for linha in equipe)}
+            "alguma_arquivada": any(linha["ps"].arquivada for linha in equipe),
+            "total": len(equipe), "finalizadas": len(equipe) - len(abertas),
+            "devolvidas": sum(1 for linha in equipe if linha["ps"].situacao == "devolvida"),
+            "enviadas": sum(1 for linha in equipe
+                            if linha["ps"].situacao in ("enviada", "aprovada")),
+            "pendencias": pendencias, "prestar_ate": min(prazos) if prazos else None,
+            "selo": min(selos, key=lambda s: ordem.get(s.tom, 2)) if selos else None,
+            "trechos": len(trechos), "url": reverse("viagens:prestacao_equipe", args=[p.pk])}
+
+
+@require_GET
+def equipe(request: HttpRequest, pk: int) -> HttpResponse:
+    """A folha da equipe: etapas, servidores (os cartões que gravam sozinhos), as folhas da
+    equipe numa trilha e a conferência. Nada é criado ao abrir."""
+    p = get_object_or_404(
+        PrestacaoContas.objects.select_related("oficio__unidade").prefetch_related(
+            Prefetch("oficio__trechos", queryset=Trecho.objects.select_related("destino")
+                     .order_by("ordem")))
+        .annotate(equipe=Count("oficio__viajantes", distinct=True)), pk=pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, p):
+        raise Http404
+    hoje = timezone.localdate()
+    situacao = anexos.situacao([p.pk])
+    membros = list(PrestacaoServidor.objects.filter(prestacao=p, removida_em__isnull=True)
+                   .select_related("servidor").order_by("servidor__nome"))
+    for ps in membros:
+        ps.prestacao = p
+    linhas = [_linha(request, ps, hoje, situacao) for ps in membros]
+    b = _bloco(request, p, linhas, linhas)
+    folhas = prestacao_equipe.folhas(p, membros, situacao, b["trechos"])
+    o = p.oficio
+    return render(request, "viagens/prestacao/equipe.html", {
+        "b": b, "p": p, "oficio": o, "linhas": linhas, "folhas": folhas,
+        "etapas": prestacao_equipe.etapas(membros, folhas),
+        "conferencia": prestacao_equipe.conferencia(p, linhas),
+        "folhas_feitas": sum(1 for f in folhas if f.feito),
+        "acoes_equipe": list(ROTULOS),
+        "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
+                              (f"Ofício {o.numero_formatado}", ""))})
 
 
 def _ps(request: HttpRequest, pk: int) -> PrestacaoServidor:

@@ -4,6 +4,8 @@ diário (os campos do modo aparecem ao marcar)."""
 
 from __future__ import annotations
 
+import re
+
 import pytest
 from playwright.sync_api import expect
 
@@ -16,7 +18,8 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     pg = logado
     pg.goto("/viagens/prestacoes/")
-    pg.locator(f"#equipe-{p.pk}").get_by_role("link", name="Diário de bordo").click()
+    pg.locator(f"#equipe-{p.pk} .registro__link").click()  # a folha da equipe
+    pg.locator("#folhas").get_by_role("link", name=re.compile("^Diário de bordo")).click()
     expect(pg.get_by_role("heading", name="Trechos")).to_be_visible()
     d = DiarioBordo.objects.get(prestacao=p)
     a, b = d.linhas.order_by("ordem")

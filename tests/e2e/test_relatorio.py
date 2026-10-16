@@ -4,6 +4,8 @@ de um servidor abre."""
 
 from __future__ import annotations
 
+import re
+
 import pytest
 from playwright.sync_api import expect
 
@@ -17,7 +19,8 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     a = PrestacaoServidor.objects.filter(prestacao=p).order_by("servidor__nome").first()
     pg = logado
     pg.goto("/viagens/prestacoes/")
-    pg.locator(f"#equipe-{p.pk}").get_by_role("link", name="Relatório técnico").click()
+    pg.locator(f"#equipe-{p.pk} .registro__link").click()  # a folha da equipe
+    pg.locator("#folhas").get_by_role("link", name=re.compile("^Relatório técnico")).click()
     expect(pg.get_by_role("heading", name="Relato")).to_be_visible()
     pg.get_by_label("Objetivo da participação").fill("Atendimento ao público no evento.")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")

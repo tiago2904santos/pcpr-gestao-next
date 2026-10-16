@@ -86,7 +86,9 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "viaturas": Viatura.objects.filter(ativo=True).order_by("modelo", "placa"),
         "tipos_viatura": Viatura.Tipo.choices,
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Diário de bordo · {oficio}", ""))})
+                              (f"Ofício {oficio.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Diário de bordo", ""))})
 
 
 @require_POST

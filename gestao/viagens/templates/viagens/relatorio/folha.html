@@ -14,12 +14,7 @@ toda finalizada.
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Relatório técnico" complemento_template="viagens/relatorio/_cabecalho_contexto.html" %}
-<nav class="abas abas--conteudo mb-4" aria-label="Páginas da prestação">
-  <a class="aba" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "users" classe="icone--sm" %}Solicitações</a>
-  <a class="aba" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" classe="icone--sm" %}Diário de bordo</a>
-  <a class="aba" href="{% url 'viagens:relatorio' p.pk %}" aria-current="page">{% icone "file-pen-line" classe="icone--sm" %}Relatório técnico</a>
-  <a class="aba" href="{% url 'viagens:documentos_prestacao' p.pk %}">{% icone "files" classe="icone--sm" %}Documentos</a>
-</nav>
+{% include "viagens/prestacao/_abas.html" with atual="relatorio" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O relatório é da equipe e trava quando todos estão finalizados.</p></div></div>
@@ -140,10 +135,10 @@ que estiver pendente e volta à prestação de contas (componentes/rodape_docume
 {% endcomment %}
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% include "componentes/estado_salvamento.html" with atualizado_em=rt.atualizado_em sem_emissao=True only %}
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacao_equipe' p.pk %}">Voltar</a>
   {% include "componentes/rodape_documento.html" with nome="relatório" finalizar_form="finalizar-relatorio" finalizar_primario=True %}</div>
 </div>
-<form id="finalizar-relatorio" method="get" action="{% url 'viagens:prestacoes' %}" hidden data-esperar-salvamento><input type="hidden" name="q" value="{{ oficio.numero_formatado }}"></form>
+<form id="finalizar-relatorio" method="get" action="{% url 'viagens:prestacao_equipe' p.pk %}" hidden data-esperar-salvamento></form>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% endif %}
 {% endblock %}

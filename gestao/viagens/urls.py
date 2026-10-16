@@ -80,6 +80,7 @@ urlpatterns = [
          name="regenerar_documento"),
     path("prestacoes/", views_prestacao.lista, name="prestacoes"),
     path("prestacoes/exportar/", views_prestacao.exportar, name="exportar_prestacoes"),
+    path("prestacoes/equipe/<int:pk>/", views_prestacao.equipe, name="prestacao_equipe"),
     path("prestacoes/equipe/<int:pk>/diario/", views_diario.folha, name="diario"),
     path("prestacoes/equipe/<int:pk>/diario/salvar/", views_diario.salvar,
          name="salvar_diario"),

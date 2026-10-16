@@ -290,6 +290,7 @@ def test_prestacao_de_contas_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/viagens/prestacoes/")
     _avaliar(logado, "/viagens/prestacoes/?aba=finalizados")
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{a.prestacao_id}/")
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

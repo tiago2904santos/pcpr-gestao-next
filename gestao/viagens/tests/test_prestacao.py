@@ -321,6 +321,14 @@ def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
         r = op.get(reverse("viagens:prestacoes"))
     html = r.content.decode()
     assert r.status_code == 200
+    # A lista é uma linha por equipe, como a das viagens: leva à folha da equipe.
+    equipe = reverse("viagens:prestacao_equipe", args=[a.prestacao_id])
+    assert f'href="{equipe}"' in html and f'id="ps-{a.pk}-numero"' not in html
+    # Os cartões (um formulário por servidor) moram na folha da equipe.
+    with django_assert_max_num_queries(40):
+        r = op.get(equipe)
+    html = r.content.decode()
+    assert r.status_code == 200
     assert a.servidor.nome in html and b.servidor.nome in html
     assert f'id="ps-{a.pk}-numero"' in html
     assert reverse("viagens:autosave_prestacao", args=[a.pk]) in html
@@ -414,33 +422,40 @@ def test_estado_da_equipe_independe_do_recorte(c):
     assert not bloco["reabrivel"] and not bloco["por_enviar"]
 
 
-def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
-    from html.parser import HTMLParser
-
-    class Dialogos(HTMLParser):
-        profundidade = 0
-
-        def __init__(self):
-            super().__init__()
-            self.envios = []
-
-        def handle_starttag(self, tag, attrs):
-            attrs = dict(attrs)
-            if tag == "div" and (self.profundidade or attrs.get("id") == "resultados"):
-                self.profundidade += 1
-            if tag == "dialog" and attrs.get("id", "").startswith("envio-"):
-                self.envios.append(self.profundidade > 0)
-
-        def handle_endtag(self, tag):
-            if tag == "div" and self.profundidade:
-                self.profundidade -= 1
-
+def test_dialogos_de_envio_ficam_na_folha_da_equipe(c):
     a, _ = _linhas(c)
     PrestacaoServidor.objects.filter(pk=a.pk).update(finalizada_em=timezone.now())
-    html = _cliente(c, "operador").get(reverse("viagens:prestacoes")).content.decode()
-    parser = Dialogos()
-    parser.feed(html)
-    assert parser.envios and all(parser.envios)
+    op = _cliente(c, "operador")
+    assert 'id="envio-' not in op.get(reverse("viagens:prestacoes")).content.decode()
+    html = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id])).content.decode()
+    assert f'<dialog id="envio-{a.pk}"' in html
+    assert f'data-abrir-dialogo="envio-{a.pk}"' in html
+
+
+def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
+    a, _ = _linhas(c)
+    op = _cliente(c, "operador")
+    r = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id]))
+    assert r.status_code == 200
+    assert [e.titulo for e in r.context["etapas"]] == [
+        "Solicitações", "Diário de bordo", "Relatório técnico", "Documentos", "Finalização",
+        "Envio"]
+    assert r.context["etapas"][0].estado == "atual"  # ninguém tem o nº ainda
+    assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "documentos"]
+    conf = r.context["conferencia"]
+    assert conf.total == 2 and not conf.pronta
+    # Cada pendência leva aonde se resolve.
+    urls = [i.url for _, itens in conf.abertas for i in itens]
+    assert any(u.endswith(f"#ps-{a.pk}") for u in urls)
+    assert any("/documentos/#despacho" in u for u in urls)
+    # Abrir não cria diário nem relatório (GET).
+    from gestao.viagens.models import DiarioBordo, RelatorioTecnico
+    assert not DiarioBordo.objects.filter(prestacao_id=a.prestacao_id).exists()
+    assert not RelatorioTecnico.objects.filter(prestacao_id=a.prestacao_id).exists()
+    # Consulta vê, sem formulário de edição.
+    html = _cliente(c, "consulta").get(
+        reverse("viagens:prestacao_equipe", args=[a.prestacao_id])).content.decode()
+    assert "data-autosave" not in html and "Finalizar equipe" not in html
 
 
 def test_voltar_externo_e_ignorado(c):

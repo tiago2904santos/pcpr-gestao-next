@@ -13,12 +13,7 @@ do servidor, com ele finalizado.
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos da prestação" complemento_template="viagens/anexos/_cabecalho_contexto.html" %}
-<nav class="abas abas--conteudo mb-4" aria-label="Páginas da prestação">
-  <a class="aba" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "users" classe="icone--sm" %}Solicitações</a>
-  <a class="aba" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" classe="icone--sm" %}Diário de bordo</a>
-  <a class="aba" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" classe="icone--sm" %}Relatório técnico</a>
-  <a class="aba" href="{% url 'viagens:documentos_prestacao' p.pk %}" aria-current="page">{% icone "files" classe="icone--sm" %}Documentos</a>
-</nav>
+{% include "viagens/prestacao/_abas.html" with atual="documentos" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar.</p></div></div>
@@ -139,6 +134,6 @@ do servidor, com ele finalizado.
 </div>
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Os arquivos são salvos ao anexar.</span></div>
-  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a></div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacao_equipe' p.pk %}">Voltar</a></div>
 </div>
 {% endblock %}

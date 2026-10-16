@@ -74,7 +74,9 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "sugeriveis": dominio.CAMPOS_SUGERIR,
         "pode_gerir_textos": politicas_cadastros.pode_gerir_textos(request.user),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
-                              (f"Relatório técnico · {p.oficio}", ""))})
+                              (f"Ofício {p.oficio.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("Relatório técnico", ""))})
 
 
 def _gravar(request: HttpRequest, p: PrestacaoContas) -> dict[str, str]:

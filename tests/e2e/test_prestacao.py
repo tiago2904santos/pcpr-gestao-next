@@ -34,6 +34,7 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
                   nome="c.pdf", conteudo=b"%PDF-1.4 t")
     pg = logado
     pg.goto("/viagens/prestacoes/")
+    pg.locator(f"#equipe-{a.prestacao_id} .registro__link").click()  # a folha da equipe
     cartao = pg.locator(f"#ps-{a.pk}")
     expect(cartao).to_contain_text(a.servidor.nome)
     cartao.locator(f"#ps-{a.pk}-numero").fill("2030/0007")
@@ -68,7 +69,7 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     outro.get_by_label("Finalizar mesmo assim — justificativa (fica registrada)").fill("Servidor não chegou a viajar.")
     outro.get_by_role("button", name="Finalizar com justificativa").click()
     expect(pg.locator(f"#ps-{b.pk}")).to_contain_text("Justificativa")
-    expect(pg.get_by_text("Equipe finalizada")).to_be_visible()
+    expect(pg.locator(".registro-hero").get_by_text("Equipe finalizada")).to_be_visible()
 
     # Envio ao financeiro (só registra).
     pg.locator(f"#ps-{a.pk}").get_by_role("button", name="Registrar envio").click()

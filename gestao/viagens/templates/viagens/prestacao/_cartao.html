@@ -17,7 +17,7 @@ gravam o digitado antes de agir. As regiões [data-vivo] se refazem depois de ca
     <div class="cartao__cabecalho">
       <span class="avatar" aria-hidden="true">{{ ps.servidor.iniciais }}</span>
       <div class="pessoa__texto">
-        <h4 class="pessoa__nome">{{ ps.servidor.nome }}</h4>
+        <h3 class="pessoa__nome">{{ ps.servidor.nome }}</h3>
         <span class="linha" id="estado-ps-{{ ps.pk }}" data-vivo>
           {% if ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}
           {% if ps.situacao == "enviada" %}<span class="selo selo--info selo--sem-ponto">Enviada em {{ ps.enviada_em|date:"d/m/Y" }}{% if aberta %}, aguardando a decisão{% endif %}</span>

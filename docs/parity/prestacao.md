@@ -81,3 +81,22 @@ após migrar seu último consumidor no UI Lab; componentes compartilhados mantid
 Referência funcional é o levantamento documentado anterior, não uma nova auditoria
 da referência. Lacunas históricas não foram implementadas nem simuladas. Evidências
 da rodada, crítica e validação em `docs/visual-agents/qa/prestacao-refino-2026-10-15.md`.
+
+## Organizada como a gestão de viagens — 16/10/2026 (ADR 0041)
+
+- Lista: uma linha por equipe, como a das viagens — placa do ofício, destinos, "N de M
+  finalizadas", enviadas/devolvidas, o selo mais urgente (saque ou prestação), período,
+  unidade, "Prestar até", as pendências com o atalho de cada uma, servidores e diárias; o ⋮
+  leva à prestação, às três folhas e ao resumo do ofício. Abas, "pedem atenção", busca,
+  paginação por 25 equipes e exportação sem mudança.
+- Folha da equipe (`/viagens/prestacoes/equipe/<pk>/`): etapas Solicitações → Diário →
+  Relatório → Documentos → Finalização → Envio (a primeira que falta é a atual); 1
+  Servidores com os cartões de sempre (autosave, finalizar com justificativa, arquivar,
+  registrar envio, aprovar, devolver); 2 Diário, relatório e documentos, cada um com a
+  situação e o que tem; 3 Conferência por servidor, cada pendência levando aonde se resolve.
+  Barra: Voltar, Finalizar equipe (ou Registrar envio da equipe) e Ações (resumo do ofício,
+  pacotes ZIP, planilha, reabrir, arquivar, desarquivar). Consulta vê tudo sem edição.
+- Diário, RT e documentos: abas Equipe · Diário · Relatório · Documentos; Voltar e
+  Finalizar voltam à folha da equipe; migalhas passam pelo ofício.
+- Preservados: ids `ps-{pk}`, `form-ps-{pk}`, `equipe-{pk}`, `envio-{pk}[-equipe]`, nomes
+  dos campos, regiões `data-vivo`, `data-esperar-salvamento`, regras e documentos oficiais.

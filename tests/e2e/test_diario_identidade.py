@@ -1,7 +1,6 @@
 """O resultado do trecho acompanha o autosave; concluir não finaliza a prestação."""
 
 import re
-from urllib.parse import quote
 
 import pytest
 from playwright.sync_api import expect
@@ -37,8 +36,7 @@ def test_resultado_vivo_estado_visivel_e_conclusao(logado, dados_e2e, largura):
     finalizar = pg.get_by_role("button", name="Finalizar", exact=True)
     finalizar.focus()
     finalizar.press("Enter")
-    expect(pg).to_have_url(re.compile(
-        r"/viagens/prestacoes/\?q=" + re.escape(quote(p.oficio.numero_formatado, safe=""))))
+    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/\??$"))
     trecho.refresh_from_db()
     assert trecho.km_final == 10470
     assert not p.servidores.filter(finalizada_em__isnull=False).exists()

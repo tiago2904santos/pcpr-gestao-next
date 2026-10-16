@@ -1,7 +1,6 @@
 """Relato legível e conclusão que preserva a gravação pendente."""
 
 import re
-from urllib.parse import quote
 
 import pytest
 from playwright.sync_api import expect
@@ -31,8 +30,7 @@ def test_relato_conclusao_e_valores_individuais(logado, dados_e2e, largura):
     # Não aguarda o anúncio de autosave: Finalizar precisa coordenar a gravação.
     pg.get_by_role("button", name="Finalizar", exact=True).focus()
     pg.keyboard.press("Enter")
-    expect(pg).to_have_url(re.compile(
-        r"/viagens/prestacoes/\?q=" + re.escape(quote(p.oficio.numero_formatado, safe=""))))
+    expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/\??$"))
     assert RelatorioTecnico.objects.get(prestacao=p).atividade == texto
     assert not p.servidores.filter(finalizada_em__isnull=False).exists()
     assert pg.erros_console == []
