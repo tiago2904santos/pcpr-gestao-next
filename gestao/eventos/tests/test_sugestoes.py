@@ -92,3 +92,26 @@ def test_consultar_andamento_do_protocolo(ana):
     assert "Simulado — sem consulta real" in html and "não vale como consulta oficial" in html
     html = c.get(reverse("eventos:solicitacao", args=[s.pk])).content.decode()
     assert "Simulado — sem consulta real" not in html  # a consulta aparece uma vez só
+
+
+def test_vizinhos_na_mesma_cidade_em_cadeia(ana):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from gestao.eventos import queries
+    tipo = TipoEvento.objects.get(nome="Feira")
+    hoje = timezone.localdate()
+
+    def em(d1, d2=None):
+        return _pedido(ana, tipo, ["Emissão de CIN"], {"Alfa": 2},
+                       data_inicio_evento=hoje + timedelta(days=d1),
+                       data_fim_evento=hoje + timedelta(days=d2 or d1))
+    a, b, c = em(10), em(11), em(13, 14)  # 10, 11 e 13–14: um dia livre entre 11 e 13
+    longe = em(17)  # dois dias livres depois do 14: fica de fora
+    assert queries.vizinhos(ana, a) == [b, c]
+    assert longe not in queries.vizinhos(ana, c)
+    html = Client()
+    html.force_login(ana)
+    pagina = html.get(reverse("eventos:solicitacao", args=[a.pk])).content.decode()
+    assert "Na mesma cidade, em datas encostadas" in pagina

@@ -220,7 +220,11 @@ def _viagem(request: HttpRequest, s: Solicitacao) -> dict:
     info = integracao.resumo(request.user, s) if integracao else None
     mostrar = bool(info) and (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
                               or bool(info and info["viagens"]))
-    return {"viagem_info": info, "mostrar_viagem": mostrar}
+    # Antes de virar viagem: as da mesma cidade com datas encostadas (uma viagem só).
+    vizinhos = (queries.vizinhos(request.user, s)
+                if s.status not in dominio.FINAIS and not (info and info["viagens"]) else [])
+    return {"viagem_info": info, "mostrar_viagem": mostrar or bool(vizinhos),
+            "vizinhos": vizinhos}
 
 
 @require_POST

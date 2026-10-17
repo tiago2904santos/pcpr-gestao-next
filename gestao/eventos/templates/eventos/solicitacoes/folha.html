@@ -221,13 +221,20 @@ histórico.
       </li>{% endfor %}
     </ul>
     {% endif %}
+    {% if vizinhos %}
+    <div class="secao__bloco" aria-labelledby="t-vizinhos">
+      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-vizinhos">{% icone "route" classe="icone--sm" %}Na mesma cidade, em datas encostadas</h3><div class="secao__estado"><span class="selo selo--info selo--sem-ponto">{{ vizinhos|length|pluralizar:"solicitação,solicitações" }}</span></div></div>
+      <p class="texto-secundario texto-sm">Dá para atender numa viagem só: combine o período e a equipe com {% if vizinhos|length == 1 %}ela{% else %}elas{% endif %} antes de gerar a viagem.</p>
+      <ul class="lista-simples">{% for v in vizinhos %}<li><a href="{% url 'eventos:solicitacao' v.pk %}">#{{ v.pk }}</a> — {% if v.data_fim_evento and v.data_fim_evento != v.data_inicio_evento %}{{ v.data_inicio_evento|date:"d/m" }} a {{ v.data_fim_evento|date:"d/m/Y" }}{% else %}{{ v.data_inicio_evento|date:"d/m/Y" }}{% endif %}{% if v.local_evento %} · {{ v.local_evento }}{% endif %} · <span class="texto-secundario">{{ v.get_status_display }}</span></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
     {% if viagem_info.pode_gerar %}
     <form method="post" action="{% url 'eventos:gerar_viagem' s.pk %}" class="pilha" novalidate>
       {% csrf_token %}
       <div class="campo campo--lg"><label class="campo__rotulo" for="unidade-viagem">Unidade responsável pela viagem</label><pc-select class="seletor"><select class="selecao" id="unidade-viagem" name="unidade">{% for u in viagem_info.unidades %}<option value="{{ u.pk }}"{% if u.pk == viagem_info.sugerida %} selected{% endif %}>{{ u.sigla|default:u.nome }}{% if u.sigla %} — {{ u.nome }}{% endif %}</option>{% endfor %}</select></pc-select></div>
       <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plane" %}Gerar viagem</button></div>
     </form>
-    {% elif not viagem_info.viagens %}
+    {% elif not viagem_info.viagens and not vizinhos %}
     <p class="vazio-inline">{% icone "info" classe="icone--sm" %}{% if viagem_info.motivo %}{{ viagem_info.motivo }}{% else %}A viagem é gerada pela Diretoria-Geral ou pela equipe de viagens da unidade.{% endif %}</p>
     {% endif %}
   </section>

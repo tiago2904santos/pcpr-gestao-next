@@ -143,6 +143,39 @@ def periodo(s: Solicitacao) -> str:
     return f"{s.data_inicio_evento:%d/%m} a {fim:%d/%m/%Y}"
 
 
+JANELA_VIZINHOS = timedelta(days=30)
+FOLGA_VIZINHOS = timedelta(days=2)  # encostadas: no máximo um dia livre entre uma e outra
+
+
+def vizinhos(usuario, s: Solicitacao) -> list[Solicitacao]:
+    """As outras solicitações da mesma cidade cujas datas encostam nesta (sobrepostas ou
+    com até um dia livre entre elas), em cadeia (06, 07 e 08–09 formam um bloco só), dentro
+    de 30 dias: o que dá para atender numa viagem só. Sem rascunho, recusada ou cancelada."""
+    if not (s.municipio_id and s.data_inicio_evento):
+        return []
+    inicio, fim = s.data_inicio_evento, s.data_fim_evento or s.data_inicio_evento
+    candidatos = list(
+        policies.solicitacoes_visiveis(usuario)
+        .filter(municipio_id=s.municipio_id, data_inicio_evento__isnull=False,
+                data_inicio_evento__lte=fim + JANELA_VIZINHOS,
+                data_inicio_evento__gte=inicio - JANELA_VIZINHOS)
+        .exclude(pk=s.pk).exclude(status__in=(dominio.RASCUNHO, dominio.NAO_ATENDIDA,
+                                              dominio.CANCELADA))
+        .order_by("data_inicio_evento", "pk"))
+    bloco: list[Solicitacao] = []
+    mudou = True
+    while mudou:
+        mudou = False
+        for c in candidatos:
+            c_fim = c.data_fim_evento or c.data_inicio_evento
+            if c not in bloco and c.data_inicio_evento <= fim + FOLGA_VIZINHOS \
+                    and c_fim >= inicio - FOLGA_VIZINHOS:
+                bloco.append(c)
+                inicio, fim = min(inicio, c.data_inicio_evento), max(fim, c_fim)
+                mudou = True
+    return sorted(bloco, key=lambda c: (c.data_inicio_evento, c.pk))
+
+
 def linha(s: Solicitacao, hoje: date) -> Linha:
     local = " — ".join(p for p in (s.local_evento, s.endereco) if p)
     quem = " — ".join(p for p in (s.solicitante_nome, s.solicitante_cargo_unidade) if p)
