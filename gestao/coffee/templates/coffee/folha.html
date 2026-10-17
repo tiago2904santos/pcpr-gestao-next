@@ -284,6 +284,12 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
             {% elif d.assinavel %}<span class="registro__meta-item">{% icone "history" classe="icone--sm" %}{{ d.n_vias|pluralizar:"via guardada,vias guardadas" }}</span>
             {% else %}<span class="registro__meta-item">{% icone "info" classe="icone--sm" %}Espelho do momento (não se guarda)</span>{% endif %}
           </div>
+          {% if d.vias %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "history" %}Vias guardadas<span class="sr-only"> — {{ d.titulo }}</span></summary>
+            <ul class="lista-simples mt-2">{% for v in d.vias %}<li><a href="{% url 'coffee:arquivo_via' s.pk v.pk %}">{{ v.emitida_em|date:"d/m/Y H:i" }}</a> · {% if v.assinada %}assinada{% else %}gerada{% endif %} por {{ v.emitida_por.nome }}{% if v.removida_em %} <span class="texto-secundario">(removida em {{ v.removida_em|date:"d/m/Y" }})</span>{% endif %}</li>{% endfor %}</ul>
+          </details>
+          {% endif %}
           {% if d.assinavel and not s.bloqueada and not d.faltas %}
           <details class="mt-2">
             <summary class="botao botao--sm botao--sutil">{% icone "file-check-2" %}Anexar assinado<span class="sr-only"> — {{ d.titulo }}</span></summary>

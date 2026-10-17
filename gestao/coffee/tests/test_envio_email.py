@@ -76,3 +76,20 @@ def test_ob_conclui_o_pagamento(base, mailoutbox):  # noqa: F811
     assert feita.envio_empresa_em == hoje and feita.concluida
     assert mailoutbox[0].attachments[0][2] == "application/pdf"
     assert Solicitacao.objects.get(pk=s.pk).movimentos.filter(acao="email").count() == 1
+
+
+def test_detalhe_do_lote_e_via_guardada(base, monkeypatch):  # noqa: F811
+    from django.core.files.base import ContentFile as Arquivo
+
+    from gestao.coffee.models import Via
+    u, curitiba, hoje, _f = base
+    s = _os(u, curitiba, hoje, descricao="Formatura")
+    c = Client()
+    c.force_login(u)
+    html = c.get(reverse("coffee:lote", args=[s.lote_id])).content.decode()
+    assert "Municípios atendidos" in html and "Curitiba" in html and "Formatura" in html
+    v = Via.objects.create(solicitacao=s, tipo="os", nome="OS 1.pdf", sha256="x" * 64,
+                           emitida_por=u, arquivo=Arquivo(b"%PDF-1.4 via", name="OS 1.pdf"))
+    r = c.get(reverse("coffee:arquivo_via", args=[s.pk, v.pk]))
+    assert r.status_code == 200 and b"".join(r.streaming_content) == b"%PDF-1.4 via"
+    assert c.get(reverse("coffee:arquivo_via", args=[s.pk + 1, v.pk])).status_code == 404

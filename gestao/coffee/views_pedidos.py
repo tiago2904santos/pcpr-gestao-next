@@ -273,6 +273,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                  "assinada": vias.assinada_vigente(s, t) if t in documentos.ASSINAVEIS
                  else None,
                  "assinavel": t in documentos.ASSINAVEIS,
+                 "vias": list(s.vias.filter(tipo=t).select_related("emitida_por")[:10]),
                  "n_vias": s.vias.filter(tipo=t).count()} for t in documentos.TIPOS],
             "avisos_nota": pdfs.avisos_da_nota(s),
             "pdfs": (("nota", "Nota fiscal", s.nota_pdf,
@@ -826,3 +827,37 @@ def arquivo_envio(request: HttpRequest, pk: int, envio_pk: int) -> StreamingHttp
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
+
+
+@require_GET
+def arquivo_via(request: HttpRequest, pk: int, via_pk: int) -> StreamingHttpResponse:
+    """Uma via guardada (gerada ou assinada) como saiu."""
+    from .models import Via
+
+    _exigir(request)
+    v = get_object_or_404(Via, pk=via_pk, solicitacao_id=pk)
+    resposta = FileResponse(v.arquivo.open("rb"), as_attachment=True,
+                            filename=re.sub(r"[^\w .-]", "-", v.nome)[:120] or "via.pdf",
+                            content_type="application/pdf")
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+@require_GET
+def lote(request: HttpRequest, pk: int) -> HttpResponse:
+    """O lote por inteiro: saldo, vigência e empenho, municípios, orientações e
+    especificações e as OS mais recentes que consumiram dele."""
+    _exigir(request)
+    obj = get_object_or_404(Lote.objects.select_related("contrato__fornecedor")
+                            .prefetch_related("municipios", "contrato__aditivos"), pk=pk)
+    hoje = timezone.localdate()
+    fim = obj.contrato.fim_efetivo()
+    qs = (_base().filter(lote=obj).annotate(ultimo=Max("movimentos__em"))
+          .order_by("-data_solicitacao", "-pk"))
+    return render(request, "coffee/lote.html", {
+        "lote": obj, "saldo": queries.saldos([obj])[obj.pk], "fim": fim,
+        "vencido": bool(fim and fim < hoje), "total_os": qs.count(),
+        "linhas": [_linha(s, hoje) for s in qs[:10]],
+        "migalhas": _migalhas(("Lotes", reverse("coffee:lotes")), (str(obj), "")),
+    })

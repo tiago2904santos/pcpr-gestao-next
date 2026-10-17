@@ -31,7 +31,7 @@ contagem, abrir o exercício seguinte e o cadastro de lotes.
     <div class="placa" aria-hidden="true">{% with n=lote.numero|stringformat:"s" %}{% include "componentes/identidade_documental.html" with rotulo="Lote" numero=n complemento=lote.exercicio compacta=True only %}{% endwith %}</div>
     <div class="registro__corpo">
       <div class="registro__titulo">
-        <a class="registro__link" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}"><span class="registro__link-texto">{{ lote }} · {{ lote.contrato.fornecedor }}</span></a>
+        <a class="registro__link" href="{% url 'coffee:lote' lote.pk %}"><span class="registro__link-texto">{{ lote }} · {{ lote.contrato.fornecedor }}</span></a>
         <span class="registro__selos">
           <span class="selo selo--{% if lote.ativo %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{% if lote.ativo %}Vigente{% else %}Encerrado{% endif %}</span>
           {% if l.vencido %}<span class="selo selo--perigo selo--sem-ponto">Contrato vencido</span>{% endif %}
@@ -52,6 +52,7 @@ contagem, abrir o exercício seguinte e o cadastro de lotes.
         <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ lote }}">{% icone "ellipsis-vertical" %}</button>
         <div class="menu__painel menu__painel--descrito" role="menu" hidden>
           <p class="menu__folha-titulo" aria-hidden="true">{{ lote }} · {{ lote.contrato.fornecedor }}</p>
+          <a class="menu__item" role="menuitem" href="{% url 'coffee:lote' lote.pk %}">{% icone "layers" %}Abrir o lote<span class="menu__item-descricao">saldo, municípios, orientações e OS</span></a>
           <a class="menu__item" role="menuitem" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">{% icone "list" %}Solicitações do lote<span class="menu__item-descricao">as OS que consumiram este saldo</span></a>
           <a class="menu__item" role="menuitem" href="{% url 'coffee:relatorio_contrato' lote.contrato_id %}">{% icone "file-search" %}Relatório do contrato<span class="menu__item-descricao">consumo e gasto do contrato {{ lote.contrato.numero }}</span></a>
         </div>
