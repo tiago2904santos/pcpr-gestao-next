@@ -263,10 +263,15 @@ def historico(s: Solicitacao) -> list[Evento]:
                                 dict.fromkeys(FILHAS, "solicitacao_id"))
     nomes_fk = _nomes_fk(passos)
     for p in passos:
-        if p.operacao != "UPDATE" or "status" in p.campos:
+        if p.operacao != "UPDATE":
             continue
+        # O passo que muda a situação já tem o seu movimento (envio, despacho…): dele entram
+        # os campos alterados junto (reenvio, "editar e enviar"); as equipes que a decisão da
+        # DG ajusta já estão no movimento do ajuste.
+        decisao = "status" in p.campos and p.depois.get("decidido_por_id")
+        filhas = set() if decisao else p.filhas
         partes = [n for n in ordem if n in {NOMES[c] for c in p.campos if c in NOMES}
-                  | {FILHAS[t] for t in p.filhas if t in FILHAS}]
+                  | {FILHAS[t] for t in filhas if t in FILHAS}]
         if partes:
             texto = partes[0] if len(partes) == 1 else ", ".join(partes[:-1]) + " e " + partes[-1]
             mudancas = []

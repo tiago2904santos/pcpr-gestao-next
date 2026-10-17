@@ -15,7 +15,7 @@ atualizada a cada lote de correções, com a evidência.
 |---|---|---|---|---|---|---|
 | EV-F01 | Catálogos (tipo, serviço, equipe, órgão, unidade móvel, texto do despacho) | L cadastros/models.py:5-150 | gestao/eventos/models.py:54-121 | Equivalente | unicidade sem caixa (mais estrita) | Equivalente |
 | EV-F02 | Lista do catálogo: busca, ativos/inativos, 25 por página, contagens | L cadastros/views.py:207-256 | gestao/eventos/views.py `catalogo` | Equivalente | — | ver EV-F02b |
-| EV-F02b | Paginação do catálogo aparece | — | eventos/catalogo.html:83-85 | **Defeito** | bloco `depois_lista` inexistente em `base.html`: a paginação nunca aparece | |
+| EV-F02b | Paginação do catálogo aparece | — | eventos/catalogo.html:83-85 | **Defeito** | bloco `depois_lista` inexistente em `base.html`: a paginação nunca aparece || **Corrigida** — catálogo refeito no arquétipo de lista: a paginação está na barra (`test_catalogo_na_forma_de_viagens_paginacao_e_janela`) |
 | EV-F03 | Excluir item em uso | L cadastros/views.py:351-370 | gestao/eventos/catalogos.py:29,112-121 | Equivalente | mesma mensagem | Equivalente |
 | EV-F04 | Ativar / inativar | L cadastros/views.py:331-348 | catalogos.py:103; forms.py `_ativos` | Equivalente | — | Equivalente |
 | EV-F05 | Quem mantém os catálogos | L cadastros/views.py:121-127 | policies.py:27-33 | Equivalente | por permissão | Equivalente |
@@ -40,7 +40,7 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F25 | Autosave de rascunho/devolvida | — | vs `autosave` | Extra do novo | — | Equivalente+ |
 | EV-F26 | Editar rascunho/devolvida (autor) | L permissions.py:96-103 | policies.py:66-68 | Equivalente | — | Equivalente |
 | EV-F27 | Histórico campo a campo (inclui serviços e equipes) | L services.py:100-167 | queries.py `historico` | Parcial | serviços/equipes só pelo nome, sem antes→depois | |
-| EV-F28 | Histórico do reenvio e de "editar e enviar" | L services.py:625-637 | queries.py (passos com `status` são pulados) | **Defeito** | a diferença dos campos some quando dados e situação mudam juntos | |
+| EV-F28 | Histórico do reenvio e de "editar e enviar" | L services.py:625-637 | queries.py (passos com `status` são pulados) | **Defeito** | a diferença dos campos some quando dados e situação mudam juntos || **Corrigida** — o passo que muda a situação mostra os campos alterados junto; as equipes do ajuste da DG ficam no movimento (`test_historico_do_reenvio_mostra_o_que_mudou`) |
 | EV-F29 | Requisitos do envio à DG | L services.py:63-73,182-234 | dominio.py:224-274 | Equivalente | mesmas mensagens | Equivalente |
 | EV-F30 | Aviso à DG no envio | L services.py:224-233 | solicitacoes.py:172 | Parcial | texto e âncora #despacho diferentes | |
 | EV-F31 | Reabrir depois do envio | L services.py:596-647 | solicitacoes.py:177-212 | Parcial | aviso à DG não lista os campos alterados | |
@@ -77,7 +77,7 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F62 | Roteiro, trechos, diárias e anexos na viagem | L integracao_viagens.py:424-530 | — | Substituída | "ficam com a unidade" | Substituída |
 | EV-F63 | Multieventos (juntar vizinhas) | L integracao_viagens.py:382-422 | queries.py `vizinhos` (só mostra) | Parcial | — | |
 | EV-F64 | Vizinhas na seção Viagem | L views.py:555-560 | queries.py `vizinhos` | Equivalente | regra lida, limites não comparados por execução | Equivalente |
-| EV-F65 | Operador de Viagens gera a viagem de solicitação que não vê | L permissions.py:140-145 | vs `_visivel` → 404 | **Defeito** | operador sem "ver todas" não chega à solicitação | |
+| EV-F65 | Operador de Viagens gera a viagem de solicitação que não vê | L permissions.py:140-145 | vs `_visivel` → 404 | **Defeito** | operador sem "ver todas" não chega à solicitação || **Corrigida** — quem opera Viagens gera sem ver a solicitação e volta para a viagem (erro → lista de viagens); sem ver nem gerar: 404 (`test_quem_gera_e_para_qual_unidade`). Como na referência, o pedido só nasce do cartão da folha ou de um link |
 | EV-F66 | Encerrar a viagem quando o evento não acontece | L integracao_viagens.py:634-662 | de_eventos.py:157-184 | Equivalente | — | Equivalente |
 | EV-F67 | Cartão da viagem (o que falta, contador) | L integracao_viagens.py:104-143 | folha.html:214-222 | Parcial | — | |
 | EV-F68 | Rotina diária de viagens pendentes | L gerar_viagens_pendentes | — | Ausente | decorre da geração manual | |

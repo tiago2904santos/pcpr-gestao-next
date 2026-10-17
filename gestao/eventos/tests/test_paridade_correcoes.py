@@ -126,3 +126,17 @@ def test_motorista_so_quem_dirige(ana):  # noqa: F811
     # O que a solicitação já tem continua na lista.
     s = solicitacoes.criar(ana, _completa(unidade_movel=True, motorista=escrivao), _estrutura())
     assert escrivao in FormularioSolicitacao(instance=s).fields["motorista"].queryset
+
+
+def test_historico_do_reenvio_mostra_o_que_mudou(ana, dg):  # noqa: F811
+    """EV-F28: alterar depois do despacho muda dados e situação juntos — a diferença dos
+    campos continua no histórico."""
+    from gestao.eventos import queries
+
+    s = _aguardando(ana)
+    solicitacoes.despachar(dg, s.pk, "atender")
+    solicitacoes.reabrir_e_reenviar(ana, s.pk, {"local_evento": "Praça Central"},
+                                    _estrutura(5))
+    eventos = queries.historico(s)
+    mudancas = [m for e in eventos for m in e.mudancas]
+    assert ("Local do evento", "Ginásio", "Praça Central") in mudancas

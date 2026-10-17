@@ -46,12 +46,21 @@ def indice(request: HttpRequest) -> HttpResponse:
 
 @require_http_methods(["GET", "POST"])
 def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
+    """Um catálogo (forma dos catálogos de Viagens): abas Ativos/Inativos com a contagem,
+    busca, uma linha por registro com o menu de ações, e novo/editar numa janela
+    (`?novo=1`, `?editar=<pk>`; com erro, a janela volta aberta com o que foi digitado)."""
     if slug not in catalogos.CATALOGOS:
         raise Http404
     if not policies.pode_gerir_catalogo(request.user, slug):
         raise PermissionDenied
     cat = catalogos.CATALOGOS[slug]
-    erro, editando, valores = "", None, {}
+    q = " ".join((request.GET.get("q") or "").split())[:100]
+    # `situacao=` é o endereço antigo do filtro: continua valendo.
+    aba = request.GET.get("aba") or request.GET.get("situacao") or ""
+    aba = "inativos" if aba == "inativos" else ""
+    base = "&".join(p for p in (f"q={q}" if q else "", f"aba={aba}" if aba else "") if p)
+    volta = f"{request.path}?{base}" if base else request.path
+    erro, editando, valores, abrir = "", None, {}, False
     if request.method == "POST":
         pk = request.POST.get("pk") or ""
         pk_int = int(pk) if pk.isdigit() else None
@@ -62,40 +71,49 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
                 messages.success(request, f"“{nome}” excluído.")
             elif acao == "ativo" and pk_int:
                 r = catalogos.alternar_ativo(request.user, slug, pk_int)
-                messages.success(request, f"“{r.nome}” {'ativado' if r.ativo else 'inativado'}.")
+                messages.success(request, f"“{r.nome}” {'reativado' if r.ativo else 'desativado'}.")
             else:
                 r = catalogos.salvar(request.user, slug, request.POST, pk_int)
                 messages.success(request, f"{cat.titulo}: “{r.nome}” salvo.")
-            return redirect(request.get_full_path())
+            return redirect(volta)
         except cat.modelo.DoesNotExist as exc:
             raise Http404 from exc
         except catalogos.CatalogoInvalido as exc:
-            erro, editando = str(exc), pk_int
+            if acao in ("excluir", "ativo"):
+                messages.error(request, str(exc))
+                return redirect(volta)
+            erro, abrir = str(exc), True
+            editando = cat.modelo.objects.filter(pk=pk_int).first() if pk_int else None
             valores = {"nome": request.POST.get("nome", ""), "texto": request.POST.get("texto", "")}
-    q = " ".join((request.GET.get("q") or "").split())[:100]
-    situacao = request.GET.get("situacao") or ""
-    qs = cat.modelo.objects.order_by("nome")
+    else:
+        pk_editar = request.GET.get("editar") or ""
+        if pk_editar.isdigit():
+            editando = cat.modelo.objects.filter(pk=int(pk_editar)).first()
+        if editando is not None:
+            valores = {"nome": editando.nome, "texto": getattr(editando, "texto", "")}
+        abrir = editando is not None or request.GET.get("novo") == "1"
+    todos = cat.modelo.objects.all()
+    contagens = {"ativos": todos.filter(ativo=True).count(),
+                 "inativos": todos.filter(ativo=False).count()}
+    qs = todos.filter(ativo=aba != "inativos").order_by("nome")
     if slug == "tipos-evento":  # "tem modelo" de cada linha sem uma consulta por tipo
         qs = qs.prefetch_related("servicos_sugeridos", "equipes_padrao")
     if q:
         qs = qs.filter(nome__icontains=q)
-    if situacao in ("ativos", "inativos"):
-        qs = qs.filter(ativo=situacao == "ativos")
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    base = "&".join(p for p in (f"q={q}" if q else "",
-                                f"situacao={situacao}" if situacao else "") if p)
     descricao = (f"{'Os dados' if cat.com_texto else 'O nome'} {cat.genitivo} usado"
-                 f"{'s' if cat.com_texto else ''} nas solicitações. O inativo sai dos "
+                 f"{'s' if cat.com_texto else ''} nas solicitações. O desativado sai dos "
                  "formulários novos e continua nas solicitações que já o usam.")
+    feminino = cat.genitivo.startswith("da ")
     return render(request, "eventos/catalogo.html", {
         "cat": cat, "descricao_catalogo": descricao, "page_obj": pagina,
-        "registros": list(pagina.object_list), "q": q,
-        "situacao": situacao, "erro": erro, "editando": editando, "valores": valores,
-        "querystring_base": f"{base}&" if base else "",
-        "outros": [catalogos.CATALOGOS[s] for s in policies.catalogos_visiveis(request.user)
-                   if s != slug],
+        "registros": list(pagina.object_list), "q": q, "aba": aba,
+        "abas": [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")],
+        "contagens": contagens, "erro": erro, "editando": editando, "valores": valores,
+        "abrir_dialogo": abrir, "novo_rotulo": f"{'Nova' if feminino else 'Novo'} {cat.singular}",
+        "querystring_base": f"{base}&" if base else "", "voltar": volta,
         "migalhas": _migalhas((cat.titulo, "")),
-    })
+    }, status=422 if erro else 200)
 
 
 @require_http_methods(["GET", "POST"])

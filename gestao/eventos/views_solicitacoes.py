@@ -233,19 +233,28 @@ def _viagem(request: HttpRequest, s: Solicitacao) -> dict:
 
 @require_POST
 def gerar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
-    s = _visivel(request, pk)
+    """Da DG ou de quem opera Viagens. Este pode não enxergar a solicitação (como na
+    referência): gera do mesmo jeito e volta para a viagem criada, não para a folha."""
     integracao = ganchos.viagem()
     if integracao is None:
+        raise Http404
+    s = get_object_or_404(Solicitacao, pk=pk)
+    ve = policies.pode_ver(request.user, s)
+    if not ve and not integracao.pode_gerar(request.user):
         raise Http404
     texto = request.POST.get("unidade") or ""
     unidade = int(texto) if re.fullmatch(r"[0-9]{1,9}", texto) else None
     try:
         viagem = integracao.gerar(request.user, s, unidade)
     except ValueError as exc:
-        messages.error(request, str(exc))
+        messages.error(request, f"Não foi possível gerar a viagem: {exc}")
+        if not ve:
+            return redirect(integracao.endereco(None))
     else:
         messages.success(request, f"Viagem #{viagem.pk} gerada; a equipe de viagens da "
                                   "unidade foi avisada.")
+        if not ve:
+            return redirect(integracao.endereco(viagem))
     return redirect(reverse("eventos:solicitacao", args=[pk]) + "#viagem")
 
 

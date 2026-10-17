@@ -21,17 +21,19 @@ def test_catalogo_e_modelo_do_tipo(logado, dados_e2e):
     from gestao.eventos.models import Servico, TipoEvento, UnidadeMovel
 
     _admin()
-    # O banco do navegador é limpo a cada teste: a carga inicial não está lá.
-    tipo = TipoEvento.objects.create(nome="Palestra")
-    Servico.objects.create(nome="Emissão de CIN")
+    # O banco do navegador é limpo a cada teste (rodando sozinho, a carga inicial ainda está).
+    tipo = TipoEvento.objects.get_or_create(nome="Palestra")[0]
+    Servico.objects.get_or_create(nome="Emissão de CIN")
     pg = logado
     pg.goto("/eventos/cadastros/")
     pg.goto("/eventos/cadastros/unidades-moveis/")
-    pg.locator("#novo-nome").fill("Caminhão (e2e)")
-    pg.get_by_role("button", name="Incluir").click()
+    pg.get_by_role("button", name="Nova unidade móvel").first.click()
+    pg.locator("#cadastro-nome").fill("Caminhão (e2e)")
+    pg.get_by_role("button", name="Cadastrar unidade móvel").click()
     expect(pg.locator(".registros")).to_contain_text("Caminhão (e2e)")
-    pg.get_by_role("button", name="Inativar Caminhão (e2e)").click()
-    expect(pg.locator(".registros")).to_contain_text("Inativo")
+    pg.get_by_role("button", name="Ações de “Caminhão (e2e)”").click()
+    pg.get_by_role("menuitem", name="Desativar").click()
+    expect(pg.get_by_role("link", name="Inativos")).to_contain_text("1")
     assert not UnidadeMovel.objects.get(nome="Caminhão (e2e)").ativo
     pg.goto(f"/eventos/cadastros/tipos-evento/{tipo.pk}/modelo/")
     pg.locator("#solicitante").fill("Escola (e2e)")

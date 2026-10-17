@@ -32,7 +32,6 @@ from django.utils import timezone
 from gestao.cadastros.models import TipoViagem, Unidade
 from gestao.eventos import dominio as dominio_eventos
 from gestao.eventos import ganchos, solicitacoes
-from gestao.eventos import policies as eventos_policies
 from gestao.eventos.models import Solicitacao
 from gestao.plataforma.notificacoes import notificar, usuarios_do_grupo
 
@@ -127,8 +126,6 @@ def gerar(usuario, s: Solicitacao, unidade_id: int | None) -> Viagem:
         raise PermissionDenied
     s = Solicitacao.objects.select_for_update(of=("self",)).select_related(
         "municipio", "tipo_evento").get(pk=s.pk)
-    if not eventos_policies.pode_ver(usuario, s):
-        raise PermissionDenied
     motivo = motivo_que_impede(s)
     if motivo:
         raise ValueError(motivo)
@@ -189,5 +186,7 @@ def _avisar_documentos(unidade_id: int, titulo: str, link: str, usuario) -> None
 
 
 def registrar() -> None:
-    ganchos.registrar_viagem(ganchos.IntegracaoViagem(resumo=resumo, gerar=gerar,
-                                                      encerrar=encerrar))
+    ganchos.registrar_viagem(ganchos.IntegracaoViagem(
+        resumo=resumo, gerar=gerar, encerrar=encerrar, pode_gerar=pode_gerar,
+        endereco=lambda v: (reverse("viagens:editar_viagem", args=[v.pk]) if v is not None
+                            else reverse("viagens:viagens"))))

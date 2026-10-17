@@ -55,6 +55,6 @@ Situação final: **Alinhada** (segue a referência), **Alinhada com diferença 
 | EV-P03/04 | Nova solicitação (+ preencher com e-mail) | VR-04 | status da barra à mão, sem `barra-acoes__acoes`; classes `campo--md/lg` sem efeito dentro de `campos-folha` | | |
 | EV-P05/06 | Folha da solicitação (+ alterar após envio) | VR-04 + VR-09 | despacho e transferência na grade antiga `campos`; histórico à mão; placa da viagem à mão; numeração das seções muda conforme a viagem aparece | | |
 | EV-P07 | Cadastros — índice | VR-14 | — | — | Alinhada |
-| EV-P08 | Catálogo `/eventos/cadastros/<slug>/` | VR-15 | **paginação nunca aparece** (bloco inexistente); "Incluir" em cartão no topo; edição inline em `<details>`; botões fixos em vez de ⋮; sem `registro--catalogo`; sem barra | | |
+| EV-P08 | Catálogo `/eventos/cadastros/<slug>/` | VR-15 | **paginação nunca aparece** (bloco inexistente); "Incluir" em cartão no topo; edição inline em `<details>`; botões fixos em vez de ⋮; sem `registro--catalogo`; sem barra | `arquetipos/lista.html`: abas Ativos/Inativos com contagem, busca, `registro--catalogo` com ⋮ (editar, modelo, desativar, excluir), novo/editar numa janela, barra `--colecao` com paginação e "Novo" | Corrigida |
 | EV-P09 | Modelo do tipo | VR-17 | `documento--cartoes`; `campos` + `campo--*`; salvar em `linha` | | |
 | EV-P10..12 | JSON, arquivos, janela de motivo | — | — | — | Alinhada |
