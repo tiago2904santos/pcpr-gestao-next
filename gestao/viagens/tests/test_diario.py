@@ -10,6 +10,7 @@ from io import BytesIO
 import pytest
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 from openpyxl import load_workbook
 
 from gestao.cadastros.models import Viatura
@@ -160,6 +161,9 @@ def test_motorista_de_outro_oficio_usa_o_diario_de_la(c):
         trocar(de_la.pk)
     with pytest.raises(diario.DiarioInvalido, match="própria prestação"):
         trocar(p.oficio_id)
+    # A prestação só existe para ofício emitido (prestacao.sincronizar): o de lá também é.
+    Oficio.objects.filter(pk=de_la.pk).update(situacao=Oficio.Situacao.EMITIDO,
+                                              emitido_em=timezone.now())
     p2 = PrestacaoContas.objects.create(oficio=de_la)
     d2 = diario.obter(p2)
     diario.salvar_linhas(op, d2.pk, {linha.pk: {"km_inicial": 500 + i * 100,
