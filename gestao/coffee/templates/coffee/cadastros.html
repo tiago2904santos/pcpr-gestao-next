@@ -2,7 +2,7 @@
 {% block titulo %}{{ t.titulo }} · Cadastros do Coffee Break{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
-{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Cadastros" titulo=t.titulo complemento=t.descricao %}{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Cadastros" titulo=t.titulo complemento=t.descricao acoes_template="coffee/_cadastros_acoes.html" %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
 {% block classe_area_lista %}colecao-operacional__painel{% endblock %}
@@ -46,7 +46,7 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
 {% if linhas %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for obj, l in linhas %}
-    <li class="registro">
+    <li class="registro registro--catalogo">
       <span class="registro__icone" aria-hidden="true">{% icone t.icone %}</span>
       <div class="registro__corpo">
         <div class="registro__titulo">

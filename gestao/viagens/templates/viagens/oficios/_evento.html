@@ -1,12 +1,13 @@
 {% load viagens %}
 {% comment %}
 Um evento do histórico numa linha: quando · o quê · quem. A mesma leitura em colunas das
-linhas de trecho da janela de resumo. Emissão e documento ganham a marca dourada.
+linhas de trecho da janela de resumo. Emissão e documento ganham a marca dourada. Quem tem
+`h.mudancas` ((campo, antes, depois) — Eventos Sociais) mostra o antes → depois.
 {% endcomment %}
 {% if operacional %}{% with a=h.acao %}<li class="historico__linha historico__linha--{% if a == 'viajante' %}equipe{% elif a == 'texto' %}texto{% elif a == 'emitido' or a == 'documento' or a == 'reaberto' %}documentos{% elif a == 'cancelado' or a == 'arquivado' %}alerta{% else %}dados{% endif %}" data-tipo="{% if a == 'viajante' %}equipe{% elif a == 'texto' %}texto{% elif a == 'emitido' or a == 'documento' or a == 'reaberto' %}documentos{% else %}dados{% endif %}">
   <span class="historico__marcador" aria-hidden="true">{% if a == 'emitido' %}{% icone "stamp" classe="icone--sm" %}{% elif a == 'documento' %}{% icone "file-text" classe="icone--sm" %}{% elif a == 'texto' %}{% icone "file-pen-line" classe="icone--sm" %}{% elif a == 'viajante' %}{% icone "users" classe="icone--sm" %}{% elif a == 'criado' %}{% icone "plus" classe="icone--sm" %}{% elif a == 'cancelado' %}{% icone "ban" classe="icone--sm" %}{% elif a == 'reativado' or a == 'reaberto' %}{% icone "rotate-ccw" classe="icone--sm" %}{% elif a == 'arquivado' or a == 'desarquivado' %}{% icone "folder-open" classe="icone--sm" %}{% else %}{% icone "pencil" classe="icone--sm" %}{% endif %}</span>
   <div class="historico__detalhe">
-    <span class="historico__texto">{{ h.descricao }}</span>
+    <span class="historico__texto">{{ h.descricao }}{% for campo, antes, depois in h.mudancas %}<span class="historico__mudanca"><b>{{ campo }}:</b> {% if antes %}<del>{{ antes }}</del>{% else %}<i>vazio</i>{% endif %} <span aria-hidden="true">→</span><span class="sr-only">passou a</span> {% if depois %}{{ depois }}{% else %}<i>vazio</i>{% endif %}</span>{% endfor %}</span>
     <span class="historico__meta"><time class="historico__quando" datetime="{{ h.em|date:'c' }}">{{ h.em|date:"H:i" }}</time><span aria-hidden="true">·</span><span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span></span>
   </div>
 </li>{% endwith %}{% else %}<li class="historico__linha{% if h.acao == 'emitido' or h.acao == 'documento' %} historico__linha--marca{% endif %}">

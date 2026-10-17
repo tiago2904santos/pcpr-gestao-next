@@ -241,6 +241,21 @@ class Evento:
     usuario: object | None
     marca: bool = False
     mudancas: list[tuple[str, str, str]] = field(default_factory=list)  # campo, antes, depois
+    # O tipo na linha do tempo das folhas (componentes/historico_folha.html): o ícone e o
+    # filtro (Dados, Documentos…) seguem as ações de Viagens.
+    acao: str = "dados"
+
+    @property
+    def descricao(self) -> str:
+        return self.texto
+
+
+# Movimento da solicitação → ação equivalente na linha do tempo de Viagens.
+ACAO_NA_LINHA_DO_TEMPO = {"criacao": "criado", "envio": "emitido", "decisao": "emitido",
+                          "conclusao": "emitido", "devolucao": "reaberto",
+                          "reenvio": "reaberto", "cancelamento": "cancelado",
+                          "anexo": "documento", "transferencia": "viajante",
+                          "ajuste_dg": "viajante", "viagem": "documento"}
 
 
 def _campo(coluna: str) -> Field:
@@ -311,6 +326,7 @@ def historico(s: Solicitacao) -> list[Evento]:
         texto = m.get_acao_display()
         if m.observacao:
             texto += f" — {m.observacao}"
-        eventos.append(Evento(m.em, texto, m.usuario, marca=m.acao != "anexo"))
+        eventos.append(Evento(m.em, texto, m.usuario, marca=m.acao != "anexo",
+                              acao=ACAO_NA_LINHA_DO_TEMPO.get(m.acao, "dados")))
     eventos.sort(key=lambda e: e.em, reverse=True)
     return eventos

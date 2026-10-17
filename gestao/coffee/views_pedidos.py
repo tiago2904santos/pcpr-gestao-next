@@ -6,7 +6,11 @@ from __future__ import annotations
 
 import csv
 import re
+from dataclasses import dataclass
 from datetime import date, datetime
+from decimal import Decimal
+from types import SimpleNamespace
+from typing import Any
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -256,8 +260,28 @@ def _link_fornecedor(s: Solicitacao) -> dict:
             "envios_fornecedor": list(s.envios_fornecedor.select_related("conferido_por")[:20])}
 
 
-def _historico(s: Solicitacao) -> list:
-    return list(s.movimentos.select_related("usuario")[:50])
+@dataclass
+class EventoDaFolha:
+    """Um movimento na linha do tempo das folhas (componentes/historico_folha.html)."""
+    em: datetime
+    acao: str
+    descricao: str
+    usuario: Any
+
+
+# Movimento da OS → ação equivalente na linha do tempo de Viagens (ícone e filtro).
+ACAO_NA_LINHA_DO_TEMPO = {"criada": "criado", "cancelada": "cancelado",
+                          "reativada": "reativado", "documento": "documento",
+                          "email": "emitido", "fornecedor": "documento",
+                          "correcao": "reaberto", "conjunto": "viajante"}
+
+
+def _historico(s: Solicitacao) -> list[EventoDaFolha]:
+    fornecedor = SimpleNamespace(nome="fornecedor, pelo link")
+    return [EventoDaFolha(m.em, ACAO_NA_LINHA_DO_TEMPO.get(m.acao, "dados"),
+                          m.get_acao_display() + (f" — {m.texto}" if m.texto else ""),
+                          m.usuario or (fornecedor if m.acao == "fornecedor" else None))
+            for m in s.movimentos.select_related("usuario")[:50]]
 
 
 def _locais_usados() -> list[str]:
@@ -318,6 +342,16 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
         ctx.update(contexto_da_folha(request, s))
         ctx["origem"] = ganchos.cartao(request.user, s)
+        # Seções numeradas em sequência, como nas folhas de Viagens (algumas só aparecem
+        # em certas situações: o número segue o que está na tela).
+        visiveis = ["evento", "entrega", "entregas", "nota", "pagamento"]
+        if ctx["link_disponivel"] or ctx["envios_fornecedor"]:
+            visiveis.append("envios")
+        if not s.cancelada:
+            visiveis.append("pdfs")
+        if ctx["candidatas"]:
+            visiveis.append("conjunto")
+        ctx["secoes"] = {k: i for i, k in enumerate([*visiveis, "documentos", "situacao"], 1)}
     else:
         ctx["migalhas"] = _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
                                     ("Nova solicitação", ""))
@@ -919,8 +953,16 @@ def lote(request: HttpRequest, pk: int) -> HttpResponse:
     fim = obj.contrato.fim_efetivo()
     qs = (_base().filter(lote=obj).annotate(ultimo=Max("movimentos__em"))
           .order_by("-data_solicitacao", "-pk"))
+    # Como na referência: comprometido (OS não canceladas), pago (com ordem bancária) e o
+    # saldo do empenho.
+    ativas = list(Solicitacao.objects.filter(lote=obj, cancelada=False))
+    comprometido = sum((s.valor or 0 for s in ativas), Decimal("0.00"))
+    pago = sum((s.valor or 0 for s in ativas if s.ordem_bancaria_em), Decimal("0.00"))
     return render(request, "coffee/lote.html", {
         "lote": obj, "saldo": queries.saldos([obj])[obj.pk], "fim": fim,
+        "comprometido": comprometido, "pago": pago,
+        "saldo_empenho": (obj.valor_empenho - comprometido if obj.valor_empenho is not None
+                          else None),
         "vencido": bool(fim and fim < hoje), "total_os": qs.count(),
         "linhas": [_linha(s, hoje) for s in qs[:10]],
         "migalhas": _migalhas(("Lotes", reverse("coffee:lotes")), (str(obj), "")),

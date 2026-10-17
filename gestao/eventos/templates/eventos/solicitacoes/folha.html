@@ -191,7 +191,7 @@ histórico.
       </fieldset>
       {% if textos_despacho %}<div class="texto-pronto" data-texto-pronto data-alvo="observacao-dg"><div class="campo campo--lg"><label class="campo__rotulo" for="texto-dg">Textos prontos</label><pc-select class="seletor"><select class="selecao" id="texto-dg"><option value="">Escrever do zero</option>{% for t in textos_despacho %}<option value="{{ t.pk }}" data-texto="{{ t.texto }}">{{ t.nome }}</option>{% endfor %}</select></pc-select></div></div>{% endif %}
       <div class="campo"><label class="campo__rotulo" for="observacao-dg">Observações da decisão</label><textarea class="entrada" id="observacao-dg" name="observacao" rows="3" placeholder="Obrigatória para não atender, evento cancelado ou correção.">{{ despacho_observacao }}</textarea></div>
-      {% if s.equipes.all %}<fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Servidores por equipe (a DG pode ajustar)</legend><div class="campos">{% for e in s.equipes.all %}<div class="campo campo--sm"><label class="campo__rotulo" for="dg-{{ e.equipe_id }}">{{ e.equipe.nome }}</label><input class="entrada" id="dg-{{ e.equipe_id }}" name="quantidade_dg_{{ e.equipe_id }}" inputmode="numeric" value="{{ e.quantidade_servidores|default_if_none:'' }}"></div>{% endfor %}</div></fieldset>{% endif %}
+      {% if s.equipes.all %}<fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Servidores por equipe (a DG pode ajustar)</legend><div class="campos-folha campos-folha--quatro">{% for e in s.equipes.all %}<div class="campo"><label class="campo__rotulo" for="dg-{{ e.equipe_id }}">{{ e.equipe.nome }}</label><input class="entrada" id="dg-{{ e.equipe_id }}" name="quantidade_dg_{{ e.equipe_id }}" inputmode="numeric" value="{{ e.quantidade_servidores|default_if_none:'' }}"></div>{% endfor %}</div></fieldset>{% endif %}
       <div class="linha">
         {% if s.equipes.all %}<button type="submit" name="acao_despacho" value="salvar_ajustes" class="botao">{% icone "save" %}Salvar servidores</button>{% endif %}
         {% if fila > 1 %}<button type="submit" class="botao">{% icone "stamp" %}Registrar decisão</button>
@@ -213,7 +213,7 @@ histórico.
     {% if viagem_info.viagens %}
     <ul class="registros">{% for v in viagem_info.viagens %}
       <li class="registro{% if v.viagem.cancelada %} registro--inativo{% endif %}">
-        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Viagem</span><span class="placa__numero">#{{ v.viagem.pk }}</span></span>
+        <div class="placa" aria-hidden="true">{% with p=v.viagem.pk|stringformat:"s" %}{% with n="#"|add:p %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero=n compacta=True only %}{% endwith %}{% endwith %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">{% if v.url %}<a class="registro__link" href="{{ v.url }}"><span class="sr-only">Viagem #{{ v.viagem.pk }} · </span>{{ v.viagem.titulo|default:"Viagem" }}</a>{% else %}<span class="registro__texto">{{ v.viagem.titulo|default:"Viagem" }}</span>{% endif %}<span class="selo selo--{% if v.viagem.cancelada %}perigo{% else %}info{% endif %} selo--sem-ponto">{{ v.viagem.get_situacao_display }}</span></div>
           <div class="registro__meta"><span class="registro__meta-item"><span class="sr-only">Unidade: </span>{% icone "landmark" classe="icone--sm" %}{{ v.viagem.unidade }}</span><span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.documentos %}Com documentos{% else %}Sem documentos ainda{% endif %}</span></div>
@@ -258,18 +258,18 @@ histórico.
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-responsavel"><span class="secao__numero">{% if mostrar_viagem %}7{% else %}6{% endif %}</span>Responsável</h2><p class="secao__nota">{{ s.criado_por.nome }} cuida desta solicitação.</p></div>
     {% if pode_transferir %}
     <details><summary class="botao botao--sm botao--sutil">{% icone "user-round" %}Transferir</summary>
-      <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="campos mt-2" novalidate>{% csrf_token %}
-        <div class="campo campo--lg"><label class="campo__rotulo" for="responsavel-novo">Novo responsável</label><pc-select class="seletor"><select class="selecao" id="responsavel-novo" name="responsavel"><option value="">Escolha</option>{% for u in usuarios %}<option value="{{ u.pk }}">{{ u.nome }}</option>{% endfor %}</select></pc-select></div>
-        <div class="campo campo--lg"><label class="campo__rotulo" for="motivo-transferencia">Motivo (opcional)</label><input class="entrada" id="motivo-transferencia" name="motivo_transferencia" maxlength="255"></div>
-        <div class="campo campo--auto"><button type="submit" class="botao">{% icone "send" %}Transferir</button></div>
+      <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="pilha mt-2" novalidate>{% csrf_token %}
+        <div class="campos-folha">
+        <div class="campo"><label class="campo__rotulo" for="responsavel-novo">Novo responsável</label><pc-select class="seletor"><select class="selecao" id="responsavel-novo" name="responsavel"><option value="">Escolha</option>{% for u in usuarios %}<option value="{{ u.pk }}">{{ u.nome }}</option>{% endfor %}</select></pc-select></div>
+        <div class="campo"><label class="campo__rotulo" for="motivo-transferencia">Motivo (opcional)</label><input class="entrada" id="motivo-transferencia" name="motivo_transferencia" maxlength="255"></div>
+        </div>
+        <div class="linha"><button type="submit" class="botao">{% icone "send" %}Transferir</button></div>
       </form>
     </details>
     {% endif %}
     <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
       <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3><div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div></div>
-      <ol class="historico__linhas" aria-label="Eventos da solicitação">
-        {% for h in historico %}<li class="historico__linha{% if h.marca %} historico__linha--marca{% endif %}"><time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time><span class="historico__texto">{{ h.texto }}{% for campo, antes, depois in h.mudancas %}<span class="historico__mudanca"><b>{{ campo }}:</b> {% if antes %}<del>{{ antes }}</del>{% else %}<i>vazio</i>{% endif %} <span aria-hidden="true">→</span><span class="sr-only">passou a</span> {% if depois %}{{ depois }}{% else %}<i>vazio</i>{% endif %}</span>{% endfor %}</span><span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span></li>{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
-      </ol>
+      {% include "componentes/historico_folha.html" with rotulo="Eventos da solicitação" vazio="Sem eventos registrados." primeiros=":6" resto="6:" limite=6 %}
     </div>
   </section>
 {% endif %}

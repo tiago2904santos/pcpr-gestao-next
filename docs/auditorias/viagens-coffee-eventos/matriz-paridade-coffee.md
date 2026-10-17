@@ -89,7 +89,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F78 | Entrega pela janela da lista | LT/_acoes_linha.html:14 | seção da folha | Substituída | D/decisoes.md:292 | Substituída |
 | CB-F79 | Lista de lotes (busca, exercício, ordenação, paginação) | L/views.py:369-443 | N/views_pedidos.py:598-627 | Parcial | só a situação || **Corrigida** — busca (lote, contrato, fornecedor, empenho, município), exercício, ordem e paginação; contagem nas abas (`test_lotes_com_busca_exercicio_ordem_e_contagem`) |
 | CB-F80 | "Abrir exercício N+1" | L/views.py:446-451 | NT/lotes.html | Equivalente | — | Equivalente |
-| CB-F81 | Detalhe do lote (comprometido, pago, saldo do empenho, contato do fornecedor, fiscal, todas as OS) | L/views.py:453-493 | NT/lote.html | Parcial | faltam valores e contatos | |
+| CB-F81 | Detalhe do lote (comprometido, pago, saldo do empenho, contato do fornecedor, fiscal, todas as OS) | L/views.py:453-493 | NT/lote.html | Parcial | faltam valores e contatos || **Corrigida** — comprometido, pago, saldo do empenho, contato do fornecedor e fiscal; as 10 OS mais recentes + "Ver todas" (lista filtrada pelo lote) |
 | CB-F82 | Virada de exercício | L/virada.py | N/virada.py | Equivalente | — | Equivalente |
 | CB-F83 | Relatório do contrato | L/relatorio_contrato.py | N/relatorio.py | Equivalente | — | Equivalente |
 | CB-F84 | Lista: filtros, trilha, pendentes | L/views.py:610-725 | N/views_pedidos.py:135-167 | Equivalente | — | Equivalente |
