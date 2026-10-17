@@ -57,6 +57,8 @@ class Solicitacao(Carimbos):
     ob_valor = models.DecimalField("valor da ordem bancária (lido)", max_digits=12,
                                    decimal_places=2, null=True, blank=True)
     observacoes = models.TextField("observações", blank=True)
+    # Quando a OS saiu por e-mail ao fornecedor (o último envio; cada um fica no histórico).
+    os_enviada_em = models.DateTimeField("OS enviada ao fornecedor em", null=True, blank=True)
     em_correcao = models.BooleanField("aberta para correção", default=False)
     # Pagamento conjunto: as OS do mesmo lote que vão num só ofício e num só protocolo
     # apontam para a principal (a principal não aponta para ninguém).
@@ -164,13 +166,16 @@ class Movimento(models.Model):
         DOCUMENTO = "documento", "Documento"
         CORRECAO = "correcao", "Correção"
         ENTREGA = "entrega", "Entrega registrada"
+        EMAIL = "email", "E-mail ao fornecedor"
+        FORNECEDOR = "fornecedor", "Pelo link do fornecedor"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")
     acao = models.CharField(max_length=20, choices=Acao.choices)
     texto = models.TextField(blank=True)
+    # Vazio só no que chega pelo link do fornecedor (não é ação de ninguém da equipe).
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
-                                related_name="+")
+                                null=True, blank=True, related_name="+")
     em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -268,3 +273,73 @@ class Entrega(models.Model):
     @property
     def ocorrencia(self) -> bool:
         return self.tipo != "sem_ocorrencia"
+
+
+class LinkFornecedor(models.Model):
+    """O link que o fornecedor recebe por e-mail para mandar a nota fiscal e as certidões da
+    OS, sem login. Só o hash do token fica no banco (o token sai no e-mail e não aparece em
+    tela); vale 30 dias; um novo revoga o anterior."""
+
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
+                                    related_name="links_fornecedor")
+    token_hash = models.CharField(max_length=64, unique=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    expira_em = models.DateTimeField()
+    revogado_em = models.DateTimeField(null=True, blank=True)
+    enviado_para = models.CharField(max_length=500, blank=True)
+
+    class Meta:
+        app_label = "coffee"
+        ordering = ["-criado_em", "-pk"]
+        verbose_name = "link do fornecedor"
+        verbose_name_plural = "links do fornecedor"
+
+    def __str__(self) -> str:
+        return f"Link do fornecedor — {self.solicitacao}"
+
+
+class EnvioFornecedor(models.Model):
+    """O que o fornecedor mandou pelo link (a nota fiscal ou uma certidão), à espera da
+    conferência da equipe: aceito, entra na OS (nota) ou nas certidões do fornecedor."""
+
+    class Situacao(models.TextChoices):
+        RECEBIDO = "recebido", "Aguardando conferência"
+        ACEITO = "aceito", "Aceito"
+        RECUSADO = "recusado", "Recusado"
+
+    class Tipo(models.TextChoices):
+        NOTA = "nota", "Nota fiscal"
+        CERTIDAO = "certidao", "Certidão"
+
+    link = models.ForeignKey(LinkFornecedor, on_delete=models.PROTECT, related_name="envios")
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
+                                    related_name="envios_fornecedor")
+    tipo = models.CharField(max_length=10, choices=Tipo.choices)
+    tipo_certidao = models.CharField(max_length=12, choices=dominio_certidoes.TIPOS,
+                                     blank=True)
+    arquivo = models.FileField(upload_to="coffee/fornecedor/%Y/")
+    nome_original = models.CharField(max_length=200, blank=True)
+    validade = models.DateField("válida até", null=True, blank=True)
+    lido = models.CharField("o que foi lido", max_length=255, blank=True)
+    avisos = models.TextField(blank=True)
+    origem_hash = models.CharField(max_length=64, blank=True)  # IP em hash, para o limite
+    situacao = models.CharField(max_length=10, choices=Situacao.choices,
+                                default=Situacao.RECEBIDO)
+    motivo = models.CharField("motivo da recusa", max_length=255, blank=True)
+    recebido_em = models.DateTimeField(auto_now_add=True)
+    conferido_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                      null=True, blank=True, related_name="+")
+    conferido_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        app_label = "coffee"
+        ordering = ["-recebido_em", "-pk"]
+        verbose_name = "envio do fornecedor"
+        verbose_name_plural = "envios do fornecedor"
+
+    def __str__(self) -> str:
+        rotulo = (f"Certidão {dominio_certidoes.ROTULOS.get(self.tipo_certidao, '')}"
+                  if self.tipo == self.Tipo.CERTIDAO else "Nota fiscal")
+        return f"{rotulo} — {self.solicitacao}"

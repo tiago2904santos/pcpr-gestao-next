@@ -261,10 +261,11 @@ Alertas: journal (`journalctl -t pcpr-<inst>`), `/srv/pcpr/<inst>/operacoes.log`
 configurado, webhook em `/etc/pcpr/alertas.env` (`PCPR_ALERTA_URL`, `PCPR_ALERTA_FORMATO=
 texto|slack|discord` — ex.: tópico privado do ntfy ou canal institucional).
 
-**Segredos fora dos logs:** o token do feed ICS da agenda (`/agenda/ics/<token>.ics`) é a
-única credencial do feed. A aplicação já o mascara nos próprios logs; o log de acesso do
-Gunicorn (`docker/gunicorn_conf.py`), o do Caddy (`format filter` em `proxy/site.caddy.modelo`)
-e o do Nginx (`log_format pcpr_PORTA`) gravam `/agenda/ics/[token]`. O `error_log` do Nginx
+**Segredos fora dos logs:** o token do feed ICS da agenda (`/agenda/ics/<token>.ics`) e o do
+link do fornecedor do Coffee Break (`/fornecedor/<token>/`) são credenciais. A aplicação já os
+mascara nos próprios logs; o log de acesso do Gunicorn (`docker/gunicorn_conf.py`), o do Caddy
+(`format filter` em `proxy/site.caddy.modelo`) e o do Nginx (`log_format pcpr_PORTA`) gravam
+`/agenda/ics/[token]` e `/fornecedor/[token]/`. O `error_log` do Nginx
 pode citar a linha da requisição: mantenha-o legível só por root/adm.
 
 ## 8. Segurança da VPS

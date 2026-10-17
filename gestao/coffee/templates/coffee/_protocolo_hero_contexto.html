@@ -1,0 +1,7 @@
+{# Metadados do protocolo: o evento, o ofício, o número do protocolo e o que falta. #}
+<p class="registro-hero__metadados">
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ s.descricao|truncatechars:60 }}</span>
+  <span class="registro-hero__metadado">{% icone "file-text" classe="icone--sm" %}{% if s.numero_oficio %}Ofício {{ s.numero_oficio }}{% else %}Sem ofício{% endif %}</span>
+  <span class="registro-hero__metadado">{% icone "stamp" classe="icone--sm" %}{{ s.protocolo_pagamento|default:"Protocolo ainda não registrado" }}</span>
+  {% if faltando %}<span class="registro-hero__metadado">{% icone "alert-triangle" classe="icone--sm" %}{{ faltando|pluralizar:"item falta,itens faltam" }}</span>{% endif %}
+</p>

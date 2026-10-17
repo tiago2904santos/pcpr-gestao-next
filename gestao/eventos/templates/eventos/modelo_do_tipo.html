@@ -8,14 +8,10 @@ Modelo da solicitação do tipo de evento (paridade com a referência): o que a 
 nova desse tipo já traz — solicitante, cargo/unidade e órgão padrão, serviços sugeridos e
 equipes com a quantidade de servidores. Só os ativos aparecem, mais os já escolhidos.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "calendar-days" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Modelo da solicitação — {{ tipo.nome }}</h1>
-    <p class="pagina-cabecalho__descricao">O que uma solicitação nova deste tipo já traz preenchido. Quem preenche pode trocar tudo.</p>
-  </div>
-</header>
+{% with titulo_modelo="Modelo da solicitação — "|add:tipo.nome %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais · Tipo de evento" titulo=titulo_modelo complemento="O que uma solicitação nova deste tipo já traz preenchido. Quem preenche pode trocar tudo." %}
 {% if erros %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
 <form method="post" class="documento documento--cartoes" novalidate>
   {% csrf_token %}
@@ -46,4 +42,5 @@ equipes com a quantidade de servidores. Só os ativos aparecem, mais os já esco
   </section>
   <div class="linha"><a class="botao botao--texto" href="{% url 'eventos:tipos-evento' %}">Voltar</a><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar modelo</button></div>
 </form>
+{% endwith %}
 {% endblock %}

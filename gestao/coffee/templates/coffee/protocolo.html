@@ -10,22 +10,11 @@ Montar o protocolo de pagamento (paridade com a etapa 3 da referência): o proto
 na ordem (pronto ou o que falta, com "Resolver") e 4 os quatro arquivos para baixar — baixar
 registra o atesto e envio ao GAF (uma vez, com o protocolo registrado).
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Protocolo de pagamento</h1>
-    <p class="frase-oficio">
-      <span class="selo selo--{{ s.situacao_tom }}">{{ s.situacao_rotulo }}</span>
-      <span class="frase-oficio__item{% if not s.numero_oficio %} frase-oficio__item--vazio{% endif %}">{% icone "file-text" classe="icone--sm" %}{% if s.numero_oficio %}Ofício {{ s.numero_oficio }}{% else %}sem ofício{% endif %}</span>
-      <span class="frase-oficio__item{% if not s.protocolo_pagamento %} frase-oficio__item--vazio{% endif %}">{% icone "stamp" classe="icone--sm" %}{{ s.protocolo_pagamento|default:"protocolo ainda não registrado" }}</span>
-      {% if faltando %}<span class="frase-oficio__item">{% icone "alert-triangle" classe="icone--sm" %}{{ faltando|pluralizar:"item falta,itens faltam" }}</span>{% endif %}
-    </p>
-  </div>
-  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'coffee:solicitacao' s.pk %}#pagamento">{% icone "arrow-left" %}Voltar à solicitação</a></div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Pagamento" rotulo="OS" numero=s.numero|default:"—" titulo="Protocolo de pagamento" situacao_template="coffee/_protocolo_hero_situacao.html" complemento_template="coffee/_protocolo_hero_contexto.html" acoes_template="coffee/_protocolo_hero_acoes.html" %}
 
-<div class="documento documento--cartoes">
+<div class="documento documento--preparacao">
   <section class="secao" aria-labelledby="t-passos">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-passos"><span class="secao__numero">1</span>Passo a passo</h2></div>
     <ol class="pilha-sm">

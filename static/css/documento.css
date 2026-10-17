@@ -708,6 +708,23 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   overflow-wrap: anywhere;
 }
 
+/* O que mudou em cada campo: "Campo: antes → depois", o antes riscado. */
+.historico__mudanca {
+  display: block;
+  margin-top: var(--esp-05);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+}
+
+.historico__mudanca b {
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto);
+}
+
+.historico__mudanca del {
+  color: var(--cor-texto-terciario);
+}
+
 .historico__quem {
   justify-self: end;
   white-space: nowrap;

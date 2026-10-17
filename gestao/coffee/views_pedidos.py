@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Max
-from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -106,9 +106,10 @@ def _linha(s: Solicitacao, hoje: date) -> dict:
         tempo = ("Previsto", "neutro")
     fatos = [("calendar", "Evento", f"{s.data_evento:%d/%m/%Y}" if s.data_evento
               else "Sem data do evento", s.data_evento is None),
-             ("users", "Quantidade", f"{s.quantidade} pessoas", False),
-             ("layers", "Lote", f"{s.lote} · {s.lote.contrato.fornecedor}", False),
-             ("map-pin", "Município", s.municipio.nome, False)]
+             ("map-pin", "Município", s.municipio.nome, False),
+             ("layers", "Lote", f"{s.lote} · {s.lote.contrato.fornecedor}", False)]
+    if s.local_entrega:
+        fatos.append(("building-2", "Local de entrega", s.local_entrega, False))
     if s.nota_fiscal:
         fatos.append(("receipt", "Nota fiscal", f"NF {s.nota_fiscal}", False))
     fatos.append(("clock", "Solicitada", f"Solicitada em {s.data_solicitacao:%d/%m/%Y}", False))
@@ -136,7 +137,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     _exigir(request)
     hoje = timezone.localdate()
     f = _filtros(request.GET)
-    ativos = sum(bool(f[k]) for k in ("lote", "fornecedor", "de", "ate"))
+    ativos = sum(bool(f[k]) for k in ("lote", "fornecedor", "pendentes"))
+    ativos += bool(f["de"] or f["ate"])
     sem_situacao = queries.filtrar(_base(), **{**f, "situacao": "", "pendentes": False})
     contagens = queries.contagens_por_situacao(sem_situacao)
     qs = (queries.filtrar(_base(), **f).annotate(ultimo=Max("movimentos__em"))
@@ -154,8 +156,40 @@ def lista(request: HttpRequest) -> HttpResponse:
         "lotes": Lote.objects.select_related("contrato").order_by("-exercicio", "numero"),
         "fornecedores": Fornecedor.objects.order_by("razao_social"),
         "url_exportar": reverse("coffee:exportar") + (f"?{base}" if base else ""),
+        "fichas": _fichas(request, f), "url_limpar_tudo": request.path + "?" + _sem(
+            request, "pagina", "de", "ate", "lote", "fornecedor", "pendentes"),
+        "mais": [{"url": reverse("coffee:exportar") + (f"?{base}" if base else ""),
+                  "icone": "download", "titulo": "Exportar CSV",
+                  "descricao": "as solicitações deste recorte, separadas por ponto e vírgula"},
+                 {"url": reverse("coffee:lotes"), "icone": "layers", "titulo": "Lotes e saldo",
+                  "descricao": "o consumo de cada lote contratado"}],
         "migalhas": _migalhas(("Solicitações", "")),
     })
+
+
+def _sem(request: HttpRequest, *campos: str) -> str:
+    return urlencode([(k, v) for k, vs in request.GET.lists() for v in vs
+                      if k not in campos and v])
+
+
+def _fichas(request: HttpRequest, f: dict) -> list[dict]:
+    """Os filtros da gaveta que valem agora, cada um com o link que tira só ele."""
+    def sem(*campos: str) -> str:
+        return request.path + "?" + _sem(request, "pagina", *campos)
+
+    fichas = []
+    if f["de"] or f["ate"]:
+        de, ate = (f"{d:%d/%m/%Y}" if d else "" for d in (f["de"], f["ate"]))
+        rotulo = (f"Eventos de {de} a {ate}" if de and ate
+                  else f"Eventos a partir de {de}" if de else f"Eventos até {ate}")
+        fichas.append({"rotulo": rotulo, "url": sem("de", "ate")})
+    if f["lote"] and (lote := Lote.objects.filter(pk=f["lote"]).first()):
+        fichas.append({"rotulo": str(lote), "url": sem("lote")})
+    if f["fornecedor"] and (fo := Fornecedor.objects.filter(pk=f["fornecedor"]).first()):
+        fichas.append({"rotulo": fo.razao_social, "url": sem("fornecedor")})
+    if f["pendentes"]:
+        fichas.append({"rotulo": "Pendências financeiras", "url": sem("pendentes")})
+    return fichas
 
 
 def _celula(valor):
@@ -189,6 +223,13 @@ def exportar(request: HttpRequest) -> HttpResponse:
             s.nota_fiscal, s.protocolo_pagamento, _d(s.atesto_em), _d(s.ordem_bancaria_em),
             _d(s.envio_empresa_em), s.situacao_rotulo, s.criado_por.nome)])
     return resposta
+
+
+def _link_fornecedor(s: Solicitacao) -> dict:
+    from . import link_fornecedor
+    return {"link_ativo": link_fornecedor.ativo(s),
+            "link_disponivel": link_fornecedor.disponivel(s),
+            "envios_fornecedor": list(s.envios_fornecedor.select_related("conferido_por")[:20])}
 
 
 def _historico(s: Solicitacao) -> list:
@@ -232,6 +273,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                  "assinada": vias.assinada_vigente(s, t) if t in documentos.ASSINAVEIS
                  else None,
                  "assinavel": t in documentos.ASSINAVEIS,
+                 "vias": list(s.vias.filter(tipo=t).select_related("emitida_por")[:10]),
                  "n_vias": s.vias.filter(tipo=t).count()} for t in documentos.TIPOS],
             "avisos_nota": pdfs.avisos_da_nota(s),
             "pdfs": (("nota", "Nota fiscal", s.nota_pdf,
@@ -249,6 +291,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                            and not conjunto.principal_de(s).protocolo_pagamento else []),
             "saldo": sal, "fim_vigencia": s.lote.contrato.fim_efetivo(),
             "historico": _historico(s), "linha": _linha(s, hoje),
+            **_link_fornecedor(s),
             "aviso_antecedencia": regras.aviso_antecedencia(
                 s.data_evento, hoje, s.lote.contrato.antecedencia_minima_dias,
                 s.lote.contrato.numero) if not s.bloqueada else "",
@@ -689,3 +732,133 @@ def baixar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
+
+
+# ---------------------------------------------------------------- e-mail ao fornecedor (CB8)
+@require_http_methods(["GET", "POST"])
+def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
+    """A OS ou a OB por e-mail ao fornecedor: a tela abre preenchida (para, cópia, assunto,
+    texto, anexo) e tudo se edita; enviar registra no histórico."""
+    from django.http import Http404
+
+    from . import envio_email
+
+    _exigir(request)
+    if qual not in envio_email.QUAIS:
+        raise Http404
+    s = get_object_or_404(_base(), pk=pk)
+    r = envio_email.rascunho(s, qual)
+    erro = ""
+    if request.method == "POST":
+        dados = {k: (request.POST.get(k) or "") for k in ("para", "copia", "assunto", "texto")}
+        try:
+            feita = envio_email.enviar(request.user, pk, qual, para=dados["para"],
+                                       copia=dados["copia"], assunto=dados["assunto"],
+                                       texto=dados["texto"])
+        except pedidos.PedidoInvalido as exc:
+            erro = str(exc)
+            r.para, r.copia, r.assunto, r.texto = (dados["para"], dados["copia"],
+                                                   dados["assunto"], dados["texto"])
+        else:
+            if qual == "link":
+                messages.success(request, "Link enviado ao fornecedor por e-mail: vale 30 dias. "
+                                          "O envio ficou no histórico.")
+                return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+            if qual == "os":
+                messages.success(request, f"OS {feita.numero} enviada ao fornecedor por e-mail. "
+                                          "O envio ficou no histórico.")
+            else:
+                messages.success(request, "Ordem bancária enviada ao fornecedor por e-mail."
+                                 + (" O pagamento foi concluído." if feita.concluida else "")
+                                 + " O envio ficou no histórico.")
+            return redirect(reverse("coffee:solicitacao", args=[pk])
+                            + ("#documentos" if qual == "os" else "#pdfs"))
+    return render(request, "coffee/enviar_email.html", {
+        "s": s, "r": r, "erro": erro,
+        "titulo_tela": {"os": "Enviar a ordem de serviço ao fornecedor",
+                        "ob": "Enviar a ordem bancária ao fornecedor",
+                        "link": "Enviar o link ao fornecedor"}[qual],
+        "pode_gerir": policies.pode_gerir_cadastros(request.user),
+        "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                              (str(s), reverse("coffee:solicitacao", args=[pk])),
+                              ("E-mail ao fornecedor", "")),
+    }, status=422 if erro else 200)
+
+
+@require_POST
+def revogar_link(request: HttpRequest, pk: int) -> HttpResponse:
+    from . import link_fornecedor
+
+    _exigir(request)
+    get_object_or_404(Solicitacao, pk=pk)
+    link_fornecedor.revogar(request.user, pk)
+    messages.success(request, "Link do fornecedor revogado: ele deixa de funcionar agora.")
+    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+
+
+@require_POST
+def conferir_envio(request: HttpRequest, pk: int, envio_pk: int) -> HttpResponse:
+    """Aceitar ou recusar o que o fornecedor mandou pelo link."""
+    from . import link_fornecedor
+    from .models import EnvioFornecedor
+
+    _exigir(request)
+    get_object_or_404(EnvioFornecedor, pk=envio_pk, solicitacao_id=pk)
+    try:
+        mensagem = link_fornecedor.conferir(request.user, envio_pk,
+                                            request.POST.get("acao") == "aceitar",
+                                            request.POST.get("motivo") or "")
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, mensagem)
+    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+
+
+@require_GET
+def arquivo_envio(request: HttpRequest, pk: int, envio_pk: int) -> StreamingHttpResponse:
+    from .models import EnvioFornecedor
+
+    _exigir(request)
+    e = get_object_or_404(EnvioFornecedor, pk=envio_pk, solicitacao_id=pk)
+    nome = re.sub(r"[^\w .-]", "-", e.nome_original or f"envio-{e.pk}.pdf")[:120]
+    # Enviado sem login: sai como download, nunca aberto na origem do sistema.
+    resposta = FileResponse(e.arquivo.open("rb"), as_attachment=True, filename=nome,
+                            content_type="application/pdf")
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+@require_GET
+def arquivo_via(request: HttpRequest, pk: int, via_pk: int) -> StreamingHttpResponse:
+    """Uma via guardada (gerada ou assinada) como saiu."""
+    from .models import Via
+
+    _exigir(request)
+    v = get_object_or_404(Via, pk=via_pk, solicitacao_id=pk)
+    resposta = FileResponse(v.arquivo.open("rb"), as_attachment=True,
+                            filename=re.sub(r"[^\w .-]", "-", v.nome)[:120] or "via.pdf",
+                            content_type="application/pdf")
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+@require_GET
+def lote(request: HttpRequest, pk: int) -> HttpResponse:
+    """O lote por inteiro: saldo, vigência e empenho, municípios, orientações e
+    especificações e as OS mais recentes que consumiram dele."""
+    _exigir(request)
+    obj = get_object_or_404(Lote.objects.select_related("contrato__fornecedor")
+                            .prefetch_related("municipios", "contrato__aditivos"), pk=pk)
+    hoje = timezone.localdate()
+    fim = obj.contrato.fim_efetivo()
+    qs = (_base().filter(lote=obj).annotate(ultimo=Max("movimentos__em"))
+          .order_by("-data_solicitacao", "-pk"))
+    return render(request, "coffee/lote.html", {
+        "lote": obj, "saldo": queries.saldos([obj])[obj.pk], "fim": fim,
+        "vencido": bool(fim and fim < hoje), "total_os": qs.count(),
+        "linhas": [_linha(s, hoje) for s in qs[:10]],
+        "migalhas": _migalhas(("Lotes", reverse("coffee:lotes")), (str(obj), "")),
+    })

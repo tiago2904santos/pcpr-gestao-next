@@ -9,15 +9,9 @@ topo; busca e situação (ativos/inativos); em cada linha, editar (nome e, no te
 despacho, o texto), ativar/inativar e excluir — o que está em uso não sai ("use Inativar").
 No tipo de evento, o atalho para o modelo da solicitação.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone cat.icone classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">{{ cat.titulo }}</h1>
-    <p class="pagina-cabecalho__descricao">Informe {% if cat.com_texto %}os dados{% else %}o nome{% endif %} {{ cat.genitivo }} que {% if cat.com_texto %}poderão{% else %}poderá{% endif %} ser utilizado{% if cat.com_texto %}s{% endif %} nas solicitações. O inativo sai dos formulários novos e continua nas solicitações que já o usam.</p>
-  </div>
-  <div class="pagina-cabecalho__acoes"><a class="botao botao--sutil" href="{% url 'eventos:cadastros' %}">{% icone "layers" %}Todos os cadastros</a></div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais · Cadastros" titulo=cat.titulo complemento=descricao_catalogo acoes_template="eventos/_catalogo_acoes.html" %}
 
 {% if erro and not editando %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
 

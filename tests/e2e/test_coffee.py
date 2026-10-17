@@ -252,7 +252,7 @@ def test_preencher_com_um_email(logado, dados_e2e):
         f"Assunto: Seminário de inteligência\nBom dia, coffee dia {data:%d/%m/%Y} às 10h no "
         "Auditório Central, em Curitiba, para 2 turmas de 20.\nRecebe: Agente João")
     pg.get_by_role("button", name="Ler o e-mail").click()
-    expect(pg.get_by_role("heading", name="Lido do e-mail")).to_be_visible()
+    expect(pg.locator("#leitura-email")).to_contain_text("Lido do e-mail")
     expect(pg.locator("#id_municipio")).to_have_value("Curitiba/PR")
     expect(pg.locator("#id_quantidade")).to_have_value("40")
     expect(pg.locator("#id_local_entrega")).to_have_value("Auditório Central")

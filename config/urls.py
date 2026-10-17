@@ -11,6 +11,8 @@ urlpatterns = [
     path("palestras/", include("gestao.palestras.urls")),
     path("eventos/", include("gestao.eventos.urls")),
     path("coffee/", include("gestao.coffee.urls")),
+    # Link do fornecedor (sem login, por token): só a página de envio da nota e certidões.
+    path("fornecedor/", include("gestao.coffee.urls_publicas")),
     path("ui-lab/", include("gestao.ui_lab.urls")),
     path("saude/", plataforma.saude, name="saude"),
     path("", include("gestao.painel.urls")),

@@ -1787,3 +1787,45 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   margin-top: 0;
   border-top: 0;
 }
+
+/* Campos das folhas de preparação (Eventos, Coffee break): grade de 1 coluna no celular e
+   2 (ou 3, 4) a partir de 768px, os campos ocupando a célula inteira. */
+.campos-folha { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4) var(--esp-3); }
+.campos-folha > .campo { width: auto; max-width: none; min-width: 0; margin: 0; }
+.campos-folha--curto { grid-template-columns: minmax(0, 14rem); }
+@media (min-width: 768px) {
+  .campos-folha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .campos-folha--curto { grid-template-columns: minmax(0, 14rem); }
+  .campos-folha--endereco { grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, .8fr); }
+  .campos-folha--tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .campos-folha--quatro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .campos-folha--quatro { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* O que foi lido do e-mail: rótulo e valor em duas colunas, quebrando no celular. */
+.leitura-email {
+  display: grid;
+  gap: var(--esp-1) var(--esp-4);
+  margin: var(--esp-2) 0;
+}
+
+.leitura-email > div {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  gap: var(--esp-3);
+}
+
+.leitura-email dt {
+  color: var(--cor-texto-secundario);
+}
+
+.leitura-email dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Resposta ao vivo sob uma linha de campos (ex.: o lote do município): vazia, não ocupa
+   espaço na pilha. */
+.campos-folha__resultado:empty { display: none; }

@@ -1,34 +1,36 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}{{ t.titulo }} · Cadastros do Coffee Break{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
-{% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break · Cadastros</p>{% endblock %}
-{% block titulo_lista %}{{ t.titulo }}{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">{{ t.descricao }}</p>{% endblock %}
-{% block acoes_lista %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ novo_rotulo|capfirst }}</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ novo_rotulo|capfirst }}</button>{% endif %}{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Cadastros" titulo=t.titulo complemento=t.descricao %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% comment %}
 Cadastros contratuais do Coffee Break (paridade com a tela de cadastros da referência): uma
 aba por tabela com o total, busca, lista paginada e novo/editar numa janela; excluir o que
 está em uso é recusado; a configuração do ofício e do protocolo é um registro único.
 {% endcomment %}
 
-{% block abas_filtro %}
-<nav class="abas" aria-label="Cadastros do Coffee Break">
+{% block abas_filtro %}{% endblock %}
+
+{% block filtros %}
+<div class="filtro-conjunto">
+<nav class="abas abas--conteudo" aria-label="Cadastros do Coffee Break">
   {% for chave, titulo, icone_aba, n in tabelas %}<a class="aba" href="{% url 'coffee:cadastros' chave %}"{% if chave == t.chave %} aria-current="page"{% endif %}>{{ titulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
   <a class="aba" href="{% url 'coffee:configuracao' %}">Ofício e protocolo</a>
 </nav>
-{% endblock %}
-
-{% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'coffee:cadastros' t.chave %}">
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'coffee:cadastros' t.chave %}">
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-cadastro">Buscar</label>
-    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-cadastro" type="search" name="q" value="{{ termo }}" autocomplete="off"></div>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-cadastro" type="search" name="q" value="{{ termo }}" placeholder="Buscar em {{ t.titulo|lower }}…" autocomplete="off"></div>
   </div>
   <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
 </form>
+</div>
 {% if t.chave == "contratos" %}
 <details class="sanfona mt-4">
-  <summary>Anexar contrato ou termo aditivo (PDF)</summary>
+  <summary>{% icone "file-plus-2" classe="icone--sm" %}Anexar contrato ou termo aditivo (PDF)</summary>
   <form method="post" action="{% url 'coffee:anexar_contrato' %}" enctype="multipart/form-data" class="sanfona__corpo pilha" novalidate>
     {% csrf_token %}
     <p class="texto-secundario texto-sm">Basta anexar: o sistema identifica se é o contrato ou um termo aditivo da SESP, lê o CNPJ e a razão social do contratado, o número, o GMS, o lote, a quantidade, os valores e a vigência — cria o fornecedor pelo CNPJ e o lote, se faltarem. Confira depois os dados lidos.</p>
@@ -40,10 +42,7 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
 {% endblock %}
 
 {% block resultados %}
-<div class="lista-cabecalho">
-  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{{ t.titulo }}{% endif %}</h2>
-  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count }} {% if page_obj.paginator.count == 1 %}registro{% else %}registros{% endif %}</span>
-</div>
+<h2 class="sr-only" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{{ t.titulo }}{% endif %}</h2>
 {% if linhas %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for obj, l in linhas %}
@@ -84,7 +83,13 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
 {% endblock %}
 
 {% block depois_lista %}
-{% include "componentes/barra_paginacao.html" %}
+<div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
+  <div class="barra-acoes__conteudo">
+    <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count }} {% if page_obj.paginator.count == 1 %}registro{% else %}registros{% endif %}{% if termo %} na busca{% endif %}</p>
+    {% include "componentes/paginacao.html" with na_barra=True %}
+  </div>
+  {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}<span>{{ novo_rotulo|capfirst }}</span></a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}<span>{{ novo_rotulo|capfirst }}</span></button>{% endif %}
+</div>
 <dialog id="dialogo-cadastro" class="dialogo dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'coffee:salvar' t.chave %}" enctype="multipart/form-data" novalidate>
     {% csrf_token %}

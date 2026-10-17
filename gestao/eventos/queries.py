@@ -6,8 +6,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
+from typing import cast
 
-from django.db.models import Q, QuerySet
+from django.db.models import Field, Model, Q, QuerySet
 
 from gestao.plataforma.auditoria import passos_do_registro
 
@@ -130,9 +131,10 @@ class Linha:
     selo: dominio.Selo | None
     em_cima: str
     fatos: list[tuple[str, str, str, bool]] = field(default_factory=list)
+    coffee: str = ""  # o "Pedir coffee break" da linha (a view preenche)
 
 
-def _periodo(s: Solicitacao) -> str:
+def periodo(s: Solicitacao) -> str:
     if not s.data_inicio_evento:
         return ""
     fim = s.data_fim_evento or s.data_inicio_evento
@@ -141,12 +143,45 @@ def _periodo(s: Solicitacao) -> str:
     return f"{s.data_inicio_evento:%d/%m} a {fim:%d/%m/%Y}"
 
 
+JANELA_VIZINHOS = timedelta(days=30)
+FOLGA_VIZINHOS = timedelta(days=2)  # encostadas: no máximo um dia livre entre uma e outra
+
+
+def vizinhos(usuario, s: Solicitacao) -> list[Solicitacao]:
+    """As outras solicitações da mesma cidade cujas datas encostam nesta (sobrepostas ou
+    com até um dia livre entre elas), em cadeia (06, 07 e 08–09 formam um bloco só), dentro
+    de 30 dias: o que dá para atender numa viagem só. Sem rascunho, recusada ou cancelada."""
+    if not (s.municipio_id and s.data_inicio_evento):
+        return []
+    inicio, fim = s.data_inicio_evento, s.data_fim_evento or s.data_inicio_evento
+    candidatos = list(
+        policies.solicitacoes_visiveis(usuario)
+        .filter(municipio_id=s.municipio_id, data_inicio_evento__isnull=False,
+                data_inicio_evento__lte=fim + JANELA_VIZINHOS,
+                data_inicio_evento__gte=inicio - JANELA_VIZINHOS)
+        .exclude(pk=s.pk).exclude(status__in=(dominio.RASCUNHO, dominio.NAO_ATENDIDA,
+                                              dominio.CANCELADA))
+        .order_by("data_inicio_evento", "pk"))
+    bloco: list[Solicitacao] = []
+    mudou = True
+    while mudou:
+        mudou = False
+        for c in candidatos:
+            c_fim = c.data_fim_evento or c.data_inicio_evento
+            if c not in bloco and c.data_inicio_evento <= fim + FOLGA_VIZINHOS \
+                    and c_fim >= inicio - FOLGA_VIZINHOS:
+                bloco.append(c)
+                inicio, fim = min(inicio, c.data_inicio_evento), max(fim, c_fim)
+                mudou = True
+    return sorted(bloco, key=lambda c: (c.data_inicio_evento, c.pk))
+
+
 def linha(s: Solicitacao, hoje: date) -> Linha:
     local = " — ".join(p for p in (s.local_evento, s.endereco) if p)
     quem = " — ".join(p for p in (s.solicitante_nome, s.solicitante_cargo_unidade) if p)
     um = (s.unidade_movel_designada.nome if s.unidade_movel_designada
           else "Unidade móvel a designar") if s.unidade_movel else ""
-    fatos = [("calendar", "Período", _periodo(s) or "Sem período", not _periodo(s)),
+    fatos = [("calendar", "Período", periodo(s) or "Sem período", not periodo(s)),
              ("map-pin", "Local", local or "Local não informado", not local),
              ("user-round", "Solicitante", quem or "Sem solicitante", not quem)]
     if um:
@@ -181,6 +216,44 @@ class Evento:
     texto: str
     usuario: object | None
     marca: bool = False
+    mudancas: list[tuple[str, str, str]] = field(default_factory=list)  # campo, antes, depois
+
+
+def _campo(coluna: str) -> Field:
+    return cast(Field, Solicitacao._meta.get_field(coluna.removesuffix("_id")))
+
+
+def _legivel(campo: str, valor: object, nomes_fk: dict[tuple[str, object], str]) -> str:
+    """O valor gravado na trilha como a pessoa o lê (datas, Sim/Não, nomes, rótulos)."""
+    if valor in (None, ""):
+        return ""
+    f = _campo(campo)
+    if f.is_relation:
+        return nomes_fk.get((campo, valor), f"#{valor}")
+    if isinstance(valor, bool):
+        return "Sim" if valor else "Não"
+    if f.choices:
+        return str(dict(f.choices).get(valor, valor))
+    texto = str(valor)
+    if f.get_internal_type() == "DateField" and len(texto) == 10:
+        texto = f"{texto[8:10]}/{texto[5:7]}/{texto[:4]}"
+    return texto if len(texto) <= 80 else texto[:79] + "…"
+
+
+def _nomes_fk(passos) -> dict[tuple[str, object], str]:
+    """Os nomes dos cadastros citados nas mudanças, numa consulta por cadastro."""
+    ids: dict[str, set] = {}
+    for p in passos:
+        for c in p.campos:
+            if c.endswith("_id") and c in NOMES:
+                ids.setdefault(c, set()).update(
+                    v for v in (p.antes.get(c), p.depois.get(c)) if v not in (None, ""))
+    nomes = {}
+    for c, pks in ids.items():
+        modelo = cast(type[Model], _campo(c).related_model)
+        for pk, obj in modelo._default_manager.in_bulk(pks).items():
+            nomes[(c, pk)] = str(getattr(obj, "nome", None) or obj)
+    return nomes
 
 
 def historico(s: Solicitacao) -> list[Evento]:
@@ -188,6 +261,7 @@ def historico(s: Solicitacao) -> list[Evento]:
     ordem = list(dict.fromkeys([*NOMES.values(), *FILHAS.values()]))
     passos = passos_do_registro(Solicitacao._meta.db_table, s.pk,
                                 dict.fromkeys(FILHAS, "solicitacao_id"))
+    nomes_fk = _nomes_fk(passos)
     for p in passos:
         if p.operacao != "UPDATE" or "status" in p.campos:
             continue
@@ -195,7 +269,15 @@ def historico(s: Solicitacao) -> list[Evento]:
                   | {FILHAS[t] for t in p.filhas if t in FILHAS}]
         if partes:
             texto = partes[0] if len(partes) == 1 else ", ".join(partes[:-1]) + " e " + partes[-1]
-            eventos.append(Evento(p.em, f"Alterou {texto}", p.usuario))
+            mudancas = []
+            for c in NOMES:  # na ordem do formulário
+                if c not in p.campos:
+                    continue
+                antes, depois = (_legivel(c, v.get(c), nomes_fk) for v in (p.antes, p.depois))
+                if antes != depois:
+                    rotulo = str(_campo(c).verbose_name)
+                    mudancas.append((rotulo[:1].upper() + rotulo[1:], antes, depois))
+            eventos.append(Evento(p.em, f"Alterou {texto}", p.usuario, mudancas=mudancas))
     for m in s.movimentos.select_related("usuario"):
         texto = m.get_acao_display()
         if m.observacao:

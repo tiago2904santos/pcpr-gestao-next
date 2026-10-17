@@ -1,0 +1,48 @@
+{% extends "base_publica.html" %}
+{% load static %}
+{% block titulo %}Envio da nota fiscal e certidões · OS {{ s.numero|default:"—" }}{% endblock %}
+{% block estilos %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% comment %}
+Página do link do fornecedor (sem login): a OS em poucas linhas (nº, evento, data, valor,
+empresa e até quando o link vale), a situação da nota e de cada certidão e os dois envios
+(a nota fiscal; a certidão, com o tipo e a validade só para PDF de imagem). Depois de enviar,
+volta com "recebida, a ASCOM vai conferir" e os avisos da leitura.
+{% endcomment %}
+{% block conteudo %}
+<div class="fornecedor-envio pilha-lg">
+  {% include "componentes/registro_hero.html" with pagina=True contexto="Polícia Civil do Paraná · Coffee break" rotulo="OS" numero=s.numero|default:"—" titulo="Envio da nota fiscal e das certidões" complemento_template="coffee/publico/_resumo.html" %}
+
+  {% if recebido %}<div class="alerta alerta--sucesso" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p class="alerta__titulo">{{ recebido.rotulo }} recebida. A ASCOM vai conferir.</p>{% for a in recebido.avisos %}<p>{{ a }}</p>{% endfor %}</div></div>{% endif %}
+  {% if erro %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+
+  <div class="documento documento--preparacao">
+    <section class="secao" aria-labelledby="t-situacao">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">1</span>O que já temos</h2><p class="secao__nota">A nota fiscal desta OS e as certidões da empresa.</p></div>
+      <ul class="registros">
+        <li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "receipt" %}</span><div class="registro__corpo"><div class="registro__titulo"><span class="registro__texto">Nota fiscal</span><span class="selo selo--{% if situacao.nota == 'Aguardando envio' %}aviso{% else %}sucesso{% endif %} selo--sem-ponto">{{ situacao.nota }}</span></div></div></li>
+        {% for rotulo, texto in situacao.certidoes %}<li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "shield-check" %}</span><div class="registro__corpo"><div class="registro__titulo"><span class="registro__texto">Certidão {{ rotulo }}</span><span class="selo selo--{% if 'Válida' in texto or 'Recebida' in texto %}sucesso{% else %}aviso{% endif %} selo--sem-ponto">{{ texto }}</span></div></div></li>{% endfor %}
+      </ul>
+    </section>
+    <section class="secao" aria-labelledby="t-nota">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-nota"><span class="secao__numero">2</span>Enviar a nota fiscal</h2><p class="secao__nota">O PDF da nota desta OS. O sistema lê o número, o valor e a emissão.</p></div>
+      <form method="post" enctype="multipart/form-data" class="pilha" novalidate>
+        {% csrf_token %}<input type="hidden" name="tipo" value="{{ tipos.NOTA }}">
+        <div class="campo"><label class="campo__rotulo" for="nota-arquivo">PDF da nota fiscal<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" type="file" id="nota-arquivo" name="arquivo" accept="application/pdf" required></div>
+        <div class="linha"><button type="submit" class="botao botao--primario">{% icone "upload" %}Enviar a nota fiscal</button></div>
+      </form>
+    </section>
+    <section class="secao" aria-labelledby="t-certidao">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-certidao"><span class="secao__numero">3</span>Enviar uma certidão</h2><p class="secao__nota">Uma por vez. O sistema confere o tipo e o CNPJ e lê a validade; certidão vencida não é aceita.</p></div>
+      <form method="post" enctype="multipart/form-data" class="pilha" novalidate>
+        {% csrf_token %}<input type="hidden" name="tipo" value="{{ tipos.CERTIDAO }}">
+        <div class="campos-folha">
+          <div class="campo"><label class="campo__rotulo" for="certidao-tipo">Certidão<span class="campo__obrigatorio" aria-hidden="true">*</span></label><pc-select class="seletor"><select class="selecao" id="certidao-tipo" name="tipo_certidao" required>{% for chave, rotulo in tipos_certidao %}<option value="{{ chave }}">{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
+          <div class="campo"><label class="campo__rotulo" for="certidao-validade">Válida até</label><pc-data class="seletor"><input class="entrada" type="text" id="certidao-validade" name="validade" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" aria-describedby="certidao-validade-ajuda"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data><p class="campo__ajuda" id="certidao-validade-ajuda">Só quando o PDF é uma imagem (sem texto para ler).</p></div>
+        </div>
+        <div class="campo"><label class="campo__rotulo" for="certidao-arquivo">PDF da certidão<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" type="file" id="certidao-arquivo" name="arquivo" accept="application/pdf" required></div>
+        <div class="linha"><button type="submit" class="botao botao--primario">{% icone "upload" %}Enviar a certidão</button></div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
