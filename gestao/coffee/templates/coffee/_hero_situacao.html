@@ -1,0 +1,5 @@
+{# Selos ao lado do título da folha: a situação financeira e o tempo do evento. #}
+{% if s %}<span class="registro-hero__selos" id="selos-coffee">
+  <span class="selo selo--{{ s.situacao_tom }} selo--sem-ponto">{{ s.situacao_rotulo }}</span>
+  {% if linha.tempo %}<span class="selo selo--{{ linha.tempo.1 }} selo--sem-ponto">{{ linha.tempo.0 }}</span>{% endif %}
+</span>{% endif %}

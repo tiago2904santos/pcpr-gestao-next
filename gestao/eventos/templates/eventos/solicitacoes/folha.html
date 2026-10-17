@@ -49,7 +49,7 @@ histórico.
     {% csrf_token %}
     <div class="campo"><label class="campo__rotulo" for="preencher-email">Texto do e-mail do pedido</label><textarea class="entrada" id="preencher-email" name="email" rows="6" maxlength="20000" aria-describedby="ajuda-preencher"></textarea>
       <p class="campo__ajuda" id="ajuda-preencher">Cole o e-mail inteiro (De, Enviado em, Assunto e o texto) ou envie o arquivo .eml. O sistema sugere a data, o período, o tipo, o município, o local, quem pede e os serviços; nada é gravado até você salvar.</p></div>
-    <div class="evento-campos">
+    <div class="campos-folha">
       <div class="campo"><label class="campo__rotulo" for="preencher-arquivo">Ou o arquivo do e-mail (.eml)</label><input class="entrada" id="preencher-arquivo" type="file" name="arquivo" accept=".eml,message/rfc822"></div>
     </div>
     <div class="linha"><button type="submit" class="botao">{% icone "file-search" %}Ler o e-mail</button></div>
@@ -71,11 +71,11 @@ histórico.
       <div class="secao__bloco" aria-labelledby="t-quando">
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-quando">{% icone "calendar-days" classe="icone--sm" %}Quando e onde</h3></div>
         <div class="pilha">
-          <div class="evento-campos evento-campos--curto">
+          <div class="campos-folha campos-folha--curto">
             {% include "componentes/campo.html" with campo=form.data_solicitacao classe="campo--md" %}
           </div>
           {% periodo_calendario form.data_inicio_evento form.data_fim_evento prefixo="solicitacao-evento" rotulo="Período do evento" natureza="evento" editavel=editavel %}
-          <div class="evento-campos">
+          <div class="campos-folha">
             <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
               <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">Município</label>
               <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto><div class="entrada-composta">{{ form.municipio|campo_acessivel:"" }}</div></pc-combobox>
@@ -83,7 +83,7 @@ histórico.
             </div>
             {% include "componentes/campo.html" with campo=form.local_evento classe="campo--lg" %}
           </div>
-          <div class="evento-campos evento-campos--endereco">
+          <div class="campos-folha campos-folha--endereco">
             {% include "componentes/campo.html" with campo=form.endereco classe="campo--lg" %}
             {% include "componentes/campo.html" with campo=form.bairro classe="campo--md" %}
             {% include "componentes/campo.html" with campo=form.cep classe="campo--sm" %}
@@ -93,12 +93,12 @@ histórico.
       <div class="secao__bloco" aria-labelledby="t-quem">
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-quem">{% icone "user-round" classe="icone--sm" %}Quem pede</h3></div>
         <div class="pilha">
-          <div class="evento-campos">
+          <div class="campos-folha">
             {% include "componentes/campo.html" with campo=form.tipo_evento classe="campo--lg" %}
             {% include "componentes/campo.html" with campo=form.orgao_responsavel classe="campo--lg" %}
           </div>
           {% if editavel %}<div class="alerta alerta--info" data-sugestao-tipo="{% url 'eventos:sugestao_do_tipo' %}" data-alvo-tipo="{{ form.tipo_evento.auto_id }}" role="status" hidden>{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo" data-sugestao-titulo></p><p data-sugestao-texto></p><div class="linha mt-2"><button type="button" class="botao botao--sm" data-sugestao-aplicar>{% icone "check" %}Aplicar a sugestão</button><button type="button" class="botao botao--sm botao--texto" data-sugestao-dispensar>Agora não</button></div></div></div>{% endif %}
-          <div class="evento-campos">
+          <div class="campos-folha">
             <div class="campo campo--lg{% if form.solicitante_nome.errors %} campo--erro{% endif %}">
               <label class="campo__rotulo" for="{{ form.solicitante_nome.id_for_label }}">{{ form.solicitante_nome.label }}</label>
               <pc-combobox class="combobox" data-fonte="{% url 'eventos:solicitantes' %}?q=" data-minimo="2" data-valor-texto data-solicitante-anterior><div class="entrada-composta">{{ form.solicitante_nome|campo_acessivel:"" }}</div></pc-combobox>
@@ -106,7 +106,7 @@ histórico.
             </div>
             {% include "componentes/campo.html" with campo=form.solicitante_cargo_unidade classe="campo--lg" %}
           </div>
-          <div class="evento-campos">
+          <div class="campos-folha">
             {% include "componentes/campo.html" with campo=form.contato classe="campo--md" %}
             {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" %}
           </div>
@@ -115,7 +115,7 @@ histórico.
       <div class="secao__bloco" aria-labelledby="t-operacao">
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-operacao">{% icone "clipboard-list" classe="icone--sm" %}Operação</h3></div>
         <div class="pilha">
-          <div class="evento-campos">
+          <div class="campos-folha">
             {% include "componentes/campo.html" with campo=form.tipo_operacao classe="campo--md" %}
             {% include "componentes/campo.html" with campo=form.quantidade_cin classe="campo--md" %}
           </div>
@@ -163,7 +163,7 @@ histórico.
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-unidade-movel">{% icone "bus" classe="icone--sm" %}Unidade móvel</h3></div>
         <div class="pilha">
           {% include "componentes/campo.html" with campo=form.unidade_movel %}
-          <div class="evento-campos">
+          <div class="campos-folha">
             {% include "componentes/campo.html" with campo=form.unidade_movel_designada classe="campo--lg" %}
             {% include "componentes/campo.html" with campo=form.motorista classe="campo--lg" %}
           </div>
