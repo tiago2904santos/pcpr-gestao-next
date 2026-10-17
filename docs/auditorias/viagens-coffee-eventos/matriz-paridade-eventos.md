@@ -94,11 +94,11 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F79 | Filas escondidas (próximos, deferidas no ano) e `?status=` como fichas | L views.py:616-630 | vs `_fichas` | Parcial | recorte invisível na tela | |
 | EV-F80 | Busca | L views.py:751-771 | queries.py:102-114 | Equivalente | — | Equivalente |
 | EV-F81 | Filtros | L forms.py:558-583 | queries.py:88-125 | Equivalente | — | Equivalente |
-| EV-F82 | Ordenação (`?ordem=`) | L views.py:685-697 | — | Parcial | ignorada | |
+| EV-F82 | Ordenação (`?ordem=`) | L views.py:685-697 | — | Parcial | ignorada || **Corrigida** — "Ordenar por" na gaveta; `?ordem=` com as chaves da referência (`test_lista_e_exportacao_na_ordem_escolhida`) |
 | EV-F83 | Paginação | L views.py:886-891 | vs `lista` | Equivalente | — | Equivalente |
 | EV-F84 | Fatos e selo de tempo na linha | L presenters.py:20-160 | queries.py `linha` | Equivalente | — | Equivalente |
 | EV-F85 | Ação da linha "Marcar como atendida" | L presenters.py:162-191 | _registro.html | Parcial | não aparece | |
-| EV-F86 | Exportação (XLSX padrão, datas reais, ordem da fila) | L views.py:939-1075 | vs `exportar` | Parcial | CSV padrão; datas como texto; ordem fixa | |
+| EV-F86 | Exportação (XLSX padrão, datas reais, ordem da fila) | L views.py:939-1075 | vs `exportar` | Parcial | CSV padrão; datas como texto; ordem fixa | Parcial — a ordem segue a da tela (corrigido); CSV continua o padrão do menu e as datas saem como texto |
 | EV-F87 | Lembretes | L lembretes.py | lembretes.py | Equivalente | sino; e-mail desligado (decisão) | Equivalente |
 | EV-F88 | Notificação por e-mail | L core/notificacoes.py | plataforma/notificacoes.py | Substituída | decisões.md | Substituída |
 | EV-F89 | Agenda (inclui rascunhos e o motorista) | L agenda/fontes.py:282-320 | agenda.py | Parcial | sem rascunhos; "meu" só para o autor | |

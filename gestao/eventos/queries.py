@@ -8,7 +8,8 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import cast
 
-from django.db.models import Field, Model, Q, QuerySet
+from django.db.models import F, Field, Model, Q, QuerySet
+from django.db.models.expressions import OrderBy
 
 from gestao.plataforma.auditoria import passos_do_registro
 
@@ -93,6 +94,29 @@ def ler_filtros(get) -> Filtros:
                    else "", status=status if status in dominio.ROTULOS else "",
                    inicio=_data(get.get("inicio")), fim=_data(get.get("fim")),
                    municipio=_inteiro(get.get("municipio")), tipo=_inteiro(get.get("tipo")))
+
+
+# "Ordenar por" (referência: `?ordem=`): chave → (rótulo, campos). A fila do despacho vem,
+# por padrão, pelo evento mais próximo (a ordem do "Registrar e abrir a próxima").
+ORDENS: dict[str, tuple[str, tuple[str | OrderBy, ...]]] = {
+    "-data": ("Solicitação mais recente", ("-data_solicitacao", "-criado_em")),
+    "data": ("Solicitação mais antiga", ("data_solicitacao", "criado_em")),
+    "periodo": ("Evento mais próximo", (F("data_inicio_evento").asc(nulls_last=True), "pk")),
+    "-periodo": ("Evento mais distante", (F("data_inicio_evento").desc(nulls_last=True), "-pk")),
+    "municipio": ("Município (A–Z)", ("municipio__nome", "-data_solicitacao")),
+    "tipo": ("Tipo de evento (A–Z)", ("tipo_evento__nome", "-data_solicitacao")),
+    "solicitante": ("Solicitante (A–Z)", ("solicitante_nome", "-data_solicitacao")),
+    "numero": ("Número", ("-pk",)),
+}
+
+
+def ordem_de(texto: str | None, fila: str = "") -> str:
+    padrao = "periodo" if fila == "despacho" else "-data"
+    return texto if texto in ORDENS else padrao
+
+
+def ordenar(qs: QuerySet, ordem: str) -> QuerySet:
+    return qs.order_by(*ORDENS[ordem][1])
 
 
 def filtrar(usuario, f: Filtros, hoje: date, *, com_fila: bool = True) -> QuerySet:

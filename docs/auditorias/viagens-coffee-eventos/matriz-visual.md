@@ -30,13 +30,13 @@ Situação final: **Alinhada** (segue a referência), **Alinhada com diferença 
 | ID | Página / rota | Ref. | Inconsistências encontradas (antes) | Correção | Situação final |
 |---|---|---|---|---|---|
 | CB-P01 | Painel `/coffee/painel/` | VR-01 | lateral em grade de 3 colunas (referência: pilha); listas de lotes e certidões em `lista-simples` | | |
-| CB-P02 | Lista `/coffee/` | VR-02 | sem "Ordenar por"; `filtros__acoes` fora de `filtros__lado`; linha não abre resumo em janela | | |
+| CB-P02 | Lista `/coffee/` | VR-02 | sem "Ordenar por"; `filtros__acoes` fora de `filtros__lado`; linha não abre resumo em janela || "Ordenar por" na gaveta "Filtros e ordem"; `filtros__acoes` dentro de `filtros__lado` | Corrigida (a linha abrir o resumo numa janela fica pendente) |
 | CB-P03/04 | Nova OS `/coffee/nova/` (+ preencher com e-mail) | VR-04 | barra com status escrito à mão, sem `barra-acoes__acoes` || barra no padrão: status com ícone + `barra-acoes__acoes` (Voltar à esquerda) | Corrigida |
 | CB-P05 | Folha da OS `/coffee/solicitacoes/<pk>/` | VR-04 + VR-09 | numeração das seções quebrada (seções com ícone no lugar do número; "3" depois de seção sem número); histórico feito à mão (não `historico_folha`); status da barra à mão; sem autosave; dois formulários com botão de salvar no meio; anexos em `<details>` | | |
 | CB-P06 | Protocolo `/coffee/solicitacoes/<pk>/protocolo/` | VR-04 | sem barra de rodapé ("Baixar" no meio da página, "Voltar" no hero) || barra de rodapé com status, Voltar e Baixar (`form=`); Baixar saiu do meio da página | Corrigida |
 | CB-P07 | E-mail ao fornecedor | VR-04 | status da barra à mão, sem `barra-acoes__acoes` || barra no padrão (status com ícone + `barra-acoes__acoes`) | Corrigida |
 | CB-P08 | Documentos (PDF/prévia) | VR-18 | — | — | Alinhada |
-| CB-P09 | Lotes `/coffee/lotes/` | VR-02 | abas sem contagem; status da barra some para quem não administra | | |
+| CB-P09 | Lotes `/coffee/lotes/` | VR-02 | abas sem contagem; status da barra some para quem não administra || abas com contagem do recorte; busca + gaveta (ordem, exercício); paginação na barra (status aparece para todos) | Corrigida |
 | CB-P10 | Lote `/coffee/lotes/<pk>/` | VR-10 | sem barra de rodapé/Voltar | | |
 | CB-P11 | Relatório do contrato | VR-01/VR-10 | painel com cartões e tabelas (sem equivalente direto em Viagens) | — | Alinhada com diferença de domínio (relatório tabular) |
 | CB-P12 | Abrir exercício | VR-07 | `campos` + `campo--md`; enviar em `linha` (sem barra) || barra `--preparacao` com status, Voltar e Abrir | Corrigida |
@@ -51,7 +51,7 @@ Situação final: **Alinhada** (segue a referência), **Alinhada com diferença 
 | ID | Página / rota | Ref. | Inconsistências encontradas (antes) | Correção | Situação final |
 |---|---|---|---|---|---|
 | EV-P01 | Painel `/eventos/` | VR-01 | — | — | Alinhada |
-| EV-P02 | Lista `/eventos/solicitacoes/` | VR-02 | sem "Ordenar por"; `filtros__acoes` fora de `filtros__lado`; linha não abre resumo em janela | | |
+| EV-P02 | Lista `/eventos/solicitacoes/` | VR-02 | sem "Ordenar por"; `filtros__acoes` fora de `filtros__lado`; linha não abre resumo em janela || "Ordenar por" na gaveta "Filtros e ordem"; `filtros__acoes` dentro de `filtros__lado` | Corrigida (a linha abrir o resumo numa janela fica pendente) |
 | EV-P03/04 | Nova solicitação (+ preencher com e-mail) | VR-04 | status da barra à mão, sem `barra-acoes__acoes`; classes `campo--md/lg` sem efeito dentro de `campos-folha` | | |
 | EV-P05/06 | Folha da solicitação (+ alterar após envio) | VR-04 + VR-09 | despacho e transferência na grade antiga `campos`; histórico à mão; placa da viagem à mão; numeração das seções muda conforme a viagem aparece | | |
 | EV-P07 | Cadastros — índice | VR-14 | — | — | Alinhada |

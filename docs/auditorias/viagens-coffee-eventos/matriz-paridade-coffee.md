@@ -87,13 +87,13 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F76 | Anexar certidão com conferência | L/views.py:2748-2787 | N/certidoes.py:77-108 | Equivalente | — | Equivalente |
 | CB-F77 | Entrega/ocorrência | L/services.py:1155-1221 | N/entregas.py | Equivalente | — | Equivalente |
 | CB-F78 | Entrega pela janela da lista | LT/_acoes_linha.html:14 | seção da folha | Substituída | D/decisoes.md:292 | Substituída |
-| CB-F79 | Lista de lotes (busca, exercício, ordenação, paginação) | L/views.py:369-443 | N/views_pedidos.py:598-627 | Parcial | só a situação | |
+| CB-F79 | Lista de lotes (busca, exercício, ordenação, paginação) | L/views.py:369-443 | N/views_pedidos.py:598-627 | Parcial | só a situação || **Corrigida** — busca (lote, contrato, fornecedor, empenho, município), exercício, ordem e paginação; contagem nas abas (`test_lotes_com_busca_exercicio_ordem_e_contagem`) |
 | CB-F80 | "Abrir exercício N+1" | L/views.py:446-451 | NT/lotes.html | Equivalente | — | Equivalente |
 | CB-F81 | Detalhe do lote (comprometido, pago, saldo do empenho, contato do fornecedor, fiscal, todas as OS) | L/views.py:453-493 | NT/lote.html | Parcial | faltam valores e contatos | |
 | CB-F82 | Virada de exercício | L/virada.py | N/virada.py | Equivalente | — | Equivalente |
 | CB-F83 | Relatório do contrato | L/relatorio_contrato.py | N/relatorio.py | Equivalente | — | Equivalente |
 | CB-F84 | Lista: filtros, trilha, pendentes | L/views.py:610-725 | N/views_pedidos.py:135-167 | Equivalente | — | Equivalente |
-| CB-F85 | Ordenação da lista | L/views.py:610-617 | — | Ausente | — | |
+| CB-F85 | Ordenação da lista | L/views.py:610-617 | — | Ausente | — || **Corrigida** — "Ordenar por" na gaveta e `?ordem=` no CSV (`test_lista_e_csv_na_ordem_escolhida`); sem ordem por número (texto "5/2026"): a data da solicitação acompanha a sequência |
 | CB-F86 | Linha: selos, parada, fatos | L/presenters.py | NT/_registro.html | Equivalente | — | Equivalente |
 | CB-F87 | ⋮ da linha (entrega, andamento, baixar arquivos, certificado, cancelar, excluir) | LT/_acoes_linha.html:11-23 | NT/_registro.html | Parcial | — | |
 | CB-F88 | CSV da lista | L/views.py:731-781 | N/views_pedidos.py:205-225 | Equivalente | — | Equivalente |

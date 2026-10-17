@@ -14,7 +14,6 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import F
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -67,10 +66,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     sem_fila = queries.filtrar(request.user, f, hoje, com_fila=False)
     filas = [(c, r, queries.aplicar_fila(sem_fila, c, request.user, hoje).count())
              for c, r in queries.filas_visiveis(request.user)]
-    qs = queries.filtrar(request.user, f, hoje)
-    # A fila do despacho na ordem do "Registrar e abrir a próxima": o evento mais próximo.
-    qs = (qs.order_by(F("data_inicio_evento").asc(nulls_last=True), "pk") if f.fila == "despacho"
-          else qs.order_by("-data_solicitacao", "-criado_em"))
+    ordem = queries.ordem_de(request.GET.get("ordem"), f.fila)
+    qs = queries.ordenar(queries.filtrar(request.user, f, hoje), ordem)
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = _querystring(request, "pagina")
     linhas = [queries.linha(s, hoje) for s in pagina.object_list]
@@ -85,7 +82,8 @@ def lista(request: HttpRequest) -> HttpResponse:
         "page_obj": pagina, "linhas": linhas,
         "filtros": f, "filas": filas, "qs_sem_fila": _querystring(request, "fila", "pagina"),
         "querystring_base": f"{base}&" if base else "",
-        "municipios": municipios, "tipos": tipos,
+        "municipios": municipios, "tipos": tipos, "ordem": ordem,
+        "ordens": [(c, r) for c, (r, _campos) in queries.ORDENS.items()],
         "fichas": _fichas(request, f, municipios, tipos),
         "url_limpar_tudo": request.path + "?" + _querystring(
             request, "pagina", "inicio", "fim", "municipio", "tipo"),
@@ -185,10 +183,11 @@ def exportar(request: HttpRequest) -> HttpResponse:
     if not policies.pode_criar(request.user):
         raise PermissionDenied
     hoje = timezone.localdate()
-    qs = (queries.filtrar(request.user, queries.ler_filtros(request.GET), hoje)
-          .select_related("motorista", "decidido_por")
-          .prefetch_related("servicos__servico", "equipes__equipe")
-          .order_by("-data_solicitacao", "-criado_em"))
+    f = queries.ler_filtros(request.GET)
+    # A planilha sai na ordem que a tela mostra (referência: a ordem da fila).
+    qs = queries.ordenar(queries.filtrar(request.user, f, hoje),
+                         queries.ordem_de(request.GET.get("ordem"), f.fila)).select_related(
+        "motorista", "decidido_por").prefetch_related("servicos__servico", "equipes__equipe")
     linhas = (_linha_exportada(s) for s in qs)
     if request.GET.get("formato") == "xlsx":
         resposta = HttpResponse(_planilha(linhas), content_type=(

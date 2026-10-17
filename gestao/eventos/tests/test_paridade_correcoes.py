@@ -140,3 +140,16 @@ def test_historico_do_reenvio_mostra_o_que_mudou(ana, dg):  # noqa: F811
     eventos = queries.historico(s)
     mudancas = [m for e in eventos for m in e.mudancas]
     assert ("Local do evento", "Ginásio", "Praça Central") in mudancas
+
+
+def test_lista_e_exportacao_na_ordem_escolhida(ana):  # noqa: F811
+    """EV-F82/EV-F86: `?ordem=` vale na tela (gaveta "Ordenar por") e na exportação."""
+    s1 = solicitacoes.criar(ana, _completa(solicitante_nome="Zeta"), _estrutura())
+    s2 = solicitacoes.criar(ana, _completa(solicitante_nome="Alfa"), _estrutura())
+    c = Client()
+    c.force_login(ana)
+    html = c.get(reverse("eventos:solicitacoes"), {"ordem": "solicitante"}).content.decode()
+    assert '<option value="solicitante" selected>' in html
+    assert html.index(f"#{s2.pk}") < html.index(f"#{s1.pk}")
+    csv = c.get(reverse("eventos:exportar"), {"ordem": "solicitante"}).content.decode("utf-8-sig")
+    assert csv.index("Alfa") < csv.index("Zeta")

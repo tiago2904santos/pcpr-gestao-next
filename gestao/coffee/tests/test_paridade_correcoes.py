@@ -130,3 +130,39 @@ def test_protocolo_do_oficio_vira_o_de_pagamento(os_):  # noqa: F811
     financeiro.salvar_financeiro(u, s.pk, _fin(s, protocolo_pagamento="98.765.432-1"))
     s.refresh_from_db()
     assert s.protocolo_pagamento == "98.765.432-1"
+
+
+def test_lista_e_csv_na_ordem_escolhida(os_):  # noqa: F811
+    """CB-F85: "Ordenar por" na gaveta; a planilha sai na mesma ordem da tela."""
+    u, a = os_
+    b = pedidos.salvar(u, {"municipio": a.municipio, "data_solicitacao": a.data_solicitacao,
+                           "numero": "", "descricao": "Abertura", "quantidade": 90}).solicitacao
+    c = Client()
+    c.force_login(u)
+    html = c.get(reverse("coffee:solicitacoes"), {"ordem": "-quantidade"}).content.decode()
+    assert 'name="ordem"' in html and '<option value="-quantidade" selected>' in html
+    assert html.index(b.descricao) < html.index(a.descricao)
+    csv = c.get(reverse("coffee:exportar"), {"ordem": "descricao"}).content.decode("utf-8-sig")
+    assert csv.index("Abertura") < csv.index("Posse da diretoria")
+    assert c.get(reverse("coffee:solicitacoes"), {"ordem": "x"}).status_code == 200
+
+
+def test_lotes_com_busca_exercicio_ordem_e_contagem(os_):  # noqa: F811
+    """CB-F79/CB-P09: busca, exercício, ordem e paginação; as abas trazem a contagem."""
+    u, s = os_
+    lote = s.lote
+    from gestao.coffee.models import Lote
+    outro = Lote.objects.create(contrato=lote.contrato, numero=7, exercicio="2020",
+                                quantidade_total=10, ativo=False)
+    c = Client()
+    c.force_login(u)
+    url = reverse("coffee:lotes")
+    html = c.get(url).content.decode()
+    assert "Vigentes <span class=\"aba__contagem\">1</span>" in html
+    assert "Encerrados <span class=\"aba__contagem\">1</span>" in html
+    todos = c.get(url, {"situacao": "todos", "exercicio": "2020"}).content.decode()
+    assert reverse("coffee:lote", args=[outro.pk]) in todos
+    assert reverse("coffee:lote", args=[lote.pk]) not in todos
+    busca = c.get(url, {"situacao": "todos", "q": "Buffet", "ordem": "consumo"}).content.decode()
+    assert busca.count('class="registro registro-operacional') == 2
+    assert c.get(url, {"q": "nada-disso"}).content.decode().count("Nenhum lote neste recorte")

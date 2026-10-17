@@ -141,8 +141,9 @@ def lista(request: HttpRequest) -> HttpResponse:
     ativos += bool(f["de"] or f["ate"])
     sem_situacao = queries.filtrar(_base(), **{**f, "situacao": "", "pendentes": False})
     contagens = queries.contagens_por_situacao(sem_situacao)
+    ordem = queries.ordem_de(request.GET.get("ordem"))
     qs = (queries.filtrar(_base(), **f).annotate(ultimo=Max("movimentos__em"))
-          .order_by("-data_solicitacao", "-pk"))
+          .order_by(*queries.ORDENS[ordem][1]))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs if k != "pagina" and v])
     sem_sit = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs
@@ -150,6 +151,7 @@ def lista(request: HttpRequest) -> HttpResponse:
     return render(request, "coffee/lista.html", {
         "page_obj": pagina, "linhas": [_linha(s, hoje) for s in pagina.object_list],
         "f": f, "ativos": ativos, "querystring_base": f"{base}&" if base else "",
+        "ordem": ordem, "ordens": [(c, r) for c, (r, _campos) in queries.ORDENS.items()],
         "qs_sem_situacao": sem_sit,
         "situacoes": [(c, r, contagens[c]) for c, r in ABAS],
         "total": contagens["total"],
@@ -207,7 +209,8 @@ def exportar(request: HttpRequest) -> HttpResponse:
     """O recorte atual em CSV (";", BOM, decimais com vírgula), 21 colunas da referência."""
     _exigir(request)
     hoje = timezone.localdate()
-    qs = queries.filtrar(_base(), **_filtros(request.GET)).order_by("-data_solicitacao", "-pk")
+    qs = queries.filtrar(_base(), **_filtros(request.GET)).order_by(
+        *queries.ORDENS[queries.ordem_de(request.GET.get("ordem"))][1])
     resposta = HttpResponse(content_type="text/csv; charset=utf-8")
     resposta["Content-Disposition"] = f'attachment; filename="coffee-break-{hoje:%Y-%m-%d}.csv"'
     resposta.write("﻿")
@@ -612,16 +615,34 @@ def excluir(request: HttpRequest, pk: int) -> HttpResponse:
 @require_GET
 def lotes(request: HttpRequest) -> HttpResponse:
     """Lotes com o saldo: "R de T unidades" e o selo de consumo (verde < 70%, âmbar ≥ 70%,
-    vermelho ≥ 90%)."""
+    vermelho ≥ 90%). Como na referência: busca (lote, contrato, fornecedor, empenho,
+    município), exercício, ordem e paginação; as abas trazem a contagem do recorte."""
     _exigir(request)
     situacao = request.GET.get("situacao") or "ativos"
-    qs = (Lote.objects.select_related("contrato__fornecedor").prefetch_related(
+    if situacao not in ("ativos", "inativos", "todos"):
+        situacao = "ativos"
+    q = " ".join((request.GET.get("q") or "").split())[:100]
+    exercicio = (request.GET.get("exercicio") or "").strip()[:9]
+    ordem = request.GET.get("ordem") or ""
+    if ordem not in ORDENS_LOTES:
+        ordem = "exercicio"
+    base_qs = Lote.objects.all()
+    if q:
+        filtro = (Q(contrato__numero__icontains=q)
+                  | Q(contrato__fornecedor__razao_social__icontains=q)
+                  | Q(contrato__fornecedor__nome_curto__icontains=q)
+                  | Q(empenho__icontains=q) | Q(municipios__nome__icontains=q))
+        if q.isdecimal():
+            filtro |= Q(numero=int(q))
+        base_qs = base_qs.filter(filtro).distinct()
+    if exercicio:
+        base_qs = base_qs.filter(exercicio=exercicio)
+    contagens = {"ativos": base_qs.filter(ativo=True).count(),
+                 "inativos": base_qs.filter(ativo=False).count()}
+    contagens["todos"] = contagens["ativos"] + contagens["inativos"]
+    qs = base_qs if situacao == "todos" else base_qs.filter(ativo=situacao == "ativos")
+    lista_lotes = list(qs.select_related("contrato__fornecedor").prefetch_related(
         "municipios", "contrato__aditivos").order_by("-exercicio", "numero", "pk"))
-    if situacao == "ativos":
-        qs = qs.filter(ativo=True)
-    elif situacao == "inativos":
-        qs = qs.filter(ativo=False)
-    lista_lotes = list(qs)
     sal = queries.saldos(lista_lotes)
     hoje = timezone.localdate()
     linhas = []
@@ -629,16 +650,39 @@ def lotes(request: HttpRequest) -> HttpResponse:
         fim = lote.contrato.fim_efetivo()
         linhas.append({"lote": lote, "saldo": sal[lote.pk], "fim": fim,
                        "vencido": bool(fim and fim < hoje)})
+    linhas.sort(key=ORDENS_LOTES[ordem][1])  # estável: o empate fica na ordem do exercício
+    pagina = Paginator(linhas, POR_PAGINA).get_page(request.GET.get("pagina"))
+    base = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs if k != "pagina" and v])
+    sem_sit = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs
+                         if k not in ("pagina", "situacao") and v])
     origem = (virada.exercicio_de_origem()
               if policies.pode_gerir_cadastros(request.user, "lotes") else None)
     proximo = origem + 1 if origem else None
     return render(request, "coffee/lotes.html", {
-        "linhas": linhas,
+        "linhas": list(pagina.object_list), "page_obj": pagina,
+        "querystring_base": f"{base}&" if base else "", "qs_sem_situacao": sem_sit,
+        "q": q, "exercicio": exercicio, "ordem": ordem,
+        "ordens": [(c, r) for c, (r, _chave) in ORDENS_LOTES.items()],
+        "exercicios": list(Lote.objects.order_by("-exercicio").values_list(
+            "exercicio", flat=True).distinct()),
+        "ativos_filtro": int(bool(exercicio)) + int(ordem != "exercicio"),
         "situacao": situacao, "pode_gerir": policies.pode_gerir_cadastros(request.user),
         "proximo_exercicio": proximo,
-        "situacoes": (("ativos", "Vigentes"), ("inativos", "Encerrados"), ("todos", "Todos")),
+        "situacoes": [(c, r, contagens[c]) for c, r in (
+            ("ativos", "Vigentes"), ("inativos", "Encerrados"), ("todos", "Todos"))],
         "migalhas": _migalhas(("Lotes", "")),
     })
+
+
+# "Ordenar por" dos lotes: chave → (rótulo, chave de ordenação da linha).
+ORDENS_LOTES = {
+    "exercicio": ("Exercício mais recente", lambda _l: 0),
+    "consumo": ("Mais consumido", lambda x: -x["saldo"].percentual),
+    "saldo": ("Menor saldo", lambda x: x["saldo"].restante),
+    "fornecedor": ("Fornecedor (A–Z)",
+                   lambda x: x["lote"].contrato.fornecedor.razao_social.lower()),
+    "vigencia": ("Vigência que termina antes", lambda x: x["fim"] or date.max),
+}
 
 
 # ---------------------------------------------------------------- certidões (CB5a)
