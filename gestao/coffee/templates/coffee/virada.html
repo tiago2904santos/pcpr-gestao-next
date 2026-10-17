@@ -7,16 +7,10 @@ Virada de exercício (paridade com a referência, docs/migration/coffee-break.md
 lotes vigentes de {{ origem }} viram os de {{ destino }} com os mesmos municípios,
 orientações e especificações; cada um pede só a quantidade e o empenho.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "calendar-days" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <p class="rotulo-caixa-alta">Coffee Break · Lotes</p>
-    <h1 class="pagina-cabecalho__titulo">Abrir o exercício {{ destino }}</h1>
-    <p class="pagina-cabecalho__descricao">Os lotes vigentes de {{ origem }} são copiados com os municípios, as orientações e as especificações; informe a quantidade e o empenho de cada um.</p>
-  </div>
-</header>
-<form method="post" novalidate class="documento documento--cartoes">
+{% with destino_texto=destino|stringformat:"s" %}{% with titulo_virada="Abrir o exercício "|add:destino_texto %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Lotes" titulo=titulo_virada complemento="Os lotes vigentes são copiados com os municípios, as orientações e as especificações; informe a quantidade e o empenho de cada um." %}{% endwith %}{% endwith %}
+<form method="post" novalidate class="documento documento--preparacao">
   {% csrf_token %}
   <section class="secao" aria-labelledby="t-lotes">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-lotes"><span class="secao__numero">1</span>Lotes a criar em {{ destino }}</h2><p class="secao__nota">Desmarque o lote que não continua. Um lote de contrato vencido não pode ser copiado antes do aditivo de prorrogação.</p></div>
