@@ -29,6 +29,7 @@ from . import (
     ganchos,
     pedir_coffee,
     policies,
+    preenchimento,
     queries,
     solicitacoes,
     sugestoes,
@@ -240,7 +241,8 @@ def gerar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
 
 # ---------------------------------------------------------------- folha
 def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None, *,
-              reabrir: bool = False, erros_estrutura: list[str] | None = None) -> dict:
+              reabrir: bool = False, erros_estrutura: list[str] | None = None,
+              leitura: preenchimento.Sugestoes | None = None) -> dict:
     hoje = timezone.localdate()
     # O que a DG escolheu antes de um erro no despacho volta uma vez só, nesta tela.
     despacho_escolhido = request.session.pop("despacho_escolhido", "")
@@ -259,6 +261,8 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     elif s is None and (tipo := form.initial.get("_tipo_modelo")) is not None:
         escolhidos = {x.pk: "" for x in tipo.servicos_sugeridos.all()}
         equipes_atuais = {x.equipe_id: x.quantidade for x in tipo.equipes_padrao.all()}
+    elif s is None and leitura is not None:
+        escolhidos = dict.fromkeys(leitura.servicos, "")
     servicos = Servico.objects.filter(ativo=True) | Servico.objects.filter(pk__in=escolhidos)
     equipes = Equipe.objects.filter(ativo=True) | Equipe.objects.filter(pk__in=equipes_atuais)
     ctx = {
@@ -269,6 +273,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "erros_estrutura": erros_estrutura or [],
     }
     if s is None:
+        ctx["leitura"] = leitura
         ctx["migalhas"] = _migalhas(("Nova solicitação", ""))
         return ctx
     ctx.update({
@@ -306,6 +311,27 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
 def _erro(form, exc: dominio.RegraViolada) -> None:
     form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
+
+
+@require_POST
+def preencher(request: HttpRequest) -> HttpResponse:
+    """"Preencher com um e-mail" (texto colado ou .eml): a solicitação nova volta com as
+    sugestões, o que foi lido, os avisos e as que já vieram do mesmo remetente. Nada grava."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    texto = (request.POST.get("email") or "")[:preenchimento.LIMITE_TEXTO]
+    arquivo = request.FILES.get("arquivo")
+    if arquivo is not None:
+        if (arquivo.size or 0) > preenchimento.LIMITE_ARQUIVO or not (
+                arquivo.name or "").lower().endswith(".eml"):
+            messages.error(request, preenchimento.MSG_ARQUIVO)
+            return redirect("eventos:nova")
+        texto = preenchimento.texto_do_eml(arquivo.read())
+    leitura = preenchimento.sugerir(request.user, texto, timezone.localdate())
+    inicial = {"data_solicitacao": timezone.localdate(), **leitura.iniciais}
+    form = FormularioSolicitacao(initial=inicial)
+    return render(request, "eventos/solicitacoes/folha.html",
+                  _contexto(request, form, None, leitura=leitura))
 
 
 @require_GET

@@ -21,3 +21,25 @@
   .evento-campos--curto { grid-template-columns: minmax(0, 14rem); }
   .evento-campos--endereco { grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, .8fr); }
 }
+
+/* O que foi lido do e-mail: rótulo e valor em duas colunas, quebrando no celular. */
+.leitura-email {
+  display: grid;
+  gap: var(--esp-1) var(--esp-4);
+  margin: var(--esp-2) 0;
+}
+
+.leitura-email > div {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  gap: var(--esp-3);
+}
+
+.leitura-email dt {
+  color: var(--cor-texto-secundario);
+}
+
+.leitura-email dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

@@ -11,6 +11,7 @@ urlpatterns = [
     path("solicitacoes/", vs.lista, name="solicitacoes"),
     path("solicitacoes/exportar/", vs.exportar, name="exportar"),
     path("solicitacoes/nova/", vs.nova, name="nova"),
+    path("solicitacoes/nova/preencher/", vs.preencher, name="preencher"),
     path("solicitacoes/sugestao-do-tipo/", vs.sugestao_do_tipo, name="sugestao_do_tipo"),
     path("solicitacoes/solicitantes/", vs.solicitantes_anteriores, name="solicitantes"),
     path("solicitacoes/<int:pk>/", vs.solicitacao, name="solicitacao"),

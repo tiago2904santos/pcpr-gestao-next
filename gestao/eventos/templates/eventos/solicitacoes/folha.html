@@ -34,6 +34,29 @@ histórico.
 {% if avisos_agenda %}<div class="alerta alerta--aviso mb-4" role="status" id="avisos-agenda">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">{{ avisos_agenda|length|pluralizar:"aviso de agenda,avisos de agenda" }}</p><ul class="checklist">{% for a in avisos_agenda %}<li class="checklist__item"><a href="{{ a.url }}">{{ a.mensagem }}</a></li>{% endfor %}</ul><p class="texto-secundario texto-sm">É só um aviso: confira antes de seguir.</p></div></div>{% endif %}
 {% if erros_estrutura %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros_estrutura %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
 
+{% if not s %}
+{% if leitura %}
+<div class="alerta alerta--{% if leitura.lidos %}info{% else %}aviso{% endif %} mb-4" role="status" id="leitura-email">{% icone "mail" %}<div class="alerta__corpo">
+  <p class="alerta__titulo">{% if leitura.lidos %}Preenchido com o e-mail — confira antes de salvar{% else %}Nada lido do e-mail{% endif %}</p>
+  {% if leitura.lidos %}<dl class="leitura-email">{% for rotulo, valor in leitura.lidos %}<div><dt>{{ rotulo }}</dt><dd>{{ valor }}</dd></div>{% endfor %}</dl>{% endif %}
+  {% for aviso in leitura.avisos %}<p>{{ aviso }}</p>{% endfor %}
+  {% if leitura.anteriores %}<p>Já há solicitação deste remetente: {% for a in leitura.anteriores %}<a href="{% url 'eventos:solicitacao' a.pk %}">#{{ a.pk }}{% if a.data_inicio_evento %} ({{ a.data_inicio_evento|date:"d/m/Y" }}){% endif %}</a>{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+</div></div>
+{% endif %}
+<details class="sanfona mb-4"{% if leitura and not leitura.lidos %} open{% endif %}>
+  <summary>{% icone "mail" classe="icone--sm" %}Preencher com um e-mail</summary>
+  <form method="post" action="{% url 'eventos:preencher' %}" enctype="multipart/form-data" class="sanfona__corpo pilha" novalidate>
+    {% csrf_token %}
+    <div class="campo"><label class="campo__rotulo" for="preencher-email">Texto do e-mail do pedido</label><textarea class="entrada" id="preencher-email" name="email" rows="6" maxlength="20000" aria-describedby="ajuda-preencher"></textarea>
+      <p class="campo__ajuda" id="ajuda-preencher">Cole o e-mail inteiro (De, Enviado em, Assunto e o texto) ou envie o arquivo .eml. O sistema sugere a data, o período, o tipo, o município, o local, quem pede e os serviços; nada é gravado até você salvar.</p></div>
+    <div class="evento-campos">
+      <div class="campo"><label class="campo__rotulo" for="preencher-arquivo">Ou o arquivo do e-mail (.eml)</label><input class="entrada" id="preencher-arquivo" type="file" name="arquivo" accept=".eml,message/rfc822"></div>
+    </div>
+    <div class="linha"><button type="submit" class="botao">{% icone "file-search" %}Ler o e-mail</button></div>
+  </form>
+</details>
+{% endif %}
+
 <div class="documento documento--preparacao">
 <form method="post" novalidate id="{{ form_id }}" class="formulario--secoes" data-proteger{% if s and editavel and not reabrir %} data-autosave="{% url 'eventos:autosave' s.pk %}"{% endif %} action="{% if s %}{% url 'eventos:solicitacao' s.pk %}{% else %}{% url 'eventos:nova' %}{% endif %}">
   {% csrf_token %}{{ form.versao }}{% if reabrir %}<input type="hidden" name="reabrir" value="1">{% endif %}
