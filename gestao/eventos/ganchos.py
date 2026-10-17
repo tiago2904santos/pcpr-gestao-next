@@ -20,6 +20,11 @@ class IntegracaoViagem:
     gerar: Callable[[Any, Any, int | None], Any]
     # (usuário, solicitação, motivo) → "cancelada", "avisada" ou "" (não havia viagem).
     encerrar: Callable[[Any, Any, str], str]
+    # (usuário) → gera viagens? A DG ou quem opera Viagens — este pode não enxergar a
+    # solicitação (referência: `pode_gerar_viagem`); então volta para a viagem criada.
+    pode_gerar: Callable[[Any], bool] = lambda _usuario: False
+    # (viagem ou None) → o endereço dela em Viagens (None: a lista de viagens).
+    endereco: Callable[[Any], str] = lambda _viagem: ""
 
 
 _INTEGRACAO: list[IntegracaoViagem] = []

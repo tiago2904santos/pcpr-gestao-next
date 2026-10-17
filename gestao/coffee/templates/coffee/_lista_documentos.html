@@ -1,0 +1,44 @@
+{% comment %}Documentos com as vias (gerar, ver, baixar, anexar o assinado): `lista`, `rotulo_lista`.{% endcomment %}
+    <ul class="registros" aria-label="{{ rotulo_lista }}">
+      {% for d in lista %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone "file-text" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{{ d.titulo }}</span>
+            {% if d.assinada %}<span class="selo selo--sucesso selo--sem-ponto">Assinado</span>{% elif d.faltas %}<span class="selo selo--aviso selo--sem-ponto">Falta informação</span>{% else %}<span class="selo selo--info selo--sem-ponto">Pronto</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if d.tipo == "os" and s.os_enviada_em %}<span class="registro__meta-item">{% icone "send" classe="icone--sm" %}Enviada ao fornecedor em {{ s.os_enviada_em|date:"d/m/Y H:i" }}</span>{% endif %}
+            {% if d.faltas %}<span class="registro__meta-item">{% icone "alert-triangle" classe="icone--sm" %}{{ d.faltas|join:" " }}</span>
+            {% elif d.assinavel %}<span class="registro__meta-item">{% icone "history" classe="icone--sm" %}{{ d.n_vias|pluralizar:"via guardada,vias guardadas" }}</span>
+            {% else %}<span class="registro__meta-item">{% icone "info" classe="icone--sm" %}Espelho do momento (não se guarda)</span>{% endif %}
+          </div>
+          {% if d.vias %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "history" %}Vias guardadas<span class="sr-only"> — {{ d.titulo }}</span></summary>
+            <ul class="lista-simples mt-2">{% for v in d.vias %}<li><a href="{% url 'coffee:arquivo_via' s.pk v.pk %}">{{ v.emitida_em|date:"d/m/Y H:i" }}</a> · {% if v.assinada %}assinada{% else %}gerada{% endif %} por {{ v.emitida_por.nome }}{% if v.removida_em %} <span class="texto-secundario">(removida em {{ v.removida_em|date:"d/m/Y" }})</span>{% endif %}</li>{% endfor %}</ul>
+          </details>
+          {% endif %}
+          {% if d.assinavel and not s.bloqueada and not d.faltas %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "file-check-2" %}Anexar assinado<span class="sr-only"> — {{ d.titulo }}</span></summary>
+            <form method="post" action="{% url 'coffee:anexar_assinada' s.pk d.tipo %}" enctype="multipart/form-data" class="linha mt-2" novalidate>
+              {% csrf_token %}
+              <label class="campo__rotulo sr-only" for="assinado-{{ d.tipo }}">PDF assinado — {{ d.titulo }}</label>
+              <input class="entrada" type="file" id="assinado-{{ d.tipo }}" name="arquivo" accept="application/pdf">
+              <button type="submit" class="botao botao--sm">{% icone "save" %}Enviar</button>
+            </form>
+          </details>
+          {% endif %}
+        </div>
+        {% if not d.faltas %}
+        <div class="registro__acoes registro__acoes--fixas">
+          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:documento' s.pk d.tipo %}?formato=html">{% icone "eye" %}Ver<span class="sr-only"> {{ d.titulo }}</span></a>
+          <a class="botao botao--sm" href="{% url 'coffee:documento' s.pk d.tipo %}?baixar=1">{% icone "download" %}PDF<span class="sr-only"> de {{ d.titulo }}</span></a>
+          {% if d.tipo == "os" and not s.cancelada %}<a class="botao botao--sm" href="{% url 'coffee:enviar_email' s.pk 'os' %}">{% icone "send" %}{% if s.os_enviada_em %}Reenviar{% else %}Enviar ao fornecedor{% endif %}<span class="sr-only"> a ordem de serviço</span></a>{% endif %}
+          {% if d.assinada and not s.bloqueada %}<form method="post" action="{% url 'coffee:remover_assinada' s.pk d.tipo %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "x" %}Remover assinado<span class="sr-only"> de {{ d.titulo }}</span></button></form>{% endif %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>

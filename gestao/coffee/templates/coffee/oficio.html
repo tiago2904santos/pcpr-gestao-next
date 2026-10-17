@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Nota, certifico e ofício · {{ s }} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Etapa 2 do coffee break — a folha da nota: 1 a nota fiscal (número, pessoas faturadas e o
+PDF, que o sistema lê e confere), 2 o ofício ao GAF (número, data e o PCPR protocolo n.º),
+3 o certifico e o ofício (gerar, ver, assinar) e, quando há outras OS do mesmo lote sem
+protocolo, 4 o pagamento conjunto. Gravar manda só os campos daqui (etapa=oficio).
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% include "coffee/_hero_folha.html" with contexto_hero="Coffee break · Etapa 2 · Nota, certifico e ofício" %}
+{% include "coffee/_alertas_folha.html" %}
+<div class="documento documento--preparacao">
+<form method="post" novalidate id="{{ form_financeiro_id }}" class="formulario--secoes" data-proteger action="{% url 'coffee:financeiro' s.pk %}">
+  {% csrf_token %}
+  {{ form_fin.versao }}<input type="hidden" name="etapa" value="oficio" form="{{ form_financeiro_id }}">
+  <section class="secao{% if s.nota_fiscal %} secao--ok{% endif %}" id="nota" aria-labelledby="t-nota">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-nota"><span class="secao__numero">1</span>Nota fiscal</h2><p class="secao__nota">Com a nota, o lote desconta as pessoas faturadas. O sistema lê o número, o valor, a emissão e o CNPJ do PDF e só avisa o que não bate.</p></div>
+    <div class="campos-folha">
+      {% include "componentes/campo.html" with campo=form_fin.nota_fiscal %}
+      {% include "componentes/campo.html" with campo=form_fin.quantidade_faturada %}
+    </div>
+  </section>
+  <section class="secao{% if s.numero_oficio %} secao--ok{% endif %}" id="oficio" aria-labelledby="t-oficio">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-oficio"><span class="secao__numero">2</span>Ofício ao GAF</h2><p class="secao__nota">Leva a nota para pagamento. Em branco, o número é o próximo livre ({{ proximo_oficio }}) e a data, a de hoje, quando houver nota.</p></div>
+    <div class="campos-folha campos-folha--tres">
+      {% include "componentes/campo.html" with campo=form_fin.numero_oficio ajuda_oculta=True %}
+      {% include "componentes/campo.html" with campo=form_fin.data_oficio %}
+      {% include "componentes/campo.html" with campo=form_fin.protocolo_pcpr %}
+    </div>
+    {% if grupo %}<div class="alerta alerta--info" id="conjunto-resumo">{% icone "layers" %}<div class="alerta__corpo"><p>Pagamento conjunto ({{ grupo|length }} OS, um só ofício e um só protocolo): {% for x in grupo %}{% if x.pk == s.pk %}<b>{{ x }}</b>{% else %}<a href="{% url 'coffee:oficio' x.pk %}">{{ x }}</a>{% endif %}{% if x.pk == principal.pk %} (principal){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}.</p></div></div>{% endif %}
+  </section>
+</form>
+
+{% if not s.cancelada %}
+  <section class="secao" id="pdf-nota" aria-labelledby="t-pdf-nota">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pdf-nota"><span class="secao__numero">3</span>PDF da nota fiscal</h2><p class="secao__nota">Vai no protocolo com o certifico. O que o sistema leu aparece aqui; o que não bate com a OS vira aviso.</p></div>
+    {% include "coffee/_lista_pdfs.html" %}
+  </section>
+{% endif %}
+
+  <section class="secao" id="documentos" aria-labelledby="t-documentos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-documentos"><span class="secao__numero">4</span>Certifico e ofício</h2><p class="secao__nota">Saem com a nota e o número do ofício; cada PDF que sai fica guardado como via, e a versão assinada vale no lugar do gerado.</p></div>
+    {% include "coffee/_lista_documentos.html" with lista=documentos rotulo_lista="Certifico e ofício" %}
+  </section>
+
+{% if candidatas %}{% include "coffee/_secao_conjunto.html" with numero=5 %}{% endif %}
+</div>
+
+<div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>{% if s.bloqueada %}Só consulta.{% elif not s.nota_fiscal %}Informe a nota fiscal para gerar o certifico e o ofício.{% else %}Salvar grava a nota e o ofício e volta à página do coffee break.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacao' s.pk %}">Voltar</a>
+    {% if s.nota_fiscal %}<a class="botao" href="{% url 'coffee:protocolo' s.pk %}">{% icone "stamp" %}<span>Protocolo<span class="barra-acoes__extra"> de pagamento</span></span></a>{% endif %}
+    {% if not s.bloqueada %}<button type="submit" form="{{ form_financeiro_id }}" class="botao botao--primario">{% icone "save" %}Salvar</button>{% endif %}
+  </div>
+</div>
+{% endblock %}

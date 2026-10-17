@@ -159,8 +159,10 @@ def test_telas_lista_folha_lote_csv_e_permissao(cenario):
     assert "Posse da diretoria" in html and "Aguardando nota fiscal" in html
     html = c.get(reverse("coffee:solicitacoes"), {"situacao": "cancelada"}).content.decode()
     assert "Posse da diretoria" not in html
+    html = c.get(reverse("coffee:ordem_servico", args=[s.pk])).content.decode()
+    assert "70 de 100 unidades" in html
     html = c.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
-    assert "70 de 100 unidades" in html and "Situação da solicitação" in html
+    assert "Etapas do coffee break" in html and "Andamento" in html
     parcial = c.get(reverse("coffee:lote_do_municipio"), {"municipio": "Pinhais/PR"})
     assert "pela cidade mais perto: Curitiba" in parcial.content.decode()
     parcial = c.get(reverse("coffee:lote_do_municipio"), {"municipio": "Santos/SP"})

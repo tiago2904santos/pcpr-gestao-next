@@ -80,7 +80,7 @@ def test_certidao_pelo_link_e_conferencia(base, mailoutbox):  # noqa: F811
     assert [e.situacao for e in envios] == ["recusado", "recebido"]  # o novo substitui
     c = Client()
     c.force_login(u)
-    folha = c.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
+    folha = c.get(reverse("coffee:ordem_servico", args=[s.pk])).content.decode()
     assert "Aguardando conferência" in folha
     r = c.post(reverse("coffee:conferir_envio", args=[s.pk, envios[1].pk]),
                {"acao": "aceitar"}, follow=True)

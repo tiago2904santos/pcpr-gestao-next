@@ -140,7 +140,7 @@ def test_pedir_coffee_break_e_cancelar(logado, dados_e2e):
     s = Solicitacao.objects.get()
     assert s.quantidade == 40 and s.lote.numero == 1
 
-    pg.goto(f"/coffee/solicitacoes/{s.pk}/")
+    pg.goto(f"/coffee/solicitacoes/{s.pk}/os/")  # a folha da OS (etapa 1)
     expect(pg.locator("#lote-do-municipio")).to_contain_text("460 de 500 unidades")
     # O cancelamento fica no menu "Ações" do rodapé padrão das folhas.
     pg.get_by_role("button", name="Ações: OS").click()
@@ -169,6 +169,7 @@ def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
     pg.set_viewport_size({"width": largura, "height": 900})
     _evento_realizado(s)  # o painel ganha um grupo em "O que fazer hoje"; a folha, a entrega
     for rota in ("/coffee/painel/", "/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/",
+                 f"/coffee/solicitacoes/{s.pk}/os/", f"/coffee/solicitacoes/{s.pk}/oficio/",
                  "/coffee/lotes/", f"/coffee/lotes/contrato/{lote.contrato_id}/relatorio/",
                  "/coffee/certidoes/", f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         pg.goto(rota)
@@ -219,7 +220,10 @@ def test_painel_e_registro_de_entrega(logado, dados_e2e):
     pg.goto("/coffee/painel/")
     expect(pg.get_by_role("heading", name="Eventos realizados sem nota fiscal")).to_be_visible()
     pg.get_by_role("link", name="Anexar a nota").click()
-    expect(pg).to_have_url(f"{pg.url.split('/coffee/')[0]}/coffee/solicitacoes/{s.pk}/#pdfs")
+    base = pg.url.split('/coffee/')[0]
+    expect(pg).to_have_url(f"{base}/coffee/solicitacoes/{s.pk}/oficio/#pdf-nota")
+    # A entrega é da folha da OS (etapa 1); o histórico, da página central.
+    pg.goto(f"/coffee/solicitacoes/{s.pk}/os/#entregas")
     pg.get_by_role("combobox", name="O que aconteceu").click()
     pg.get_by_role("option", name="Atraso na entrega").click()
     pg.locator("#entrega-recebido").fill("Plantão (e2e)")
@@ -229,7 +233,9 @@ def test_painel_e_registro_de_entrega(logado, dados_e2e):
     pg.locator("#entrega-observacao").fill("Chegou 30 minutos depois (e2e).")
     pg.get_by_role("button", name="Salvar o registro").click()
     expect(pg.locator("#entregas .registros")).to_contain_text("Atraso na entrega")
+    pg.goto(f"/coffee/solicitacoes/{s.pk}/")
     expect(pg.locator("#historico")).to_contain_text("Entrega registrada: Atraso na entrega")
+    expect(pg.locator("#etapas")).to_contain_text("Recebimento")
     assert Entrega.objects.get().observacao == "Chegou 30 minutos depois (e2e)."
     assert not pg.erros_console  # type: ignore[attr-defined]
 

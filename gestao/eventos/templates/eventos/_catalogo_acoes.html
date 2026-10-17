@@ -1,1 +1,3 @@
+{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ novo_rotulo|capfirst }}</a>
+{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ novo_rotulo|capfirst }}</button>{% endif %}
 <a class="botao botao--sm" href="{% url 'eventos:cadastros' %}">{% icone "layers" classe="icone--sm" %}Todos os cadastros</a>

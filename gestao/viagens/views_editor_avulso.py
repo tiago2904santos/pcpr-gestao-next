@@ -39,6 +39,9 @@ class Adaptador:
     regioes_vigentes: Callable[[Any], dict] = dict  # o texto editado em vigor (páginas)
     # O documento com o texto editado (para contar páginas). Sem ele, uma folha só.
     html_documento: Callable[[dict, dict], str] | None = None
+    # Rótulos por documento, quando o tipo emite documentos com regiões diferentes (a
+    # prestação: o diário tem "corpo"; o RT, "relato"). Sem ele, valem os `rotulos`.
+    rotulos_de: Callable[[str], dict[str, str]] | None = None
 
 
 def montar(ad: Adaptador) -> dict[str, Callable]:
@@ -65,7 +68,8 @@ def montar(ad: Adaptador) -> dict[str, Callable]:
             "pendencias": [],
             "presenca": _presenca(obj, f"{type(obj).__name__}-{chave}", request.user,
                                   registrar=registrar),
-            "regioes": [{"chave": c, "rotulo": r} for c, r in ad.rotulos.items()],
+            "regioes": [{"chave": c, "rotulo": r} for c, r in
+                        (ad.rotulos_de(chave) if ad.rotulos_de else ad.rotulos).items()],
         }
 
     def executar(request: HttpRequest, obj, chave: str, comando) -> JsonResponse:
@@ -278,6 +282,7 @@ def _adaptador_prestacao() -> Adaptador:
     from . import prestacao_texto
     return Adaptador(
         rotulos={"corpo": "Texto do documento", "assinatura": "Assinatura"},
+        rotulos_de=lambda chave: prestacao_texto.ROTULOS[prestacao_texto.tipo_da_chave(chave)],
         obter=_prestacao,
         dados=prestacao_texto.dados_do_documento,
         html_modelo=prestacao_texto.html_do_modelo,

@@ -221,9 +221,9 @@ def filtrar(qs: QuerySet[PrestacaoServidor], aba: str, hoje: date | None = None)
         from . import anexos
         com = list(qs.filter(aberto).annotate(_tem=_anexo_ativo("comprovante", True))
                    .filter(_tem=True).select_related("prestacao__oficio"))
-        s = anexos.situacao({ps.prestacao_id for ps in com})
+        valores = anexos.comprovantes({ps.prestacao_id for ps in com})
         ids = [ps.pk for ps in com
-               if anexos.divergencia(ps, s.comprovantes.get(ps.pk, []), diaria_liberada(ps))]
+               if anexos.divergencia(ps, valores.get(ps.pk, []), diaria_liberada(ps))]
         return qs.filter(pk__in=ids)
     if aba == "finalizadas_mes":
         return qs.filter(finalizada_em__year=hoje.year, finalizada_em__month=hoje.month)

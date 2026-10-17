@@ -8,7 +8,7 @@
 {% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% comment %}
 Lotes no padrão das listas de Viagens (paridade com a lista de lotes da referência): a faixa
-no topo, a situação do lote em abas, um registro operacional por lote — placa do lote,
+no topo, a situação do lote em abas com a contagem, busca, exercício e ordem (gaveta), um registro operacional por lote — placa do lote,
 "Lote N · fornecedor", vigente/encerrado, contrato vencido, contrato, vigência e municípios;
 à direita o saldo ("R de T unidades") com o selo de consumo (verde < 70%, âmbar ≥ 70%,
 vermelho ≥ 90%) e o ⋮ (solicitações do lote, relatório do contrato) —; e a barra fixa com a
@@ -17,13 +17,50 @@ contagem, abrir o exercício seguinte e o cadastro de lotes.
 {% block abas_filtro %}{% endblock %}
 {% block filtros %}
 <div class="filtro-conjunto">
-<nav class="abas abas--conteudo" aria-label="Situação do lote">
-  {% for chave, rotulo in situacoes %}<a class="aba" href="?situacao={{ chave }}"{% if chave == situacao %} aria-current="page"{% endif %}>{{ rotulo }}</a>{% endfor %}
+<nav class="abas abas--conteudo" id="abas-filtro" aria-label="Situação do lote">
+  {% for chave, rotulo, n in situacoes %}<a class="aba{% if not n %} aba--vazia{% endif %}" href="?situacao={{ chave }}{% if qs_sem_situacao %}&amp;{{ qs_sem_situacao }}{% endif %}"{% if chave == situacao %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
 </nav>
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'coffee:lotes' %}"
+      hx-get="{% url 'coffee:lotes' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro, #barra-lotes, #conta-filtros" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-lotes, change from:#filtros-mais">
+  <input type="hidden" name="situacao" value="{{ situacao }}">
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-lotes">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-lotes" type="search" name="q" value="{{ q }}" placeholder="Nº do lote, contrato, fornecedor, empenho ou município…" data-dica-curta="Lote, contrato, fornecedor…|Lote ou fornecedor…" autocomplete="off"></div>
+  </div>
+  <div class="filtros__lado">
+    <details class="filtros__mais" id="filtros-mais">
+      <summary class="filtros__mais-resumo" aria-controls="filtros-avancados">
+        {% icone "sliders-horizontal" classe="icone--sm" %}<span>Filtros</span>
+        <span id="conta-filtros">{% if ativos_filtro %}<span class="filtros__mais-conta">{{ ativos_filtro }}</span>{% endif %}</span>
+        {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+      </summary>
+      <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
+        <div class="filtros__gaveta-cabecalho"><h2 class="filtros__gaveta-titulo">Filtros e ordem</h2></div>
+        <div class="campo filtros__campo--ordem">
+          <label class="campo__rotulo" for="ordem-lotes">Ordenar por</label>
+          <pc-select class="seletor"><select class="selecao" id="ordem-lotes" name="ordem">
+            {% for chave, rotulo in ordens %}<option value="{{ chave }}"{% if chave == ordem %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+          </select></pc-select>
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="filtro-exercicio">Exercício</label>
+          <pc-select class="seletor"><select class="selecao" id="filtro-exercicio" name="exercicio"><option value="">Todos</option>{% for e in exercicios %}<option value="{{ e }}"{% if e == exercicio %} selected{% endif %}>{{ e }}</option>{% endfor %}</select></pc-select>
+        </div>
+        <div class="filtros__gaveta-rodape">
+          {% if ativos_filtro %}<a class="botao botao--texto" href="?situacao={{ situacao }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}">{% icone "x" %}Limpar filtros</a>{% endif %}
+          <button type="button" class="botao" data-fechar-filtros hidden>Fechar</button>
+        </div>
+      </div>
+    </details>
+    <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
+  </div>
+</form>
 </div>
 {% endblock %}
 {% block resultados %}
-<h2 class="sr-only" id="titulo-resultados">Lotes</h2>
+<div id="resultados">
+<h2 class="sr-only" id="titulo-resultados">{% if q %}Resultados para “{{ q }}”{% else %}Lotes{% endif %}</h2>
 {% if linhas %}
 <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
   {% for l in linhas %}{% with lote=l.lote %}
@@ -61,13 +98,19 @@ contagem, abrir o exercício seguinte e o cadastro de lotes.
   </li>
   {% endwith %}{% endfor %}
 </ul>
+{% elif q or exercicio %}
+{% include "componentes/vazio.html" with icone="search" titulo="Nenhum lote neste recorte" texto="Ajuste a busca, o exercício ou troque de aba." limpar_url=request.path %}
 {% else %}
 {% include "componentes/vazio.html" with icone="layers" titulo="Nenhum lote nesta situação" texto="Os lotes são cadastrados pelo administrador do módulo." %}
 {% endif %}
+</div>
 {% endblock %}
 {% block depois_lista %}
-<div class="barra-acoes barra-acoes--registro barra-acoes--colecao">
-  <div class="barra-acoes__conteudo"><p class="barra-acoes__status" role="status">{{ linhas|length|pluralizar:"lote,lotes" }}</p></div>
+<div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
+  <div class="barra-acoes__conteudo" id="barra-lotes">
+    <p class="barra-acoes__status" role="status">{% if page_obj.paginator.num_pages > 1 %}Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }} lotes{% else %}{{ page_obj.paginator.count|pluralizar:"lote,lotes" }}{% endif %}</p>
+    {% include "componentes/paginacao.html" with na_barra=True %}
+  </div>
   {% if pode_gerir %}
   {% if proximo_exercicio %}<a class="botao" href="{% url 'coffee:virada' %}">{% icone "calendar-days" %}<span>Abrir exercício {{ proximo_exercicio }}</span></a>{% endif %}
   <a class="botao botao--primario" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}<span>Cadastro<span class="barra-acoes__extra"> de lotes</span></span></a>

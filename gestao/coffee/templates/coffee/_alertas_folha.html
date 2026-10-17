@@ -1,0 +1,10 @@
+{% comment %}Os avisos do topo das folhas do coffee break (erros, cancelada, correção, concluída, origem, antecedência).{% endcomment %}
+{% include "componentes/resumo_erros.html" %}
+{% if duplicada %}<div class="alerta alerta--info mb-4" role="status">{% icone "copy" %}<div class="alerta__corpo"><p>Copiada de {{ duplicada }} ({{ duplicada.descricao|truncatechars:60 }}): datas, número e pagamento não vêm junto.</p></div></div>{% endif %}
+{% if form_fin.errors %}{% with form=form_fin %}{% include "componentes/resumo_erros.html" %}{% endwith %}{% endif %}
+{% if s and s.cancelada %}<div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Solicitação cancelada</p><p>{{ s.motivo_cancelamento }}{% if s.cancelada_por %} — {{ s.cancelada_por.nome }}, {{ s.cancelada_em|date:"d/m/Y H:i" }}{% endif %}</p></div></div>
+{% elif s and s.em_correcao %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "pencil" %}<div class="alerta__corpo"><p>Aberta para correção: o que mudar fica no histórico, campo a campo.</p></div></div>
+{% elif s and s.concluida %}<div class="alerta alerta--sucesso mb-4" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p>Fluxo financeiro concluído: a solicitação fica só para consulta.</p></div></div>{% endif %}
+{% if msg_travados %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>{{ msg_travados }}</p></div></div>{% endif %}
+{% if origem %}<div class="alerta alerta--{% if origem.aviso %}aviso{% else %}info{% endif %} mb-4" role="status">{% icone "flag" %}<div class="alerta__corpo"><p>Pedido a partir de {% if origem.url %}<a href="{{ origem.url }}">{{ origem.rotulo }}</a>{% else %}{{ origem.rotulo }}{% endif %}.</p>{% if origem.aviso %}<p><strong>{{ origem.aviso }}</strong></p>{% endif %}</div></div>{% endif %}
+{% if aviso_antecedencia %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ aviso_antecedencia }}</p></div></div>{% endif %}

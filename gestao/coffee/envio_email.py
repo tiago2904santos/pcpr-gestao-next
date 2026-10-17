@@ -95,11 +95,12 @@ def _juntar(itens: list[str]) -> str:
 def valores(s: Solicitacao) -> dict[str, str]:
     grupo = conjunto.membros(s) if conjunto.em_grupo(s) else [s]
     return {
-        "numero": s.numero or "—",
+        "numero": s.numero or f"#{s.pk}",
         "evento": s.descricao,
         "data": f"{s.data_evento:%d/%m/%Y}" if s.data_evento else A_COMBINAR,
         "horario": f"{s.horario:%H:%M}" if s.horario else A_COMBINAR,
-        "local": s.local_entrega or A_COMBINAR,
+        "local": " — ".join(p for p in (s.local_entrega, s.endereco_completo) if p)
+                 or A_COMBINAR,
         "responsavel": s.responsavel or A_COMBINAR,
         "quantidade": str(s.quantidade),
         "fornecedor": str(s.lote.contrato.fornecedor),

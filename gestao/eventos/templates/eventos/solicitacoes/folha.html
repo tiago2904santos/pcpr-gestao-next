@@ -26,7 +26,7 @@ histórico.
 <ol class="etapas-progresso mb-4" aria-label="Etapas da solicitação">
   {% for e in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ e.estado }}"{% if e.estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if e.estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ e.titulo }}</span></li>{% endfor %}
 </ol>
-{% if s.status == "devolvida" and s.observacoes_dg %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "undo-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Enviada para correção pela Diretoria-Geral</p><p>{{ s.observacoes_dg }}</p></div></div>{% endif %}
+{% if s.status == "devolvida" and s.observacoes_dg %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "undo-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Enviada para correção pela Diretoria-Geral</p><p>{{ s.observacoes_dg }}</p>{% if devolucao %}<p class="texto-sm">Em {{ devolucao.em|date:"d/m/Y \à\s H:i" }}{% if devolucao.usuario %}, por {{ devolucao.usuario.nome }}{% endif %}. Corrija e envie de novo.</p>{% endif %}</div></div>{% endif %}
 {% if reabrir %}<div class="alerta alerta--info mb-4" role="status">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Alterando depois do envio</p><p>Ao salvar com alguma mudança, a solicitação volta a aguardar o despacho da DG{% if s.status == "deferida" %} (a decisão atual é desfeita){% endif %}.</p></div></div>{% endif %}
 {% endif %}
 
@@ -189,9 +189,9 @@ histórico.
       <fieldset class="opcoes"><legend>Decisão</legend>
         {% for valor, rotulo, _st in decisoes %}<label class="opcao"><input type="radio" name="decisao" value="{{ valor }}"{% if despacho_escolhido == valor %} checked{% endif %}><span class="opcao__texto"><span class="opcao__titulo">{{ rotulo }}</span></span></label>{% endfor %}
       </fieldset>
-      {% if textos_despacho %}<div class="texto-pronto" data-texto-pronto data-alvo="observacao-dg"><div class="campo campo--lg"><label class="campo__rotulo" for="texto-dg">Textos prontos</label><pc-select class="seletor"><select class="selecao" id="texto-dg"><option value="">Escrever do zero</option>{% for t in textos_despacho %}<option value="{{ t.pk }}" data-texto="{{ t.texto }}">{{ t.nome }}</option>{% endfor %}</select></pc-select></div></div>{% endif %}
+      {% if textos_despacho %}<div class="texto-pronto" data-texto-pronto data-somar data-alvo="observacao-dg"><div class="campo campo--lg"><label class="campo__rotulo" for="texto-dg">Textos prontos</label><pc-select class="seletor"><select class="selecao" id="texto-dg"><option value="">Somar um texto pronto…</option>{% for t in textos_despacho %}<option value="{{ t.pk }}" data-texto="{{ t.texto }}">{{ t.nome }}</option>{% endfor %}</select></pc-select></div></div>{% endif %}
       <div class="campo"><label class="campo__rotulo" for="observacao-dg">Observações da decisão</label><textarea class="entrada" id="observacao-dg" name="observacao" rows="3" placeholder="Obrigatória para não atender, evento cancelado ou correção.">{{ despacho_observacao }}</textarea></div>
-      {% if s.equipes.all %}<fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Servidores por equipe (a DG pode ajustar)</legend><div class="campos">{% for e in s.equipes.all %}<div class="campo campo--sm"><label class="campo__rotulo" for="dg-{{ e.equipe_id }}">{{ e.equipe.nome }}</label><input class="entrada" id="dg-{{ e.equipe_id }}" name="quantidade_dg_{{ e.equipe_id }}" inputmode="numeric" value="{{ e.quantidade_servidores|default_if_none:'' }}"></div>{% endfor %}</div></fieldset>{% endif %}
+      {% if s.equipes.all %}<fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Servidores por equipe (a DG pode ajustar)</legend><div class="campos-folha campos-folha--quatro">{% for e in s.equipes.all %}<div class="campo"><label class="campo__rotulo" for="dg-{{ e.equipe_id }}">{{ e.equipe.nome }}</label><input class="entrada" id="dg-{{ e.equipe_id }}" name="quantidade_dg_{{ e.equipe_id }}" inputmode="numeric" value="{{ e.quantidade_servidores|default_if_none:'' }}"></div>{% endfor %}</div></fieldset>{% endif %}
       <div class="linha">
         {% if s.equipes.all %}<button type="submit" name="acao_despacho" value="salvar_ajustes" class="botao">{% icone "save" %}Salvar servidores</button>{% endif %}
         {% if fila > 1 %}<button type="submit" class="botao">{% icone "stamp" %}Registrar decisão</button>
@@ -213,7 +213,7 @@ histórico.
     {% if viagem_info.viagens %}
     <ul class="registros">{% for v in viagem_info.viagens %}
       <li class="registro{% if v.viagem.cancelada %} registro--inativo{% endif %}">
-        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Viagem</span><span class="placa__numero">#{{ v.viagem.pk }}</span></span>
+        <div class="placa" aria-hidden="true">{% with p=v.viagem.pk|stringformat:"s" %}{% with n="#"|add:p %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero=n compacta=True only %}{% endwith %}{% endwith %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">{% if v.url %}<a class="registro__link" href="{{ v.url }}"><span class="sr-only">Viagem #{{ v.viagem.pk }} · </span>{{ v.viagem.titulo|default:"Viagem" }}</a>{% else %}<span class="registro__texto">{{ v.viagem.titulo|default:"Viagem" }}</span>{% endif %}<span class="selo selo--{% if v.viagem.cancelada %}perigo{% else %}info{% endif %} selo--sem-ponto">{{ v.viagem.get_situacao_display }}</span></div>
           <div class="registro__meta"><span class="registro__meta-item"><span class="sr-only">Unidade: </span>{% icone "landmark" classe="icone--sm" %}{{ v.viagem.unidade }}</span><span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.documentos %}Com documentos{% else %}Sem documentos ainda{% endif %}</span></div>
@@ -258,18 +258,18 @@ histórico.
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-responsavel"><span class="secao__numero">{% if mostrar_viagem %}7{% else %}6{% endif %}</span>Responsável</h2><p class="secao__nota">{{ s.criado_por.nome }} cuida desta solicitação.</p></div>
     {% if pode_transferir %}
     <details><summary class="botao botao--sm botao--sutil">{% icone "user-round" %}Transferir</summary>
-      <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="campos mt-2" novalidate>{% csrf_token %}
-        <div class="campo campo--lg"><label class="campo__rotulo" for="responsavel-novo">Novo responsável</label><pc-select class="seletor"><select class="selecao" id="responsavel-novo" name="responsavel"><option value="">Escolha</option>{% for u in usuarios %}<option value="{{ u.pk }}">{{ u.nome }}</option>{% endfor %}</select></pc-select></div>
-        <div class="campo campo--lg"><label class="campo__rotulo" for="motivo-transferencia">Motivo (opcional)</label><input class="entrada" id="motivo-transferencia" name="motivo_transferencia" maxlength="255"></div>
-        <div class="campo campo--auto"><button type="submit" class="botao">{% icone "send" %}Transferir</button></div>
+      <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="pilha mt-2" novalidate>{% csrf_token %}
+        <div class="campos-folha">
+        <div class="campo"><label class="campo__rotulo" for="responsavel-novo">Novo responsável</label><pc-select class="seletor"><select class="selecao" id="responsavel-novo" name="responsavel"><option value="">Escolha</option>{% for u in usuarios %}<option value="{{ u.pk }}">{{ u.nome }}</option>{% endfor %}</select></pc-select></div>
+        <div class="campo"><label class="campo__rotulo" for="motivo-transferencia">Motivo (opcional)</label><input class="entrada" id="motivo-transferencia" name="motivo_transferencia" maxlength="255"></div>
+        </div>
+        <div class="linha"><button type="submit" class="botao">{% icone "send" %}Transferir</button></div>
       </form>
     </details>
     {% endif %}
     <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
       <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3><div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div></div>
-      <ol class="historico__linhas" aria-label="Eventos da solicitação">
-        {% for h in historico %}<li class="historico__linha{% if h.marca %} historico__linha--marca{% endif %}"><time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time><span class="historico__texto">{{ h.texto }}{% for campo, antes, depois in h.mudancas %}<span class="historico__mudanca"><b>{{ campo }}:</b> {% if antes %}<del>{{ antes }}</del>{% else %}<i>vazio</i>{% endif %} <span aria-hidden="true">→</span><span class="sr-only">passou a</span> {% if depois %}{{ depois }}{% else %}<i>vazio</i>{% endif %}</span>{% endfor %}</span><span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span></li>{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
-      </ol>
+      {% include "componentes/historico_folha.html" with rotulo="Eventos da solicitação" vazio="Sem eventos registrados." primeiros=":6" resto="6:" limite=6 %}
     </div>
   </section>
 {% endif %}
@@ -279,10 +279,11 @@ histórico.
 {% comment %}Rodapé igual em toda folha de documento: Voltar · Enviar/Reenviar (o passo da solicitação) · Finalizar e Ações (duplicar, cancelar, excluir).{% endcomment %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if editavel and not reabrir %}Gravando as alterações…{% else %}Alterações não salvas.{% endif %}" role="status">
-    {% if reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
+    {% icone "check" classe="icone--sm" %}{% if reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
     {% elif editavel %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
     {% else %}<span data-anuncio>{{ s.get_status_display }}.</span>{% endif %}
   </div>
+  <div class="barra-acoes__acoes">
   <a class="botao botao--texto" href="{% url 'eventos:solicitacoes' %}">Voltar</a>
   {% if reabrir %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "send" %}Salvar e reenviar para a DG</button>
@@ -290,8 +291,10 @@ histórico.
     {% if editavel %}<button type="submit" form="{{ form_id }}" name="acao" value="enviar" class="botao botao--primario">{% icone "send" %}<span>Enviar <span class="barra-acoes__extra">para a DG</span></span></button>{% endif %}
     {% if pode_excluir %}{% firstof "excluir-evento" as excluir_form %}{% else %}{% firstof "" as excluir_form %}{% endif %}
     {% if pode_cancelar %}{% url 'eventos:cancelar' s.pk as cancelar_url %}{% else %}{% firstof "" as cancelar_url %}{% endif %}
-    {% include "componentes/rodape_documento.html" with nome="solicitação" finalizar_form="finalizar-evento" duplicar_form="duplicar-evento" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico e avisa quem acompanha." %}
+    {% if editavel %}{% firstof "" as finalizar_primario %}{% else %}{% firstof "1" as finalizar_primario %}{% endif %}
+    {% include "componentes/rodape_documento.html" with nome="solicitação" finalizar_form="finalizar-evento" finalizar_primario=finalizar_primario duplicar_form="duplicar-evento" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico e avisa quem acompanha." %}
   {% endif %}
+  </div>
 </div>
 {% if s and s.protocolo %}<form id="consultar-protocolo" method="post" action="{% url 'eventos:consultar_protocolo' s.pk %}" hidden>{% csrf_token %}</form>{% endif %}
 <form id="finalizar-evento" method="get" action="{% url 'eventos:solicitacoes' %}" hidden data-esperar-salvamento></form>
@@ -301,10 +304,11 @@ histórico.
 {% elif editavel %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if s and not reabrir %}Gravando as alterações…{% else %}Alterações não salvas.{% endif %}" role="status">
-    {% if s and not reabrir %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
+    {% icone "check" classe="icone--sm" %}{% if s and not reabrir %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
     {% elif reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
     {% else %}<span data-anuncio>Salve como rascunho ou envie direto para a DG.</span>{% endif %}
   </div>
+  <div class="barra-acoes__acoes">
   <a class="botao botao--texto" href="{% url 'eventos:solicitacoes' %}">Voltar</a>
   {% if reabrir %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "send" %}Salvar e reenviar para a DG</button>
@@ -312,6 +316,7 @@ histórico.
     <button type="submit" form="{{ form_id }}" name="acao" value="rascunho" class="botao">{% icone "save" %}<span>Salvar{% if not s %} <span class="barra-acoes__extra">rascunho</span>{% endif %}</span></button>
     <button type="submit" form="{{ form_id }}" name="acao" value="enviar" class="botao botao--primario">{% icone "send" %}<span>Enviar <span class="barra-acoes__extra">para a DG</span></span></button>
   {% endif %}
+  </div>
 </div>
 {% endif %}
 {% endblock %}

@@ -25,6 +25,8 @@ FORM_ID = "form-solicitacao"
 MSG_VERSAO = ("Esta solicitação foi alterada por outra pessoa depois que você abriu a tela. "
               "Recarregue a página antes de salvar.")
 
+MSG_CEP = "Informe o CEP com 8 dígitos (00000-000)."
+
 
 def _attrs(**extra: Any) -> dict[str, Any]:
     return {"class": "entrada", **extra}
@@ -101,11 +103,23 @@ class FormularioSolicitacao(forms.ModelForm):
             campo.queryset = _ativos(modelo, atual)
             campo.empty_label = vazio
         motorista = cast(forms.ModelChoiceField, self.fields["motorista"])
+        # Como na referência: quem tem cargo de motorista ou dirige alguma viatura.
         motorista.queryset = Servidor.objects.filter(
-            Q(ativo=True) | Q(pk=inst.motorista_id or 0)).order_by("nome")
+            Q(ativo=True, cargo__nome__icontains="motorista")
+            | Q(ativo=True, viaturas_que_dirige__isnull=False)
+            | Q(pk=inst.motorista_id or 0)).distinct().order_by("nome")
         motorista.empty_label = "Sem motorista definido"
         for campo_form in self.fields.values():
             campo_form.widget.attrs.setdefault("form", FORM_ID)
+
+    def clean_cep(self) -> str:
+        texto = (self.cleaned_data.get("cep") or "").strip()
+        if not texto:
+            return ""
+        cep = re.sub(r"[\s.-]", "", texto)
+        if not re.fullmatch(r"[0-9]{8}", cep):
+            raise forms.ValidationError(MSG_CEP)
+        return f"{cep[:5]}-{cep[5:]}"
 
     def clean(self) -> dict[str, Any]:
         dados = super().clean() or {}

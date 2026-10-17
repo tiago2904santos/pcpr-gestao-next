@@ -41,8 +41,14 @@ com a contagem, a paginação, "Mais" (exportar planilha ou CSV) e "Nova solicit
         <span id="conta-filtros">{% if filtros.ativos %}<span class="filtros__mais-conta">{{ filtros.ativos }}</span>{% endif %}</span>
         {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
       </summary>
-      <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros">
-        <div class="filtros__gaveta-cabecalho"><h2 class="filtros__gaveta-titulo">Filtros</h2></div>
+      <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
+        <div class="filtros__gaveta-cabecalho"><h2 class="filtros__gaveta-titulo">Filtros e ordem</h2></div>
+        <div class="campo filtros__campo--ordem">
+          <label class="campo__rotulo" for="ordem-solicitacoes">Ordenar por</label>
+          <pc-select class="seletor"><select class="selecao" id="ordem-solicitacoes" name="ordem">
+            {% for chave, rotulo in ordens %}<option value="{{ chave }}"{% if chave == ordem %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+          </select></pc-select>
+        </div>
         {# Período do evento num campo só (o calendário marca começo e fim); as pontas vão escondidas. #}
         <div class="campo filtros__campo--periodo">
           <label class="campo__rotulo" for="filtro-periodo">Período do evento</label>
@@ -67,8 +73,8 @@ com a contagem, a paginação, "Mais" (exportar planilha ou CSV) e "Nova solicit
         </div>
       </div>
     </details>
+    <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
   </div>
-  <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
 </div>
 {% endblock %}
@@ -87,7 +93,7 @@ com a contagem, a paginação, "Mais" (exportar planilha ou CSV) e "Nova solicit
     {% url 'eventos:nova' as url_nova %}
     {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação ainda" texto="Registre o primeiro pedido de evento social." acao_url=url_nova acao_rotulo="Nova solicitação" %}
   {% endif %}
-  {% for l in linhas %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% endfor %}
+  {% for l in linhas %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% if l.concluir %}<form id="concluir-{{ l.s.pk }}" method="post" action="{% url 'eventos:concluir' l.s.pk %}" hidden>{% csrf_token %}</form>{% endif %}{% endfor %}
 </div>
 {% endblock %}
 

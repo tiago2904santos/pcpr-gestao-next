@@ -71,6 +71,17 @@ class Situacao:
     carimbados: set[int] = field(default_factory=set)  # ps com o número carimbado na via
 
 
+def comprovantes(prestacao_ids) -> dict[int, list]:
+    """Só os valores dos comprovantes por servidor da prestação (o que a aba "comprovante
+    diferente" precisa) — sem montar a situação inteira das prestações."""
+    saida: dict[int, list] = {}
+    for servidor_id, valor in (ativos(AnexoPrestacao.objects.filter(
+            prestacao_id__in=list(prestacao_ids), tipo=AnexoPrestacao.Tipo.COMPROVANTE))
+            .values_list("servidor_id", "valor")):
+        saida.setdefault(servidor_id, []).append(valor)
+    return saida
+
+
 def situacao(prestacao_ids) -> Situacao:
     from . import relatorio
     ids = list(prestacao_ids)

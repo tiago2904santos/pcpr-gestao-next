@@ -84,8 +84,9 @@ class TipoEvento(Catalogo):
 
     @property
     def tem_modelo(self) -> bool:
+        # .all(): usa o que a lista já carregou (prefetch); fora dela, uma consulta cada.
         return bool(self.solicitante_padrao or self.cargo_padrao or self.orgao_padrao_id
-                    or self.servicos_sugeridos.exists() or self.equipes_padrao.exists())
+                    or self.servicos_sugeridos.all() or self.equipes_padrao.all())
 
 
 class TipoEventoEquipe(models.Model):

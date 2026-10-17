@@ -13,7 +13,7 @@ equipes com a quantidade de servidores. Só os ativos aparecem, mais os já esco
 {% with titulo_modelo="Modelo da solicitação — "|add:tipo.nome %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais · Tipo de evento" titulo=titulo_modelo complemento="O que uma solicitação nova deste tipo já traz preenchido. Quem preenche pode trocar tudo." %}
 {% if erros %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
-<form method="post" class="documento documento--cartoes" novalidate>
+<form method="post" class="documento documento--preparacao" novalidate>
   {% csrf_token %}
   <section class="secao" aria-labelledby="t-quem">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-quem"><span class="secao__numero">1</span>Quem pede</h2></div>
@@ -40,7 +40,13 @@ equipes com a quantidade de servidores. Só os ativos aparecem, mais os já esco
       {% empty %}<p class="vazio-inline">Nenhuma equipe cadastrada.</p>{% endfor %}
     </div>
   </section>
-  <div class="linha"><a class="botao botao--texto" href="{% url 'eventos:tipos-evento' %}">Voltar</a><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar modelo</button></div>
+  <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+    <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span>Vale para as próximas solicitações deste tipo; as já criadas não mudam.</span></div>
+    <div class="barra-acoes__acoes">
+      <a class="botao botao--texto" href="{% url 'eventos:tipos-evento' %}">Voltar</a>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar modelo</button>
+    </div>
+  </div>
 </form>
 {% endwith %}
 {% endblock %}
