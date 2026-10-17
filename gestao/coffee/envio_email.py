@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import EmailMessage
@@ -34,7 +34,14 @@ TEXTO_LINK = ("Prezados,\n\nPara a Ordem de Serviço {numero} ({evento}), envie 
 CAMPOS = ("numero", "evento", "data", "horario", "local", "responsavel", "quantidade",
           "fornecedor", "nota", "ordem_bancaria", "data_ordem_bancaria")
 A_COMBINAR = "a combinar"
+MAX_PARA, MAX_COPIA = 3, 5  # o fornecedor e a ASCOM: não é lista de distribuição
+MAX_POR_HORA = 20  # envios por pessoa
 MSG_SEM_EMAIL = "Informe o e-mail do fornecedor."
+MSG_DESTINOS = (f"Até {MAX_PARA} endereços em \"Para\" e {MAX_COPIA} em \"Cópia\": o e-mail é "
+                "para o fornecedor, com a ASCOM em cópia.")
+MSG_MUITOS = "Muitos e-mails enviados na última hora. Tente de novo mais tarde."
+MSG_URL_PUBLICA = ("O endereço público do sistema (URL_PUBLICA) não está configurado com https: "
+                   "o link não pode ser enviado. Fale com a administração do sistema.")
 MSG_SEM_ASSUNTO = "Informe o assunto do e-mail."
 MSG_FALHA = ("O e-mail não foi enviado: o servidor de e-mail recusou ou não respondeu ({erro}). "
              "Tente de novo.")
@@ -138,6 +145,30 @@ def _ultimo_envio(s: Solicitacao, qual: str) -> datetime | date | None:
     return m.em if m else None
 
 
+# Onde o e-mail "no console" basta (nada sai da máquina e todos sabem disso).
+AMBIENTES_SEM_SMTP = frozenset({"lab", "dev", "test", "preview"})
+MSG_SEM_SMTP = ("O envio de e-mail não está configurado neste ambiente (falta o servidor "
+                "SMTP): nada foi enviado. Fale com a administração do sistema.")
+
+
+def configurado() -> bool:
+    """Há servidor de e-mail de verdade, ou o ambiente aceita o console."""
+    from django.conf import settings
+
+    from gestao.plataforma import ambiente
+    backend = settings.MAILERS.get("default", {}).get("BACKEND", "")
+    return "console" not in backend or ambiente.atual() in AMBIENTES_SEM_SMTP
+
+
+def url_publica_segura() -> bool:
+    """O link do fornecedor só sai com endereço https (em lab/dev/test/preview, qualquer)."""
+    from django.conf import settings
+
+    from gestao.plataforma import ambiente
+    return (ambiente.atual() in AMBIENTES_SEM_SMTP
+            or str(settings.URL_PUBLICA).lower().startswith("https://"))
+
+
 def rascunho(s: Solicitacao, qual: str) -> Rascunho:
     cfg = ConfiguracaoOficio.atual()
     v = valores(s)
@@ -151,10 +182,12 @@ def rascunho(s: Solicitacao, qual: str) -> Rascunho:
     assunto, texto = {"os": (cfg.assunto_email_os, cfg.texto_email_os),
                       "ob": (cfg.assunto_email_ob, cfg.texto_email_ob),
                       "link": (ASSUNTO_LINK, TEXTO_LINK)}[qual]
+    faltas = (problemas(s, qual) + ([] if configurado() else [MSG_SEM_SMTP])
+              + ([MSG_URL_PUBLICA] if qual == "link" and not url_publica_segura() else []))
     return Rascunho(qual=qual, para=para, copia=", ".join(copia),
                     assunto=" ".join(preencher(assunto, v).split()),
                     texto=preencher(texto, v), anexo=_nome_anexo(s, qual),
-                    problemas=problemas(s, qual), enviado_em=_ultimo_envio(s, qual),
+                    problemas=faltas, enviado_em=_ultimo_envio(s, qual),
                     sem_email_fornecedor=not para)
 
 
@@ -174,6 +207,8 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
         raise PermissionDenied
     if qual not in QUAIS:
         raise PedidoInvalido("Envio desconhecido.")
+    if not configurado():
+        raise PedidoInvalido(MSG_SEM_SMTP)
     try:
         destinos = enderecos(para)
         copias = [x for x in enderecos(copia) if x.lower() not in {d.lower() for d in destinos}]
@@ -181,6 +216,14 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
         raise PedidoInvalido(str(exc)) from None
     if not destinos:
         raise PedidoInvalido(MSG_SEM_EMAIL)
+    if len(destinos) > MAX_PARA or len(copias) > MAX_COPIA:
+        raise PedidoInvalido(MSG_DESTINOS)
+    if qual == "link" and not url_publica_segura():
+        raise PedidoInvalido(MSG_URL_PUBLICA)
+    desde = timezone.now() - timedelta(hours=1)
+    if Movimento.objects.filter(acao=Movimento.Acao.EMAIL, usuario=usuario, em__gte=desde,
+                                texto__contains="por e-mail em").count() >= MAX_POR_HORA:
+        raise PedidoInvalido(MSG_MUITOS)
     assunto = " ".join((assunto or "").split())[:200]
     if not assunto:
         raise PedidoInvalido(MSG_SEM_ASSUNTO)
@@ -202,8 +245,13 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
             nome, conteudo = "", b""
         else:
             nome, conteudo = _anexo(usuario, s, qual)
+        # As respostas vão para a ASCOM da configuração (nunca para um endereço digitado).
+        try:
+            ascom = enderecos(ConfiguracaoOficio.atual().emails_ascom)
+        except ValueError:
+            ascom = []
         msg = EmailMessage(subject=assunto, body=texto or "", to=destinos, cc=copias,
-                           reply_to=copias[:1] or None)
+                           reply_to=ascom[:1] or None)
         if conteudo:
             msg.attach(nome, conteudo, "application/pdf")
         try:
@@ -223,7 +271,7 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
         if qual == "os":
             s.os_enviada_em = agora
             s.save(update_fields=["os_enviada_em", "atualizado_em"])
-        else:
+        elif qual == "ob":
             marco = regras.proximo_marco(s.valores_dos_marcos, s.cancelada)
             if marco and marco[0] == "envio_empresa_em" and not s.bloqueada:
                 s = financeiro.registrar_marco(usuario, s.pk, f"{hoje:%d/%m/%Y}",

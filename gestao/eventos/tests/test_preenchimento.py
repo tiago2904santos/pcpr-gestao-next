@@ -91,3 +91,15 @@ def test_tela_preenche_sem_gravar():
     assert "20/11/2026" in html and "Maria Silva" in html
     r = c.post(reverse("eventos:preencher"), {"arquivo": SimpleUploadedFile("x.pdf", b"%PDF")})
     assert r.status_code == 302
+
+
+@pytest.mark.django_db
+def test_eml_com_cabecalho_gigante_e_recusado_sem_parse():
+    c = Client()
+    c.force_login(_usuario("bia"))
+    bomba = (b"From: a@b.invalid\r\nSubject: " + b" ".join([b"=?utf-8?q?a?="] * 20000)
+             + b"\r\n\r\ncorpo")
+    r = c.post(reverse("eventos:preencher"),
+               {"arquivo": SimpleUploadedFile("x.eml", bomba, content_type="message/rfc822")},
+               follow=True)
+    assert "Envie o e-mail salvo como .eml (até 512 KB)" in r.content.decode()

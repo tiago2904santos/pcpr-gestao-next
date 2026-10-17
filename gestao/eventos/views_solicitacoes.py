@@ -333,6 +333,12 @@ def consultar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
     if not s.protocolo:
         messages.error(request, "Informe e salve o número do protocolo antes de consultar.")
         return redirect(reverse("eventos:solicitacao", args=[pk]) + "#dados")
+    from django.core.cache import cache
+    chave = f"eventos-protocolo:{s.protocolo}"
+    if cache.get(chave):  # uma consulta por protocolo por minuto (a API externa é lenta)
+        messages.info(request, "O protocolo acabou de ser consultado: espere um minuto.")
+        return redirect(voltar)
+    cache.set(chave, True, 60)
     try:
         situacao = eprotocolo.consultar(s.protocolo)
     except ErroEprotocolo as exc:
@@ -361,7 +367,11 @@ def preencher(request: HttpRequest) -> HttpResponse:
                 arquivo.name or "").lower().endswith(".eml"):
             messages.error(request, preenchimento.MSG_ARQUIVO)
             return redirect("eventos:nova")
-        texto = preenchimento.texto_do_eml(arquivo.read())
+        try:
+            texto = preenchimento.texto_do_eml(arquivo.read(preenchimento.LIMITE_ARQUIVO + 1))
+        except ValueError:
+            messages.error(request, preenchimento.MSG_ARQUIVO)
+            return redirect("eventos:nova")
     leitura = preenchimento.sugerir(request.user, texto, timezone.localdate())
     inicial = {"data_solicitacao": timezone.localdate(), **leitura.iniciais}
     form = FormularioSolicitacao(initial=inicial)

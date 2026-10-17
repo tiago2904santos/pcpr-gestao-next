@@ -3,7 +3,12 @@
 {% comment %}O mesmo para link desconhecido, vencido ou revogado: não diz qual.{% endcomment %}
 {% block conteudo %}
 <section class="cartao-acesso pilha" aria-labelledby="t-indisponivel">
+  {% if limite %}
+  <h1 class="cartao-acesso__titulo" id="t-indisponivel">Muitos envios em pouco tempo</h1>
+  <p class="texto-secundario">Tente de novo daqui a uma hora.</p>
+  {% else %}
   <h1 class="cartao-acesso__titulo" id="t-indisponivel">Link indisponível</h1>
   <p class="texto-secundario">Este link não está mais valendo. Peça um novo à ASCOM da Polícia Civil do Paraná pelo e-mail em que você recebeu a ordem de serviço.</p>
+  {% endif %}
 </section>
 {% endblock %}

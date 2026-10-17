@@ -822,7 +822,8 @@ def arquivo_envio(request: HttpRequest, pk: int, envio_pk: int) -> StreamingHttp
     _exigir(request)
     e = get_object_or_404(EnvioFornecedor, pk=envio_pk, solicitacao_id=pk)
     nome = re.sub(r"[^\w .-]", "-", e.nome_original or f"envio-{e.pk}.pdf")[:120]
-    resposta = FileResponse(e.arquivo.open("rb"), as_attachment=False, filename=nome,
+    # Enviado sem login: sai como download, nunca aberto na origem do sistema.
+    resposta = FileResponse(e.arquivo.open("rb"), as_attachment=True, filename=nome,
                             content_type="application/pdf")
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"

@@ -173,8 +173,9 @@ class Movimento(models.Model):
                                     related_name="movimentos")
     acao = models.CharField(max_length=20, choices=Acao.choices)
     texto = models.TextField(blank=True)
+    # Vazio só no que chega pelo link do fornecedor (não é ação de ninguém da equipe).
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
-                                related_name="+")
+                                null=True, blank=True, related_name="+")
     em = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -15,6 +15,8 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
+from gestao.plataforma.middleware import ip_do_cliente
+
 from . import dominio_certidoes, link_fornecedor
 from .models import EnvioFornecedor
 from .pedidos import PedidoInvalido
@@ -24,7 +26,7 @@ SESSAO = "coffee_fornecedor_recebido"
 
 
 def _ip(request: HttpRequest) -> str:
-    return request.META.get("REMOTE_ADDR", "")
+    return ip_do_cliente(request) or ""
 
 
 def _cabecalhos(resposta: HttpResponse) -> HttpResponse:
@@ -33,12 +35,23 @@ def _cabecalhos(resposta: HttpResponse) -> HttpResponse:
     return resposta
 
 
-def _indisponivel(request: HttpRequest) -> HttpResponse:
-    chave = f"coffee-link-invalido:{link_fornecedor.origem(_ip(request))}"
-    tentativas = cache.get(chave, 0) + 1
-    cache.set(chave, tentativas, 3600)
-    status = 429 if tentativas > TENTATIVAS_INVALIDAS_POR_HORA else 404
+def _chave_invalidos(request: HttpRequest) -> str:
+    return f"coffee-link-invalido:{link_fornecedor.origem(_ip(request))}"
+
+
+def _indisponivel(request: HttpRequest, status: int = 404) -> HttpResponse:
     return _cabecalhos(render(request, "coffee/publico/indisponivel.html", status=status))
+
+
+def _contar(chave: str) -> int:
+    """Soma uma tentativa na janela de uma hora e devolve o total."""
+    if cache.add(chave, 1, 3600):
+        return 1
+    try:
+        return cache.incr(chave)
+    except ValueError:  # expirou entre o add e o incr
+        cache.set(chave, 1, 3600)
+        return 1
 
 
 def _data(texto: str):
@@ -52,11 +65,21 @@ def _data(texto: str):
 @never_cache
 @require_http_methods(["GET", "POST"])
 def envio(request: HttpRequest, token: str) -> HttpResponse:
+    # Quem já errou tokens demais nem chega a consultar o banco.
+    if (cache.get(_chave_invalidos(request)) or 0) >= TENTATIVAS_INVALIDAS_POR_HORA:
+        return _indisponivel(request, 429)
     link = link_fornecedor.do_token(token)
     if link is None:
+        _contar(_chave_invalidos(request))
         return _indisponivel(request)
     erro, status = "", 200
     if request.method == "POST":
+        # Toda tentativa conta (também as recusadas: PDF ruim, CNPJ de outro, vencida).
+        quem = link_fornecedor.origem(_ip(request))
+        if max(_contar(f"coffee-link-envio:{link.pk}"),
+               _contar(f"coffee-link-envio-origem:{quem}")) > link_fornecedor.LIMITE_POR_HORA:
+            return _cabecalhos(render(request, "coffee/publico/indisponivel.html",
+                                      {"limite": True}, status=429))
         try:
             e = link_fornecedor.receber(
                 link, request.POST.get("tipo") or "", request.FILES.get("arquivo"),

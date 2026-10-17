@@ -22,10 +22,12 @@ from . import leitura_email, policies
 from .models import Servico, Solicitacao, TipoEvento
 
 LIMITE_TEXTO = 20000
-LIMITE_ARQUIVO = 2 * 1024 * 1024
+LIMITE_ARQUIVO = 512 * 1024
+LIMITE_CABECALHOS = 16 * 1024
+LIMITE_LINHA_CABECALHO = 2000
 MSG_VAZIO = ("Não deu para ler nada do e-mail: confira se o texto é o do pedido (com a data, "
              "a cidade e o que se pede).")
-MSG_ARQUIVO = "Envie o e-mail salvo como .eml (até 2 MB) ou cole o texto."
+MSG_ARQUIVO = "Envie o e-mail salvo como .eml (até 512 KB) ou cole o texto."
 
 
 @dataclass
@@ -37,22 +39,54 @@ class Sugestoes:
     anteriores: list[Solicitacao] = field(default_factory=list)
 
 
+def _cabecalho(valor, limite: int = 300) -> str:
+    """Um cabeçalho decodificado, cortado antes (o parser "default" do e-mail tem custo
+    quadrático com muitas encoded-words no assunto)."""
+    from email.header import decode_header, make_header
+    bruto = str(valor or "")[:limite]
+    try:
+        return str(make_header(decode_header(bruto)))[:limite]
+    except Exception:  # cabeçalho torto vira o texto cru
+        return bruto
+
+
 def texto_do_eml(conteudo: bytes) -> str:
-    """O .eml como se tivesse sido colado: De, Enviado em, Assunto e o corpo em texto."""
-    msg = email.message_from_bytes(conteudo, policy=email.policy.default)
-    enviado = ""
-    if msg["date"]:
-        try:
-            quando = timezone.localtime(parsedate_to_datetime(str(msg["date"])))
-            enviado = f"{quando:%d/%m/%Y %H:%M}"
-        except (TypeError, ValueError):
-            enviado = ""
-    parte = msg.get_body(preferencelist=("plain", "html"))  # type: ignore[attr-defined]
-    corpo = parte.get_content() if parte is not None else ""
-    if parte is not None and parte.get_content_type() == "text/html":
-        corpo = re.sub(r"<[^>]+>", " ", re.sub(r"<br\s*/?>|</p>", "\n", corpo, flags=re.I))
-    return (f"De: {msg['from'] or ''}\nEnviado em: {enviado}\nAssunto: {msg['subject'] or ''}"
-            f"\n\n{corpo}")
+    """O .eml como se tivesse sido colado: De, Enviado em, Assunto e o corpo em texto.
+    Cabeçalhos grandes demais ou um arquivo que não se lê levantam ValueError."""
+    fim = conteudo.find(b"\r\n\r\n")
+    fim = conteudo.find(b"\n\n") if fim < 0 else fim
+    cabecalhos = conteudo[:fim if fim >= 0 else len(conteudo)]
+    if len(cabecalhos) > LIMITE_CABECALHOS or any(
+            len(linha) > LIMITE_LINHA_CABECALHO for linha in cabecalhos.splitlines()):
+        raise ValueError(MSG_ARQUIVO)
+    try:
+        msg = email.message_from_bytes(conteudo, policy=email.policy.compat32)
+        enviado = ""
+        if msg["date"]:
+            try:
+                quando = timezone.localtime(parsedate_to_datetime(str(msg["date"])[:100]))
+                enviado = f"{quando:%d/%m/%Y %H:%M}"
+            except (TypeError, ValueError, OverflowError):
+                enviado = ""
+        partes = [p for p in msg.walk() if not p.is_multipart()][:50]
+        parte = (next((p for p in partes if p.get_content_type() == "text/plain"), None)
+                 or next((p for p in partes if p.get_content_type() == "text/html"), None))
+        corpo = ""
+        if parte is not None:
+            bruto = parte.get_payload(decode=True)
+            dados = bruto if isinstance(bruto, bytes) else b""
+            charset = parte.get_content_charset() or "utf-8"
+            try:
+                corpo = dados.decode(charset, errors="replace")
+            except LookupError:
+                corpo = dados.decode("utf-8", errors="replace")
+            if parte.get_content_type() == "text/html":
+                corpo = re.sub(r"<[^>]+>", " ",
+                               re.sub(r"<br\s*/?>|</p>", "\n", corpo, flags=re.I))
+        return (f"De: {_cabecalho(msg['from'])}\nEnviado em: {enviado}\n"
+                f"Assunto: {_cabecalho(msg['subject'])}\n\n{corpo[:LIMITE_TEXTO]}")
+    except Exception as exc:  # .eml malformado (recursão, charset…)
+        raise ValueError(MSG_ARQUIVO) from exc
 
 
 def sugerir(usuario, texto: str, hoje: date) -> Sugestoes:

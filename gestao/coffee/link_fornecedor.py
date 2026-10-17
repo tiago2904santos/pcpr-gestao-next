@@ -207,7 +207,7 @@ def receber(link: LinkFornecedor, tipo: str, arquivo, *, tipo_certidao: str = ""
         nome_original=(getattr(arquivo, "name", "") or "")[:200], validade=validade,
         lido=lido[:255], avisos="\n".join(avisos), origem_hash=quem)
     Movimento.objects.create(
-        solicitacao=s, acao=Movimento.Acao.FORNECEDOR, usuario=link.criado_por,
+        solicitacao=s, acao=Movimento.Acao.FORNECEDOR, usuario=None,
         texto=f"{rotulo} recebida pelo link do fornecedor" + (f" ({lido})." if lido else "."))
     notificar([link.criado_por, s.criado_por], f"{fornecedor} enviou: {rotulo.lower()}",
               f"{s} · {s.descricao[:80]}. Confira na solicitação.",

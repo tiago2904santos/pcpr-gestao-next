@@ -208,7 +208,7 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
           {% endif %}
         </div>
         <div class="registro__acoes registro__acoes--fixas">
-          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:arquivo_envio' s.pk e.pk %}">{% icone "eye" %}PDF<span class="sr-only"> — {{ e }}</span></a>
+          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:arquivo_envio' s.pk e.pk %}">{% icone "download" %}PDF<span class="sr-only"> — {{ e }}</span></a>
           {% if e.situacao == "recebido" and not s.bloqueada %}<form method="post" action="{% url 'coffee:conferir_envio' s.pk e.pk %}">{% csrf_token %}<input type="hidden" name="acao" value="aceitar"><button type="submit" class="botao botao--sm">{% icone "check" %}Aceitar<span class="sr-only"> — {{ e }}</span></button></form>{% endif %}
         </div>
       </li>
@@ -348,7 +348,7 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
         <li class="historico__linha{% if h.acao != 'atualizada' %} historico__linha--marca{% endif %}">
           <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
           <span class="historico__texto"><b>{{ h.get_acao_display }}</b>{% if h.texto %} — {{ h.texto }}{% endif %}</span>
-          <span class="historico__quem">{{ h.usuario.nome }}</span>
+          <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}fornecedor, pelo link{% endif %}</span>
         </li>
         {% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
       </ol>

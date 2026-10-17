@@ -109,3 +109,42 @@ def test_link_vencido_e_limite(base, mailoutbox, monkeypatch):  # noqa: F811
     assert r.status_code == 429
     LinkFornecedor.objects.update(expira_em=timezone.now() - timedelta(minutes=1))
     assert anonimo.get(url).status_code == 404
+
+
+def test_correcoes_da_revisao_de_seguranca(base, mailoutbox, settings, monkeypatch):  # noqa: F811
+    import logging
+
+    from gestao.coffee.models import Movimento
+    from gestao.coffee.pedidos import PedidoInvalido
+    from gestao.plataforma import ambiente
+    from gestao.plataforma.logs import MascararSegredos
+    u, curitiba, hoje, _f = base
+    # O link nunca conclui o pagamento, mesmo quando o próximo marco é o envio à empresa.
+    s = _os(u, curitiba, hoje, data_evento=hoje - timedelta(days=10), nota_fiscal="123",
+            protocolo_pagamento="12.345.678-9", atesto_em=hoje - timedelta(days=5),
+            ordem_bancaria_em=hoje - timedelta(days=2))
+    envio_email.enviar(u, s.pk, "link", para="f@x.invalid", copia="", assunto="L", texto="")
+    s.refresh_from_db()
+    assert s.envio_empresa_em is None and not s.concluida
+    # Não é lista de distribuição.
+    muitos = ", ".join(f"p{i}@x.invalid" for i in range(4))
+    with pytest.raises(PedidoInvalido, match="Até 3 endereços"):
+        envio_email.enviar(u, s.pk, "link", para=muitos, copia="", assunto="L", texto="")
+    # Sem SMTP fora de lab/dev/test/preview, nada "sai" (nem o link com o token no console).
+    settings.MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
+    monkeypatch.setattr(ambiente, "atual", lambda: "production")
+    with pytest.raises(PedidoInvalido, match="não está configurado"):
+        envio_email.enviar(u, s.pk, "os", para="f@x.invalid", copia="", assunto="OS", texto="")
+    monkeypatch.undo()
+    # O token do link não vai para o log.
+    token = _token(mailoutbox)
+    registro = logging.LogRecord("django.request", logging.WARNING, __file__, 1,
+                                 "Unprocessable Content: %s", (f"/fornecedor/{token}/",), None)
+    MascararSegredos().filter(registro)
+    assert token not in registro.getMessage() and "/fornecedor/[token]/" in registro.getMessage()
+    # O que o fornecedor manda não é atribuído a ninguém da equipe.
+    Client().post(reverse("fornecedor:envio", args=[token]),
+                  {"tipo": "certidao", "tipo_certidao": "trabalhista",
+                   "arquivo": _certidao(hoje + timedelta(days=90))})
+    m = Movimento.objects.get(solicitacao=s, acao="fornecedor")
+    assert m.usuario is None
