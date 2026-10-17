@@ -85,7 +85,7 @@ def test_vias_do_oficio_ficam_na_principal(os_):  # noqa: F811
     assert vias.obter(u, a, "oficio").assinada and vias.obter(u, b, "oficio").assinada
     c = Client()
     c.force_login(u)
-    folha = c.get(reverse("coffee:solicitacao", args=[b.pk])).content.decode()
+    folha = c.get(reverse("coffee:oficio", args=[b.pk])).content.decode()
     assinada = Via.objects.get(tipo="oficio", assinada=True)
     assert assinada.solicitacao_id == a.pk
     url = reverse("coffee:arquivo_via", args=[b.pk, assinada.pk])

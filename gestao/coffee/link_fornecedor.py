@@ -211,7 +211,7 @@ def receber(link: LinkFornecedor, tipo: str, arquivo, *, tipo_certidao: str = ""
         texto=f"{rotulo} recebida pelo link do fornecedor" + (f" ({lido})." if lido else "."))
     notificar([link.criado_por, s.criado_por], f"{fornecedor} enviou: {rotulo.lower()}",
               f"{s} · {s.descricao[:80]}. Confira na solicitação.",
-              reverse("coffee:solicitacao", args=[s.pk]) + "#envios-fornecedor")
+              reverse("coffee:ordem_servico", args=[s.pk]) + "#envios-fornecedor")
     return envio
 
 

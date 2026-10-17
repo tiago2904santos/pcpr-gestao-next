@@ -63,6 +63,28 @@ COLUNAS = ("Nº", "Lote", "Fornecedor", "Data da solicitação", "Evento", "Per�
            "Envio à empresa", "Situação", "Criado por")
 
 
+# Onde mora cada seção (como a viagem: a página central reúne; cada etapa tem a sua folha).
+PAGINA_DA_SECAO = {
+    "evento": "ordem_servico", "entrega": "ordem_servico", "ordem-servico": "ordem_servico",
+    "entregas": "ordem_servico", "envios-fornecedor": "ordem_servico",
+    "nota": "oficio", "oficio": "oficio", "pdf-nota": "oficio", "conjunto": "oficio",
+    "documentos": "oficio",
+    "pagamento": "protocolo",
+}
+# Campos do formulário financeiro de cada folha (o que fica de fora segue como estava).
+CAMPOS_DA_ETAPA = {
+    "oficio": ("nota_fiscal", "quantidade_faturada", "numero_oficio", "data_oficio",
+               "protocolo_pcpr"),
+    "protocolo": ("protocolo_pagamento", "atesto_em", "ordem_bancaria_em", "envio_empresa_em",
+                  "observacoes"),
+}
+
+
+def _ir(pk: int, secao: str) -> str:
+    """O endereço da seção na folha da etapa a que ela pertence."""
+    return reverse(f"coffee:{PAGINA_DA_SECAO[secao]}", args=[pk]) + f"#{secao}"
+
+
 def _exigir(request: HttpRequest) -> None:
     if not policies.pode_acessar(request.user):
         raise PermissionDenied
@@ -317,7 +339,8 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
             "proximo_oficio": queries.proximo_oficio(timezone.localdate().year),
             "pode_reabrir": admin and s.concluida and not s.em_correcao and not s.cancelada,
             "pode_encerrar": admin and s.em_correcao,
-            "documentos": _documentos(s),
+            "documentos": (docs := _documentos(s)),
+            "documentos_os": [d for d in docs if d["tipo"] in ("os", "certificado")],
             "avisos_nota": pdfs.avisos_da_nota(s),
             "pdfs": (("nota", "Nota fiscal", s.nota_pdf,
                       (("Número", s.nota_fiscal), ("Valor", regras.moeda(s.nota_valor)
@@ -344,16 +367,9 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
         ctx.update(contexto_da_folha(request, s))
         ctx["origem"] = ganchos.cartao(request.user, s)
-        # Seções numeradas em sequência, como nas folhas de Viagens (algumas só aparecem
-        # em certas situações: o número segue o que está na tela).
-        visiveis = ["evento", "entrega", "entregas", "nota", "pagamento"]
-        if ctx["link_disponivel"] or ctx["envios_fornecedor"]:
-            visiveis.append("envios")
-        if not s.cancelada:
-            visiveis.append("pdfs")
-        if ctx["candidatas"]:
-            visiveis.append("conjunto")
-        ctx["secoes"] = {k: i for i, k in enumerate([*visiveis, "documentos", "situacao"], 1)}
+        ctx["migalhas"] = _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                                    (str(s), reverse("coffee:solicitacao", args=[s.pk])),
+                                    ("Ordem de serviço", ""))
     else:
         ctx["migalhas"] = _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
                                     ("Nova solicitação", ""))
@@ -424,6 +440,21 @@ def preencher(request: HttpRequest) -> HttpResponse:
 
 @require_http_methods(["GET", "POST"])
 def solicitacao(request: HttpRequest, pk: int) -> HttpResponse:
+    """A página central do coffee break, como a da viagem: o pedido, as etapas na ordem em
+    que o processo anda — 1 a ordem de serviço, 2 a nota (certifico e ofício), 3 o protocolo
+    de pagamento —, cada uma com os seus documentos e o botão da folha; o andamento e o
+    histórico. (POST grava o pedido, como a folha da OS.)"""
+    if request.method == "POST":
+        return ordem_servico(request, pk)
+    _exigir(request)
+    s = get_object_or_404(_base(), pk=pk)
+    return render(request, "coffee/solicitacao.html", _contexto_central(request, s))
+
+
+@require_http_methods(["GET", "POST"])
+def ordem_servico(request: HttpRequest, pk: int) -> HttpResponse:
+    """Etapa 1 — a folha da ordem de serviço: o pedido (evento e entrega), o documento da OS
+    (gerar, assinar, enviar ao fornecedor), o recebimento e o link do fornecedor."""
     _exigir(request)
     s = get_object_or_404(_base(), pk=pk)
     if request.method == "POST":
@@ -432,12 +463,111 @@ def solicitacao(request: HttpRequest, pk: int) -> HttpResponse:
             return redirect("coffee:solicitacao", pk=pk)
         form = FormularioSolicitacao(request.POST, solicitacao=s)
         if form.is_valid() and _gravar(request, form, s, None) is not None:
-            messages.success(request, "Solicitação de coffee break atualizada.")
-            return redirect("coffee:solicitacoes")
+            messages.success(request, "Ordem de serviço atualizada.")
+            return redirect("coffee:solicitacao", pk=pk)
         messages.error(request, "Corrija os campos destacados para continuar.")
         return render(request, "coffee/folha.html", _contexto(request, form, s), status=422)
     return render(request, "coffee/folha.html",
                   _contexto(request, FormularioSolicitacao(solicitacao=s), s))
+
+
+@require_GET
+def oficio(request: HttpRequest, pk: int) -> HttpResponse:
+    """Etapa 2 — a nota fiscal, o certifico e o ofício ao GAF (e o pagamento conjunto)."""
+    _exigir(request)
+    s = get_object_or_404(_base(), pk=pk)
+    return render(request, "coffee/oficio.html", _contexto_oficio(request, s))
+
+
+def _contexto_oficio(request: HttpRequest, s: Solicitacao,
+                     form_fin: FormularioFinanceiro | None = None) -> dict:
+    ctx = _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin)
+    ctx.update(etapa="oficio", pdfs=[p for p in ctx["pdfs"] if p[0] == "nota"],
+               documentos=[d for d in ctx["documentos"] if d["tipo"] in ("certifico", "oficio")],
+               migalhas=_migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                                  (str(s), reverse("coffee:solicitacao", args=[s.pk])),
+                                  ("Nota, certifico e ofício", "")))
+    return ctx
+
+
+def _contexto_central(request: HttpRequest, s: Solicitacao) -> dict:
+    """A página central: o resumo do pedido e as três etapas (cada uma com o que já tem)."""
+    ctx = _contexto(request, FormularioSolicitacao(solicitacao=s), s)
+    docs = {d["tipo"]: d for d in ctx["documentos"]}
+
+    def item_doc(tipo: str, titulo: str, sub: str = "") -> dict:
+        d = docs[tipo]
+        if d["assinada"]:
+            chip = ("Assinado", "sucesso")
+        elif d["faltas"]:
+            chip = ("Falta informação", "aviso")
+        else:
+            chip = ("Pronto", "neutro")
+        return {"titulo": titulo, "chip": chip, "sub": " ".join(d["faltas"]) or sub,
+                "url": (reverse("coffee:documento", args=[s.pk, tipo]) + "?formato=html"
+                        if not d["faltas"] else "")}
+
+    os_sub = (f"Enviada ao fornecedor em {timezone.localtime(s.os_enviada_em):%d/%m/%Y}"
+              if s.os_enviada_em else "Ainda não enviada ao fornecedor")
+    itens_os = [item_doc("os", f"Ordem de serviço {s.numero or ''}".strip(), os_sub)]
+    if s.os_enviada_em and itens_os[0]["chip"][0] == "Pronto":
+        itens_os[0]["chip"] = ("Enviada", "sucesso")
+    for e in ctx["entregas"]:
+        itens_os.append({"titulo": "Recebimento", "chip": (
+            ("Com ocorrência", "aviso") if e.ocorrencia else ("Entregue", "sucesso")),
+            "sub": f"{e.get_tipo_display()} · {timezone.localtime(e.registrado_em):%d/%m/%Y}",
+            "url": reverse("coffee:ordem_servico", args=[s.pk]) + "#entregas"})
+    itens_oficio = []
+    if s.nota_fiscal:
+        itens_oficio.append({"titulo": f"Nota fiscal {s.nota_fiscal}", "chip": (
+            ("PDF anexado", "sucesso") if s.nota_pdf else ("Sem PDF", "aviso")),
+            "sub": " · ".join(x for x in (
+                regras.moeda(s.nota_valor) if s.nota_valor is not None else "",
+                f"emitida em {s.nota_emissao:%d/%m/%Y}" if s.nota_emissao else "") if x),
+            "url": _ir(s.pk, "nota")})
+        itens_oficio.append(item_doc("certifico", "Certifico digital"))
+        itens_oficio.append(item_doc("oficio", f"Ofício {s.numero_oficio}".strip()
+                                     if s.numero_oficio else "Ofício ao GAF"))
+    itens_protocolo = []
+    marcos = (("protocolo_pagamento", "Protocolo de pagamento"),
+              ("atesto_em", "Atesto e envio ao GAF"), ("ordem_bancaria_em", "Ordem bancária"),
+              ("envio_empresa_em", "OB enviada à empresa"))
+    for campo, rotulo in marcos:
+        valor = getattr(s, campo)
+        if valor:
+            texto = f"{valor:%d/%m/%Y}" if hasattr(valor, "strftime") else str(valor)
+            itens_protocolo.append({"titulo": rotulo, "chip": ("Feito", "sucesso"),
+                                    "sub": texto, "url": _ir(s.pk, "pagamento")})
+    passos = [
+        {"chave": "os", "titulo": "Ordem de serviço",
+         "descricao": "O pedido vira a OS ao fornecedor: o evento, a entrega e quem recebe.",
+         # Feita quando a OS foi enviada ou assinada — ou o serviço já aconteceu (há nota).
+         "feito": bool(not docs["os"]["faltas"] and (s.os_enviada_em or docs["os"]["assinada"]
+                                                     or s.nota_fiscal)),
+         "url": reverse("coffee:ordem_servico", args=[s.pk]), "abrir": "Abrir a OS",
+         "itens": itens_os, "icone": "file-text", "vazio": "OS ainda não gerada"},
+        {"chave": "oficio", "titulo": "Nota, certifico e ofício",
+         "descricao": "Com a nota fiscal, o certifico e o ofício ao GAF que leva a nota para "
+                      "pagamento.",
+         "feito": bool(s.nota_fiscal and s.numero_oficio),
+         "url": reverse("coffee:oficio", args=[s.pk]), "abrir": "Abrir o ofício",
+         "itens": itens_oficio, "icone": "receipt", "vazio": "Aguardando a nota fiscal"},
+        {"chave": "protocolo", "titulo": "Protocolo de pagamento",
+         "descricao": "OS, ofício, notas e certificos, contratos e certidões no protocolo; "
+                      "depois o atesto, a ordem bancária e o envio à empresa.",
+         "feito": bool(s.concluida),
+         "url": reverse("coffee:protocolo", args=[s.pk]), "abrir": "Abrir o protocolo",
+         "itens": itens_protocolo, "icone": "stamp",
+         "vazio": "Abre com a nota e o ofício" if not s.nota_fiscal else "Protocolo não aberto"},
+    ]
+    for numero, passo in enumerate(passos, 1):
+        passo["numero"] = numero
+    proximo = next((p for p in passos if not p["feito"]), None)
+    ctx.update(passos=passos, passos_feitos=sum(1 for p in passos if p["feito"]),
+               proximo_passo=proximo if not s.bloqueada else None,
+               migalhas=_migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                                  (str(s), "")))
+    return ctx
 
 
 @require_GET
@@ -465,17 +595,18 @@ def lote_do_municipio(request: HttpRequest) -> HttpResponse:
         "vencido": info.vencido if info else False})
 
 
-def _acao(request: HttpRequest, pk: int, fazer, sucesso: str) -> HttpResponse:
+def _acao(request: HttpRequest, pk: int, fazer, sucesso: str, secao: str = "") -> HttpResponse:
+    """Executa e volta: à seção da folha da etapa (`secao`) ou à página central."""
     _exigir(request)
     get_object_or_404(Solicitacao, pk=pk)
+    volta = _ir(pk, secao) if secao else reverse("coffee:solicitacao", args=[pk])
     try:
         resultado = fazer()
     except pedidos.PedidoInvalido as exc:
         messages.error(request, str(exc))
-        return redirect("coffee:solicitacao", pk=pk)
+        return redirect(volta)
     messages.success(request, sucesso.format(r=resultado))
-    return redirect("coffee:solicitacoes" if isinstance(resultado, str)
-                    else reverse("coffee:solicitacao", args=[pk]))
+    return redirect("coffee:solicitacoes" if isinstance(resultado, str) else volta)
 
 
 @require_POST
@@ -487,18 +618,27 @@ def salvar_financeiro(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, regras.MSG_BLOQUEADA)
         return redirect("coffee:solicitacao", pk=pk)
     form_fin = FormularioFinanceiro(request.POST, solicitacao=s)
+    # Cada folha manda só os seus campos (a do ofício, a nota e o ofício; a do protocolo, o
+    # pagamento): o que fica de fora segue como estava.
+    etapa = request.POST.get("etapa") if request.POST.get("etapa") in CAMPOS_DA_ETAPA else ""
     if form_fin.is_valid():
+        dados = (form_fin.cleaned_data if not etapa else
+                 {c: form_fin.cleaned_data.get(c) for c in CAMPOS_DA_ETAPA[etapa]})
         try:
-            financeiro.salvar_financeiro(request.user, pk, form_fin.cleaned_data,
+            financeiro.salvar_financeiro(request.user, pk, dados,
                                          versao=form_fin.cleaned_data.get("versao") or "")
         except pedidos.PedidoInvalido as exc:
             form_fin.add_error(exc.campo if exc.campo in form_fin.fields else None, str(exc))
         else:
-            messages.success(request, "Nota, ofício e pagamento salvos.")
-            return redirect(reverse("coffee:solicitacao", args=[pk]) + "#pagamento")
+            messages.success(request, "Nota, certifico e ofício salvos." if etapa == "oficio"
+                             else "Protocolo e pagamento salvos." if etapa == "protocolo"
+                             else "Nota, ofício e pagamento salvos.")
+            return redirect("coffee:solicitacao", pk=pk)
     messages.error(request, "Corrija os campos destacados para continuar.")
-    return render(request, "coffee/folha.html",
-                  _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin),
+    if etapa == "protocolo":
+        return render(request, "coffee/protocolo.html",
+                      _contexto_protocolo(request, s, form_fin=form_fin), status=422)
+    return render(request, "coffee/oficio.html", _contexto_oficio(request, s, form_fin=form_fin),
                   status=422)
 
 
@@ -515,19 +655,22 @@ def documento(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     s = get_object_or_404(_base(), pk=pk)
     if request.GET.get("formato") == "html":
         faltas = documentos.pendencias(tipo, s)
+        secao = "ordem-servico" if tipo in ("os", "certificado") else "documentos"
         if faltas:
             messages.error(request, " ".join(faltas))
-            return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+            return redirect(_ir(pk, secao))
         nonce = str(get_nonce(request) or "")
         return HttpResponse(documentos.html(tipo, s, nonce=nonce, tela=True))
     try:
         arq = vias.obter(request.user, s, tipo)
     except pedidos.PedidoInvalido as exc:
         messages.error(request, str(exc))
-        return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+        return redirect(_ir(pk, "ordem-servico" if tipo in ("os", "certificado")
+                            else "documentos"))
     except RuntimeError as exc:  # sem o motor de PDF
         messages.error(request, str(exc))
-        return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+        return redirect(_ir(pk, "ordem-servico" if tipo in ("os", "certificado")
+                            else "documentos"))
     resposta = HttpResponse(arq.conteudo, content_type="application/pdf")
     modo = "attachment" if request.GET.get("baixar") == "1" else "inline"
     from django.utils.http import content_disposition_header
@@ -538,7 +681,7 @@ def documento(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     return resposta
 
 
-def _acao_pdf(request: HttpRequest, pk: int, fazer) -> HttpResponse:
+def _acao_pdf(request: HttpRequest, pk: int, fazer, qual: str = "nota") -> HttpResponse:
     _exigir(request)
     get_object_or_404(Solicitacao, pk=pk)
     try:
@@ -547,7 +690,7 @@ def _acao_pdf(request: HttpRequest, pk: int, fazer) -> HttpResponse:
         messages.error(request, str(exc))
     else:
         (messages.warning if r.aviso else messages.success)(request, r.mensagem)
-    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#pdfs")
+    return redirect(_ir(pk, "pdf-nota" if qual == "nota" else "pagamento"))
 
 
 @require_POST
@@ -556,7 +699,8 @@ def anexar_pdf(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
         from django.http import Http404
         raise Http404
     fazer = pdfs.anexar_nota if qual == "nota" else pdfs.anexar_ob
-    return _acao_pdf(request, pk, lambda: fazer(request.user, pk, request.FILES.get("arquivo")))
+    return _acao_pdf(request, pk, lambda: fazer(request.user, pk, request.FILES.get("arquivo")),
+                     qual)
 
 
 @require_POST
@@ -565,7 +709,7 @@ def remover_pdf(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
         from django.http import Http404
         raise Http404
     fazer = pdfs.remover_nota if qual == "nota" else pdfs.remover_ob
-    return _acao_pdf(request, pk, lambda: fazer(request.user, pk))
+    return _acao_pdf(request, pk, lambda: fazer(request.user, pk), qual)
 
 
 @require_GET
@@ -589,13 +733,14 @@ def baixar_pdf(request: HttpRequest, pk: int, qual: str) -> StreamingHttpRespons
 @require_POST
 def anexar_assinada(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     return _acao(request, pk, lambda: vias.anexar_assinada(
-        request.user, pk, tipo, request.FILES.get("arquivo")), vias.MSG_ANEXADA)
+        request.user, pk, tipo, request.FILES.get("arquivo")), vias.MSG_ANEXADA,
+        "ordem-servico" if tipo == "os" else "documentos")
 
 
 @require_POST
 def remover_assinada(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     return _acao(request, pk, lambda: vias.remover_assinada(request.user, pk, tipo),
-                 vias.MSG_REMOVIDA)
+                 vias.MSG_REMOVIDA, "ordem-servico" if tipo == "os" else "documentos")
 
 
 @require_POST
@@ -603,7 +748,7 @@ def pagamento_conjunto(request: HttpRequest, pk: int) -> HttpResponse:
     """Marca as OS do mesmo lote que vão no mesmo ofício e no mesmo protocolo."""
     ids = [int(x) for x in request.POST.getlist("juntas") if x.isdecimal() and len(x) <= 9]
     return _acao(request, pk, lambda: conjunto.definir(request.user, pk, ids),
-                 "Pagamento conjunto atualizado.")
+                 "Pagamento conjunto atualizado.", "conjunto")
 
 
 @require_POST
@@ -786,19 +931,29 @@ def arquivo_certidao(request: HttpRequest, pk: int) -> StreamingHttpResponse:
 @require_GET
 def protocolo_pagamento(request: HttpRequest, pk: int) -> HttpResponse:
     """Montar o protocolo: passo a passo, textos para copiar, a lista do anexo e os arquivos."""
-    from . import protocolo
-
     _exigir(request)
     s = get_object_or_404(_base(), pk=pk)
+    return render(request, "coffee/protocolo.html", _contexto_protocolo(request, s))
+
+
+def _contexto_protocolo(request: HttpRequest, s: Solicitacao,
+                        form_fin: FormularioFinanceiro | None = None) -> dict:
+    """Etapa 3 — montar o protocolo (passo a passo, textos, a lista do anexo e os arquivos)
+    e registrar o pagamento: protocolo, atesto, ordem bancária (PDF) e o envio à empresa."""
+    from . import protocolo
+
     lista = protocolo.itens(request.user, s)
-    return render(request, "coffee/protocolo.html", {
-        "s": s, "itens": lista, "textos": protocolo.textos(s), "partes": protocolo.PARTES,
+    ctx = _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin)
+    ctx.update({
+        "itens": lista, "textos": protocolo.textos(s), "partes": protocolo.PARTES,
         "prontas": {i.parte for i in lista if i.pronto},
-        "faltando": sum(1 for i in lista if not i.pronto),
+        "faltando": sum(1 for i in lista if not i.pronto), "etapa": "protocolo",
+        "pdfs": [p for p in ctx["pdfs"] if p[0] == "ob"],
         "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
-                              (str(s), reverse("coffee:solicitacao", args=[pk])),
-                              ("Protocolo", "")),
+                              (str(s), reverse("coffee:solicitacao", args=[s.pk])),
+                              ("Protocolo de pagamento", "")),
     })
+    return ctx
 
 
 @require_POST
@@ -859,7 +1014,7 @@ def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
             if qual == "link":
                 messages.success(request, "Link enviado ao fornecedor por e-mail: vale 30 dias. "
                                           "O envio ficou no histórico.")
-                return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+                return redirect(_ir(pk, "envios-fornecedor"))
             if qual == "os":
                 messages.success(request, f"OS {feita.numero} enviada ao fornecedor por e-mail. "
                                           "O envio ficou no histórico.")
@@ -867,8 +1022,7 @@ def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
                 messages.success(request, "Ordem bancária enviada ao fornecedor por e-mail."
                                  + (" O pagamento foi concluído." if feita.concluida else "")
                                  + " O envio ficou no histórico.")
-            return redirect(reverse("coffee:solicitacao", args=[pk])
-                            + ("#documentos" if qual == "os" else "#pdfs"))
+            return redirect(_ir(pk, "ordem-servico" if qual == "os" else "pagamento"))
     return render(request, "coffee/enviar_email.html", {
         "s": s, "r": r, "erro": erro,
         "titulo_tela": {"os": "Enviar a ordem de serviço ao fornecedor",
@@ -889,7 +1043,7 @@ def revogar_link(request: HttpRequest, pk: int) -> HttpResponse:
     get_object_or_404(Solicitacao, pk=pk)
     link_fornecedor.revogar(request.user, pk)
     messages.success(request, "Link do fornecedor revogado: ele deixa de funcionar agora.")
-    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+    return redirect(_ir(pk, "envios-fornecedor"))
 
 
 @require_POST
@@ -908,7 +1062,7 @@ def conferir_envio(request: HttpRequest, pk: int, envio_pk: int) -> HttpResponse
         messages.error(request, str(exc))
     else:
         messages.success(request, mensagem)
-    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+    return redirect(_ir(pk, "envios-fornecedor"))
 
 
 @require_GET

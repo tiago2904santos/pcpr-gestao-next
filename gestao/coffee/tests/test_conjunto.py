@@ -99,9 +99,9 @@ def test_tela_do_pagamento_conjunto(tres):
     u, (a, b, _c), _f = tres
     cli = Client()
     cli.force_login(u)
-    html = cli.get(reverse("coffee:solicitacao", args=[a.pk])).content.decode()
+    html = cli.get(reverse("coffee:oficio", args=[a.pk])).content.decode()
     assert "Salvar pagamento conjunto" in html and str(b) in html
     r = cli.post(reverse("coffee:conjunto", args=[a.pk]), {"juntas": [str(b.pk)]})
     assert r.status_code == 302
-    html = cli.get(reverse("coffee:solicitacao", args=[b.pk])).content.decode()
+    html = cli.get(reverse("coffee:oficio", args=[b.pk])).content.decode()
     assert "Pagamento conjunto (2 OS" in html and "(principal)" in html

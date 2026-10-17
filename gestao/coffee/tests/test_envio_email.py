@@ -49,7 +49,7 @@ def test_envio_da_os_pela_tela(base, mailoutbox, monkeypatch):  # noqa: F811
     assert r.status_code == 422 and "E-mail inválido: errado" in r.content.decode()
     r = c.post(url, {"para": "pedidos@buffet.invalid", "copia": "ascom@pcpr.invalid",
                      "assunto": "OS  para   o evento", "texto": "Segue."})
-    assert r.status_code == 302 and r["Location"].endswith("#documentos")
+    assert r.status_code == 302 and r["Location"].endswith("/os/#ordem-servico")
     assert len(mailoutbox) == 1
     m = mailoutbox[0]
     assert m.to == ["pedidos@buffet.invalid"] and m.cc == ["ascom@pcpr.invalid"]

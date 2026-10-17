@@ -105,8 +105,10 @@ def test_telas_dos_pdfs(os_):
     u, s = os_
     cli = Client()
     cli.force_login(u)
-    html = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
-    assert "Nota fiscal e ordem bancária em PDF" in html
+    html = cli.get(reverse("coffee:oficio", args=[s.pk])).content.decode()
+    assert "PDF da nota fiscal" in html
+    html = cli.get(reverse("coffee:protocolo", args=[s.pk])).content.decode()
+    assert "Ordem bancária em PDF" in html
     r = cli.post(reverse("coffee:anexar_pdf", args=[s.pk, "nota"]),
                  {"arquivo": _pdf(f"CHAVE {CHAVE} VALOR TOTAL DA NOTA 842,80")}, follow=True)
     assert "Nota fiscal 8957 anexada" in r.content.decode()

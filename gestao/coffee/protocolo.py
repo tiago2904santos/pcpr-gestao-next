@@ -59,12 +59,12 @@ def itens(usuario, s: Solicitacao, hoje: date | None = None) -> list[Item]:
     grupo = conjunto.membros(s)
     contrato = s.lote.contrato
     fornecedor = contrato.fornecedor
-    folha = reverse("coffee:solicitacao", args=[s.pk])
+    folha = reverse("coffee:oficio", args=[s.pk])
     saida: list[Item] = []
     for m in grupo:
         faltas = documentos.pendencias("os", m)
         saida.append(Item(f"Ordem de serviço {m}", "os", not faltas, " ".join(faltas),
-                          resolver=reverse("coffee:solicitacao", args=[m.pk]) + "#entrega",
+                          resolver=reverse("coffee:ordem_servico", args=[m.pk]) + "#entrega",
                           obter=partial(_doc, usuario, m, "os")))
     faltas = documentos.pendencias("oficio", s)
     saida.append(Item(f"Ofício {s.numero_oficio or ''}".strip(), "oficio", not faltas,
@@ -74,11 +74,11 @@ def itens(usuario, s: Solicitacao, hoje: date | None = None) -> list[Item]:
         saida.append(Item(f"Nota fiscal {m.nota_fiscal or ''} ({m})".replace("  ", " "),
                           "notas", bool(m.nota_pdf),
                           "" if m.nota_pdf else "Anexe o PDF da nota fiscal.",
-                          resolver=reverse("coffee:solicitacao", args=[m.pk]) + "#pdfs",
+                          resolver=reverse("coffee:oficio", args=[m.pk]) + "#nota",
                           obter=partial(_ler, m.nota_pdf) if m.nota_pdf else None))
         faltas = documentos.pendencias("certifico", m)
         saida.append(Item(f"Certifico digital ({m})", "notas", not faltas, " ".join(faltas),
-                          resolver=reverse("coffee:solicitacao", args=[m.pk]) + "#nota",
+                          resolver=reverse("coffee:oficio", args=[m.pk]) + "#nota",
                           obter=partial(_doc, usuario, m, "certifico")))
     vig = certidoes.vigentes(fornecedor)
     for tipo in ORDEM_CERTIDOES:
