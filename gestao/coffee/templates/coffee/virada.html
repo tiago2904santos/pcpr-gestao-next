@@ -40,6 +40,12 @@ orientações e especificações; cada um pede só a quantidade e o empenho.
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-origem"><span class="secao__numero">2</span>Os lotes de {{ origem }}</h2><p class="secao__nota">Enquanto os dois exercícios ficam vigentes, o pedido cai no lote do ano do evento.</p></div>
     <label class="escolha"><input type="checkbox" name="encerrar" value="1"{% if encerrar %} checked{% endif %}><span>Encerrar os lotes de {{ origem }} que forem copiados</span></label>
   </section>
-  <div class="linha mt-4"><button type="submit" class="botao botao--primario">{% icone "save" %}Abrir o exercício {{ destino }}</button><a class="botao botao--sutil" href="{% url 'coffee:lotes' %}">Voltar aos lotes</a></div>
+  <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+    <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span>Cria em {{ destino }} os lotes marcados, com a quantidade e o empenho informados.</span></div>
+    <div class="barra-acoes__acoes">
+      <a class="botao botao--texto" href="{% url 'coffee:lotes' %}">Voltar</a>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Abrir o exercício {{ destino }}</button>
+    </div>
+  </div>
 </form>
 {% endblock %}

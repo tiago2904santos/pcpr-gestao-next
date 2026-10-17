@@ -49,8 +49,10 @@ fica no histórico, e reenviar registra outro.
 </form>
 
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
-  <div class="barra-acoes__status" role="status"><span data-anuncio>{% if r.problemas %}Resolva o que falta para enviar.{% elif r.qual == "link" %}Confira e envie: o fornecedor recebe o link por e-mail.{% else %}Confira e envie: o fornecedor recebe com o PDF anexo.{% endif %}</span></div>
-  <a class="botao botao--texto" href="{% url 'coffee:solicitacao' s.pk %}">Voltar</a>
-  {% if not r.problemas %}<button type="submit" form="form-email" class="botao botao--primario">{% icone "send" %}{% if r.enviado_em %}Reenviar{% else %}Enviar{% endif %}</button>{% endif %}
+  <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>{% if r.problemas %}Resolva o que falta para enviar.{% elif r.qual == "link" %}Confira e envie: o fornecedor recebe o link por e-mail.{% else %}Confira e envie: o fornecedor recebe com o PDF anexo.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacao' s.pk %}">Voltar</a>
+    {% if not r.problemas %}<button type="submit" form="form-email" class="botao botao--primario">{% icone "send" %}{% if r.enviado_em %}Reenviar{% else %}Enviar{% endif %}</button>{% endif %}
+  </div>
 </div>
 {% endblock %}

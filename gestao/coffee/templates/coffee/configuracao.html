@@ -45,6 +45,9 @@ na referência: não se cria nem se exclui, só se edita). Nasce com valores neu
       {% include "componentes/campo.html" with campo=form.texto_email_ob classe="campo--cresce" %}
     </div>
   </section>
-  <div class="linha"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button></div>
+  <div class="barra-acoes barra-acoes--rodape barra-acoes--preparacao barra-acoes--confirmacao">
+    <p class="barra-acoes__status">Vale para os próximos documentos e e-mails; os já emitidos não mudam.</p>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button>
+  </div>
 </form>
 {% endblock %}

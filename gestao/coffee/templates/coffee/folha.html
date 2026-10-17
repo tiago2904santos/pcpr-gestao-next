@@ -361,20 +361,24 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
 {% if s %}
 {% comment %}Rodapé igual em toda folha de documento: Voltar · Finalizar (grava e volta à lista) · Ações (duplicar, cancelar, excluir).{% endcomment %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>{% if s.bloqueada %}Só consulta.{% else %}Finalizar grava as alterações e volta à lista.{% endif %}</span></div>
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>{% if s.bloqueada %}Só consulta.{% else %}Finalizar grava as alterações e volta à lista.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
   <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
   {% if not s.bloqueada %}{% firstof form_id as finalizar_form %}{% else %}{% firstof "" as finalizar_form %}{% endif %}
   {% if not s.cancelada and not s.concluida %}{% url 'coffee:cancelar' s.pk as cancelar_url %}{% else %}{% firstof "" as cancelar_url %}{% endif %}
   {% if not s.financeiro_iniciado %}{% firstof "excluir-coffee" as excluir_form %}{% else %}{% firstof "" as excluir_form %}{% endif %}
-  {% include "componentes/rodape_documento.html" with nome="OS" finalizar_form=finalizar_form duplicar_form="duplicar-coffee" cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico; a quantidade volta ao saldo do lote." excluir_form=excluir_form %}
+  {% include "componentes/rodape_documento.html" with nome="OS" finalizar_form=finalizar_form finalizar_primario=True duplicar_form="duplicar-coffee" cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico; a quantidade volta ao saldo do lote." excluir_form=excluir_form %}
+  </div>
 </div>
 <form id="duplicar-coffee" method="get" action="{% url 'coffee:nova' %}" hidden><input type="hidden" name="duplicar" value="{{ s.pk }}"></form>
 {% if not s.financeiro_iniciado %}<form id="excluir-coffee" method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" hidden data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 {% else %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>Para registrar: município, data, descrição e quantidade.</span></div>
-  <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
-  <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar solicitação</button>
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>Para registrar: município, data, descrição e quantidade.</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
+    <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar solicitação</button>
+  </div>
 </div>
 {% endif %}
 {% endblock %}

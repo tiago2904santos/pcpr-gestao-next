@@ -59,7 +59,7 @@ registra o atesto e envio ao GAF (uma vez, com o protocolo registrado).
 
   <section class="secao" aria-labelledby="t-arquivos">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-arquivos"><span class="secao__numero">4</span>Arquivos para baixar</h2><p class="secao__nota">Cada um junta os seus documentos num PDF. {% if s.protocolo_pagamento and not s.atesto_em %}Baixar registra hoje o atesto e envio ao GAF.{% endif %}</p></div>
-    <form method="post" action="{% url 'coffee:baixar_protocolo' s.pk %}" class="pilha" novalidate>
+    <form method="post" action="{% url 'coffee:baixar_protocolo' s.pk %}" class="pilha" id="form-protocolo" novalidate>
       {% csrf_token %}
       <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Arquivos</legend>
         <div class="caixas">{% for chave, rotulo in partes %}<label class="escolha caixas__item"><input type="checkbox" name="partes" value="{{ chave }}"{% if chave in prontas %} checked{% else %} disabled{% endif %}><span>{{ forloop.counter }}. {{ rotulo }}{% if chave not in prontas %} <span class="texto-secundario">(nada pronto ainda)</span>{% endif %}</span></label>{% endfor %}</div>
@@ -68,8 +68,14 @@ registra o atesto e envio ao GAF (uma vez, com o protocolo registrado).
         <label class="opcao"><input type="radio" name="formato" value="separados" checked><span class="opcao__texto"><span class="opcao__titulo">Um PDF por arquivo (fila)</span></span></label>
         <label class="opcao"><input type="radio" name="formato" value="unico"><span class="opcao__texto"><span class="opcao__titulo">Tudo num PDF só, na ordem</span></span></label>
       </fieldset>
-      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "download" %}Baixar</button></div>
     </form>
   </section>
+</div>
+<div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "download" classe="icone--sm" %}<span>{% if s.protocolo_pagamento and not s.atesto_em %}Baixar registra hoje o atesto e envio ao GAF.{% else %}Marque os arquivos e baixe. Nada é gravado ao abrir esta página.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacao' s.pk %}#pagamento">Voltar</a>
+    <button type="submit" form="form-protocolo" class="botao botao--primario">{% icone "download" %}Baixar</button>
+  </div>
 </div>
 {% endblock %}

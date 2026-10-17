@@ -279,10 +279,11 @@ histórico.
 {% comment %}Rodapé igual em toda folha de documento: Voltar · Enviar/Reenviar (o passo da solicitação) · Finalizar e Ações (duplicar, cancelar, excluir).{% endcomment %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if editavel and not reabrir %}Gravando as alterações…{% else %}Alterações não salvas.{% endif %}" role="status">
-    {% if reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
+    {% icone "check" classe="icone--sm" %}{% if reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
     {% elif editavel %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
     {% else %}<span data-anuncio>{{ s.get_status_display }}.</span>{% endif %}
   </div>
+  <div class="barra-acoes__acoes">
   <a class="botao botao--texto" href="{% url 'eventos:solicitacoes' %}">Voltar</a>
   {% if reabrir %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "send" %}Salvar e reenviar para a DG</button>
@@ -290,8 +291,10 @@ histórico.
     {% if editavel %}<button type="submit" form="{{ form_id }}" name="acao" value="enviar" class="botao botao--primario">{% icone "send" %}<span>Enviar <span class="barra-acoes__extra">para a DG</span></span></button>{% endif %}
     {% if pode_excluir %}{% firstof "excluir-evento" as excluir_form %}{% else %}{% firstof "" as excluir_form %}{% endif %}
     {% if pode_cancelar %}{% url 'eventos:cancelar' s.pk as cancelar_url %}{% else %}{% firstof "" as cancelar_url %}{% endif %}
-    {% include "componentes/rodape_documento.html" with nome="solicitação" finalizar_form="finalizar-evento" duplicar_form="duplicar-evento" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico e avisa quem acompanha." %}
+    {% if editavel %}{% firstof "" as finalizar_primario %}{% else %}{% firstof "1" as finalizar_primario %}{% endif %}
+    {% include "componentes/rodape_documento.html" with nome="solicitação" finalizar_form="finalizar-evento" finalizar_primario=finalizar_primario duplicar_form="duplicar-evento" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico e avisa quem acompanha." %}
   {% endif %}
+  </div>
 </div>
 {% if s and s.protocolo %}<form id="consultar-protocolo" method="post" action="{% url 'eventos:consultar_protocolo' s.pk %}" hidden>{% csrf_token %}</form>{% endif %}
 <form id="finalizar-evento" method="get" action="{% url 'eventos:solicitacoes' %}" hidden data-esperar-salvamento></form>
@@ -301,10 +304,11 @@ histórico.
 {% elif editavel %}
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if s and not reabrir %}Gravando as alterações…{% else %}Alterações não salvas.{% endif %}" role="status">
-    {% if s and not reabrir %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
+    {% icone "check" classe="icone--sm" %}{% if s and not reabrir %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
     {% elif reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
     {% else %}<span data-anuncio>Salve como rascunho ou envie direto para a DG.</span>{% endif %}
   </div>
+  <div class="barra-acoes__acoes">
   <a class="botao botao--texto" href="{% url 'eventos:solicitacoes' %}">Voltar</a>
   {% if reabrir %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "send" %}Salvar e reenviar para a DG</button>
@@ -312,6 +316,7 @@ histórico.
     <button type="submit" form="{{ form_id }}" name="acao" value="rascunho" class="botao">{% icone "save" %}<span>Salvar{% if not s %} <span class="barra-acoes__extra">rascunho</span>{% endif %}</span></button>
     <button type="submit" form="{{ form_id }}" name="acao" value="enviar" class="botao botao--primario">{% icone "send" %}<span>Enviar <span class="barra-acoes__extra">para a DG</span></span></button>
   {% endif %}
+  </div>
 </div>
 {% endif %}
 {% endblock %}
