@@ -523,14 +523,23 @@ def enviar(request: HttpRequest, pk: int) -> HttpResponse:
                  "Solicitação #{s.pk} enviada com sucesso.")
 
 
-def _quantidades(request: HttpRequest) -> dict[int, int]:
-    saida = {}
+def _quantidades(request: HttpRequest, s: Solicitacao) -> tuple[dict[int, int], list[str]]:
+    """Os servidores por equipe que a DG ajustou, e o erro de cada valor inválido (vazio,
+    zero, letra) — como no legado, nada é ignorado em silêncio."""
+    nomes = {e.equipe_id: e.equipe.nome for e in s.equipes.select_related("equipe")}
+    saida, erros = {}, []
     for chave in request.POST:
         if chave.startswith("quantidade_dg_") and re.fullmatch(r"[0-9]{1,9}", chave[14:]):
+            equipe = int(chave[14:])
+            if equipe not in nomes:
+                continue
             valor = quantidade(request.POST.get(chave))
-            if valor is not None:
-                saida[int(chave[14:])] = valor
-    return saida
+            if valor is None:
+                erros.append(f"Informe uma quantidade válida de servidores para "
+                             f"{nomes[equipe]}.")
+            else:
+                saida[equipe] = valor
+    return saida, erros
 
 
 def _posicao_na_fila(request: HttpRequest, s: Solicitacao) -> dict:
@@ -547,9 +556,17 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     if not policies.pode_despachar(request.user):
         raise PermissionDenied
     s = _visivel(request, pk)
+    quantidades, erros_quantidade = _quantidades(request, s)
+    devolver = (request.POST.get("decisao") or "") == "devolver"
+    if erros_quantidade and not devolver:
+        for erro in erros_quantidade:
+            messages.error(request, erro)
+        request.session["despacho_escolhido"] = request.POST.get("decisao") or ""
+        request.session["despacho_observacao"] = (request.POST.get("observacao") or "")[:2000]
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#despacho")
     if request.POST.get("acao_despacho") == "salvar_ajustes":
         try:
-            mudancas = solicitacoes.ajustar_servidores(request.user, s.pk, _quantidades(request))
+            mudancas = solicitacoes.ajustar_servidores(request.user, s.pk, quantidades)
         except dominio.RegraViolada as exc:
             messages.error(request, str(exc))
         else:
@@ -561,7 +578,7 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     ordem = solicitacoes.ordem_da_fila(request.user)  # a de antes da decisão
     try:
         feita = solicitacoes.despachar(request.user, s.pk, decisao,
-                                       request.POST.get("observacao") or "", _quantidades(request))
+                                       request.POST.get("observacao") or "", quantidades)
     except dominio.RegraViolada as exc:
         messages.error(request, str(exc))
         request.session["despacho_escolhido"] = decisao
@@ -597,9 +614,19 @@ def transferir(request: HttpRequest, pk: int) -> HttpResponse:
     pk_novo = request.POST.get("responsavel") or ""
     novo = (get_user_model().objects.filter(pk=pk_novo).first()
             if re.fullmatch(r"[0-9]{1,9}", pk_novo) else None)
-    return _acao(request, pk, lambda s: solicitacoes.transferir(
-        request.user, s.pk, novo, request.POST.get("motivo_transferencia") or ""),
-        "Solicitação #{s.pk} transferida para {r.criado_por.nome}.", "#responsavel")
+    s = _visivel(request, pk)
+    try:
+        feita = solicitacoes.transferir(request.user, s.pk, novo,
+                                        request.POST.get("motivo_transferencia") or "")
+    except dominio.RegraViolada as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#responsavel")
+    messages.success(request, f"Solicitação #{feita.pk} transferida para "
+                              f"{feita.criado_por.nome}.")
+    # Quem passou adiante e não vê as de outros volta à lista (a folha daria 404).
+    if not policies.pode_ver(request.user, feita):
+        return redirect("eventos:solicitacoes")
+    return redirect(reverse("eventos:solicitacao", args=[pk]) + "#responsavel")
 
 
 @require_POST

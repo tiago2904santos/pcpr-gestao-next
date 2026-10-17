@@ -185,7 +185,8 @@ def test_despacho_devolucao_reenvio_e_proxima(ana, dg, django_capture_on_commit_
             f"quantidade_dg_{alfa.pk}": "5"})
     assert r.status_code == 302
     s.refresh_from_db()
-    assert s.status == "devolvida" and s.quantidade_servidores == 5
+    # Devolver não aplica as quantidades da DG (como na referência; EV-F35).
+    assert s.status == "devolvida" and s.quantidade_servidores == 3
     assert Notificacao.objects.filter(usuario=ana, titulo__contains="enviada para correção")
     solicitacoes.enviar(ana, s.pk)
     outra = solicitacoes.criar(ana, _completa(), _estrutura())

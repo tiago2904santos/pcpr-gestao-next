@@ -110,8 +110,10 @@ def _estrutura(s: Solicitacao, e: Estrutura | None) -> None:
 
 def _recalcular(s: Solicitacao) -> None:
     total = sum(q or 0 for q in s.equipes.values_list("quantidade_servidores", flat=True))
-    Solicitacao.objects.filter(pk=s.pk).update(quantidade_servidores=total)
-    s.quantidade_servidores = total
+    # A versão (atualizado_em) muda junto: quem estiver com a folha aberta é avisado.
+    agora = timezone.now()
+    Solicitacao.objects.filter(pk=s.pk).update(quantidade_servidores=total, atualizado_em=agora)
+    s.quantidade_servidores, s.atualizado_em = total, agora
 
 
 def _carregado(s: Solicitacao, relacao: str) -> bool:
@@ -255,7 +257,7 @@ def despachar(usuario, pk: int, decisao: str, observacao: str = "",
     if not policies.pode_ver(usuario, s):
         raise PermissionDenied
     novo = dominio.conferir_despacho(s.status, decisao, observacao or "")
-    if quantidades:
+    if quantidades and decisao != "devolver":  # devolvida volta ao autor como estava
         mudancas = _ajustes(s, quantidades)
         if mudancas:
             _mover(s, usuario, Movimento.Acao.AJUSTE_DG, s.status, "; ".join(mudancas))
@@ -349,9 +351,10 @@ def cancelar(usuario, pk: int, motivo: str) -> Solicitacao:
         raise PermissionDenied
     dominio.conferir_cancelamento(s.status, motivo or "")
     anterior = s.status
+    # Só a situação muda: a decisão da DG (um "Atender" já dado) fica como estava — é ela que
+    # entra na exportação e nas decisões do painel (como no legado).
     s.status = Solicitacao.Status.CANCELADA
-    s.decisao_dg = Solicitacao.Decisao.CANCELADO
-    s.save(update_fields=["status", "decisao_dg", "atualizado_em"])
+    s.save(update_fields=["status", "atualizado_em"])
     _mover(s, usuario, Movimento.Acao.CANCELAMENTO, anterior, motivo)
     _avisar([*_dg(), s.criado_por], f"Solicitação #{s.pk}: evento cancelado", motivo, s,
             usuario)

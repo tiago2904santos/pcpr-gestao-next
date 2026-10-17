@@ -25,9 +25,9 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F09 | Campos da solicitação | L solicitacoes/models.py:43-189 | models_solicitacao.py:14-78 | Parcial | sem `regiao` (decisão); total de servidores 0 em vez de nulo | Parcial (documentado) |
 | EV-F10 | Fim ≥ início | L models.py:195-204 | models_solicitacao.py:89-93 | Equivalente | — | Equivalente |
 | EV-F11 | Protocolo 00.000.000-0 | L forms.py:337-341 | dominio.py:314-320 | Equivalente | — | Equivalente |
-| EV-F12 | CEP com 8 dígitos, normalizado | L forms.py:343 | forms.py:76 (só máscara) | **Defeito** | CEP parcial ou lixo é aceito sem normalizar | |
+| EV-F12 | CEP com 8 dígitos, normalizado | L forms.py:343 | forms.py:76 (só máscara) | **Defeito** | CEP parcial ou lixo é aceito sem normalizar || **Corrigida** — `clean_cep` exige 8 dígitos e grava 00000-000 (`test_cep_normalizado`, `test_cep_invalido`) |
 | EV-F13 | Máscara do contato | L form.html `mascara="telefone"` | forms.py:70 | Parcial | aceita telefone ou e-mail, sem máscara | |
-| EV-F14 | Motorista: só cargo MOTORISTA ou motorista de viatura | L forms.py:72-89 | forms.py:103-105 | **Defeito** | lista todos os servidores ativos | |
+| EV-F14 | Motorista: só cargo MOTORISTA ou motorista de viatura | L forms.py:72-89 | forms.py:103-105 | **Defeito** | lista todos os servidores ativos || **Corrigida** — cargo de motorista ou motorista habitual de viatura, mais o atual (`test_motorista_so_quem_dirige`) |
 | EV-F15 | Sem unidade móvel limpa motorista e unidade | L forms.py:288-296 | solicitacoes.py:89-91 | Equivalente | — | Equivalente |
 | EV-F16 | Operação padrão "Diária" | L forms.py:259 | solicitacoes.py:92 | Equivalente | — | Equivalente |
 | EV-F17 | Estado PR e município do estado | L forms.py:251-265 | CampoMunicipio "Cidade/UF" | Substituída | campo combinado | Substituída |
@@ -47,22 +47,22 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F32 | Tabela de transições | L services.py:33-51 | dominio.py:186-191 | Equivalente | — | Equivalente |
 | EV-F33 | Despacho só pela DG | L permissions.py:62-64 | policies.py:41-42 | Equivalente | — | Equivalente |
 | EV-F34 | Validação do despacho | L forms.py:524-555 | dominio.py:277-289 | Equivalente | — | Equivalente |
-| EV-F35 | Devolução | L services.py:237-267 | solicitacoes.py:259-267 | Parcial | motivo gravado em `observacoes_dg` (não é limpo no reenvio); quantidades da DG aplicadas mesmo devolvendo | |
+| EV-F35 | Devolução | L services.py:237-267 | solicitacoes.py:259-267 | Parcial | motivo gravado em `observacoes_dg` (não é limpo no reenvio); quantidades da DG aplicadas mesmo devolvendo || **Corrigida** (quantidades) — devolver ignora as quantidades (`test_devolver_nao_aplica_as_quantidades`); `observacoes_dg` segue como histórico do último despacho |
 | EV-F36 | Efeitos da decisão | L services.py:340-365 | solicitacoes.py:244-274 | Parcial | sem gerar viagem automática (ver EV-F59) | |
-| EV-F37 | DG ajusta servidores | L services.py:270-322 | solicitacoes.py:216-241 | **Defeito** | quantidade inválida ou vazia é ignorada sem erro; versão não muda | |
+| EV-F37 | DG ajusta servidores | L services.py:270-322 | solicitacoes.py:216-241 | **Defeito** | quantidade inválida ou vazia é ignorada sem erro; versão não muda || **Corrigida** — valor inválido volta com erro e a escolha preservada; o ajuste muda `atualizado_em` (`test_ajuste_da_dg_muda_a_versao_e_recusa_valor_invalido`) |
 | EV-F38 | "N de M na fila" | L views.py:534-545 | vs `_posicao_na_fila` | Equivalente | — | Equivalente |
 | EV-F39 | "Registrar e abrir a próxima" | L views.py:1435-1487 | solicitacoes.py `proxima_da_fila` | Equivalente | — | Equivalente |
 | EV-F40 | Escolha do despacho mantida após erro | L views.py:1096-1116 | sessão | Equivalente | — | Equivalente |
 | EV-F41 | Textos prontos do despacho se somam | L solicitacoes-form.js:179-190 | texto-pronto.js | Parcial | um texto substitui o anterior | |
 | EV-F42 | Resumo do despacho para quem não é DG | L form.html | folha.html:203-205 | Equivalente | — | Equivalente |
 | EV-F43 | Marcar como atendida | L services.py:420-451 | solicitacoes.py:323-337 | Equivalente | aviso à DG sem texto | Equivalente |
-| EV-F44 | Cancelar o evento preserva a decisão da DG | L services.py:454-491 | solicitacoes.py:340-354 | **Defeito** | grava `decisao_dg="cancelado"`: apaga um "Atender" e conta como decisão da DG no painel | |
+| EV-F44 | Cancelar o evento preserva a decisão da DG | L services.py:454-491 | solicitacoes.py:340-354 | **Defeito** | grava `decisao_dg="cancelado"`: apaga um "Atender" e conta como decisão da DG no painel || **Corrigida** — cancelar muda só a situação (`test_cancelar_mantem_a_decisao_da_dg`) |
 | EV-F45 | Transferir responsável | L services.py:494-543 | solicitacoes.py:357-376 | Equivalente | — | Equivalente |
-| EV-F46 | Depois de transferir, voltar à lista se não vê mais | L views.py:1225-1227 | vs `transferir` | **Defeito** | usuário comum recebe 404 | |
+| EV-F46 | Depois de transferir, voltar à lista se não vê mais | L views.py:1225-1227 | vs `transferir` | **Defeito** | usuário comum recebe 404 || **Corrigida** — volta à lista quando não vê mais (`test_transferir_volta_a_lista_quando_nao_ve_mais`) |
 | EV-F47 | Duplicar | L services.py:546-587 | solicitacoes.py:379-396 | Equivalente | — | Equivalente |
 | EV-F48 | Excluir rascunho (com arquivos) | L models.py:386-399 | solicitacoes.py:399-408 | Equivalente | — | Equivalente |
 | EV-F49 | Conteúdo dos anexos conferido | L forms.py:371-505 | solicitacoes.py:412-433 | Parcial | só os primeiros bytes; .eml/.txt sem conferência | |
-| EV-F50 | Quem mexe nos anexos | L permissions.py:148-157 | policies.py:93-94 | **Defeito** | permite em aguardando/deferida: documento muda durante/depois do despacho sem reenvio | |
+| EV-F50 | Quem mexe nos anexos | L permissions.py:148-157 | policies.py:93-94 | **Defeito** | permite em aguardando/deferida: documento muda durante/depois do despacho sem reenvio || **Corrigida** — só autor, rascunho/devolvida (`test_anexos_so_em_rascunho_ou_devolvida`) |
 | EV-F51 | Histórico de anexos | L views.py:1319-1364 | solicitacoes.py:447,461 | Equivalente | — | Equivalente |
 | EV-F52 | Baixar anexo | L views.py:1340-1348 | vs `abrir_anexo` | Equivalente | — | Equivalente |
 | EV-F53 | Anexar por janela | L views.py:1289-1337 | formulário na seção | Substituída | padrão de interface | Substituída |
