@@ -33,6 +33,7 @@ ação do momento (Despachar, Corrigir, Continuar) e o ⋮ com abrir, duplicar e
         {% elif s.status == 'devolvida' and s.criado_por_id == request.user.pk %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "pencil" %}Corrigir e reenviar</a>
         {% elif s.status == 'rascunho' %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "pencil" %}Continuar o rascunho</a>
         {% else %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "file-text" %}Abrir a solicitação</a>{% endif %}
+        {% if l.concluir %}<button type="submit" form="concluir-{{ s.pk }}" class="menu__item" role="menuitem">{% icone "check-circle-2" %}Marcar como atendida<span class="menu__item-descricao">o evento já aconteceu</span></button>{% endif %}
         <button type="submit" form="duplicar-{{ s.pk }}" class="menu__item" role="menuitem">{% icone "copy" %}Duplicar<span class="menu__item-descricao">novo rascunho, sem as datas</span></button>
         {% if l.coffee %}<div class="menu__separador" role="separator"></div><a class="menu__item" role="menuitem" href="{{ l.coffee }}">{% icone "receipt" %}Pedir coffee break<span class="menu__item-descricao">a OS já preenchida com o evento</span></a>{% endif %}
       </div>

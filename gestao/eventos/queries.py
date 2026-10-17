@@ -156,6 +156,7 @@ class Linha:
     em_cima: str
     fatos: list[tuple[str, str, str, bool]] = field(default_factory=list)
     coffee: str = ""  # o "Pedir coffee break" da linha (a view preenche)
+    concluir: bool = False  # "Marcar como atendida" no ⋮ (a view preenche)
 
 
 def periodo(s: Solicitacao) -> str:

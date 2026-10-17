@@ -7,6 +7,10 @@
  *
  * O campo recebe `input` ao ser preenchido, então o autosave e o aviso de "alterações não
  * salvas" reagem como se a pessoa tivesse digitado.
+ *
+ * Com `data-somar` (observação do despacho de Eventos, como na referência), cada texto
+ * escolhido entra numa linha nova no fim do campo — sem repetir o que já está lá — e a
+ * escolha volta a "Escrever do zero" para somar o próximo.
  */
 
 import { confirmar, fecharDialogo } from "./dialogo.js";
@@ -56,6 +60,23 @@ function ligarEscolha(alvo, escolha) {
   });
 }
 
+/** Somar: o texto escolhido vai para o fim do campo, numa linha nova (sem repetir).
+ * @param {HTMLTextAreaElement} alvo @param {HTMLSelectElement} escolha */
+function ligarSoma(alvo, escolha) {
+  escolha.addEventListener("change", () => {
+    const texto = (escolha.selectedOptions[0]?.dataset.texto || "").trim();
+    if (!texto) return;
+    const atual = alvo.value.trim();
+    if (!atual.includes(texto)) {
+      alvo.value = atual ? `${atual}\n${texto}` : texto;
+      alvo.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    escolha.value = "";
+    escolha.dispatchEvent(new Event("change", { bubbles: true }));
+    alvo.focus();
+  });
+}
+
 /** @param {HTMLElement} raiz */
 function ligar(raiz) {
   if (raiz.dataset.pronto) return;
@@ -65,7 +86,8 @@ function ligar(raiz) {
   if (!alvo) return;
   // Sem nenhum texto pronto cadastrado a escolha nem aparece; o "Guardar texto" continua.
   const escolha = /** @type {HTMLSelectElement | null} */ (raiz.querySelector("select"));
-  if (escolha) ligarEscolha(alvo, escolha);
+  if (escolha && "somar" in raiz.dataset) ligarSoma(alvo, escolha);
+  else if (escolha) ligarEscolha(alvo, escolha);
   const guardar = /** @type {HTMLButtonElement | null} */ (raiz.querySelector("[data-guardar-texto]"));
   const janela = /** @type {HTMLDialogElement | null} */ (document.getElementById("dialogo-guardar-texto"));
   if (!guardar || !janela) return;

@@ -28,6 +28,7 @@ from gestao.cadastros.forms import resolver_municipio
 from . import (
     conjunto,
     documentos,
+    entregas,
     financeiro,
     ganchos,
     pdfs,
@@ -118,7 +119,8 @@ def _linha(s: Solicitacao, hoje: date) -> dict:
         fatos.append(("receipt", "Nota fiscal", f"NF {s.nota_fiscal}", False))
     fatos.append(("clock", "Solicitada", f"Solicitada em {s.data_solicitacao:%d/%m/%Y}", False))
     return {"s": s, "tempo": tempo if not s.cancelada else None, "fatos": fatos,
-            "parada": _parada(s, hoje)}
+            "parada": _parada(s, hoje),
+            "entrega": not s.concluida and entregas.pode_registrar(s, hoje)}
 
 
 def _parada(s: Solicitacao, hoje: date) -> str:

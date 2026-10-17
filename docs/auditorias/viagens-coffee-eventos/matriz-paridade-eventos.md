@@ -53,7 +53,7 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F38 | "N de M na fila" | L views.py:534-545 | vs `_posicao_na_fila` | Equivalente | — | Equivalente |
 | EV-F39 | "Registrar e abrir a próxima" | L views.py:1435-1487 | solicitacoes.py `proxima_da_fila` | Equivalente | — | Equivalente |
 | EV-F40 | Escolha do despacho mantida após erro | L views.py:1096-1116 | sessão | Equivalente | — | Equivalente |
-| EV-F41 | Textos prontos do despacho se somam | L solicitacoes-form.js:179-190 | texto-pronto.js | Parcial | um texto substitui o anterior | |
+| EV-F41 | Textos prontos do despacho se somam | L solicitacoes-form.js:179-190 | texto-pronto.js | Parcial | um texto substitui o anterior || **Corrigida** — `data-somar` no texto pronto do despacho: cada escolha entra numa linha nova, sem repetir (as outras telas seguem substituindo com confirmação, decisão de Viagens). Verificada no navegador (`test_textos_prontos_se_somam`, e2e) |
 | EV-F42 | Resumo do despacho para quem não é DG | L form.html | folha.html:203-205 | Equivalente | — | Equivalente |
 | EV-F43 | Marcar como atendida | L services.py:420-451 | solicitacoes.py:323-337 | Equivalente | aviso à DG sem texto | Equivalente |
 | EV-F44 | Cancelar o evento preserva a decisão da DG | L services.py:454-491 | solicitacoes.py:340-354 | **Defeito** | grava `decisao_dg="cancelado"`: apaga um "Atender" e conta como decisão da DG no painel || **Corrigida** — cancelar muda só a situação (`test_cancelar_mantem_a_decisao_da_dg`) |
@@ -69,7 +69,7 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F54 | Visibilidade | L permissions.py:72-86 | policies.py:37-55 | Equivalente | — | Equivalente |
 | EV-F55 | Acesso por URL direta | L views.py:257-269 | vs `_visivel` (404) | Equivalente | — | Equivalente |
 | EV-F56 | Etapas com quem e quando | L services.py:650-763 | dominio.py:365-379 | Parcial | sem quem/quando; devolvida aparece na etapa 2 | |
-| EV-F57 | Faixa da devolução (motivo, data, quem) | L form.html:91-101 | folha.html:29 | Parcial | só o motivo | |
+| EV-F57 | Faixa da devolução (motivo, data, quem) | L form.html:91-101 | folha.html:29 | Parcial | só o motivo || **Corrigida** — faixa com motivo, data e quem devolveu (`test_faixa_da_devolucao_diz_quando_e_quem`) |
 | EV-F58 | Conflitos de agenda | L core/conflitos.py | conflitos.py | Parcial | recursos conferidos também contra aguardando/devolvida; sem conferência ao vivo | |
 | EV-F59 | Geração da viagem | L services.py:368-417 (automática ao atender) | de_eventos.py (manual) | Substituída | decisão "agente — confirmar"; ninguém é avisado de que a deferida precisa de viagem | |
 | EV-F60 | Sincronizar a viagem quando reabre | L integracao_viagens.py:665-767 | — | Ausente | documentado como fora (E4) | |
@@ -97,7 +97,7 @@ atualizada a cada lote de correções, com a evidência.
 | EV-F82 | Ordenação (`?ordem=`) | L views.py:685-697 | — | Parcial | ignorada || **Corrigida** — "Ordenar por" na gaveta; `?ordem=` com as chaves da referência (`test_lista_e_exportacao_na_ordem_escolhida`) |
 | EV-F83 | Paginação | L views.py:886-891 | vs `lista` | Equivalente | — | Equivalente |
 | EV-F84 | Fatos e selo de tempo na linha | L presenters.py:20-160 | queries.py `linha` | Equivalente | — | Equivalente |
-| EV-F85 | Ação da linha "Marcar como atendida" | L presenters.py:162-191 | _registro.html | Parcial | não aparece | |
+| EV-F85 | Ação da linha "Marcar como atendida" | L presenters.py:162-191 | _registro.html | Parcial | não aparece || **Corrigida** — no ⋮ quando deferida, do responsável e com o evento feito (`test_marcar_como_atendida_pelo_menu_da_linha`) |
 | EV-F86 | Exportação (XLSX padrão, datas reais, ordem da fila) | L views.py:939-1075 | vs `exportar` | Parcial | CSV padrão; datas como texto; ordem fixa | Parcial — a ordem segue a da tela (corrigido); CSV continua o padrão do menu e as datas saem como texto |
 | EV-F87 | Lembretes | L lembretes.py | lembretes.py | Equivalente | sino; e-mail desligado (decisão) | Equivalente |
 | EV-F88 | Notificação por e-mail | L core/notificacoes.py | plataforma/notificacoes.py | Substituída | decisões.md | Substituída |

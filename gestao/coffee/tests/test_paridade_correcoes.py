@@ -166,3 +166,16 @@ def test_lotes_com_busca_exercicio_ordem_e_contagem(os_):  # noqa: F811
     busca = c.get(url, {"situacao": "todos", "q": "Buffet", "ordem": "consumo"}).content.decode()
     assert busca.count('class="registro registro-operacional') == 2
     assert c.get(url, {"q": "nada-disso"}).content.decode().count("Nenhum lote neste recorte")
+
+
+def test_menu_da_linha_registrar_entrega_e_cancelar(os_):  # noqa: F811
+    """CB-F87: o ⋮ da linha traz registrar a entrega (do dia do evento em diante) e cancelar."""
+    u, s = os_
+    c = Client()
+    c.force_login(u)
+    html = c.get(reverse("coffee:solicitacoes")).content.decode()
+    assert "Registrar a entrega" not in html  # evento daqui a 5 dias
+    assert f'{reverse("coffee:solicitacao", args=[s.pk])}#situacao' in html
+    Solicitacao.objects.filter(pk=s.pk).update(data_evento=s.data_solicitacao)
+    html = c.get(reverse("coffee:solicitacoes")).content.decode()
+    assert "Registrar a entrega" in html

@@ -95,7 +95,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F84 | Lista: filtros, trilha, pendentes | L/views.py:610-725 | N/views_pedidos.py:135-167 | Equivalente | — | Equivalente |
 | CB-F85 | Ordenação da lista | L/views.py:610-617 | — | Ausente | — || **Corrigida** — "Ordenar por" na gaveta e `?ordem=` no CSV (`test_lista_e_csv_na_ordem_escolhida`); sem ordem por número (texto "5/2026"): a data da solicitação acompanha a sequência |
 | CB-F86 | Linha: selos, parada, fatos | L/presenters.py | NT/_registro.html | Equivalente | — | Equivalente |
-| CB-F87 | ⋮ da linha (entrega, andamento, baixar arquivos, certificado, cancelar, excluir) | LT/_acoes_linha.html:11-23 | NT/_registro.html | Parcial | — | |
+| CB-F87 | ⋮ da linha (entrega, andamento, baixar arquivos, certificado, cancelar, excluir) | LT/_acoes_linha.html:11-23 | NT/_registro.html | Parcial | — || Parcial — entrou "Registrar a entrega" (do dia do evento em diante) e "Cancelar" (leva à folha, onde o motivo é pedido); "Baixar arquivos" é o protocolo de pagamento; excluir fica na folha (Ações) (`test_menu_da_linha_registrar_entrega_e_cancelar`) |
 | CB-F88 | CSV da lista | L/views.py:731-781 | N/views_pedidos.py:205-225 | Equivalente | — | Equivalente |
 | CB-F89 | Soltar o PDF do processo na lista | LT/_importar_processo.html | — | Ausente | depende de CB-F110 | |
 | CB-F90 | Indicadores do painel | L/views.py:253-362 | NT/painel.html | Substituída | D/decisoes.md:288 | Substituída |

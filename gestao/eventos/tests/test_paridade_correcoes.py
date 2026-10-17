@@ -153,3 +153,32 @@ def test_lista_e_exportacao_na_ordem_escolhida(ana):  # noqa: F811
     assert html.index(f"#{s2.pk}") < html.index(f"#{s1.pk}")
     csv = c.get(reverse("eventos:exportar"), {"ordem": "solicitante"}).content.decode("utf-8-sig")
     assert csv.index("Alfa") < csv.index("Zeta")
+
+
+def test_faixa_da_devolucao_diz_quando_e_quem(ana, dg):  # noqa: F811
+    """EV-F57: motivo, data e quem devolveu."""
+    s = _aguardando(ana)
+    solicitacoes.despachar(dg, s.pk, "devolver", "Falta o endereço")
+    c = Client()
+    c.force_login(ana)
+    html = c.get(reverse("eventos:solicitacao", args=[s.pk])).content.decode()
+    assert "Falta o endereço" in html and "por Dg. Corrija e envie de novo." in html
+
+
+def test_marcar_como_atendida_pelo_menu_da_linha(ana, dg):  # noqa: F811
+    """EV-F85: deferida, do responsável e com o evento já feito: "Marcar como atendida"."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+    s = _aguardando(ana)
+    solicitacoes.despachar(dg, s.pk, "atender")
+    c = Client()
+    c.force_login(ana)
+    assert "Marcar como atendida" not in c.get(reverse("eventos:solicitacoes")).content.decode()
+    ontem = timezone.localdate() - timedelta(days=1)
+    Solicitacao.objects.filter(pk=s.pk).update(data_inicio_evento=ontem, data_fim_evento=ontem)
+    html = c.get(reverse("eventos:solicitacoes")).content.decode()
+    assert "Marcar como atendida" in html
+    c.post(reverse("eventos:concluir", args=[s.pk]))
+    s.refresh_from_db()
+    assert s.status == "atendida"

@@ -93,7 +93,7 @@ com a contagem, a paginação, "Mais" (exportar planilha ou CSV) e "Nova solicit
     {% url 'eventos:nova' as url_nova %}
     {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação ainda" texto="Registre o primeiro pedido de evento social." acao_url=url_nova acao_rotulo="Nova solicitação" %}
   {% endif %}
-  {% for l in linhas %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% endfor %}
+  {% for l in linhas %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% if l.concluir %}<form id="concluir-{{ l.s.pk }}" method="post" action="{% url 'eventos:concluir' l.s.pk %}" hidden>{% csrf_token %}</form>{% endif %}{% endfor %}
 </div>
 {% endblock %}
 

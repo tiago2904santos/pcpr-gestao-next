@@ -73,6 +73,10 @@ def lista(request: HttpRequest) -> HttpResponse:
     linhas = [queries.linha(s, hoje) for s in pagina.object_list]
     for linha in linhas:  # o "Pedir coffee break" do ⋮ (vazio sem o módulo)
         linha.coffee = pedir_coffee.url(request.user, linha.s)
+        # "Marcar como atendida" no ⋮ (referência): deferida, do responsável, evento já feito.
+        fim = linha.s.data_fim_evento or linha.s.data_inicio_evento
+        linha.concluir = (policies.pode_concluir(request.user, linha.s)
+                          and not dominio.pode_concluir(linha.s.status, fim, hoje))
     municipios = Municipio.objects.filter(
         pk__in=policies.solicitacoes_visiveis(request.user).values("municipio_id")
     ).order_by("nome")
@@ -312,6 +316,9 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "pode_transferir": policies.pode_transferir(request.user, s),
         "pode_excluir": policies.pode_excluir(request.user, s),
         "pode_anexos": policies.pode_mexer_nos_anexos(request.user, s),
+        # A faixa da devolução diz quando e quem devolveu (referência: motivo, data e quem).
+        "devolucao": (s.movimentos.filter(acao="devolucao").select_related("usuario")
+                      .order_by("-em").first() if s.status == "devolvida" else None),
         "decisoes": dominio.DECISOES, "textos_despacho": TextoDespacho.objects.filter(ativo=True),
         "despacho_escolhido": despacho_escolhido, "despacho_observacao": despacho_observacao,
         **_posicao_na_fila(request, s),
