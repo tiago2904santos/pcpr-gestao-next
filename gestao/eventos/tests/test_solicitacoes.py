@@ -102,6 +102,17 @@ def test_rascunho_pela_tela_e_autosave(ana, curitiba):
     r = c.post(reverse("eventos:autosave", args=[s.pk]), {
         "versao": "123", "data_solicitacao": f"{hoje:%d/%m/%Y}", "tipo_operacao": "diaria"})
     assert r.json()["salvo"] is False and "outra pessoa" in r.json()["mensagem"]
+    s.refresh_from_db()
+    r = c.post(reverse("eventos:autosave", args=[s.pk]), {
+        "versao": versao_de(s), "data_solicitacao": f"{hoje:%d/%m/%Y}",
+        "solicitante_nome": "Escola Z", "tipo_operacao": "diaria", "municipio": "Curitiba/PR",
+        "local_evento": "Ginásio", f"servico_{cin.pk}": "1", f"equipe_{alfa.pk}": "1",
+        f"quantidade_equipe_{alfa.pk}": "4"})
+    assert r.json()["salvo"] is True
+    from gestao.eventos import queries
+    mudancas = [m for e in queries.historico(s) for m in e.mudancas]
+    assert ("Solicitante", "Escola X", "Escola Z") in mudancas
+    assert ("Local do evento", "", "Ginásio") in mudancas
 
 
 def test_envio_exige_o_necessario_e_avisa_a_dg(ana, dg, django_capture_on_commit_callbacks):

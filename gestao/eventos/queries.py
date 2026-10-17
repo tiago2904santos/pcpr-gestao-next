@@ -6,8 +6,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
+from typing import cast
 
-from django.db.models import Q, QuerySet
+from django.db.models import Field, Model, Q, QuerySet
 
 from gestao.plataforma.auditoria import passos_do_registro
 
@@ -182,6 +183,44 @@ class Evento:
     texto: str
     usuario: object | None
     marca: bool = False
+    mudancas: list[tuple[str, str, str]] = field(default_factory=list)  # campo, antes, depois
+
+
+def _campo(coluna: str) -> Field:
+    return cast(Field, Solicitacao._meta.get_field(coluna.removesuffix("_id")))
+
+
+def _legivel(campo: str, valor: object, nomes_fk: dict[tuple[str, object], str]) -> str:
+    """O valor gravado na trilha como a pessoa o lê (datas, Sim/Não, nomes, rótulos)."""
+    if valor in (None, ""):
+        return ""
+    f = _campo(campo)
+    if f.is_relation:
+        return nomes_fk.get((campo, valor), f"#{valor}")
+    if isinstance(valor, bool):
+        return "Sim" if valor else "Não"
+    if f.choices:
+        return str(dict(f.choices).get(valor, valor))
+    texto = str(valor)
+    if f.get_internal_type() == "DateField" and len(texto) == 10:
+        texto = f"{texto[8:10]}/{texto[5:7]}/{texto[:4]}"
+    return texto if len(texto) <= 80 else texto[:79] + "…"
+
+
+def _nomes_fk(passos) -> dict[tuple[str, object], str]:
+    """Os nomes dos cadastros citados nas mudanças, numa consulta por cadastro."""
+    ids: dict[str, set] = {}
+    for p in passos:
+        for c in p.campos:
+            if c.endswith("_id") and c in NOMES:
+                ids.setdefault(c, set()).update(
+                    v for v in (p.antes.get(c), p.depois.get(c)) if v not in (None, ""))
+    nomes = {}
+    for c, pks in ids.items():
+        modelo = cast(type[Model], _campo(c).related_model)
+        for pk, obj in modelo._default_manager.in_bulk(pks).items():
+            nomes[(c, pk)] = str(getattr(obj, "nome", None) or obj)
+    return nomes
 
 
 def historico(s: Solicitacao) -> list[Evento]:
@@ -189,6 +228,7 @@ def historico(s: Solicitacao) -> list[Evento]:
     ordem = list(dict.fromkeys([*NOMES.values(), *FILHAS.values()]))
     passos = passos_do_registro(Solicitacao._meta.db_table, s.pk,
                                 dict.fromkeys(FILHAS, "solicitacao_id"))
+    nomes_fk = _nomes_fk(passos)
     for p in passos:
         if p.operacao != "UPDATE" or "status" in p.campos:
             continue
@@ -196,7 +236,15 @@ def historico(s: Solicitacao) -> list[Evento]:
                   | {FILHAS[t] for t in p.filhas if t in FILHAS}]
         if partes:
             texto = partes[0] if len(partes) == 1 else ", ".join(partes[:-1]) + " e " + partes[-1]
-            eventos.append(Evento(p.em, f"Alterou {texto}", p.usuario))
+            mudancas = []
+            for c in NOMES:  # na ordem do formulário
+                if c not in p.campos:
+                    continue
+                antes, depois = (_legivel(c, v.get(c), nomes_fk) for v in (p.antes, p.depois))
+                if antes != depois:
+                    rotulo = str(_campo(c).verbose_name)
+                    mudancas.append((rotulo[:1].upper() + rotulo[1:], antes, depois))
+            eventos.append(Evento(p.em, f"Alterou {texto}", p.usuario, mudancas=mudancas))
     for m in s.movimentos.select_related("usuario"):
         texto = m.get_acao_display()
         if m.observacao:
