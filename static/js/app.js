@@ -55,6 +55,8 @@ const sobDemanda = [
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
   ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
+  // Solicitação de evento: a sugestão do tipo e os solicitantes de antes.
+  ["[data-sugestao-tipo], pc-combobox[data-solicitante-anterior]", () => import("./componentes/sugestoes-evento.js")],
 ];
 const carregados = new Set();
 // Prontidão dos controles (<html data-controladores>): "carregando" enquanto algum componente

@@ -267,7 +267,7 @@ def test_lista_filas_busca_e_exportacao(ana, dg):
     html = c.get(reverse("eventos:solicitacoes"), {"q": "azul"}).content.decode()
     assert "Colégio Azul" in html and "Igreja Verde" not in html
     html = c.get(reverse("eventos:solicitacoes"), {"q": f"#{b.pk}"}).content.decode()
-    assert f"Pedido</span><span class=\"placa__numero\">#{b.pk}" in html
+    assert f'<span class="placa__numero">#{b.pk}</span>' in html
     c.force_login(ana)
     html = c.get(reverse("eventos:solicitacoes"), {"fila": "rascunhos"}).content.decode()
     assert f"#{a.pk}" in html and "Aguardando despacho <span" not in html  # fila só da DG

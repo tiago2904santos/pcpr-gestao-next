@@ -23,7 +23,16 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.models import Municipio
 
-from . import conflitos, dominio, ganchos, pedir_coffee, policies, queries, solicitacoes
+from . import (
+    conflitos,
+    dominio,
+    ganchos,
+    pedir_coffee,
+    policies,
+    queries,
+    solicitacoes,
+    sugestoes,
+)
 from .forms import FORM_ID, FormularioSolicitacao, estrutura_do_post, quantidade
 from .models import AnexoSolicitacao, Equipe, Servico, Solicitacao, TextoDespacho, TipoEvento
 
@@ -258,10 +267,6 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "equipes": [(x, x.pk in equipes_atuais, equipes_atuais.get(x.pk))
                     for x in equipes.distinct().order_by("nome")],
         "erros_estrutura": erros_estrutura or [],
-        "solicitantes": list(policies.solicitacoes_visiveis(request.user)
-                             .exclude(solicitante_nome="").order_by("solicitante_nome")
-                             .values_list("solicitante_nome", flat=True).distinct()[:300]),
-        "tipos_com_modelo": TipoEvento.objects.filter(ativo=True).order_by("nome"),
     }
     if s is None:
         ctx["migalhas"] = _migalhas(("Nova solicitação", ""))
@@ -301,6 +306,27 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
 def _erro(form, exc: dominio.RegraViolada) -> None:
     form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
+
+
+@require_GET
+def sugestao_do_tipo(request: HttpRequest) -> JsonResponse:
+    """O que o tipo escolhido sugere (serviços, equipes, quem pede), para o "Aplicar"."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    pk = request.GET.get("tipo") or ""
+    tipo = TipoEvento.objects.filter(pk=pk).first() if pk.isdigit() else None
+    if tipo is None:
+        raise Http404
+    return JsonResponse(sugestoes.do_tipo(request.user, tipo).como_dict())
+
+
+@require_GET
+def solicitantes_anteriores(request: HttpRequest) -> JsonResponse:
+    """Autocompletar "Quem pede" (pc-combobox): cargo, contato e órgão do último pedido."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    return JsonResponse({"resultados": sugestoes.solicitantes(
+        request.user, (request.GET.get("q") or "")[:100])})
 
 
 @require_http_methods(["GET", "POST"])
