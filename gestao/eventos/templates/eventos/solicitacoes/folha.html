@@ -123,6 +123,20 @@ histórico.
         </div>
       </div>
     </fieldset>
+    {% if s and s.protocolo %}
+    {# Fora do fieldset: a consulta vale mesmo quando os dados já não se editam. #}
+    <div class="secao__bloco" id="andamento-protocolo" aria-labelledby="t-andamento">
+      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-andamento">{% icone "stamp" classe="icone--sm" %}Andamento do protocolo {{ s.protocolo }}</h3>
+        <div class="secao__estado"><button type="submit" form="consultar-protocolo" class="botao botao--sm">{% icone "refresh-cw" %}Consultar andamento</button></div></div>
+      {% if consulta_protocolo %}
+      <div class="alerta alerta--{% if consulta_protocolo.simulada %}aviso{% else %}info{% endif %}" role="status">{% icone "file-search" %}<div class="alerta__corpo">
+        <p class="alerta__titulo">{{ consulta_protocolo.situacao|default:"Sem situação informada" }}{% if consulta_protocolo.local %} · {{ consulta_protocolo.local }}{% endif %}</p>
+        {% if consulta_protocolo.ultima %}<p>Última movimentação{% if consulta_protocolo.em %} em {{ consulta_protocolo.em }}{% endif %}: {{ consulta_protocolo.ultima }}</p>{% endif %}
+        <p class="texto-secundario texto-sm">Consultado em {{ consulta_protocolo.consultado }}{% if consulta_protocolo.simulada %} · não vale como consulta oficial{% endif %}.</p>
+      </div></div>
+      {% else %}<p class="texto-secundario texto-sm">Consulte a última movimentação no eProtocolo. Só leitura: nada muda na solicitação.</p>{% endif %}
+    </div>
+    {% endif %}
   </section>
 
   <section class="secao" id="estrutura" aria-labelledby="t-estrutura">
@@ -272,6 +286,7 @@ histórico.
     {% include "componentes/rodape_documento.html" with nome="solicitação" finalizar_form="finalizar-evento" duplicar_form="duplicar-evento" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico e avisa quem acompanha." %}
   {% endif %}
 </div>
+{% if s and s.protocolo %}<form id="consultar-protocolo" method="post" action="{% url 'eventos:consultar_protocolo' s.pk %}" hidden>{% csrf_token %}</form>{% endif %}
 <form id="finalizar-evento" method="get" action="{% url 'eventos:solicitacoes' %}" hidden data-esperar-salvamento></form>
 <form id="duplicar-evento" method="post" action="{% url 'eventos:duplicar' s.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
 {% if pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}

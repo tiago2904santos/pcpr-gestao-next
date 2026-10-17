@@ -16,6 +16,8 @@ urlpatterns = [
     path("solicitacoes/solicitantes/", vs.solicitantes_anteriores, name="solicitantes"),
     path("solicitacoes/<int:pk>/", vs.solicitacao, name="solicitacao"),
     path("solicitacoes/<int:pk>/autosave/", vs.autosave, name="autosave"),
+    path("solicitacoes/<int:pk>/protocolo/", vs.consultar_protocolo,
+         name="consultar_protocolo"),
     path("solicitacoes/<int:pk>/enviar/", vs.enviar, name="enviar"),
     path("solicitacoes/<int:pk>/despachar/", vs.despachar, name="despachar"),
     path("solicitacoes/<int:pk>/concluir/", vs.concluir, name="concluir"),

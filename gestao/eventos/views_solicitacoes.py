@@ -22,6 +22,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from gestao.cadastros.models import Municipio
+from gestao.integracoes.eprotocolo import servico as eprotocolo
+from gestao.integracoes.eprotocolo.erros import ErroEprotocolo
 
 from . import (
     conflitos,
@@ -301,6 +303,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
             pk=s.criado_por_id).order_by("nome") if policies.pode_transferir(request.user, s)
         else [],
         "historico": queries.historico(s),
+        "consulta_protocolo": request.session.pop(_chave_protocolo(s.pk), None),
         # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido.
         "avisos_agenda": conflitos.avisos_da_solicitacao(s),
         **_viagem(request, s),
@@ -311,6 +314,34 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
 def _erro(form, exc: dominio.RegraViolada) -> None:
     form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
+
+
+def _chave_protocolo(pk: int) -> str:
+    return f"eventos_protocolo_{pk}"
+
+
+@require_POST
+def consultar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Consultar andamento": a última movimentação do protocolo no eProtocolo (simulada sem
+    credencial). Só lê; o resultado volta uma vez na folha."""
+    s = _visivel(request, pk)
+    voltar = reverse("eventos:solicitacao", args=[pk]) + "#andamento-protocolo"
+    if not s.protocolo:
+        messages.error(request, "Informe e salve o número do protocolo antes de consultar.")
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#dados")
+    try:
+        situacao = eprotocolo.consultar(s.protocolo)
+    except ErroEprotocolo as exc:
+        messages.error(request, f"Não deu para consultar o protocolo agora: {exc}")
+        return redirect(voltar)
+    ultima = situacao.ultima
+    request.session[_chave_protocolo(pk)] = {
+        "numero": s.protocolo, "situacao": situacao.situacao, "local": situacao.local_atual,
+        "ultima": ultima.descricao if ultima else "",
+        "em": f"{ultima.em:%d/%m/%Y %H:%M}" if ultima and ultima.em else "",
+        "simulada": not eprotocolo.origem_vale_como_oficial(situacao.origem),
+        "consultado": f"{timezone.localtime():%d/%m/%Y %H:%M}"}
+    return redirect(voltar)
 
 
 @require_POST
