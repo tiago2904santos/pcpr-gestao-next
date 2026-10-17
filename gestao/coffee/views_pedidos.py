@@ -225,6 +225,22 @@ def exportar(request: HttpRequest) -> HttpResponse:
     return resposta
 
 
+def _documentos(s: Solicitacao) -> list[dict]:
+    """Os documentos da OS com as vias guardadas: uma consulta para todas as vias (antes
+    eram três por documento — a assinada vigente, as últimas e a contagem)."""
+    todas = list(s.vias.select_related("emitida_por").order_by("-emitida_em", "-pk"))
+    saida = []
+    for t in documentos.TIPOS:
+        do_tipo = [v for v in todas if v.tipo == t]
+        assinada = (next((v for v in do_tipo if v.assinada and v.removida_em is None), None)
+                    if t in documentos.ASSINAVEIS else None)
+        saida.append({"tipo": t, "titulo": documentos.TIPOS[t].titulo,
+                      "faltas": documentos.pendencias(t, s), "assinada": assinada,
+                      "assinavel": t in documentos.ASSINAVEIS, "vias": do_tipo[:10],
+                      "n_vias": len(do_tipo)})
+    return saida
+
+
 def _link_fornecedor(s: Solicitacao) -> dict:
     from . import link_fornecedor
     return {"link_ativo": link_fornecedor.ativo(s),
@@ -267,14 +283,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
             "proximo_oficio": queries.proximo_oficio(timezone.localdate().year),
             "pode_reabrir": admin and s.concluida and not s.em_correcao and not s.cancelada,
             "pode_encerrar": admin and s.em_correcao,
-            "documentos": [
-                {"tipo": t, "titulo": documentos.TIPOS[t].titulo,
-                 "faltas": documentos.pendencias(t, s),
-                 "assinada": vias.assinada_vigente(s, t) if t in documentos.ASSINAVEIS
-                 else None,
-                 "assinavel": t in documentos.ASSINAVEIS,
-                 "vias": list(s.vias.filter(tipo=t).select_related("emitida_por")[:10]),
-                 "n_vias": s.vias.filter(tipo=t).count()} for t in documentos.TIPOS],
+            "documentos": _documentos(s),
             "avisos_nota": pdfs.avisos_da_nota(s),
             "pdfs": (("nota", "Nota fiscal", s.nota_pdf,
                       (("Número", s.nota_fiscal), ("Valor", regras.moeda(s.nota_valor)

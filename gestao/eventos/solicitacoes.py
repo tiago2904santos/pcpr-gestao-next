@@ -114,13 +114,18 @@ def _recalcular(s: Solicitacao) -> None:
     s.quantidade_servidores = total
 
 
+def _carregado(s: Solicitacao, relacao: str) -> bool:
+    """A folha já trouxe a relação (prefetch): usar sem nova consulta."""
+    return relacao in getattr(s, "_prefetched_objects_cache", {})
+
+
 def dados_do_envio(s: Solicitacao) -> dominio.DadosDoEnvio:
     return dominio.DadosDoEnvio(
         preenchidos={campo: bool(getattr(s, f"{campo}_id", None) or getattr(s, campo, None))
                      for campo, _r in dominio.CAMPOS_DO_ENVIO},
-        servicos=s.servicos.count(),
-        equipes={e.equipe.nome: e.quantidade_servidores
-                 for e in s.equipes.select_related("equipe")},
+        servicos=len(s.servicos.all()) if _carregado(s, "servicos") else s.servicos.count(),
+        equipes={e.equipe.nome: e.quantidade_servidores for e in (
+            s.equipes.all() if _carregado(s, "equipes") else s.equipes.select_related("equipe"))},
         tipo_operacao=s.tipo_operacao, unidade_movel=s.unidade_movel,
         unidade_movel_designada=bool(s.unidade_movel_designada_id))
 

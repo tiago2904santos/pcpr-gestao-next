@@ -63,7 +63,8 @@ def unidades_para(usuario):
 
 
 def unidade_sugerida(usuario, s: Solicitacao, unidades) -> Unidade | None:
-    nomes = {_chave(e.equipe.nome) for e in s.equipes.select_related("equipe")}
+    # .all(): aproveita as equipes já carregadas pela folha (prefetch), sem nova consulta.
+    nomes = {_chave(e.equipe.nome) for e in s.equipes.all()}
     for u in unidades:
         if nomes & {_chave(u.sigla), _chave(u.nome)} - {""}:
             return u
@@ -76,14 +77,16 @@ def viagens_da_solicitacao(s: Solicitacao) -> list[Viagem]:
                 .select_related("unidade").distinct().order_by("pk"))
 
 
-def motivo_que_impede(s: Solicitacao) -> str:
+def motivo_que_impede(s: Solicitacao, viagens: list[Viagem] | None = None) -> str:
     if s.status != dominio_eventos.DEFERIDA:
         return "A viagem nasce do deferimento: a solicitação precisa estar deferida."
     if not s.municipio_id:
         return "A solicitação não tem município definido."
     if not s.data_inicio_evento:
         return "A solicitação não tem data de início do evento."
-    if any(not v.cancelada for v in viagens_da_solicitacao(s)):
+    if viagens is None:
+        viagens = viagens_da_solicitacao(s)
+    if any(not v.cancelada for v in viagens):
         return "Esta solicitação já tem viagem gerada."
     return ""
 
@@ -94,14 +97,15 @@ def tem_documentos(viagem: Viagem) -> bool:
 
 def resumo(usuario, s: Solicitacao) -> dict[str, Any]:
     viagens = viagens_da_solicitacao(s)
+    motivo = motivo_que_impede(s, viagens)
     unidades = list(unidades_para(usuario)) if pode_gerar(usuario) else []
     sugerida = unidade_sugerida(usuario, s, unidades) if unidades else None
     return {
         "viagens": [{"viagem": v, "url": (reverse("viagens:editar_viagem", args=[v.pk])
                                           if policies.pode_ver_viagem(usuario, v) else ""),
                      "documentos": tem_documentos(v)} for v in viagens],
-        "pode_gerar": bool(unidades) and not motivo_que_impede(s),
-        "motivo": motivo_que_impede(s), "unidades": unidades,
+        "pode_gerar": bool(unidades) and not motivo,
+        "motivo": motivo, "unidades": unidades,
         "sugerida": sugerida.pk if sugerida else None,
     }
 

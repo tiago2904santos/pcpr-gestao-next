@@ -217,7 +217,11 @@ def _celula(valor):
 # ---------------------------------------------------------------- viagem (E4)
 def _viagem(request: HttpRequest, s: Solicitacao) -> dict:
     integracao = ganchos.viagem()
-    info = integracao.resumo(request.user, s) if integracao else None
+    # O resumo da viagem (unidades, sugerida, documentos) só interessa depois do deferimento
+    # ou quando já houve viagem; antes disso, poupa as consultas.
+    precisa = (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
+               or s.viagens_geradas.exists())
+    info = integracao.resumo(request.user, s) if integracao and precisa else None
     mostrar = bool(info) and (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
                               or bool(info and info["viagens"]))
     # Antes de virar viagem: as da mesma cidade com datas encostadas (uma viagem só).
@@ -308,8 +312,12 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         else [],
         "historico": queries.historico(s),
         "consulta_protocolo": request.session.pop(_chave_protocolo(s.pk), None),
-        # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido.
-        "avisos_agenda": conflitos.avisos_da_solicitacao(s),
+        # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido — só
+        # enquanto o evento não passou nem a solicitação se encerrou.
+        "avisos_agenda": (conflitos.avisos_da_solicitacao(s)
+                          if s.status not in dominio.FINAIS
+                          and (s.data_fim_evento or s.data_inicio_evento or hoje) >= hoje
+                          else []),
         **_viagem(request, s),
         "migalhas": _migalhas((str(s), "")),
     })

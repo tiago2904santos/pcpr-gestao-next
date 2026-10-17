@@ -75,6 +75,8 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     q = " ".join((request.GET.get("q") or "").split())[:100]
     situacao = request.GET.get("situacao") or ""
     qs = cat.modelo.objects.order_by("nome")
+    if slug == "tipos-evento":  # "tem modelo" de cada linha sem uma consulta por tipo
+        qs = qs.prefetch_related("servicos_sugeridos", "equipes_padrao")
     if q:
         qs = qs.filter(nome__icontains=q)
     if situacao in ("ativos", "inativos"):
