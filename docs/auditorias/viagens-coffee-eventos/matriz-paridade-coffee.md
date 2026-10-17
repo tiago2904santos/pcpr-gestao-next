@@ -22,7 +22,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F11 | Contrato/aditivo lidos do PDF | L/contratos_pdf.py | N/contratos_pdf.py | Equivalente | heurísticas não comparadas com PDFs reais | Equivalente |
 | CB-F12 | Lote | L/forms.py:566-603 | N/forms.py:173-219 | Equivalente | — | Equivalente |
 | CB-F13 | Municípios do lote | L/forms.py | lista digitada validada | Substituída | D/decisoes.md:282 | Substituída |
-| CB-F14 | Configuração do ofício/protocolo/e-mails | L/models.py:193-286 | N/views.py:305-318 | **Defeito** | corrida de versão (`CadastroEmUso`) não tratada → erro 500 | |
+| CB-F14 | Configuração do ofício/protocolo/e-mails | L/models.py:193-286 | N/views.py:305-318 | **Defeito** | corrida de versão (`CadastroEmUso`) não tratada → erro 500 || **Corrigida** — a corrida volta como erro do formulário (422), não 500 (`test_configuracao_salva_por_outra_pessoa_nao_da_erro_500`) |
 | CB-F15 | Recusar excluir cadastro em uso | L/views.py:1965-1982 | N/services.py:50-60 | Equivalente | — | Equivalente |
 | CB-F16 | Textos-base dos documentos editáveis | L/editor.py:100-190 | — | Substituída | D/decisoes.md:286 | Substituída |
 | CB-F17 | Edição na folha A4 | L/editor.py:383-404 | — | Substituída | D/decisoes.md:286 | Substituída |
@@ -34,7 +34,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F23 | Quantidade faturada | L/views.py:1351-1365 | N/financeiro.py:112-130 | Equivalente | — | Equivalente |
 | CB-F24 | Selo de consumo, valor da OS | L/presenters.py:270-279 | N/dominio_pedido.py:102-122 | Equivalente | — | Equivalente |
 | CB-F25 | Numeração da OS compartilhada com Viagens | L/services.py:668-760 | N/queries.py:118-123 | Parcial | **decisão pendente do usuário** (D/decisoes.md:320) | Pendente (decisão) |
-| CB-F26 | Ano do número da OS ao editar | L/forms.py:123-159 | N/pedidos.py:130 | **Defeito** | usa o ano da data da solicitação: "5/2025" vira "5/2026" | |
+| CB-F26 | Ano do número da OS ao editar | L/forms.py:123-159 | N/pedidos.py:130 | **Defeito** | usa o ano da data da solicitação: "5/2025" vira "5/2026" || **Corrigida** — na edição vale o ano do número que a OS já tem (`test_editar_mantem_o_ano_do_numero`) |
 | CB-F27 | Número repetido / reserva | L/services.py:747-782 | N/pedidos.py:57-69 | Equivalente | — | Equivalente |
 | CB-F28 | Numeração do ofício | L/services.py:683-720 | N/financeiro.py:54-101 | Parcial | sequência própria (como CB-F25) | Pendente (decisão) |
 | CB-F29 | Vigência bloqueia o pedido | L/forms.py:233-256 | N/pedidos.py:98-120 | Equivalente | — | Equivalente |
@@ -60,7 +60,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F49 | Ordem e mensagens dos marcos | L/models.py:625-671 | N/dominio_pedido.py:239-257 | Equivalente | — | Equivalente |
 | CB-F50 | Nota não fica em branco após protocolo | L/forms.py:383-389 | N/financeiro.py:87-88 | Equivalente | — | Equivalente |
 | CB-F51 | Máscara do protocolo | L/protocolo_pagamento.py | N/dominio_pedido.py:260-267 | Equivalente | — | Equivalente |
-| CB-F52 | Nº do eProtocolo vira protocolo de pagamento | L/services.py:869-891 | N/financeiro.py:102-107 | Parcial | só pagamento → PCPR; não PCPR → pagamento quando há nota | |
+| CB-F52 | Nº do eProtocolo vira protocolo de pagamento | L/services.py:869-891 | N/financeiro.py:102-107 | Parcial | só pagamento → PCPR; não PCPR → pagamento quando há nota || **Corrigida** — com a nota, o PCPR no formato do eProtocolo vira o de pagamento (em branco, ou o do ofício mudou e o de pagamento não); número interno não conta; conjunto só com todas as notas (`test_protocolo_do_oficio_vira_o_de_pagamento`) |
 | CB-F53 | Atesto ao baixar os arquivos | L/services.py:893-907 | N/protocolo.py:156-162 | Equivalente | — | Equivalente |
 | CB-F54 | Situação financeira derivada | L/services.py:33-52 | N/dominio_pedido.py:126-162 | Equivalente | — | Equivalente |
 | CB-F55 | Pagamento conjunto | L/services.py:910-962 | N/conjunto.py:45-92 | Equivalente | — | Equivalente |
@@ -72,7 +72,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F61 | PDF da OB | L/services.py:1070-1148 | N/pdfs.py:112-160 | Equivalente | — | Equivalente |
 | CB-F62 | Aviso OB ≠ soma das notas | L/services.py:1128-1148 | N/pdfs.py:163-171 | Equivalente | — | Equivalente |
 | CB-F63 | Documentos (OS, ofício, certifico) | L/documentos.py:145-220 | N/documentos.py:98-152 | Equivalente | timbre em texto (D/decisoes.md:286) | Equivalente |
-| CB-F64 | Vias do ofício pertencem à OS principal do pagamento | L/vias.py:12-43 | N/vias.py (por OS) | **Defeito** | ofício assinado na principal é ignorado nas outras OS; vias duplicadas | |
+| CB-F64 | Vias do ofício pertencem à OS principal do pagamento | L/vias.py:12-43 | N/vias.py (por OS) | **Defeito** | ofício assinado na principal é ignorado nas outras OS; vias duplicadas || **Corrigida** — `vias.dono`: o ofício guarda as vias na principal; folha e download pela outra OS (`test_vias_do_oficio_ficam_na_principal`) |
 | CB-F65 | Certificado da solicitação | L/views.py:1584-1617 | N/documentos.py | Equivalente | — | Equivalente |
 | CB-F66 | Nome do arquivo, falta do motor de PDF, prévia | L/documentos.py:650-653 | N/documentos.py:160-178 | Equivalente | — | Equivalente |
 | CB-F67 | Vias emitidas e download | L/vias.py:96-143 | N/vias.py; folha | Equivalente | — | Equivalente |
@@ -80,7 +80,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F69 | Lista de anexos do protocolo | L/documentos.py:345-578 | N/protocolo.py:56-108 | Equivalente | — | Equivalente |
 | CB-F70 | Nomes numerados dos arquivos | L/documentos.py:383-493 | N/protocolo.py:123-127 | Parcial | — | |
 | CB-F71 | ZIP ou PDF único | L/views.py:1671-1724 | fila de downloads | Substituída | sem decisão escrita (coffee-break.md ainda diz ZIP) | |
-| CB-F72 | Parte sem documentos | L/views.py:1693-1700 | N/protocolo.py:151-155 | **Defeito** | interrompe o download todo | |
+| CB-F72 | Parte sem documentos | L/views.py:1693-1700 | N/protocolo.py:151-155 | **Defeito** | interrompe o download todo || **Corrigida** — a parte vazia fica de fora com aviso; o resto sai (`test_parte_vazia_fica_de_fora_e_o_resto_sai`) |
 | CB-F73 | Textos do eProtocolo e passo a passo | L/documentos.py:599-647 | N/protocolo.py:176-204 | Equivalente | — | Equivalente |
 | CB-F74 | Quadro de certidões | L/certidoes.py | N/certidoes.py | Equivalente | — | Equivalente |
 | CB-F75 | "Emitir" copia o CNPJ e abre o portal | LT/certidoes.html:46-73 | NT/certidoes.html | Parcial | só o link | |
@@ -102,10 +102,10 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F91 | Alertas de saldo, vigência e certidões | L/services.py:250-521 | N/painel.py:119-156 | Equivalente | — | Equivalente |
 | CB-F92 | "O que fazer hoje" | L/services.py:1224-1370 | N/painel.py:168-190 | Equivalente | — | Equivalente |
 | CB-F93 | Botões "Enviar a OS"/"Enviar a OB" no painel | L/services.py:1239-1246 | N/dominio_painel.py:105-122 | Parcial | decisão baseada em "e-mail só no CB8", que já existe | |
-| CB-F94 | Dias parada com evento futuro | L/services.py:1283-1299 | N/dominio_painel.py:96-99 | **Defeito** | usa a data do evento futuro → sempre 0 | |
+| CB-F94 | Dias parada com evento futuro | L/services.py:1283-1299 | N/dominio_painel.py:96-99 | **Defeito** | usa a data do evento futuro → sempre 0 || **Corrigida** — o fim do evento só conta se já passou (`test_parada_nao_zera_com_evento_futuro`) |
 | CB-F95 | Indicadores da página inicial | core/views.py:55-91 | N/painel.py:193-201 | Equivalente | — | Equivalente |
 | CB-F96 | Tela de e-mail OS/OB | L/views.py:2180-2317 | N/envio_email.py | Equivalente | + checagem de SMTP e limites | Equivalente |
-| CB-F97 | Campos do e-mail (`{local}` com endereço; `{numero}` "#pk") | L/emails.py:46-66 | N/envio_email.py:95-110 | **Defeito** | `{local}` sem endereço | |
+| CB-F97 | Campos do e-mail (`{local}` com endereço; `{numero}` "#pk") | L/emails.py:46-66 | N/envio_email.py:95-110 | **Defeito** | `{local}` sem endereço || **Corrigida** — `{local}` = local — endereço, bairro, CEP; `{numero}` sem número = #pk (`test_local_do_email_leva_o_endereco`) |
 | CB-F98 | Envio da OS grava a data; da OB conclui o conjunto | L/views.py:2243-2322 | N/envio_email.py | Equivalente | — | Equivalente |
 | CB-F99 | Link: validade configurável | L/link_fornecedor.py:48-96 | N/link_fornecedor.py:35 | Parcial | fixo em 30 dias | |
 | CB-F100 | Revogar o link | L/views.py:2377-2387 | N/link_fornecedor.py | Equivalente | — | Equivalente |

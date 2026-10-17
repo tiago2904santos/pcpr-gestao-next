@@ -87,8 +87,11 @@ def alerta_de_vigencia(fim: date | None, hoje: date) -> str:
 
 
 def dias_parada(ultimo_movimento: date, fim_evento: date | None, hoje: date) -> int:
-    """Desde o último histórico, ou desde o fim do evento se for posterior."""
-    referencia = max(ultimo_movimento, fim_evento) if fim_evento else ultimo_movimento
+    """Desde o último histórico, ou desde o fim do evento se for posterior e já tiver
+    passado (evento futuro não "zera" a contagem)."""
+    referencia = ultimo_movimento
+    if fim_evento and referencia < fim_evento <= hoje:
+        referencia = fim_evento
     return max((hoje - referencia).days, 0)
 
 

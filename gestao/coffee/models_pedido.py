@@ -107,6 +107,12 @@ class Solicitacao(Carimbos):
         return f"OS {self.numero}" if self.numero else f"Solicitação #{self.pk}"
 
     @property
+    def endereco_completo(self) -> str:
+        """Endereço, bairro e CEP numa linha ("Rua X, 10, Centro, CEP 80000-000")."""
+        cep = f"CEP {self.cep}" if self.cep else ""
+        return ", ".join(p for p in (self.endereco, self.bairro, cep) if p)
+
+    @property
     def marcos(self) -> dominio_pedido.Marcos:
         return dominio_pedido.Marcos(
             cancelada=self.cancelada, nota=bool(self.nota_fiscal),

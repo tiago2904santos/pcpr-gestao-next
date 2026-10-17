@@ -132,6 +132,7 @@ class Pacote:
     conteudo: bytes
     nome: str
     tipo: str  # application/pdf | application/zip
+    avisos: list[str] = field(default_factory=list)  # partes marcadas sem documento
 
 
 @transaction.atomic
@@ -148,11 +149,15 @@ def baixar(usuario, pk: int, partes: list[str], formato: str = "zip",
         raise PedidoInvalido(MSG_MARQUE)
     lista = itens(usuario, s, hoje)
     arquivos: list[tuple[str, bytes]] = []
+    avisos: list[str] = []
     for parte in partes:
         conteudos = [i.obter() for i in lista if i.parte == parte and i.pronto and i.obter]
-        if not conteudos:
-            raise PedidoInvalido(f"{ROTULO_PARTE[parte]}: nenhum documento disponível ainda.")
+        if not conteudos:  # como na referência: a parte vazia fica de fora, o resto sai
+            avisos.append(f"{ROTULO_PARTE[parte]}: nenhum documento disponível ainda.")
+            continue
         arquivos.append((_nome(s, parte), _juntar(conteudos)))
+    if not arquivos:
+        raise PedidoInvalido(" ".join(avisos))
     if s.protocolo_pagamento and not s.atesto_em and not s.cancelada:
         s.atesto_em = hoje
         s.save(update_fields=["atesto_em", "atualizado_em"])
@@ -163,14 +168,15 @@ def baixar(usuario, pk: int, partes: list[str], formato: str = "zip",
     base = f"Protocolo {s.numero_oficio or s.numero}".replace("/", "-")
     if len(arquivos) == 1 and formato != "unico":
         nome, conteudo = arquivos[0]
-        return Pacote(conteudo, nome, "application/pdf")
+        return Pacote(conteudo, nome, "application/pdf", avisos)
     if formato == "unico":
-        return Pacote(_juntar([c for _n, c in arquivos]), f"{base}.pdf", "application/pdf")
+        return Pacote(_juntar([c for _n, c in arquivos]), f"{base}.pdf", "application/pdf",
+                      avisos)
     memoria = io.BytesIO()
     with zipfile.ZipFile(memoria, "w", zipfile.ZIP_DEFLATED) as zipado:
         for nome, conteudo in arquivos:
             zipado.writestr(nome, conteudo)
-    return Pacote(memoria.getvalue(), f"{base}.zip", "application/zip")
+    return Pacote(memoria.getvalue(), f"{base}.zip", "application/zip", avisos)
 
 
 def textos(s: Solicitacao) -> list[tuple[str, str, str]]:

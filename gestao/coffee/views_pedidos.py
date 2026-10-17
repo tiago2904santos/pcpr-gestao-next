@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.http import FileResponse, HttpRequest, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -229,6 +229,11 @@ def _documentos(s: Solicitacao) -> list[dict]:
     """Os documentos da OS com as vias guardadas: uma consulta para todas as vias (antes
     eram três por documento — a assinada vigente, as últimas e a contagem)."""
     todas = list(s.vias.select_related("emitida_por").order_by("-emitida_em", "-pk"))
+    principal = conjunto.principal_de(s)
+    if principal.pk != s.pk:  # o ofício do pagamento conjunto mora na principal
+        todas = [v for v in todas if v.tipo != "oficio"] + list(
+            principal.vias.filter(tipo="oficio").select_related("emitida_por")
+            .order_by("-emitida_em", "-pk"))
     saida = []
     for t in documentos.TIPOS:
         do_tipo = [v for v in todas if v.tipo == t]
@@ -735,6 +740,8 @@ def baixar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
     except pedidos.PedidoInvalido as exc:
         messages.error(request, str(exc))
         return redirect("coffee:protocolo", pk=pk)
+    for aviso in pacote.avisos:  # aparecem quando a tela do protocolo recarregar
+        messages.warning(request, f"{aviso} Ficou fora do arquivo.")
     from django.utils.http import content_disposition_header
     resposta = HttpResponse(pacote.conteudo, content_type=pacote.tipo)
     resposta["Content-Disposition"] = content_disposition_header(True, pacote.nome) or "attachment"
@@ -845,7 +852,10 @@ def arquivo_via(request: HttpRequest, pk: int, via_pk: int) -> StreamingHttpResp
     from .models import Via
 
     _exigir(request)
-    v = get_object_or_404(Via, pk=via_pk, solicitacao_id=pk)
+    s = get_object_or_404(Solicitacao, pk=pk)
+    principal = conjunto.principal_de(s)  # o ofício do pagamento conjunto mora na principal
+    v = get_object_or_404(Via.objects.filter(
+        Q(solicitacao=s) | Q(solicitacao=principal, tipo="oficio")), pk=via_pk)
     resposta = FileResponse(v.arquivo.open("rb"), as_attachment=True,
                             filename=re.sub(r"[^\w .-]", "-", v.nome)[:120] or "via.pdf",
                             content_type="application/pdf")

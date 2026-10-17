@@ -120,3 +120,20 @@ def test_tela_do_protocolo(os_):
     assert r.status_code == 200 and r["Content-Type"] == "application/pdf"
     r = cli.post(reverse("coffee:baixar_protocolo", args=[s.pk]), {}, follow=True)
     assert "Marque ao menos um arquivo para baixar." in r.content.decode()
+
+
+def test_parte_vazia_fica_de_fora_e_o_resto_sai(os_):
+    """Como na referência: marcar uma parte sem documento não impede as outras (CB-F72)."""
+    u, s = os_
+    Certidao.objects.all().delete()  # contrato e aditivo sem PDF: a parte 4 fica vazia
+    pacote = protocolo.baixar(u, s.pk, ["os", "contrato"], "unico")
+    assert pacote.tipo == "application/pdf" and pacote.conteudo.startswith(b"%PDF")
+    assert pacote.avisos == [f"{protocolo.ROTULO_PARTE['contrato']}: nenhum documento "
+                             "disponível ainda."]
+    c = Client()
+    c.force_login(u)
+    r = c.post(reverse("coffee:baixar_protocolo", args=[s.pk]),
+               {"partes": ["os", "contrato"], "formato": "unico"})
+    assert r.status_code == 200 and r["Content-Type"] == "application/pdf"
+    tela = c.get(reverse("coffee:protocolo", args=[s.pk])).content.decode()
+    assert "Ficou fora do arquivo." in tela
