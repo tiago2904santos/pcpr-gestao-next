@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Max
-from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -225,6 +225,13 @@ def exportar(request: HttpRequest) -> HttpResponse:
     return resposta
 
 
+def _link_fornecedor(s: Solicitacao) -> dict:
+    from . import link_fornecedor
+    return {"link_ativo": link_fornecedor.ativo(s),
+            "link_disponivel": link_fornecedor.disponivel(s),
+            "envios_fornecedor": list(s.envios_fornecedor.select_related("conferido_por")[:20])}
+
+
 def _historico(s: Solicitacao) -> list:
     return list(s.movimentos.select_related("usuario")[:50])
 
@@ -283,6 +290,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                            and not conjunto.principal_de(s).protocolo_pagamento else []),
             "saldo": sal, "fim_vigencia": s.lote.contrato.fim_efetivo(),
             "historico": _historico(s), "linha": _linha(s, hoje),
+            **_link_fornecedor(s),
             "aviso_antecedencia": regras.aviso_antecedencia(
                 s.data_evento, hoje, s.lote.contrato.antecedencia_minima_dias,
                 s.lote.contrato.numero) if not s.bloqueada else "",
@@ -751,6 +759,10 @@ def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
             r.para, r.copia, r.assunto, r.texto = (dados["para"], dados["copia"],
                                                    dados["assunto"], dados["texto"])
         else:
+            if qual == "link":
+                messages.success(request, "Link enviado ao fornecedor por e-mail: vale 30 dias. "
+                                          "O envio ficou no histórico.")
+                return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
             if qual == "os":
                 messages.success(request, f"OS {feita.numero} enviada ao fornecedor por e-mail. "
                                           "O envio ficou no histórico.")
@@ -762,10 +774,55 @@ def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
                             + ("#documentos" if qual == "os" else "#pdfs"))
     return render(request, "coffee/enviar_email.html", {
         "s": s, "r": r, "erro": erro,
-        "titulo_tela": ("Enviar a ordem de serviço ao fornecedor" if qual == "os"
-                        else "Enviar a ordem bancária ao fornecedor"),
+        "titulo_tela": {"os": "Enviar a ordem de serviço ao fornecedor",
+                        "ob": "Enviar a ordem bancária ao fornecedor",
+                        "link": "Enviar o link ao fornecedor"}[qual],
         "pode_gerir": policies.pode_gerir_cadastros(request.user),
         "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
                               (str(s), reverse("coffee:solicitacao", args=[pk])),
                               ("E-mail ao fornecedor", "")),
     }, status=422 if erro else 200)
+
+
+@require_POST
+def revogar_link(request: HttpRequest, pk: int) -> HttpResponse:
+    from . import link_fornecedor
+
+    _exigir(request)
+    get_object_or_404(Solicitacao, pk=pk)
+    link_fornecedor.revogar(request.user, pk)
+    messages.success(request, "Link do fornecedor revogado: ele deixa de funcionar agora.")
+    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+
+
+@require_POST
+def conferir_envio(request: HttpRequest, pk: int, envio_pk: int) -> HttpResponse:
+    """Aceitar ou recusar o que o fornecedor mandou pelo link."""
+    from . import link_fornecedor
+    from .models import EnvioFornecedor
+
+    _exigir(request)
+    get_object_or_404(EnvioFornecedor, pk=envio_pk, solicitacao_id=pk)
+    try:
+        mensagem = link_fornecedor.conferir(request.user, envio_pk,
+                                            request.POST.get("acao") == "aceitar",
+                                            request.POST.get("motivo") or "")
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, mensagem)
+    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#envios-fornecedor")
+
+
+@require_GET
+def arquivo_envio(request: HttpRequest, pk: int, envio_pk: int) -> StreamingHttpResponse:
+    from .models import EnvioFornecedor
+
+    _exigir(request)
+    e = get_object_or_404(EnvioFornecedor, pk=envio_pk, solicitacao_id=pk)
+    nome = re.sub(r"[^\w .-]", "-", e.nome_original or f"envio-{e.pk}.pdf")[:120]
+    resposta = FileResponse(e.arquivo.open("rb"), as_attachment=False, filename=nome,
+                            content_type="application/pdf")
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta

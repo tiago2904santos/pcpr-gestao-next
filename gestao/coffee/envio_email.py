@@ -26,7 +26,11 @@ from . import dominio_pedido as regras
 from .models import ConfiguracaoOficio, Movimento, Solicitacao
 from .pedidos import PedidoInvalido
 
-QUAIS = {"os": "Ordem de serviço", "ob": "Ordem bancária"}
+QUAIS = {"os": "Ordem de serviço", "ob": "Ordem bancária", "link": "Link do fornecedor"}
+ASSUNTO_LINK = "Envio da nota fiscal e das certidões — Ordem de Serviço {numero}"
+TEXTO_LINK = ("Prezados,\n\nPara a Ordem de Serviço {numero} ({evento}), envie o PDF da nota "
+              "fiscal e das certidões pelo link abaixo, sem precisar de senha:\n\n{link}\n\n"
+              "O link vale até {validade}.\n\nAtenciosamente,\nASCOM/PCPR")
 CAMPOS = ("numero", "evento", "data", "horario", "local", "responsavel", "quantidade",
           "fornecedor", "nota", "ordem_bancaria", "data_ordem_bancaria")
 A_COMBINAR = "a combinar"
@@ -104,6 +108,9 @@ def problemas(s: Solicitacao, qual: str) -> list[str]:
         return ["A solicitação está cancelada."]
     if qual == "os":
         return documentos.pendencias("os", s)
+    if qual == "link":
+        from . import link_fornecedor
+        return [] if link_fornecedor.disponivel(s) else [link_fornecedor.MSG_INDISPONIVEL]
     faltas = []
     if not s.ob_pdf:
         faltas.append("Anexe o PDF da ordem bancária (seção dos PDFs).")
@@ -113,6 +120,8 @@ def problemas(s: Solicitacao, qual: str) -> list[str]:
 
 
 def _nome_anexo(s: Solicitacao, qual: str) -> str:
+    if qual == "link":
+        return ""
     if qual == "os":
         return documentos.nome_do_arquivo("os", s)
     return f"Ordem bancaria {s.ob_numero or s.numero or s.pk}.pdf"
@@ -121,6 +130,9 @@ def _nome_anexo(s: Solicitacao, qual: str) -> str:
 def _ultimo_envio(s: Solicitacao, qual: str) -> datetime | date | None:
     if qual == "os":
         return s.os_enviada_em
+    if qual == "link":
+        link = s.links_fornecedor.filter(revogado_em__isnull=True).first()
+        return link.criado_em if link else None
     m = (s.movimentos.filter(acao=Movimento.Acao.EMAIL, texto__startswith=QUAIS["ob"])
          .order_by("-em").first())
     return m.em if m else None
@@ -136,8 +148,9 @@ def rascunho(s: Solicitacao, qual: str) -> Rascunho:
                  if x.lower() not in (para.lower(),)]
     except ValueError:
         copia = []
-    assunto = cfg.assunto_email_os if qual == "os" else cfg.assunto_email_ob
-    texto = cfg.texto_email_os if qual == "os" else cfg.texto_email_ob
+    assunto, texto = {"os": (cfg.assunto_email_os, cfg.texto_email_os),
+                      "ob": (cfg.assunto_email_ob, cfg.texto_email_ob),
+                      "link": (ASSUNTO_LINK, TEXTO_LINK)}[qual]
     return Rascunho(qual=qual, para=para, copia=", ".join(copia),
                     assunto=" ".join(preencher(assunto, v).split()),
                     texto=preencher(texto, v), anexo=_nome_anexo(s, qual),
@@ -178,10 +191,21 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
         faltas = problemas(s, qual)
         if faltas:
             raise PedidoInvalido(" ".join(faltas))
-        nome, conteudo = _anexo(usuario, s, qual)
+        if qual == "link":
+            from . import link_fornecedor
+            link, token = link_fornecedor.criar(usuario, s, ", ".join(destinos))
+            endereco = link_fornecedor.url_publica(token)
+            validade = f"{timezone.localtime(link.expira_em):%d/%m/%Y}"
+            texto = preencher(texto or "", {"link": endereco, "validade": validade})
+            if endereco not in texto:
+                texto = f"{texto.rstrip()}\n\n{endereco}"
+            nome, conteudo = "", b""
+        else:
+            nome, conteudo = _anexo(usuario, s, qual)
         msg = EmailMessage(subject=assunto, body=texto or "", to=destinos, cc=copias,
                            reply_to=copias[:1] or None)
-        msg.attach(nome, conteudo, "application/pdf")
+        if conteudo:
+            msg.attach(nome, conteudo, "application/pdf")
         try:
             msg.send(fail_silently=False)
         except OSError as exc:  # SMTPException é OSError
@@ -190,7 +214,8 @@ def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
         registro = (f"{QUAIS[qual]} enviada por e-mail em {agora:%d/%m/%Y} às {agora:%H:%M} "
                     f"para {', '.join(destinos)}"
                     + (f" (cópia: {', '.join(copias)})" if copias else "")
-                    + f". Assunto: {assunto}. Anexo: {nome}.")
+                    + f". Assunto: {assunto}."
+                    + (f" Anexo: {nome}." if nome else " O link vale 30 dias."))
         grupo = conjunto.membros(s) if qual == "ob" and conjunto.em_grupo(s) else [s]
         for x in grupo:
             Movimento.objects.create(solicitacao=x, acao=Movimento.Acao.EMAIL, texto=registro,

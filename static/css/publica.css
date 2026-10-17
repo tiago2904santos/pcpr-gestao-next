@@ -160,3 +160,9 @@
   .autenticacao__palco { padding: var(--esp-4) var(--esp-3) var(--esp-8); align-items: start; }
   .acesso__formulario { padding: var(--esp-6) var(--esp-5); }
 }
+
+/* Link do fornecedor: a página de envio ocupa a largura de leitura (não a do cartão de acesso). */
+.fornecedor-envio {
+  width: 100%;
+  max-width: 60rem;
+}

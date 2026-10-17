@@ -177,6 +177,47 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
   </section>
 </form>
 
+{% if link_disponivel or envios_fornecedor %}
+  <section class="secao{% if envios_fornecedor %} secao--ok{% endif %}" id="envios-fornecedor" aria-labelledby="t-envios-fornecedor">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-envios-fornecedor">{% icone "send" classe="icone--sm" %}Link do fornecedor</h2><p class="secao__nota">Por um link enviado por e-mail (vale 30 dias, sem senha), o fornecedor manda o PDF da nota fiscal e das certidões; aqui a equipe confere e aceita ou recusa.</p></div>
+    {% if link_ativo %}
+    <div class="alerta alerta--info" role="status">{% icone "clock" %}<div class="alerta__corpo"><p>Link enviado{% if link_ativo.enviado_para %} a {{ link_ativo.enviado_para }}{% endif %} em {{ link_ativo.criado_em|date:"d/m/Y H:i" }} por {{ link_ativo.criado_por.nome }}; vale até {{ link_ativo.expira_em|date:"d/m/Y" }}.</p>
+      <div class="linha mt-2"><a class="botao botao--sm" href="{% url 'coffee:enviar_email' s.pk 'link' %}">{% icone "send" %}Enviar um novo link</a><form method="post" action="{% url 'coffee:revogar_link' s.pk %}" data-confirmar="O link para de funcionar agora; o fornecedor precisará de um novo." data-confirmar-titulo="Revogar o link?" data-confirmar-rotulo="Revogar" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "ban" %}Revogar</button></form></div></div></div>
+    {% elif link_disponivel %}
+    <div class="linha"><a class="botao" href="{% url 'coffee:enviar_email' s.pk 'link' %}">{% icone "send" %}Enviar link ao fornecedor</a></div>
+    {% endif %}
+    {% if envios_fornecedor %}
+    <ul class="registros" aria-label="Recebidos pelo link">
+      {% for e in envios_fornecedor %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% if e.tipo == "nota" %}{% icone "receipt" %}{% else %}{% icone "shield-check" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{% if e.tipo == "nota" %}Nota fiscal{% else %}Certidão {{ e.get_tipo_certidao_display }}{% endif %}</span><span class="selo selo--{% if e.situacao == 'recebido' %}aviso{% elif e.situacao == 'aceito' %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{{ e.get_situacao_display }}</span></div>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}Recebida em {{ e.recebido_em|date:"d/m/Y H:i" }}</span>
+            {% if e.lido %}<span class="registro__meta-item">{% icone "file-search" classe="icone--sm" %}{{ e.lido }}</span>{% endif %}
+            {% if e.conferido_por %}<span class="registro__meta-item">{% icone "user" classe="icone--sm" %}Conferida por {{ e.conferido_por.nome }}</span>{% endif %}
+            {% if e.motivo %}<span class="registro__meta-item">{% icone "info" classe="icone--sm" %}{{ e.motivo }}</span>{% endif %}
+          </div>
+          {% for a in e.avisos.splitlines %}<p class="alerta alerta--aviso mt-2" role="note">{% icone "alert-triangle" %}<span class="alerta__corpo">{{ a }}</span></p>{% endfor %}
+          {% if e.situacao == "recebido" and not s.bloqueada %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "x" %}Recusar<span class="sr-only"> — {{ e }}</span></summary>
+            <form method="post" action="{% url 'coffee:conferir_envio' s.pk e.pk %}" class="linha mt-2" novalidate>{% csrf_token %}<input type="hidden" name="acao" value="recusar"><label class="campo__rotulo sr-only" for="motivo-{{ e.pk }}">Motivo da recusa</label><input class="entrada" id="motivo-{{ e.pk }}" name="motivo" maxlength="255" placeholder="Motivo (opcional)" autocomplete="off"><button type="submit" class="botao botao--sm">Recusar</button></form>
+          </details>
+          {% endif %}
+        </div>
+        <div class="registro__acoes registro__acoes--fixas">
+          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:arquivo_envio' s.pk e.pk %}">{% icone "eye" %}PDF<span class="sr-only"> — {{ e }}</span></a>
+          {% if e.situacao == "recebido" and not s.bloqueada %}<form method="post" action="{% url 'coffee:conferir_envio' s.pk e.pk %}">{% csrf_token %}<input type="hidden" name="acao" value="aceitar"><button type="submit" class="botao botao--sm">{% icone "check" %}Aceitar<span class="sr-only"> — {{ e }}</span></button></form>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+{% endif %}
+
 {% if not s.cancelada %}
   <section class="secao" id="pdfs" aria-labelledby="t-pdfs">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pdfs">{% icone "file-check-2" classe="icone--sm" %}Nota fiscal e ordem bancária em PDF</h2><p class="secao__nota">O sistema lê o número, o valor, a emissão e o CNPJ do PDF e só avisa o que não bate; a ordem bancária vale para todas as OS do pagamento.</p></div>

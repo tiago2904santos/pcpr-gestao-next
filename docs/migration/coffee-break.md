@@ -650,7 +650,13 @@ como histórico.
   criar aqui) e conflitos se couber; página inicial, relatórios consolidados, busca global.
 - **CB8 — Fornecedor.** E-mails da OS e da OB (tela editável, histórico, outbox) e link
   seguro com a página pública (token com hash, validade, revogação, limites, conferência
-  aceitar/recusar, aviso no sino).
+  aceitar/recusar, aviso no sino). **Implementado** (decisão do usuário: "implementar, envio
+  configurável"): o envio é síncrono pelo `MAILERS["default"]` — SMTP em produção, console
+  no lab/preview —, para o erro do servidor voltar na tela como na referência
+  (`envio_email.py`); o link mora em `link_fornecedor.py` e a página pública em
+  `/fornecedor/<token>/` (`views_publicas.py`, sem login, `never_cache`, `no-referrer`,
+  `noindex`; limites: 30 envios/hora por link e por origem, 20 tokens inválidos/hora por
+  origem).
 - **CB9 — Importações (opcional).** "Preencher com e-mail"; importar processo de pagamento
   do eProtocolo; importar planilha só se a carga histórica não for pelo ETL da virada.
 

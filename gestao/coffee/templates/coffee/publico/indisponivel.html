@@ -1,0 +1,9 @@
+{% extends "base_publica.html" %}
+{% block titulo %}Link indisponível{% endblock %}
+{% comment %}O mesmo para link desconhecido, vencido ou revogado: não diz qual.{% endcomment %}
+{% block conteudo %}
+<section class="cartao-acesso pilha" aria-labelledby="t-indisponivel">
+  <h1 class="cartao-acesso__titulo" id="t-indisponivel">Link indisponível</h1>
+  <p class="texto-secundario">Este link não está mais valendo. Peça um novo à ASCOM da Polícia Civil do Paraná pelo e-mail em que você recebeu a ordem de serviço.</p>
+</section>
+{% endblock %}

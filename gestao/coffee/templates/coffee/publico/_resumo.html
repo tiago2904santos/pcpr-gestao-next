@@ -1,0 +1,8 @@
+{# O que o fornecedor precisa saber da OS (nada da equipe): evento, data, valor, empresa e o prazo do link. #}
+<p class="registro-hero__metadados">
+  <span class="registro-hero__metadado">{% icone "file-text" classe="icone--sm" %}{{ s.descricao|truncatechars:80 }}</span>
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ s.data_evento|date:"d/m/Y"|default:"Data a combinar" }}</span>
+  {% if s.valor is not None %}<span class="registro-hero__metadado">{% icone "banknote" classe="icone--sm" %}{{ s.valor|moeda }}</span>{% endif %}
+  <span class="registro-hero__metadado">{% icone "building-2" classe="icone--sm" %}{{ fornecedor.razao_social }}</span>
+  <span class="registro-hero__metadado">{% icone "clock" classe="icone--sm" %}Link válido até {{ validade|date:"d/m/Y" }}</span>
+</p>
