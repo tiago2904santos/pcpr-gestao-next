@@ -29,6 +29,7 @@ urlpatterns = [
          name="anexar_assinada"),
     path("solicitacoes/<int:pk>/documentos/<slug:tipo>/assinado/remover/", vp.remover_assinada,
          name="remover_assinada"),
+    path("solicitacoes/<int:pk>/email/<slug:qual>/", vp.enviar_email, name="enviar_email"),
     path("solicitacoes/<int:pk>/entregas/", vpa.registrar_entrega, name="registrar_entrega"),
     path("entregas/<int:pk>/arquivo/", vpa.arquivo_entrega, name="arquivo_entrega"),
     path("solicitacoes/<int:pk>/reabrir/", vp.reabrir, name="reabrir"),

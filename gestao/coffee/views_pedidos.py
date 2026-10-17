@@ -723,3 +723,49 @@ def baixar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
+
+
+# ---------------------------------------------------------------- e-mail ao fornecedor (CB8)
+@require_http_methods(["GET", "POST"])
+def enviar_email(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
+    """A OS ou a OB por e-mail ao fornecedor: a tela abre preenchida (para, cópia, assunto,
+    texto, anexo) e tudo se edita; enviar registra no histórico."""
+    from django.http import Http404
+
+    from . import envio_email
+
+    _exigir(request)
+    if qual not in envio_email.QUAIS:
+        raise Http404
+    s = get_object_or_404(_base(), pk=pk)
+    r = envio_email.rascunho(s, qual)
+    erro = ""
+    if request.method == "POST":
+        dados = {k: (request.POST.get(k) or "") for k in ("para", "copia", "assunto", "texto")}
+        try:
+            feita = envio_email.enviar(request.user, pk, qual, para=dados["para"],
+                                       copia=dados["copia"], assunto=dados["assunto"],
+                                       texto=dados["texto"])
+        except pedidos.PedidoInvalido as exc:
+            erro = str(exc)
+            r.para, r.copia, r.assunto, r.texto = (dados["para"], dados["copia"],
+                                                   dados["assunto"], dados["texto"])
+        else:
+            if qual == "os":
+                messages.success(request, f"OS {feita.numero} enviada ao fornecedor por e-mail. "
+                                          "O envio ficou no histórico.")
+            else:
+                messages.success(request, "Ordem bancária enviada ao fornecedor por e-mail."
+                                 + (" O pagamento foi concluído." if feita.concluida else "")
+                                 + " O envio ficou no histórico.")
+            return redirect(reverse("coffee:solicitacao", args=[pk])
+                            + ("#documentos" if qual == "os" else "#pdfs"))
+    return render(request, "coffee/enviar_email.html", {
+        "s": s, "r": r, "erro": erro,
+        "titulo_tela": ("Enviar a ordem de serviço ao fornecedor" if qual == "os"
+                        else "Enviar a ordem bancária ao fornecedor"),
+        "pode_gerir": policies.pode_gerir_cadastros(request.user),
+        "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                              (str(s), reverse("coffee:solicitacao", args=[pk])),
+                              ("E-mail ao fornecedor", "")),
+    }, status=422 if erro else 200)

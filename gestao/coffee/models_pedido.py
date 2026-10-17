@@ -57,6 +57,8 @@ class Solicitacao(Carimbos):
     ob_valor = models.DecimalField("valor da ordem bancária (lido)", max_digits=12,
                                    decimal_places=2, null=True, blank=True)
     observacoes = models.TextField("observações", blank=True)
+    # Quando a OS saiu por e-mail ao fornecedor (o último envio; cada um fica no histórico).
+    os_enviada_em = models.DateTimeField("OS enviada ao fornecedor em", null=True, blank=True)
     em_correcao = models.BooleanField("aberta para correção", default=False)
     # Pagamento conjunto: as OS do mesmo lote que vão num só ofício e num só protocolo
     # apontam para a principal (a principal não aponta para ninguém).
@@ -164,6 +166,7 @@ class Movimento(models.Model):
         DOCUMENTO = "documento", "Documento"
         CORRECAO = "correcao", "Correção"
         ENTREGA = "entrega", "Entrega registrada"
+        EMAIL = "email", "E-mail ao fornecedor"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")

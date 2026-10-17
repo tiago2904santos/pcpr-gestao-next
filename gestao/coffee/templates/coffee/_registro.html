@@ -32,6 +32,7 @@ Espera `l` (de views_pedidos._linha) com `l.s`.
         <p class="menu__folha-titulo" aria-hidden="true">OS {{ s.numero|default:"—" }} · {{ s.descricao|truncatechars:40 }}</p>
         <a class="menu__item" role="menuitem" href="{% url 'coffee:solicitacao' s.pk %}">{% if s.bloqueada %}{% icone "eye" %}Ver a solicitação{% else %}{% icone "pencil" %}Abrir a solicitação{% endif %}</a>
         {% if not s.cancelada %}<a class="menu__item" role="menuitem" href="{% url 'coffee:documento' s.pk 'os' %}">{% icone "file-text" %}Ordem de serviço<span class="menu__item-descricao">o PDF que vai ao fornecedor</span></a>{% endif %}
+        {% if not s.cancelada %}<a class="menu__item" role="menuitem" href="{% url 'coffee:enviar_email' s.pk 'os' %}">{% icone "send" %}{% if s.os_enviada_em %}Reenviar a OS{% else %}Enviar a OS{% endif %}<span class="menu__item-descricao">{% if s.os_enviada_em %}enviada em {{ s.os_enviada_em|date:"d/m/Y" }}{% else %}por e-mail ao fornecedor{% endif %}</span></a>{% endif %}
         <a class="menu__item" role="menuitem" href="{% url 'coffee:nova' %}?duplicar={{ s.pk }}">{% icone "copy" %}Duplicar<span class="menu__item-descricao">nova OS com os mesmos dados</span></a>
         {% if s.nota_fiscal and not s.cancelada %}<div class="menu__separador" role="separator"></div><a class="menu__item" role="menuitem" href="{% url 'coffee:protocolo' s.pk %}">{% icone "stamp" %}Protocolo de pagamento<span class="menu__item-descricao">o pacote para o processo</span></a>{% endif %}
       </div>

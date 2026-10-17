@@ -204,6 +204,7 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
         {% if arquivo %}
         <div class="registro__acoes registro__acoes--fixas">
           <a class="botao botao--sm botao--sutil" href="{% url 'coffee:baixar_pdf' s.pk qual %}">{% icone "download" %}PDF<span class="sr-only"> — {{ titulo }}</span></a>
+          {% if qual == "ob" and s.ordem_bancaria_em %}<a class="botao botao--sm" href="{% url 'coffee:enviar_email' s.pk 'ob' %}">{% icone "send" %}Enviar ao fornecedor<span class="sr-only"> a ordem bancária</span></a>{% endif %}
           {% if not s.bloqueada %}<form method="post" action="{% url 'coffee:remover_pdf' s.pk qual %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "x" %}Remover<span class="sr-only"> — {{ titulo }}</span></button></form>{% endif %}
         </div>
         {% endif %}
@@ -237,6 +238,7 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
             {% if d.assinada %}<span class="selo selo--sucesso selo--sem-ponto">Assinado</span>{% elif d.faltas %}<span class="selo selo--aviso selo--sem-ponto">Falta informação</span>{% else %}<span class="selo selo--info selo--sem-ponto">Pronto</span>{% endif %}
           </div>
           <div class="registro__meta">
+            {% if d.tipo == "os" and s.os_enviada_em %}<span class="registro__meta-item">{% icone "send" classe="icone--sm" %}Enviada ao fornecedor em {{ s.os_enviada_em|date:"d/m/Y H:i" }}</span>{% endif %}
             {% if d.faltas %}<span class="registro__meta-item">{% icone "alert-triangle" classe="icone--sm" %}{{ d.faltas|join:" " }}</span>
             {% elif d.assinavel %}<span class="registro__meta-item">{% icone "history" classe="icone--sm" %}{{ d.n_vias|pluralizar:"via guardada,vias guardadas" }}</span>
             {% else %}<span class="registro__meta-item">{% icone "info" classe="icone--sm" %}Espelho do momento (não se guarda)</span>{% endif %}
@@ -257,6 +259,7 @@ recebimento), a nota (3 Nota fiscal e ofício, os PDFs, o pagamento conjunto) e 
         <div class="registro__acoes registro__acoes--fixas">
           <a class="botao botao--sm botao--sutil" href="{% url 'coffee:documento' s.pk d.tipo %}?formato=html">{% icone "eye" %}Ver<span class="sr-only"> {{ d.titulo }}</span></a>
           <a class="botao botao--sm" href="{% url 'coffee:documento' s.pk d.tipo %}?baixar=1">{% icone "download" %}PDF<span class="sr-only"> de {{ d.titulo }}</span></a>
+          {% if d.tipo == "os" and not s.cancelada %}<a class="botao botao--sm" href="{% url 'coffee:enviar_email' s.pk 'os' %}">{% icone "send" %}{% if s.os_enviada_em %}Reenviar{% else %}Enviar ao fornecedor{% endif %}<span class="sr-only"> a ordem de serviço</span></a>{% endif %}
           {% if d.assinada and not s.bloqueada %}<form method="post" action="{% url 'coffee:remover_assinada' s.pk d.tipo %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "x" %}Remover assinado<span class="sr-only"> de {{ d.titulo }}</span></button></form>{% endif %}
         </div>
         {% endif %}
