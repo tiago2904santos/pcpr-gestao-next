@@ -30,15 +30,33 @@ segue na mesma branch, recriada sobre esse `main`.
 ## Andamento
 
 - [x] Estado inicial registrado.
-- [ ] Inventário de páginas (Coffee e Eventos) com a referência de Viagens de cada uma.
-- [ ] Inventário funcional do legado e matriz de paridade (Eventos, Coffee).
-- [ ] Capturas ANTES (`scripts/auditoria_coffee_eventos.py capturar antes`).
-- [ ] Auditoria visual e correções por família (listas, detalhes, cadastro/edição, painéis).
-- [ ] Lacunas funcionais e defeitos.
-- [ ] Desempenho medido antes/depois.
-- [ ] Capturas DEPOIS, regressão de Viagens, gates do repositório.
-- [ ] Matrizes e relatório final.
+- [x] Inventário de páginas (Coffee e Eventos) com a referência de Viagens de cada uma — `matriz-visual.md`.
+- [x] Inventário funcional do legado e matrizes de paridade — `matriz-paridade-eventos.md` (96), `matriz-paridade-coffee.md` (111).
+- [x] Capturas ANTES (40 cenários × 360/768/1440).
+- [x] Desempenho: folhas e catálogo com menos consultas (`a855caa`).
+- [x] Defeitos funcionais: Eventos 9/9 (`4fde584`, `a552f07`), Coffee 6/6 (`74093e6`).
+- [x] Visual por família: catálogo (`a552f07`), barras de rodapé (`1414d55`), listas e lotes
+  (`b8fec11`), folhas, histórico, painel e cadastros (`aa0d81b`), ⋮ e textos prontos (`69c032a`).
+- [x] Capturas DEPOIS, medidas e comparação (`compor`).
+- [x] Gates: ruff, fronteiras, mypy, bandit, migrações, tipos JS — verdes.
+- [x] Suíte rápida completa: 2786 aprovados, 5 falhas anteriores à missão (falham igual em
+  `origin/main`: 2 de OCR sem conversor; prestação, texto da prestação e diário).
+- [x] Navegador (Coffee, Eventos e acessibilidade deles): 26 aprovados; Coffee + Eventos +
+  integração: 182 aprovados na rodada final.
+- [x] Matrizes com situação final em todas as linhas; `relatorio.md`.
+
+## Decisões tomadas durante a execução
+
+- O preview roda com gunicorn sem recarga: depois de mudar modelos/código, reiniciar antes de
+  capturar (uma captura de e-mail deu 500 com o processo antigo; refeita depois do reinício).
+- Testes que mudaram de expectativa só onde o comportamento passou a ser o da referência
+  (EV-F35, EV-F65, CB-F93) ou a interface mudou (catálogo de Eventos, e2e).
+- O lembrete diário de Eventos (`eventos_lembrete`) fica sem trilha do banco, como o modelo
+  documenta; o teste novo de cobertura da trilha o exclui com essa justificativa.
+- Duas rodadas de pytest em paralelo colidem nos bancos `test_pcpr_gestao_gwN`: rodar uma
+  de cada vez.
 
 ## Próximo passo
 
-Consolidar os inventários (páginas e legado) nas matrizes e começar pelos achados de maior impacto.
+Decisões do usuário listadas no relatório (numeração compartilhada, importações, visões SQL) e
+as pendências parciais/ausentes, em lotes, com a mesma matriz.

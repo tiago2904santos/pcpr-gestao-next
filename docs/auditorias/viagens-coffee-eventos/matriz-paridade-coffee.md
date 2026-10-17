@@ -17,7 +17,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F06 | Resumo de entregas do fornecedor | L/presenters.py:233-249 | N/views.py:127-134 | Equivalente | — | Equivalente |
 | CB-F07 | Contrato | L/models.py:93-161 | N/models.py:62-112 | Equivalente | — | Equivalente |
 | CB-F08 | Selo vigente/vencido | L/presenters.py:310-359 | N/views.py:135-149 | Equivalente | — | Equivalente |
-| CB-F09 | Atalho para o relatório na lista de contratos | spec §2.2 | — | Ausente | — | |
+| CB-F09 | Atalho para o relatório na lista de contratos | spec §2.2 | — | Ausente | — || **Corrigida** — "Relatório do contrato" no ⋮ da lista de contratos |
 | CB-F10 | Termo aditivo | L/models.py:164-190 | N/forms.py:150-170 | Equivalente | — | Equivalente |
 | CB-F11 | Contrato/aditivo lidos do PDF | L/contratos_pdf.py | N/contratos_pdf.py | Equivalente | heurísticas não comparadas com PDFs reais | Equivalente |
 | CB-F12 | Lote | L/forms.py:566-603 | N/forms.py:173-219 | Equivalente | — | Equivalente |
@@ -44,7 +44,7 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F33 | Descrição em uma linha; CEP | L/forms.py:119-121 | N/pedidos.py:124 | Equivalente | — | Equivalente |
 | CB-F34 | Uma data por OS | L/forms.py:160-176 | — | Substituída | dúvida 4 (coffee-break.md:956) | Substituída |
 | CB-F35 | Locais já usados | L/views.py:1180-1213 | N/views_pedidos.py:239-245 | Substituída | D/decisoes.md:297 | Substituída |
-| CB-F36 | Busca de endereços já usados | core/buscar_endereco.py | — | Ausente | — | |
+| CB-F36 | Busca de endereços já usados | core/buscar_endereco.py | — | Ausente | — || Pendente — Ausente: a folha sugere os locais de entrega já usados, não os endereços |
 | CB-F37 | Duplicar OS | L/views.py:1157-1175 | N/pedidos.py:235-241 | Equivalente | — | Equivalente |
 | CB-F38 | "Criar aqui" pela agenda | agenda/criar.py:36-40 | N/views_pedidos.py (`?inicio=`) | Descontinuada | coffee-break.md:894 | Descontinuada |
 | CB-F39 | Mensagens de criar/editar/erro | L/views.py:1269-1454 | N/views_pedidos.py:339-385 | Equivalente | — | Equivalente |
@@ -78,12 +78,12 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F67 | Vias emitidas e download | L/vias.py:96-143 | N/vias.py; folha | Equivalente | — | Equivalente |
 | CB-F68 | Via assinada no lugar da gerada | L/views.py:2101-2160 | N/vias.py:61-99 | Equivalente | — | Equivalente |
 | CB-F69 | Lista de anexos do protocolo | L/documentos.py:345-578 | N/protocolo.py:56-108 | Equivalente | — | Equivalente |
-| CB-F70 | Nomes numerados dos arquivos | L/documentos.py:383-493 | N/protocolo.py:123-127 | Parcial | — | |
-| CB-F71 | ZIP ou PDF único | L/views.py:1671-1724 | fila de downloads | Substituída | sem decisão escrita (coffee-break.md ainda diz ZIP) | |
+| CB-F70 | Nomes numerados dos arquivos | L/documentos.py:383-493 | N/protocolo.py:123-127 | Parcial | — || Parcial (mantida) — "01 - Ordem de serviço - …" etc.; os nomes não repetem a numeração da referência por parte |
+| CB-F71 | ZIP ou PDF único | L/views.py:1671-1724 | fila de downloads | Substituída | sem decisão escrita (coffee-break.md ainda diz ZIP) || Substituída — fila de downloads ou PDF único; pede atualização do texto de coffee-break.md (ainda diz ZIP) |
 | CB-F72 | Parte sem documentos | L/views.py:1693-1700 | N/protocolo.py:151-155 | **Defeito** | interrompe o download todo || **Corrigida** — a parte vazia fica de fora com aviso; o resto sai (`test_parte_vazia_fica_de_fora_e_o_resto_sai`) |
 | CB-F73 | Textos do eProtocolo e passo a passo | L/documentos.py:599-647 | N/protocolo.py:176-204 | Equivalente | — | Equivalente |
 | CB-F74 | Quadro de certidões | L/certidoes.py | N/certidoes.py | Equivalente | — | Equivalente |
-| CB-F75 | "Emitir" copia o CNPJ e abre o portal | LT/certidoes.html:46-73 | NT/certidoes.html | Parcial | só o link | |
+| CB-F75 | "Emitir" copia o CNPJ e abre o portal | LT/certidoes.html:46-73 | NT/certidoes.html | Parcial | só o link || Pendente — Parcial: abre o portal; não copia o CNPJ |
 | CB-F76 | Anexar certidão com conferência | L/views.py:2748-2787 | N/certidoes.py:77-108 | Equivalente | — | Equivalente |
 | CB-F77 | Entrega/ocorrência | L/services.py:1155-1221 | N/entregas.py | Equivalente | — | Equivalente |
 | CB-F78 | Entrega pela janela da lista | LT/_acoes_linha.html:14 | seção da folha | Substituída | D/decisoes.md:292 | Substituída |
@@ -97,26 +97,26 @@ Situações como na matriz de Eventos. "Situação final" é atualizada a cada l
 | CB-F86 | Linha: selos, parada, fatos | L/presenters.py | NT/_registro.html | Equivalente | — | Equivalente |
 | CB-F87 | ⋮ da linha (entrega, andamento, baixar arquivos, certificado, cancelar, excluir) | LT/_acoes_linha.html:11-23 | NT/_registro.html | Parcial | — || Parcial — entrou "Registrar a entrega" (do dia do evento em diante) e "Cancelar" (leva à folha, onde o motivo é pedido); "Baixar arquivos" é o protocolo de pagamento; excluir fica na folha (Ações) (`test_menu_da_linha_registrar_entrega_e_cancelar`) |
 | CB-F88 | CSV da lista | L/views.py:731-781 | N/views_pedidos.py:205-225 | Equivalente | — | Equivalente |
-| CB-F89 | Soltar o PDF do processo na lista | LT/_importar_processo.html | — | Ausente | depende de CB-F110 | |
+| CB-F89 | Soltar o PDF do processo na lista | LT/_importar_processo.html | — | Ausente | depende de CB-F110 || Ausente — depende de CB-F110 (decisão pendente) |
 | CB-F90 | Indicadores do painel | L/views.py:253-362 | NT/painel.html | Substituída | D/decisoes.md:288 | Substituída |
 | CB-F91 | Alertas de saldo, vigência e certidões | L/services.py:250-521 | N/painel.py:119-156 | Equivalente | — | Equivalente |
 | CB-F92 | "O que fazer hoje" | L/services.py:1224-1370 | N/painel.py:168-190 | Equivalente | — | Equivalente |
-| CB-F93 | Botões "Enviar a OS"/"Enviar a OB" no painel | L/services.py:1239-1246 | N/dominio_painel.py:105-122 | Parcial | decisão baseada em "e-mail só no CB8", que já existe | |
+| CB-F93 | Botões "Enviar a OS"/"Enviar a OB" no painel | L/services.py:1239-1246 | N/dominio_painel.py:105-122 | Parcial | decisão baseada em "e-mail só no CB8", que já existe || **Corrigida** — no painel, a entrega com OS não enviada leva a "Enviar a OS" e a OB com PDF, a "Enviar a OB" (`test_painel_numeros_alertas_e_grupos`) |
 | CB-F94 | Dias parada com evento futuro | L/services.py:1283-1299 | N/dominio_painel.py:96-99 | **Defeito** | usa a data do evento futuro → sempre 0 || **Corrigida** — o fim do evento só conta se já passou (`test_parada_nao_zera_com_evento_futuro`) |
 | CB-F95 | Indicadores da página inicial | core/views.py:55-91 | N/painel.py:193-201 | Equivalente | — | Equivalente |
 | CB-F96 | Tela de e-mail OS/OB | L/views.py:2180-2317 | N/envio_email.py | Equivalente | + checagem de SMTP e limites | Equivalente |
 | CB-F97 | Campos do e-mail (`{local}` com endereço; `{numero}` "#pk") | L/emails.py:46-66 | N/envio_email.py:95-110 | **Defeito** | `{local}` sem endereço || **Corrigida** — `{local}` = local — endereço, bairro, CEP; `{numero}` sem número = #pk (`test_local_do_email_leva_o_endereco`) |
 | CB-F98 | Envio da OS grava a data; da OB conclui o conjunto | L/views.py:2243-2322 | N/envio_email.py | Equivalente | — | Equivalente |
-| CB-F99 | Link: validade configurável | L/link_fornecedor.py:48-96 | N/link_fornecedor.py:35 | Parcial | fixo em 30 dias | |
+| CB-F99 | Link: validade configurável | L/link_fornecedor.py:48-96 | N/link_fornecedor.py:35 | Parcial | fixo em 30 dias || Pendente — Parcial: validade fixa em 30 dias |
 | CB-F100 | Revogar o link | L/views.py:2377-2387 | N/link_fornecedor.py | Equivalente | — | Equivalente |
 | CB-F101 | Página pública e limites | L/views_publicas.py | N/views_publicas.py | Equivalente | — | Equivalente |
-| CB-F102 | Fornecedor envia nota/certidão | L/link_fornecedor.py:188-266 | N/link_fornecedor.py:148-215 | Equivalente | nota do fornecedor sem a conferência de NF repetida | |
+| CB-F102 | Fornecedor envia nota/certidão | L/link_fornecedor.py:188-266 | N/link_fornecedor.py:148-215 | Equivalente | nota do fornecedor sem a conferência de NF repetida || Parcial (mantida) — a nota mandada pelo fornecedor é conferida na aceitação, sem o aviso de NF repetida |
 | CB-F103 | Conferência aceitar/recusar | L/link_fornecedor.py:269-320 | N/link_fornecedor.py:218-249 | Equivalente | — | Equivalente |
 | CB-F104 | Pedido vindo de eventos/palestras | L/origem.py | N/ganchos.py | Equivalente | — | Equivalente |
 | CB-F105 | Agenda e prazos | agenda/fontes.py | N/agenda.py | Equivalente | — | Equivalente |
 | CB-F106 | Relatórios consolidados | relatorios/consolidacao.py | gestao/painel/consolidado.py | Equivalente | — | Equivalente |
 | CB-F107 | Busca global | — | N/busca.py | Equivalente | — | Equivalente |
 | CB-F108 | Preencher com e-mail | L/leitura_pedido.py | N/preenchimento.py | Substituída | sem memória por remetente (D/decisoes.md:297) | Substituída |
-| CB-F109 | Trilha de auditoria | auditoria/signals.py | trigger | Não verificado | — | |
+| CB-F109 | Trilha de auditoria | auditoria/signals.py | trigger | Não verificado | — || **Verificada** — todas as tabelas do Coffee (e de Eventos, exceto o lembrete do sistema) têm o trigger (`test_toda_tabela_de_eventos_e_coffee_tem_trilha_no_banco`) |
 | CB-F110 | Importar o PDF do processo de pagamento | L/importacao_processo.py | — | Ausente | CB9, **decisão pendente** (D/status.md:29) | Pendente (decisão) |
 | CB-F111 | Importar planilha | L/management/commands/importar_coffee_break.py | — | Ausente | **decisão pendente** (D/decisoes.md:321) | Pendente (decisão) |

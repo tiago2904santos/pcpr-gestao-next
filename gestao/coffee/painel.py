@@ -156,13 +156,18 @@ def _certidoes(hoje: date) -> list[tuple[object, list]]:
     return saida
 
 
-def _botao(g: Grupo, s: Solicitacao, hoje: date) -> tuple[str, str]:
-    """(rótulo, seção da folha): o que a pessoa vai fazer ao chegar."""
+def _botao(g: Grupo, s: Solicitacao, hoje: date) -> tuple[str, str, str]:
+    """(rótulo, seção da folha, endereço próprio): o que a pessoa vai fazer ao chegar. Como
+    na referência, a OS ainda não enviada e a OB a avisar levam direto ao e-mail."""
     if g.chave == "entregas" and s.data_evento == hoje:
-        return "Registrar a entrega", "entregas"
+        return "Registrar a entrega", "entregas", ""
+    if g.chave == "entregas" and not s.os_enviada_em:
+        return "Enviar a OS", "", reverse("coffee:enviar_email", args=[s.pk, "os"])
     if g.chave == "sem_ob" and s.atesto_em:
-        return "Anexar a OB", "pdfs"
-    return g.botao, g.ancora
+        return "Anexar a OB", "pdfs", ""
+    if g.chave == "ob_nao_enviada" and s.ob_pdf:
+        return "Enviar a OB", "", reverse("coffee:enviar_email", args=[s.pk, "ob"])
+    return g.botao, g.ancora, ""
 
 
 def o_que_fazer(hoje: date) -> list[Grupo]:

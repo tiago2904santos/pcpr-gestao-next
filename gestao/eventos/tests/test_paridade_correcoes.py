@@ -182,3 +182,37 @@ def test_marcar_como_atendida_pelo_menu_da_linha(ana, dg):  # noqa: F811
     c.post(reverse("eventos:concluir", args=[s.pk]))
     s.refresh_from_db()
     assert s.status == "atendida"
+
+
+def test_toda_tabela_de_eventos_e_coffee_tem_trilha_no_banco():
+    """EV-F*/CB-F109: cada tabela dos dois módulos tem o trigger da auditoria do banco."""
+    from django.db import connection
+
+    with connection.cursor() as cur:
+        cur.execute("""SELECT c.relname FROM pg_class c
+                       JOIN pg_namespace n ON n.oid = c.relnamespace
+                       WHERE c.relkind = 'r' AND n.nspname = current_schema()
+                         AND (c.relname LIKE 'eventos\\_%' OR c.relname LIKE 'coffee\\_%')""")
+        tabelas = {r[0] for r in cur.fetchall()}
+        cur.execute("SELECT tgname FROM pg_trigger WHERE NOT tgisinternal")
+        gatilhos = {r[0] for r in cur.fetchall()}
+    assert tabelas
+    # O lembrete diário já enviado é registro do sistema, sem trilha (models_solicitacao.py).
+    sem_trilha = sorted(t for t in tabelas - {"eventos_lembrete"}
+                        if f"auditoria_{t}" not in gatilhos)
+    assert not sem_trilha, sem_trilha
+
+
+def test_anexo_so_sai_pela_view_de_quem_ve(ana, settings, tmp_path):  # noqa: F811
+    """EV-F96: não há rota /media/; o anexo sai só pela view, para quem vê a solicitação."""
+    settings.MEDIA_ROOT = tmp_path
+    s = solicitacoes.criar(ana, _completa(), _estrutura())
+    a = solicitacoes.anexar(ana, s.pk, SimpleUploadedFile("o.pdf", b"%PDF-1.4 x"))
+    outro = Client()
+    outro.force_login(_usuario("bia"))
+    assert outro.get(reverse("eventos:abrir_anexo", args=[s.pk, a.pk])).status_code == 404
+    assert outro.get(f"/media/{a.arquivo.name}").status_code == 404
+    assert Client().get(f"/media/{a.arquivo.name}").status_code in (302, 404)  # anônimo
+    dono = Client()
+    dono.force_login(ana)
+    assert dono.get(reverse("eventos:abrir_anexo", args=[s.pk, a.pk])).status_code == 200

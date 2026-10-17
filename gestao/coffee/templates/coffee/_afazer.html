@@ -24,7 +24,7 @@ os fatos do grupo e, à direita, o botão do que se faz ao chegar. Espera `g` (o
     </div>
   </div>
   <div class="registro-operacional__conferencia">
-    <a class="botao botao--sm" href="{% url 'coffee:solicitacao' s.pk %}#{{ item.3 }}">{{ item.2 }}<span class="sr-only"> — {{ s }}</span></a>
+    <a class="botao botao--sm" href="{% if item.4 %}{{ item.4 }}{% else %}{% url 'coffee:solicitacao' s.pk %}#{{ item.3 }}{% endif %}">{{ item.2 }}<span class="sr-only"> — {{ s }}</span></a>
   </div>
 </li>
 {% endwith %}

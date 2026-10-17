@@ -120,14 +120,20 @@ def test_painel_numeros_alertas_e_grupos(base):
     Solicitacao.objects.filter(pk=hoje_.pk).update(data_evento=hoje)
     item = next(i for g in painel.o_que_fazer(hoje) if g.chave == "entregas" for i in g.itens
                 if i[0].pk == hoje_.pk)
-    assert item[2:] == ("Registrar a entrega", "entregas")
+    assert item[2:] == ("Registrar a entrega", "entregas", "")
     assert p.certidoes and len(p.certidoes[0][1]) == 5  # nenhuma certidão cadastrada
     grupos = {g.chave: g for g in p.grupos}
     assert list(grupos) == ["entregas", "sem_nota", "ob_nao_enviada"]
     # desde o fim do evento, posterior ao histórico
     assert grupos["sem_nota"].itens[0][1] == dias_parada
     entrega = grupos["entregas"].itens[0]
-    assert entrega[2:] == ("Abrir a OS", "entrega")  # evento futuro: conferir local e quem recebe
+    # Evento futuro com a OS ainda não enviada: o botão leva ao e-mail (CB-F93, referência);
+    # depois do envio, "Abrir a OS" para conferir o local e quem recebe.
+    assert entrega[2:4] == ("Enviar a OS", "") and entrega[4].endswith("/email/os/")
+    Solicitacao.objects.filter(pk=entrega[0].pk).update(os_enviada_em=timezone.now())
+    enviada = next(i for g in painel.o_que_fazer(hoje) if g.chave == "entregas"
+                   for i in g.itens if i[0].pk == entrega[0].pk)
+    assert enviada[2:] == ("Abrir a OS", "entrega", "")
     assert grupos["ob_nao_enviada"].itens[0][2] == "Informar o envio da OB"
     assert p.pedem_acao == 3 and p.vigencia[0][2] == "aviso"
 

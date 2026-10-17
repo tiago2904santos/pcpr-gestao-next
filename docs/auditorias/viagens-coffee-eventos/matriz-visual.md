@@ -40,7 +40,7 @@ Situação final: **Alinhada** (segue a referência), **Alinhada com diferença 
 | CB-P10 | Lote `/coffee/lotes/<pk>/` | VR-10 | sem barra de rodapé/Voltar || barra de rodapé com Voltar e "Solicitações do lote"; seção "Valores e contatos" (`metadados`, como o diário de bordo) | Corrigida |
 | CB-P11 | Relatório do contrato | VR-01/VR-10 | painel com cartões e tabelas (sem equivalente direto em Viagens) | — | Alinhada com diferença de domínio (relatório tabular) |
 | CB-P12 | Abrir exercício | VR-07 | `campos` + `campo--md`; enviar em `linha` (sem barra) || barra `--preparacao` com status, Voltar e Abrir | Corrigida |
-| CB-P13/14 | Certidões + janela de anexo | VR-10 | quadro por fornecedor (adequado); janela com `campo--md` | | |
+| CB-P13/14 | Certidões + janela de anexo | VR-10 | quadro por fornecedor (adequado); janela com `campo--md` | — (a data na janela usa `campo--md`, como a configuração de Viagens, VR-17) | Alinhada com diferença de domínio |
 | CB-P15/16 | Cadastros (fornecedores, contratos, aditivos, lotes) + janela | VR-15 | linhas sem `registro--catalogo`; "Novo" só na barra || `registro--catalogo`; "Novo" também no hero | Corrigida |
 | CB-P17 | Ofício e protocolo (configuração) | VR-17 | abas fora do `filtro-conjunto`; salvar em `linha` em vez da barra de confirmação || salvar na barra `--rodape--confirmacao` (como VR-17); abas fora do `filtro-conjunto` mantidas (atalhos entre as tabelas do módulo) | Corrigida (barra) · diferença de domínio (abas) |
 | CB-P18 | Lote do município (fragmento) | — | — | — | Alinhada |
