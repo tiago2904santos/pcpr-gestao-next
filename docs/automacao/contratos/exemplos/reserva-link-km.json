@@ -22,6 +22,6 @@
   "cabecalhos": {"Message-ID": "<pcpr-com-41-v1@pcpr.example.invalid>", "Auto-Submitted": "auto-generated"},
   "responder_para": "viagens@pcpr.example.invalid",
   "anexos": [],
-  "reserva": {"token": "rsv_EXEMPLO_SINTETICO_41", "expira_em": "2026-11-11T12:10:00Z"},
+  "reserva": {"token": "<opaco: gerado pelo PCPR a cada reserva>", "expira_em": "2026-11-11T12:10:00Z"},
   "idempotencia_canal": "<pcpr-com-41-v1@pcpr.example.invalid>"
 }
