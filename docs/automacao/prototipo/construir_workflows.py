@@ -2381,7 +2381,8 @@ def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str
     bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
     return (
         # bruta só se ASCII imprimível: `.length` (UTF-16) e o `len` do Python medem igual
-        f"={{{{ {bruta}.length <= {LIMITE_CHAVE} && /^[ -~]*$/.test({bruta}) ? {bruta} : "
+        f"={{{{ {bruta}.length >= 16 && {bruta}.length <= {LIMITE_CHAVE} "
+        f"&& /^[ -~]*$/.test({bruta}) ? {bruta} : "
         f"'receb#sha256:' + {c} + ':' + {m}.hash('sha256') + ':' + {i} }}}}"
     )
 
@@ -2407,7 +2408,8 @@ def _chave_limitada(modelo: str) -> str:
     # forma com hash: `<1º segmento>#sha256:<resto do prefixo><hex>` (o `#` marca o 1º segmento)
     primeiro, _, resto_prefixo = prefixo.partition(":")
     h = json.dumps(f"{primeiro}#sha256:{resto_prefixo}", ensure_ascii=False)
-    cabe = f"({p} + {v}).length <= {LIMITE_CHAVE} && /^[ -~]*$/.test({p} + {v})"
+    cabe = (f"({p} + {v}).length >= 16 && ({p} + {v}).length <= {LIMITE_CHAVE} "
+            f"&& /^[ -~]*$/.test({p} + {v})")
     return f"={{{{ {cabe} ? {p} + {v} : {h} + {v}.hash('sha256') }}}}"
 
 

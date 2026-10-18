@@ -138,6 +138,6 @@ def chave_recebimento(canal: str, mensagem_id: str, indice: int) -> str:
     workflows do n8n. O `#` no 1º segmento impede que um id curto reproduza a forma com hash."""
     bruta = f"receb:{canal}:{mensagem_id}:{indice}"
     # só ASCII imprimível: mede igual ao `.length` do JS no n8n (emoji = 2) e cabe no cabeçalho
-    if len(bruta) <= LIMITE_CHAVE and bruta.isascii() and bruta.isprintable():
+    if 16 <= len(bruta) <= LIMITE_CHAVE and bruta.isascii() and bruta.isprintable():
         return bruta
     return f"receb#sha256:{canal}:{hashlib.sha256(mensagem_id.encode()).hexdigest()}:{indice}"

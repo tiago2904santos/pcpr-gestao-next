@@ -74,5 +74,6 @@ def test_chave_do_recebimento_cabe_em_200_para_ids_de_ate_300():
     assert dominio.chave_recebimento("whatsapp", imitacao, 0) != chave
     assert chave == dominio.chave_recebimento("whatsapp", longo, 0)  # estável
     assert chave != dominio.chave_recebimento("whatsapp", longo, 1)
+    assert dominio.chave_recebimento("email", "x", 0).startswith("receb#sha256:")  # < 16
     emoji = dominio.chave_recebimento("whatsapp", "wamid.😀", 0)
     assert emoji.startswith("receb#sha256:whatsapp:") and emoji.isascii()
