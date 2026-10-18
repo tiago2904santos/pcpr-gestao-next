@@ -481,3 +481,16 @@ def test_resultado_tardio_nao_troca_o_envio_mais_novo(c):
     com.refresh_from_db()
     assert com.mensagem_id == "wamid.NOVA"
     assert ExcecaoAutomacao.objects.filter(chave=f"duplicado:{com.pk}:t1").exists()
+
+
+def test_recebimento_v1_exige_a_hora_da_chegada(c):
+    from gestao.automacao.models_api import CredencialIntegracao
+
+    cred = CredencialIntegracao.objects.get(pk=credenciais.autenticar(f"Bearer {c.token}").pk)
+    cred.escopos = [*cred.escopos, "recebimentos:criar"]
+    cred.save(update_fields=["escopos"])
+    r = _post(c, "/recebimentos/sem-arquivo", {
+        "canal": "whatsapp", "mensagem_id_canal": "wamid.SEMHORA", "anexo_indice": 0,
+        "total_anexos": 1, "remetente": E164, "motivo": "sem_anexo"},
+        "receb:whatsapp:wamid.SEMHORA:0")
+    assert r.status_code == 422

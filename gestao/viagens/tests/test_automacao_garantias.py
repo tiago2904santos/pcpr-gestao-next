@@ -687,7 +687,8 @@ def test_sem_arquivo_nao_abre_atendimento_nem_responde_duas_vezes(c, n8n):
     _com_recebimentos(n8n)
     r = _post(n8n, "/recebimentos/sem-arquivo", {
         "canal": "whatsapp", "mensagem_id_canal": "wamid.SEMARQ", "anexo_indice": 0,
-        "total_anexos": 1, "remetente": E164, "motivo": "acima_do_limite"},
+        "total_anexos": 1, "remetente": E164, "motivo": "acima_do_limite",
+        "recebido_em": timezone.now().isoformat()},
         "receb:whatsapp:wamid.SEMARQ:0")
     assert r.status_code in (200, 201, 202), r.content
     receb = Recebimento.objects.get(mensagem_id="wamid.SEMARQ")
@@ -734,3 +735,27 @@ def test_entregue_em_fica_com_a_hora_real_mesmo_se_a_leitura_chegar_antes(c):
             ocorrido_em=agora - timedelta(minutes=3)))
     aviso.refresh_from_db()
     assert aviso.entregue_em == agora - timedelta(minutes=3) and aviso.lida_em == agora
+
+
+def test_remover_testador_cancela_o_que_estava_para_sair(c, n8n):
+    from gestao.automacao import contatos as contatos_mod
+    from gestao.automacao.models import DestinatarioAutorizado
+
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(situacao=S.RESERVADA)
+    d = DestinatarioAutorizado.objects.get(removido_em__isnull=True)
+    contatos_mod.remover_testador(c.usuarios["admin"], d.pk)
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.CANCELADA
+
+
+def test_lidas_hoje_conta_pela_hora_da_leitura(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    ontem = timezone.now() - timedelta(days=1)
+    Comunicacao.objects.filter(pk=aviso.pk).update(
+        situacao=S.ENVIADA, enviada_em=ontem, entrega="lida", lida_em=timezone.now())
+    resposta = _cliente(c.usuarios["operador"]).get("/automacao/")
+    assert resposta.context["numeros"]["lidas_hoje"] == 1

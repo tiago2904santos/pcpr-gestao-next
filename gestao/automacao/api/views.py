@@ -91,6 +91,8 @@ def _identificacao_invalida(d: dict) -> JsonResponse | None:
     indice = str(d.get("anexo_indice") if d.get("anexo_indice") is not None else "")
     if not indice.isdigit() or int(indice) > 999:
         return erro(422, "entrada_invalida", "anexo_indice é um inteiro de 0 a 999.")
+    if _data(d.get("recebido_em")) is None:  # contrato: obrigatório (a hora real da chegada)
+        return erro(422, "entrada_invalida", "recebido_em (data e hora ISO 8601) é obrigatório.")
     total = str(d.get("total_anexos") if d.get("total_anexos") is not None else "")
     if not total.isdigit() or not 1 <= int(total) <= 1000 or int(indice) >= int(total):
         return erro(422, "entrada_invalida",

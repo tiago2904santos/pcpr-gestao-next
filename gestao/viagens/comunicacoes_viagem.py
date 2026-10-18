@@ -238,12 +238,18 @@ def agendar_lembretes_km(hoje: date | None = None) -> int:
     oficios = (Oficio.objects.filter(situacao=Oficio.Situacao.EMITIDO,
                                      tipo_transporte=Oficio.TipoTransporte.VIATURA,
                                      prestacao__diario__isnull=False)
+               # Janela larga pela chegada PREVISTA; a decisão é pela chegada EFETIVA abaixo
+               # (`km_link.periodo`: os trechos realizados, se a viagem foi ajustada).
                .annotate(_chegada=Max("trechos__chegada_em"))
-               .filter(_chegada__gte=_inicio(ontem), _chegada__lt=_inicio(hoje))
+               .filter(_chegada__gte=_inicio(hoje - timedelta(days=30)),
+                       _chegada__lt=_inicio(hoje + timedelta(days=30)))
                .select_related("prestacao__diario"))
     total = 0
     for oficio in oficios:
         d = oficio.prestacao.diario
+        datas = km_link.periodo(d)
+        if datas is None or timezone.localtime(datas[1]).date() != ontem:
+            continue
         if servico_diario.preenchido(oficio.prestacao) or km_link.motivo_inelegivel(d):
             continue
         enviado = (Comunicacao.objects.filter(
@@ -289,10 +295,14 @@ def responsavel_do_diario(d: DiarioBordo, usuario) -> None:
     hoje = timezone.localdate()
     if timezone.localtime(datas[0]).date() > hoje + timedelta(days=1):
         return  # a rotina da véspera cuida
+    # Link a caminho conta; link já ENVIADO só conta se ainda vale (a troca de motorista revoga
+    # o do anterior — quem volta a dirigir precisa de um novo).
     ja_tem = Comunicacao.objects.filter(
         tipo=LINK_KM, recurso=km_link.recurso(d.pk), servidor_id=pessoa.pk,
-        situacao__in=(S.AGUARDANDO_APROVACAO, S.AGENDADA, S.RESERVADA, S.ENVIADA, S.MANUAL)
-    ).exists()
+        situacao__in=(S.AGUARDANDO_APROVACAO, S.AGENDADA, S.RESERVADA)
+    ).exists() or (_link_vigente(d, pessoa.pk) is not None and Comunicacao.objects.filter(
+        tipo=LINK_KM, recurso=km_link.recurso(d.pk), servidor_id=pessoa.pk,
+        situacao__in=(S.ENVIADA, S.MANUAL)).exists())
     if not ja_tem or havia:
         # Chave própria da troca: quem dirigia antes pode voltar e precisa de link novo.
         _agendar_link(d, hoje, autor=usuario,

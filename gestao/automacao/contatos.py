@@ -157,6 +157,9 @@ def autorizar_testador(usuario, endereco: str, descricao: str,
         raise ContatoInvalido("Informe um celular brasileiro com DDD.")
     if valido_ate and valido_ate < timezone.localdate():
         raise ContatoInvalido("A validade não pode estar no passado.")
+    with connection.cursor() as cursor:  # 8 e 9 dígitos simultâneos não entram os dois
+        cursor.execute("SELECT pg_advisory_xact_lock(%s)",
+                       [_trava_do_numero(sorted(dominio.variantes(endereco))[-1])])
     if DestinatarioAutorizado.objects.filter(endereco__in=dominio.variantes(endereco),
                                              removido_em__isnull=True).exists():
         raise ContatoInvalido("Este número já está na lista.")
@@ -177,6 +180,14 @@ def remover_testador(usuario, pk: int) -> DestinatarioAutorizado:
         raise ContatoInvalido("Este número já tinha sido removido.")
     d.removido_em, d.removido_por = timezone.now(), usuario
     d.save(update_fields=["removido_em", "removido_por"])
+    # Com a lista fechada (LAB), o que estava para sair para esse número também não sai —
+    # inclusive o que o transporte já tinha reservado (a tela promete "nada mais é enviado").
+    from gestao.integracoes.whatsapp import config as whatsapp_config
+
+    if whatsapp_config.carregar().lista_fechada:
+        for contato in ContatoVerificado.objects.filter(
+                endereco__in=dominio.variantes(d.endereco), revogado_em__isnull=True):
+            cancelar_do_contato(contato, "O número saiu da lista de testadores.")
     registrar_evento_contato(EventoContato.Acao.TESTADOR_REMOVIDO, destinatario=d, por=usuario,
                              origem="operador")
     return d

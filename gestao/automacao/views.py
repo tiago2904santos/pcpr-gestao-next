@@ -95,7 +95,7 @@ def painel(request: HttpRequest) -> HttpResponse:
         pendentes=Count("pk", filter=Q(situacao__in=Comunicacao.PENDENTES)),
         aguardando=Count("pk", filter=Q(situacao=S.AGUARDANDO_APROVACAO)),
         enviadas_hoje=Count("pk", filter=Q(enviada_em__gte=hoje)),
-        lidas_hoje=Count("pk", filter=Q(enviada_em__gte=hoje, entrega="lida")),
+        lidas_hoje=Count("pk", filter=Q(lida_em__gte=hoje)),
         problemas=Count("pk", filter=Q(situacao__in=Comunicacao.PROBLEMAS)))
     abertas = policies.filtrar_por_unidade(u, ExcecaoAutomacao.objects.filter(
         situacao=ExcecaoAutomacao.Situacao.ABERTA))
