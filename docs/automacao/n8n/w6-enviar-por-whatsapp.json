@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T11:25:03.000Z",
-  "createdAt": "2026-10-18T11:15:38.346Z",
+  "updatedAt": "2026-10-18T11:53:45.000Z",
+  "createdAt": "2026-10-18T11:47:59.202Z",
   "id": "pcprWhatsEnvio01",
   "name": "PCPR · Enviar por WhatsApp (oficial)",
   "description": null,
@@ -1033,7 +1033,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "b7b5abf5-d159-4868-8407-497028b84c05",
+  "versionId": "c7b1f7eb-bedb-4f21-9d9e-88bc62af15b4",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -1041,21 +1041,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T11:15:38.356Z",
-      "createdAt": "2026-10-18T11:15:38.356Z",
+      "updatedAt": "2026-10-18T11:47:59.205Z",
+      "createdAt": "2026-10-18T11:47:59.205Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsEnvio01",
-      "projectId": "uciL6q3WjAhIxGO2",
+      "projectId": "nIXggRJar58WS71C",
       "project": {
-        "updatedAt": "2026-10-18T11:15:00.779Z",
-        "createdAt": "2026-10-18T11:15:00.779Z",
-        "id": "uciL6q3WjAhIxGO2",
+        "updatedAt": "2026-10-18T11:47:40.902Z",
+        "createdAt": "2026-10-18T11:47:40.902Z",
+        "id": "nIXggRJar58WS71C",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "54499f16-bedb-456f-ae8f-64e89799e5d2"
+        "creatorId": "17e91010-8eab-4731-b94d-60f636bcda7a"
       }
     }
   ],

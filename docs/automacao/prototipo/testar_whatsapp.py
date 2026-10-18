@@ -981,7 +981,7 @@ def tw14(variante: str) -> dict:
     chaves_e = [
         str(p["chave"])
         for p in chamadas(e, r"/excecoes")
-        if str(p["chave"]).startswith("excecao:whatsapp-status:sha256:")
+        if str(p["chave"]).startswith("excecao#sha256:whatsapp-status:")
     ]
     ex_e = [x for x in e["excecoes"] if wamid_e[-12:] in str(x.get("correlacao_id"))]
     checar(ste == 200, f"(e) órfão com wamid longo deveria ser confirmado (200): {ste}")

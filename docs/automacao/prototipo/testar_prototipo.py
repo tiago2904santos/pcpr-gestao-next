@@ -1394,7 +1394,7 @@ def t19() -> dict:
     posts_h = [
         (p["status"], bool(p.get("replay")), len(str(p["chave"])))
         for p in chamadas(e, r"/excecoes")
-        if str(p["chave"]).startswith("excecao:recebimento-canais:sha256:")
+        if str(p["chave"]).startswith("excecao#sha256:recebimento-canais:")
     ]
     checar(rh == [[200], [200]], f"(h) entregas {rh}")
     checar(xh["posts"] == [422, 422], f"(h) POST /recebimentos {xh['posts']}")
@@ -1412,7 +1412,7 @@ def t19() -> dict:
         "excecoes": 1,
     }
     # (i) id do canal com 290 caracteres (o contrato aceita até 300): a chave do recebimento
-    # passaria de 200 → receb:<canal>:sha256:<hex>:<anexo>, a mesma regra no PCPR. O 413 ainda
+    # passaria de 200 → receb#sha256:<canal>:<hex>:<anexo>, a mesma regra no PCPR. O 413 ainda
     # vira recebimento rejeitado com orientação (antes: 400 na chave → exceção genérica).
     resetar()
     sim("/_sim/config", {"limite_recebimento_bytes": 256})
@@ -1422,7 +1422,10 @@ def t19() -> dict:
     xi = da_msg(est(), mid)
     chave_i = chave_recebimento("email", mid, 0)
     checar(ri["entregas"] == [200], f"(i) entregas {ri['entregas']}")
-    checar(len(chave_i) <= 200 and ":sha256:" in chave_i, f"(i) chave {chave_i}")
+    checar(len(chave_i) <= 200 and chave_i.startswith("receb#sha256:email:"), f"(i) {chave_i}")
+    # um id curto que imite a forma com hash não colide com ela (o "#" fica no 1º segmento)
+    imitacao = "sha256:" + hashlib.sha256(mid.encode()).hexdigest()
+    checar(chave_recebimento("email", imitacao, 0) != chave_i, "(i) colisão com id imitado")
     checar(xi["posts"] == [413] and xi["sem_arquivo"] == [202], f"(i) {xi['posts']} {xi}")
     checar(
         [(y["estado"], y["motivo"]) for y in xi["recebimentos"]]
@@ -1439,7 +1442,7 @@ def t19() -> dict:
     posts_j = [
         (p["status"], bool(p.get("replay")), len(str(p["chave"])))
         for p in chamadas(e, r"/excecoes")
-        if str(p["chave"]).startswith("excecao:recebimento-canais:sha256:")
+        if str(p["chave"]).startswith("excecao#sha256:recebimento-canais:")
     ]
     checar(rj["entregas"] == [503, 503], f"(j) entregas {rj['entregas']}")
     checar(

@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T11:25:03.000Z",
-  "createdAt": "2026-10-18T11:15:38.379Z",
+  "updatedAt": "2026-10-18T11:53:45.000Z",
+  "createdAt": "2026-10-18T11:47:59.217Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -233,13 +233,13 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao:whatsapp-status:sha256:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
+              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao#sha256:whatsapp-status:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ fluxo: 'whatsapp', correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', detalhe: 'Status ' + $json.status + ' de uma mensagem que o PCPR não conhece (nenhum resultado com este id do provedor após ' + $('Configuração').first().json.cfg_adiar_max_s + ' s): confirmado à Meta sem gravar. Conferir se houve envio sem registro.' }) }}",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'whatsapp', correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', detalhe: 'Status ' + $json.status + ' de uma mensagem que o PCPR não conhece (nenhum resultado com este id do provedor depois do prazo de espera): confirmado à Meta sem gravar. Conferir se houve envio sem registro.' }) }}",
         "options": {
           "timeout": 10000
         }
@@ -608,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "c1a70630-c575-4619-8a5f-f6a2c35b32d0",
+  "versionId": "8749dbeb-42b5-4a1e-97e1-b2bff6143d01",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -616,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T11:15:38.390Z",
-      "createdAt": "2026-10-18T11:15:38.390Z",
+      "updatedAt": "2026-10-18T11:47:59.222Z",
+      "createdAt": "2026-10-18T11:47:59.222Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "uciL6q3WjAhIxGO2",
+      "projectId": "nIXggRJar58WS71C",
       "project": {
-        "updatedAt": "2026-10-18T11:15:00.779Z",
-        "createdAt": "2026-10-18T11:15:00.779Z",
-        "id": "uciL6q3WjAhIxGO2",
+        "updatedAt": "2026-10-18T11:47:40.902Z",
+        "createdAt": "2026-10-18T11:47:40.902Z",
+        "id": "nIXggRJar58WS71C",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "54499f16-bedb-456f-ae8f-64e89799e5d2"
+        "creatorId": "17e91010-8eab-4731-b94d-60f636bcda7a"
       }
     }
   ],

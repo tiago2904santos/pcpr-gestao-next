@@ -163,12 +163,12 @@ def _cond(expr: str, cid: str) -> dict:
 
 def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str:
     """Expressão n8n da chave do recebimento — a mesma regra de `comum.chave_recebimento`:
-    `receb:<canal>:<id>:<anexo>` até 200 caracteres; acima, o id vira `sha256:<hex>`."""
+    `receb:<canal>:<id>:<anexo>` até 200 caracteres; acima, `receb#sha256:<canal>:<hex>:<anexo>`."""
     c, m, i = f"String({canal_js})", f"String({mensagem_js})", f"String({indice_js})"
     bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
     return (
         f"={{{{ {bruta}.length <= 200 ? {bruta} : "
-        f"'receb:' + {c} + ':sha256:' + {m}.hash('sha256') + ':' + {i} }}}}"
+        f"'receb#sha256:' + {c} + ':' + {m}.hash('sha256') + ':' + {i} }}}}"
     )
 
 
@@ -177,12 +177,16 @@ def chave_limitada(prefixo: str, logica_js: str) -> str:
 
     `logica_js` é a expressão JS da parte variável (ids do canal podem ter até 300 caracteres).
     Chave curta sai como sempre foi (legível, igual às já gravadas); se passar de 200, vira
-    `<prefixo>sha256:<hex>` do valor inteiro — estável entre reentregas e sem colisão prática.
+    `<1º segmento>#sha256:<resto do prefixo><hex>` (ex.: `excecao#sha256:whatsapp-status:<hex>`),
+    estável entre reentregas. O `#` no 1º segmento impede que um valor curto que pareça
+    `sha256:<hex>` reproduza a forma com hash (a bruta sempre começa pelo prefixo intacto).
     """
     v = f"(String({logica_js}))"
+    cabeca, _, resto = prefixo.partition(":")
+    com_hash = f"{cabeca}#sha256:{resto}"
     return (
         f"={{{{ ('{prefixo}' + {v}).length <= 200 ? '{prefixo}' + {v} : "
-        f"'{prefixo}sha256:' + {v}.hash('sha256') }}}}"
+        f"'{com_hash}' + {v}.hash('sha256') }}}}"
     )
 
 
@@ -2452,9 +2456,11 @@ def w8() -> dict:
         ],
         corpo_json="={{ JSON.stringify({ fluxo: 'whatsapp', "
         "correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', "
+        # corpo = função só da chave (wamid + status): sem o limite configurável, que mudaria o
+        # corpo numa reentrega depois de reconfigurar (422 "chave reutilizada" → W7 em não-2xx)
         "detalhe: 'Status ' + $json.status + ' de uma mensagem que o PCPR não conhece (nenhum "
-        "resultado com este id do provedor após ' + $('Configuração').first().json.cfg_adiar_max_s"
-        " + ' s): confirmado à Meta sem gravar. Conferir se houve envio sem registro.' }) }}",
+        "resultado com este id do provedor depois do prazo de espera): confirmado à Meta sem "
+        "gravar. Conferir se houve envio sem registro.' }) }}",
     )
     definir(f, "Marcar órfão", [("adiar", False, "boolean")], (2200, 420))
     definir(f, "Marcar adiado", [("adiar", True, "boolean")], (1760, 560))

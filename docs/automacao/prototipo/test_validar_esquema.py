@@ -123,6 +123,13 @@ class Positivos(unittest.TestCase):
         ev["recurso"]["id"] = float(ev["recurso"]["id"])
         self.assertEqual(validar(ev, SCHEMA), [])
 
+    def test_inteiro_maior_que_o_float_e_inteiro(self) -> None:
+        # o json do Python guarda inteiros de qualquer tamanho; não pode estourar (OverflowError)
+        ev = next(e for e in _envelopes_do_simulador() if e["tipo"] == "comunicacao.agendada")
+        ev = copy.deepcopy(ev)
+        ev["recurso"]["id"] = 10**400
+        self.assertEqual(validar(ev, SCHEMA), [])
+
 
 class PalavraChaveDesconhecida(unittest.TestCase):
     def test_recusa_em_vez_de_ignorar(self) -> None:

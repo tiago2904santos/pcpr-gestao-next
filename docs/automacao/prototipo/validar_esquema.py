@@ -11,6 +11,7 @@ rejeitaria; foi o defeito apontado no PR #23, C2). Anotações (`description`, `
 
 from __future__ import annotations
 
+import math
 import re
 from datetime import datetime
 from typing import Any
@@ -60,7 +61,11 @@ def _numero(valor: Any) -> bool:
 
 def _tipo_ok(valor: Any, tipo: str) -> bool:
     if tipo == "integer":  # JSON Schema: 1.0 é inteiro (vale o valor, não a grafia)
-        return _numero(valor) and float(valor).is_integer()
+        if isinstance(valor, bool):
+            return False
+        if isinstance(valor, int):  # sem passar por float: 10**400 é inteiro e não cabe nele
+            return True
+        return isinstance(valor, float) and math.isfinite(valor) and valor.is_integer()
     if tipo == "number":
         return _numero(valor)
     if tipo not in _TIPOS:

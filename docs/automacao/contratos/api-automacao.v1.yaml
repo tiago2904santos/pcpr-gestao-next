@@ -377,8 +377,9 @@ paths:
         contato. Contato não verificado → quarentena para conferência humana, nada é aplicado.
 
         `Idempotency-Key` = `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1); quando isso
-        passaria de 200 caracteres (o id do canal aceita até 300), `receb:<canal>:sha256:<hex do
-        SHA-256 do mensagem_id_canal>:<anexo_indice>`. Repetir a
+        passaria de 200 caracteres (o id do canal aceita até 300), `receb#sha256:<canal>:<hex do
+        SHA-256 do mensagem_id_canal>:<anexo_indice>` (o `#` no 1º segmento impede que um id curto
+        reproduza essa forma). Repetir a
         mesma chave devolve o mesmo `Recebimento` sem efeito; **mesma chave com SHA-256 diferente →
         409 `conflito_de_versao`** (o canal mudou o anexo; vira exceção), em vez do 422 genérico. Mesmo
         SHA-256 no mesmo destino com outra chave = `duplicado`. O PCPR recalcula o SHA-256 e recusa com

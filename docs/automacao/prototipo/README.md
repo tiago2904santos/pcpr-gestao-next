@@ -47,10 +47,14 @@ teste de reentrega da exceção de SHA-256 divergente (TW8b). Ver
 contrato aceita ids de até 300), o `/excecoes` respondia 400 e o W4 (recusa permanente) e o W8
 (status órfão) ficavam presos em não-2xx. As três chaves de exceção (W4 recusa permanente, W7
 SHA-256 divergente, W8 status órfão) agora saem como sempre até 200 caracteres e, acima disso,
-como `<prefixo>sha256:<hex>` do resto (`chave_limitada` em `construir_workflows.py`). Testes
+como `<1º segmento>#sha256:<resto do prefixo><hex>` (ex.: `excecao#sha256:whatsapp-status:<hex>`;
+`chave_limitada` em `construir_workflows.py`). Testes
 novos: T19h (id de 150 caracteres) e TW14e (wamid de 190); as duas baterias passaram inteiras.
 Na rodada seguinte, o mesmo limite na **chave do recebimento**: o contrato passou a dizer que,
-acima de 200 caracteres, ela é `receb:<canal>:sha256:<hex do id>:<anexo_indice>`. A regra é única
+acima de 200 caracteres, ela é `receb#sha256:<canal>:<hex do id>:<anexo_indice>` — o `#` no 1º
+segmento garante que nenhum id curto (nem um que imite `sha256:<hex>`) gere a mesma chave. A
+exceção do status órfão deixou de citar o prazo configurável no corpo (mesma chave → mesmo corpo,
+mesmo depois de reconfigurar). O validador aceita inteiros maiores que o `float`. A regra é única
 (`comum.chave_recebimento`, usada pelo simulador e pelos testes; `chave_recebimento_js` nos
 workflows) e também vale para a exceção `fila_parada`. Testes T19i (id de 290 caracteres, 413 →
 recebimento rejeitado com orientação) e T19j (id de 160, exceção `fila_parada`).
