@@ -1,0 +1,18 @@
+{
+  "id": "7c9d2e10-4a3b-4c5d-8e6f-1a2b3c4d5e04",
+  "tipo": "comunicacao.agendada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-04T14:22:05Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "comunicacao", "id": 41, "versao": 1},
+  "correlacao_id": "viagem:812",
+  "causa_id": "5d0c2b8e-6c8f-4a51-9d1e-2f4b7a1c9e30",
+  "dados": {
+    "comunicacao_id": 41,
+    "fluxo": "km-vespera",
+    "tipo_comunicacao": "link_km",
+    "enviar_em": "2026-11-11T09:00:00-03:00",
+    "imediato": false,
+    "finalidade": "diario_km"
+  }
+}

@@ -1,0 +1,6 @@
+# Protótipo de automação (fora de gestao/): scripts locais de teste que imprimem o andamento,
+# chamam o docker CLI e fazem HTTP só para 127.0.0.1. Herda o resto da configuração do projeto.
+extend = "../../../pyproject.toml"
+
+[lint]
+extend-per-file-ignores = { "*.py" = ["S310", "S603", "S607", "T201"] }

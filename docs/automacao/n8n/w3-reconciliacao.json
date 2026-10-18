@@ -1,0 +1,446 @@
+{
+  "updatedAt": "2026-10-18T02:36:24.000Z",
+  "createdAt": "2026-10-18T02:31:50.285Z",
+  "id": "pcprReconcilia01",
+  "name": "PCPR · Reconciliação",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "23aa470f-6e62-54f5-9571-7870304eb051",
+      "name": "A cada 15 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pcpr-reconciliar",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "98afb751-68c1-51d6-8fa5-31ef7e83ec1c",
+      "name": "Disparo manual (teste)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "b41c687f-db0b-5698-9faf-47b79c1b9228",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprWebhookInt01",
+          "name": "PCPR · token do disparo da reconciliação"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4b5b783b-43f7-5bce-a44f-0f1bc65ff79c",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8765/api/automacao/v1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "000febd5-0842-505d-929b-04bb38141b28",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_pcpr }}/comunicacoes/devidas?limite=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "10bb44f3-e250-533c-a7c4-254082379b2f",
+      "name": "Listar devidas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2c8eafba-74c4-5f78-8149-087a8a8d2f44",
+              "leftValue": "={{ ($json.itens || []).length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6eee33ad-fc1c-5b62-81cf-5be00e89eecc",
+      "name": "Há devidas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82f34ee6-09b5-50bc-9255-ac47de50b1fd",
+              "name": "devidas",
+              "value": 0,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "3d85ff4d-9f16-598a-b14a-b2f2892b9904",
+      "name": "Resumo: nada devido",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "itens",
+        "options": {}
+      },
+      "id": "a7700bb0-8fea-59bc-8c50-a16c2c43f178",
+      "name": "Separar comunicações",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        880,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "2a6d4c07-cb55-5e5e-a6f3-4e1063a6cfdf",
+      "name": "Uma por vez",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ccb92345-6fc0-5ecd-8873-edd38b86cf39",
+              "name": "comunicacao_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "29b003ad-0a0f-5dbb-87bc-32dbb0c75781",
+              "name": "versao",
+              "value": "={{ $json.versao }}",
+              "type": "number"
+            },
+            {
+              "id": "0378e015-dcef-51b8-99a5-4ae5263aed1c",
+              "name": "correlacao_id",
+              "value": "={{ $json.correlacao_id }}",
+              "type": "string"
+            },
+            {
+              "id": "ce777ffc-3844-5d4f-8da0-1d9fd91700a0",
+              "name": "origem",
+              "value": "reconciliacao",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "732eff22-4837-50c3-926b-ab6275dad465",
+      "name": "Pedido de entrega",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pcprEntregaCom01",
+          "mode": "id",
+          "cachedResultName": "PCPR · Entregar comunicação"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "f5720a8d-d633-57b4-8c8a-0d04cff8ed12",
+      "name": "Entregar comunicação (W2)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { devidas: $('Separar comunicações').all().length } }];"
+      },
+      "id": "005fce46-112f-5569-89c3-474b1e6c66f1",
+      "name": "Resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        60
+      ]
+    }
+  ],
+  "connections": {
+    "A cada 15 minutos": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disparo manual (teste)": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Listar devidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar devidas": {
+      "main": [
+        [
+          {
+            "node": "Há devidas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar comunicações": {
+      "main": [
+        [
+          {
+            "node": "Uma por vez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido de entrega": {
+      "main": [
+        [
+          {
+            "node": "Entregar comunicação (W2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entregar comunicação (W2)": {
+      "main": [
+        [
+          {
+            "node": "Uma por vez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Há devidas?": {
+      "main": [
+        [
+          {
+            "node": "Separar comunicações",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resumo: nada devido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uma por vez": {
+      "main": [
+        [
+          {
+            "node": "Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pedido de entrega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "saveDataSuccessExecution": "none"
+  },
+  "staticData": {
+    "node:A cada 15 minutos": {
+      "recurrenceRules": [
+        null
+      ],
+      "recurrenceRuleSignatures": [
+        null
+      ]
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "7aa63370-460b-46e2-95ae-d0318c5c1b26",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 2,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T02:31:50.287Z",
+      "createdAt": "2026-10-18T02:31:50.287Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprReconcilia01",
+      "projectId": "GLb7qKJjiCdX9SjK",
+      "project": {
+        "updatedAt": "2026-10-18T02:31:42.047Z",
+        "createdAt": "2026-10-18T02:31:42.047Z",
+        "id": "GLb7qKJjiCdX9SjK",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "3db6426f-06b9-466d-842f-0448ed7e9873"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

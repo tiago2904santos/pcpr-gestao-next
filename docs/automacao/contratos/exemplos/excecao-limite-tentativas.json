@@ -1,0 +1,8 @@
+{
+  "fluxo": "envio-documentos",
+  "correlacao_id": "viagem:812",
+  "motivo": "limite_tentativas",
+  "recurso": {"tipo": "comunicacao", "id": 52},
+  "detalhe": "SMTP respondeu 421 nas 3 tentativas (nó: Enviar e-mail).",
+  "execucao_orquestrador": "4182"
+}

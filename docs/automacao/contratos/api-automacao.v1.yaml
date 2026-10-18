@@ -1,0 +1,1206 @@
+openapi: 3.1.0
+info:
+  title: API de automação do PCPR (v1)
+  version: 1.0.0-rascunho.3
+  summary: CONTRATO NOVO — desenhado em 17/10/2026, ainda não implementado no sistema.
+  description: |
+    Fachada estreita pela qual o orquestrador (n8n) e o assistente de IA falam com o PCPR, conforme
+    ADR 0020: nada grava direto no banco; toda escrita passa pelos `services.py`, com as mesmas
+    `policies.py`, outbox e auditoria das telas. O PCPR é dono do estado; o n8n transporta.
+
+    **Rascunho 3 (17/10/2026).** Consolida as extensões pedidas pelos fluxos 10-1 a 13 e pelas fichas
+    (AUT-NN). Cada operação, campo ou valor acrescentado neste rascunho traz `x-origem` com o fluxo ou a
+    ficha que o pediu. Exemplos sintéticos em `exemplos/` (pessoas e números fictícios, domínio
+    `.invalid`).
+
+    ## Credenciais e autorização
+    - Três tipos de credencial, todas `Authorization: Bearer`, guardadas só como hash no PCPR, com
+      escopos, ambiente fixo, validade e rotação:
+      1. **Token de serviço de transporte** (n8n): só escopos de transporte — `estado:ler`,
+         `comunicacoes:ler`, `comunicacoes:reservar`, `comunicacoes:resultado`, `comunicacoes:entrega`,
+         `recebimentos:criar`, `recebimentos:ler`, `entradas:criar`, `assistente:mensagens`,
+         `excecoes:criar`. **Sem** `ferramentas:*`.
+      2. **Token de serviço de IA** (só se um fluxo de IA pelo n8n for adotado: 11-1, alternativa D6
+         do 11-2, 11-3): `ferramentas:executar` restrito à lista de ferramentas daquele fluxo
+         (`x-ferramentas-permitidas` no cadastro do token) e **sempre** com `X-PCPR-Delegacao`.
+      3. **Token pessoal** (clientes MCP, AUT-107): emitido pelo próprio usuário na tela (ou OAuth);
+         age como esse usuário, com as policies dele. Não aceita `X-PCPR-Delegacao`.
+    - Escopos exigidos por operação em `x-escopos`. Token ausente, inválido, revogado, vencido ou de
+      outro ambiente → 401 `nao_autenticado`; escopo ausente ou policy negada → 403 `negado`.
+    - **Não existe representação declarada pelo chamador.** O cabeçalho `X-PCPR-Usuario-Representado`
+      do rascunho 2 foi retirado: qualquer portador de um token com esse poder escolheria o id de
+      qualquer pessoa, inclusive de administrador (*confused deputy*), e a trilha mostraria o humano
+      como autor. Agir em nome de alguém exige **delegação emitida pelo PCPR no momento da ação
+      humana** (registro `Delegacao`: usuário, ferramentas, recurso, validade ≤ 15 min, uso único),
+      referenciada por id opaco em `X-PCPR-Delegacao` (o evento ou o pedido carrega o id, nunca o
+      usuário). A API confere: existe, não venceu, não foi usada, foi emitida para esta credencial, a
+      ferramenta está na lista e o recurso é o mesmo. Delegação de usuário com papel administrativo
+      ou visão de todas as unidades por token de serviço é recusada (403 `negado`).
+
+    ## Idempotência
+    - Todo POST exige `Idempotency-Key`. Repetir a mesma chave com a mesma requisição devolve a mesma
+      resposta, sem efeito novo, com `Idempotency-Replayed: true`. Mesma chave com outra requisição →
+      422 `entrada_invalida` (exceção: `/recebimentos`, ver a operação).
+    - A "mesma requisição" é comparada por impressão: corpo JSON canônico; em multipart, os campos +
+      SHA-256 de cada arquivo, nunca os bytes do corpo (o separador muda a cada reenvio — achado do
+      protótipo, T9).
+    - São guardadas as respostas 2xx e 409 (desfechos de negócio). **423 não é guardado** (nada
+      aconteceu; repetir depois de religar deve funcionar — validado no protótipo). 400, 401, 403, 422,
+      429 e 5xx também não são guardados.
+    - Exceção deliberada: a reserva usa chave **única por tentativa** (ver `/comunicacoes/{id}/reservar`).
+
+    ## Desligamento, emergência e canais
+    - Chave geral e por fluxo (`/estado`). Com ela desligada, só as operações que **criam efeito novo**
+      devolvem 423 (`x-desligamento: recusa`): reservar, recebimentos, entradas, mensagens do assistente
+      e ferramentas de preparação. `resultado`, `entrega` e `excecoes` são **sempre aceitos**
+      (`x-desligamento: aceita`), porque registram fatos que já aconteceram — desligar no meio de um
+      incidente não pode apagar o registro de quem recebeu qual link. Leituras continuam 200.
+    - **Modo emergência por token**: o administrador marca um token como em emergência (ou o revoga);
+      ele passa a receber 401 em todas as rotas, inclusive leituras. Roteiro de incidente: revogar o
+      token, revogar em massa os `LinkAcesso` emitidos no período, trocar o segredo HMAC dos eventos.
+    - Canais: `/estado.canais` diz se cada canal de saída está `ligado`, `desligado` ou `bloqueado`.
+      `bloqueado` ≠ `desligado`: só muda por configuração versionada acompanhada de ADR que registre a
+      elegibilidade; é o valor do `whatsapp` em **todos os ambientes reais** (política oficial do
+      WhatsApp Business proíbe autoridades policiais — `../whatsapp-viabilidade.md`). Reservar uma
+      comunicação ou receber um arquivo por canal `bloqueado` → 409 `canal_bloqueado`.
+
+    ## Ambientes
+    - O token de produção não funciona em treinamento, preview ou teste, e vice-versa (401).
+    - Fora de produção — em especial no PREVIEW (DEMO, entrada sem senha) — o canal de e-mail é
+      **simulado**: o PCPR não sobe com SMTP ou credencial real configurados, e a instância n8n do
+      ambiente não tem credencial real de SMTP nem de IMAP. Aceite: no PREVIEW, uma comunicação
+      "enviada" não abre conexão SMTP.
+    - A API não é publicada no nginx público: aceita só a rede Docker do n8n (e o próprio host).
+
+    ## Outras regras
+    - `X-PCPR-Correlacao` é ecoado e gravado nos logs dos dois lados.
+    - Concorrência limitada por token (2–3 chamadas simultâneas) → 429 `limite_excedido` com
+      `Retry-After`.
+    - Respostas de erro seguem `Erro` (mensagem em português dizendo como resolver).
+    - Campos de texto livre que o n8n envia (`detalhe`, `erro`) são gravados com URLs, e-mails e tokens
+      mascarados.
+    - Evolução: mudanças aditivas (rota, campo opcional, valor de enum) entram no v1; o cliente ignora
+      campos que não conhece. Remover ou mudar o significado de algo cria `/api/automacao/v2`.
+
+    ## Unificações de nome feitas no rascunho 3
+    | Antes (fluxo) | Fica | Motivo |
+    |---|---|---|
+    | `oficio_disponivel` (rascunho 2) e `documentos_disponiveis` (10-2) | `documentos_disponiveis` | cobre ofício, termos, OS e plano; o contrato ainda não foi implementado |
+    | `aviso_substituicao` (10-2) e `documentos_substituidos` (10-5) | `aviso_substituicao` | mesmo significado ("o que você recebeu foi substituído"); paralelo a `aviso_cancelamento` |
+    | `regra_violada` (protótipo) e `ainda_nao_devida` (10-3) para reserva antecipada | `ainda_nao_devida` (409, com `disponivel_em`) | código próprio permite ao n8n encerrar sem exceção; `regra_violada` fica para as demais regras de negócio |
+    | `integracao_indisponivel` (rascunho 2) e `integracao_inexistente` (13) | os dois, com significados distintos | `integracao_indisponivel` = existe e está fora do ar (503, repetir depois); `integracao_inexistente` = não há integração oficial (501, não repetir) |
+    | chave de recebimento "canal + id da mensagem" (rascunho 2) e `recebimento:whatsapp:<id>` (protótipo) | `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1) | uma mensagem pode ter vários anexos |
+    | `resposta_ao_remetente` no `Recebimento` | marcado como obsoleto | o texto passa a ser a comunicação `resposta_recebimento` (10-6 E6) |
+
+    ## Extensões ainda pendentes (não consolidadas aqui)
+    | Extensão | Origem | Por quê |
+    |---|---|---|
+    | Esquemas de entrada e saída de cada ferramenta (`viagens.*`, `prestacao.*`, `planos.*`, `textos.*`, `protocolo.*`, `central.*`, `meu.*`) | 10-1 §6.3, 10-5 §6.3, 11-1 §6.3, 11-2 §6.3, 11-3 §6.3, 13 §6.5 | ficam no registro de ferramentas (ADR 0020), servidos por `GET /ferramentas`, não neste arquivo |
+    | Rotas públicas do link de km (`/km/<token>/…`) e do portal (`/meus-documentos/`, `/p/assinatura/`, `/p/relato/`) | 10-4 §6.4, 10-2 X11, 10-5 §6.3 | são páginas do PCPR com sessão ou link, não API de automação |
+    | Corpos e caminhos das operações do eProtocolo | 13 §6.2 | "DESCONHECIDO" até a documentação restrita do credenciamento |
+servers:
+  - url: https://{host}/api/automacao/v1
+    description: Alcançável só pela rede interna do n8n; não publicado no nginx público.
+    variables:
+      host: { default: pcpr.example.invalid }
+security:
+  - tokenServico: []
+  - tokenPessoal: []
+tags:
+  - name: controle
+  - name: comunicacoes
+  - name: recebimentos
+  - name: entradas
+  - name: assistente
+  - name: excecoes
+  - name: ferramentas
+paths:
+  /estado:
+    get:
+      tags: [controle]
+      summary: Chave geral da automação, fluxos, canais e integrações
+      operationId: obterEstado
+      x-escopos: [estado:ler]
+      x-desligamento: aceita
+      responses:
+        "200":
+          description: Estado atual
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EstadoAutomacao" }
+              examples:
+                producao:
+                  externalValue: exemplos/estado-automacao.json
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+  /comunicacoes/devidas:
+    get:
+      tags: [comunicacoes]
+      summary: Comunicações cujo horário chegou e que ainda não foram reservadas (reconciliação)
+      description: |
+        Caminho de segurança do modelo "push + pull": o PCPR avisa por evento quando agenda algo; o n8n
+        também consulta esta lista a cada 15 min para não perder nada se um evento se perder ou o n8n
+        reiniciar. Consulta indexada (estado, enviar_em); custo desprezível.
+      operationId: listarDevidas
+      x-escopos: [comunicacoes:ler]
+      x-desligamento: aceita
+      parameters:
+        - { name: limite, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - name: tipo
+          in: query
+          description: "Filtra por tipo de comunicação (repetível). [novo] — x-origem: 10-4 §6.2"
+          schema: { type: array, items: { $ref: "#/components/schemas/TipoComunicacao" } }
+          style: form
+          explode: true
+        - name: fluxo
+          in: query
+          description: "Filtra pelo fluxo dono da comunicação. [novo]"
+          schema: { type: string, pattern: "^[a-z0-9-]{1,64}$" }
+      responses:
+        "200":
+          description: Lista (pode ser vazia)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [itens]
+                properties:
+                  itens: { type: array, items: { $ref: "#/components/schemas/ComunicacaoResumo" } }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+  /comunicacoes/{id}:
+    get:
+      tags: [comunicacoes]
+      summary: "[novo] Situação de uma comunicação (o n8n consulta antes de abrir exceção depois de reiniciar)"
+      operationId: obterComunicacao
+      x-origem: 10-2 X8
+      x-escopos: [comunicacoes:ler]
+      x-desligamento: aceita
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Situação, sem destino nem conteúdo
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ComunicacaoSituacao" }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "404": { description: Comunicação inexistente ou fora do escopo do token }
+  /comunicacoes/{id}/reservar:
+    post:
+      tags: [comunicacoes]
+      summary: Revalida e reserva uma comunicação para envio (lease)
+      description: |
+        O PCPR revalida TUDO antes de liberar o conteúdo: comunicação não cancelada, versão da viagem e do
+        documento iguais às da comunicação, destinatário ainda autorizado e com contato verificado, canal
+        `ligado` (não `desligado` nem `bloqueado`), horário já devido, automação ligada. Passa
+        `agendada → enviando` com prazo de reserva (10 min). Duas reservas simultâneas: só uma ganha.
+        Se a reserva vencer sem resultado, a comunicação vai para `resultado_desconhecido` e para a fila
+        de exceções (não reenvia às cegas). Toda retentativa do n8n precisa caber nos 10 min.
+
+        Respostas 409 (corpo `Erro`): `obsoleta` (cancelada ou substituída), `conflito_de_versao`
+        (`X-PCPR-Versao-Esperada` diferente da atual), `ja_processada` (já reservada, enviada ou
+        encerrada), `ainda_nao_devida` (antes de `enviar_em`; traz `disponivel_em`), `suspensa` (ofício
+        reaberto ou recebimento em conferência), `canal_bloqueado`, `regra_violada` (outras regras).
+      operationId: reservarComunicacao
+      x-escopos: [comunicacoes:reservar]
+      x-desligamento: recusa
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: |
+            ÚNICA POR TENTATIVA: `reserva:<comunicacao>:v<versao>:exec<id da execução>` — estável dentro
+            da execução, diferente entre execuções. Motivo (análise do protótipo): com uma chave estável
+            sem a execução, uma segunda execução (evento + reconciliação ao mesmo tempo, ou reentrega que
+            escapou da deduplicação) receberia a resposta guardada da primeira, com o mesmo token de
+            reserva, e enviaria de novo. A exclusividade vem da transição `agendada → enviando`; o T2c do
+            protótipo (evento com outro id → 409 `ja_processada`) falharia com chave estável.
+          schema: { type: string, minLength: 16, maxLength: 200 }
+        - name: X-PCPR-Versao-Esperada
+          in: header
+          required: false
+          description: Versão da comunicação que o chamador viu no evento; diferente da atual → 409 `conflito_de_versao`.
+          schema: { type: integer, minimum: 1 }
+        - $ref: "#/components/parameters/Correlacao"
+      responses:
+        "200":
+          description: Reservada; conteúdo pronto para o canal
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ComunicacaoReservada" }
+              examples:
+                documentos:
+                  externalValue: exemplos/reserva-documentos-disponiveis.json
+                linkKm:
+                  externalValue: exemplos/reserva-link-km.json
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "409":
+          description: Não enviar (ver os códigos na descrição)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+              examples:
+                obsoleta:
+                  externalValue: exemplos/erro-reserva-obsoleta.json
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /comunicacoes/{id}/resultado:
+    post:
+      tags: [comunicacoes]
+      summary: Registra o resultado do envio no canal (aceito mesmo com a automação desligada)
+      operationId: registrarResultado
+      x-escopos: [comunicacoes:resultado]
+      x-desligamento: aceita
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/Correlacao"
+      requestBody:
+        required: true
+        description: "`Idempotency-Key`: `resultado:<comunicacao>:<token da reserva>`."
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResultadoEnvio" }
+            examples:
+              enviada:
+                externalValue: exemplos/resultado-envio.json
+      responses:
+        "200":
+          description: Registrado (repetição devolve o mesmo registro)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "409":
+          description: Reserva de outra execução, ou comunicação já encerrada com outro resultado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /comunicacoes/{id}/entrega:
+    post:
+      tags: [comunicacoes]
+      summary: Status de entrega informado pelo provedor (entregue/lida/falhou), repassado pelo n8n
+      operationId: registrarEntrega
+      x-escopos: [comunicacoes:entrega]
+      x-desligamento: aceita
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        description: "`Idempotency-Key`: `entrega:<comunicacao>:<provedor_mensagem_id>:<status>`."
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [provedor_mensagem_id, status, ocorrido_em]
+              properties:
+                provedor_mensagem_id: { type: string, maxLength: 300 }
+                status: { type: string, enum: [entregue, lida, falhou] }
+                ocorrido_em: { type: string, format: date-time }
+                erro: { type: string, maxLength: 2000, description: "gravado com URLs, e-mails e tokens mascarados" }
+      responses:
+        "200":
+          description: Registrado; status nunca regride (lida não volta a entregue)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /recebimentos:
+    post:
+      tags: [recebimentos]
+      summary: Entrega ao PCPR um arquivo devolvido por um canal (entra na importação documental existente)
+      description: |
+        Não classifica nem lê o arquivo: cria um `ArquivoImportado` pela importação documental que o
+        sistema já tem (OCR, identificação, distribuição, revisão), em nome do servidor vinculado ao
+        contato. Contato não verificado → quarentena para conferência humana, nada é aplicado.
+
+        `Idempotency-Key` = `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1). Repetir a
+        mesma chave devolve o mesmo `Recebimento` sem efeito; **mesma chave com SHA-256 diferente →
+        409 `conflito_de_versao`** (o canal mudou o anexo; vira exceção), em vez do 422 genérico. Mesmo
+        SHA-256 no mesmo destino com outra chave = `duplicado`. O PCPR recalcula o SHA-256 e recusa com
+        422 `entrada_invalida` se divergir do informado.
+
+        `canal=portal` não existe aqui: o portal é interno ao PCPR e não usa token de serviço (10-6 E1).
+        Canal `bloqueado` em `/estado.canais_entrada` → 409 `canal_bloqueado`. Com a chave desligada →
+        423 (não guardado): a mensagem continua na caixa postal até a religação, nada se perde.
+        A rota entra em `LIMITES_DO_CORPO_POR_CAMINHO` com 26 MiB (senão o middleware devolve 413 a
+        partir de 16 MiB).
+      operationId: criarRecebimento
+      x-escopos: [recebimentos:criar]
+      x-desligamento: recusa
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [arquivo, canal, mensagem_id_canal, anexo_indice, total_anexos, remetente, recebido_em, sha256]
+              properties:
+                arquivo: { type: string, format: binary, description: "até 25 MiB (limite da importação)" }
+                canal: { type: string, enum: [email, whatsapp], description: "`whatsapp` hoje responde 409 `canal_bloqueado`" }
+                mensagem_id_canal: { type: string, maxLength: 300, description: "Message-ID do e-mail" }
+                anexo_indice: { type: integer, minimum: 0, description: "[novo] posição do anexo na mensagem; parte da chave — x-origem: 10-6 E1" }
+                total_anexos: { type: integer, minimum: 1, description: "[novo] permite consolidar uma resposta por mensagem — x-origem: 10-6 E1" }
+                nome_arquivo: { type: string, maxLength: 255, description: "[novo] nome original — x-origem: 10-6 E1" }
+                remetente: { type: string, maxLength: 320, description: "endereço no canal" }
+                recebido_em: { type: string, format: date-time }
+                sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+                em_resposta_a_comunicacao: { type: integer, description: "quando o n8n já sabe a comunicação respondida" }
+                em_resposta_a_mensagem_canal: { type: string, maxLength: 998, description: "[novo] In-Reply-To/References; o PCPR resolve para a Comunicacao pelo provedor_mensagem_id — x-origem: 10-6 E1" }
+                autenticacao_remetente:
+                  type: object
+                  description: "[novo] cópia do cabeçalho Authentication-Results da caixa institucional — x-origem: 10-6 E1"
+                  additionalProperties: false
+                  properties:
+                    spf: { type: string, enum: [pass, fail, none] }
+                    dkim: { type: string, enum: [pass, fail, none] }
+                    dmarc: { type: string, enum: [pass, fail, none] }
+                gerada_automaticamente: { type: boolean, description: "[novo] Auto-Submitted, Precedence, List-Id, MAILER-DAEMON: o PCPR não agenda resposta — x-origem: 10-6 E1" }
+                assunto: { type: string, maxLength: 200, description: "[novo] mostrado ao revisor, nunca usado na identificação — x-origem: 10-6 E1" }
+                texto_mensagem: { type: string, maxLength: 2000, description: "[novo] opcional (decisão D9 do 10-6); dado, nunca instrução; não vai para IA — x-origem: 10-6 E1" }
+            encoding:
+              autenticacao_remetente: { contentType: application/json }
+      responses:
+        "202":
+          description: Aceito para processamento (ou reconhecido como duplicado)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recebimento" }
+              examples:
+                aceito:
+                  externalValue: exemplos/recebimento-aceito.json
+                duplicado:
+                  externalValue: exemplos/recebimento-duplicado.json
+                quarentena:
+                  externalValue: exemplos/recebimento-quarentena.json
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "409":
+          description: "`conflito_de_versao` (mesma chave, outro SHA-256) ou `canal_bloqueado`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+        "413": { description: "Acima do limite; usar `/recebimentos/sem-arquivo` e orientar o remetente a enviar pelo portal" }
+        "422": { $ref: "#/components/responses/EntradaInvalida" }
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /recebimentos/sem-arquivo:
+    post:
+      tags: [recebimentos]
+      summary: "[novo] Registra o que não chegou a ter bytes (anexo acima do limite, mensagem sem anexo, anexo não baixado)"
+      description: |
+        Efeito: `Recebimento` em `rejeitado` (ou exceção `arquivo_nao_baixado` em `nao_baixado`) e
+        comunicação de resposta orientando o remetente — sem gravar arquivo. Mesma chave de
+        idempotência de `/recebimentos`.
+      operationId: criarRecebimentoSemArquivo
+      x-origem: 10-6 E2
+      x-escopos: [recebimentos:criar]
+      x-desligamento: recusa
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [canal, mensagem_id_canal, anexo_indice, total_anexos, remetente, recebido_em, motivo]
+              properties:
+                canal: { type: string, enum: [email, whatsapp] }
+                mensagem_id_canal: { type: string, maxLength: 300 }
+                anexo_indice: { type: integer, minimum: 0 }
+                total_anexos: { type: integer, minimum: 1 }
+                remetente: { type: string, maxLength: 320 }
+                recebido_em: { type: string, format: date-time }
+                nome_arquivo: { type: string, maxLength: 255 }
+                tamanho: { type: integer, minimum: 0, description: "bytes informados pelo canal" }
+                motivo: { type: string, enum: [acima_do_limite, sem_anexo, nao_baixado] }
+      responses:
+        "202":
+          description: Registrado
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recebimento" }
+              examples:
+                rejeitado:
+                  externalValue: exemplos/recebimento-rejeitado.json
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "409":
+          description: "`canal_bloqueado`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /recebimentos/{id}:
+    get:
+      tags: [recebimentos]
+      summary: Situação do recebimento e de cada parte (diagnóstico do n8n)
+      operationId: obterRecebimento
+      x-escopos: [recebimentos:ler]
+      x-desligamento: aceita
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Situação
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recebimento" }
+              examples:
+                associado:
+                  externalValue: exemplos/recebimento-associado.json
+                revisao:
+                  externalValue: exemplos/recebimento-revisao-necessaria.json
+                pendenciaResolvida:
+                  externalValue: exemplos/recebimento-pendencia-resolvida.json
+                descartado:
+                  externalValue: exemplos/recebimento-descartado.json
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "404": { description: Inexistente ou fora do escopo do token }
+  /entradas:
+    post:
+      tags: [entradas]
+      summary: "[novo] Entrega um e-mail da caixa postal institucional à caixa de entrada única de demandas"
+      description: |
+        O n8n só entrega; nunca converte. O PCPR registra um `ItemEntrada` com o original privado,
+        deduplica por Message-ID e pela digital do texto e mostra na caixa de entrada para uma pessoa
+        escolher o módulo e converter (AUT-132). Forma proposta neste rascunho a partir da ficha;
+        conferir na implementação. `Idempotency-Key`: `entrada:<caixa>:<Message-ID>`.
+      operationId: criarEntrada
+      x-origem: fichas/plataforma-e-modulos.md AUT-132 (etapa 5)
+      x-escopos: [entradas:criar]
+      x-desligamento: recusa
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [original, caixa, message_id, recebido_em, sha256]
+              properties:
+                original: { type: string, format: binary, description: "a mensagem inteira (.eml, message/rfc822), até 25 MiB" }
+                caixa: { type: string, pattern: "^[a-z0-9-]{1,64}$", description: "apelido da caixa postal configurada (ex.: `ascom-pedidos`)" }
+                message_id: { type: string, maxLength: 998 }
+                recebido_em: { type: string, format: date-time }
+                sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+                autenticacao_remetente:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    spf: { type: string, enum: [pass, fail, none] }
+                    dkim: { type: string, enum: [pass, fail, none] }
+                    dmarc: { type: string, enum: [pass, fail, none] }
+            encoding:
+              autenticacao_remetente: { contentType: application/json }
+      responses:
+        "202":
+          description: Registrado (ou reconhecido como duplicado)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, estado]
+                properties:
+                  id: { type: integer }
+                  estado: { type: string, enum: [novo, duplicado] }
+                  duplicado_de: { type: [integer, "null"] }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "413": { description: Acima do limite }
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /assistente/mensagens:
+    post:
+      tags: [assistente]
+      summary: "[novo] Entrada de pergunta ao assistente pelo canal e-mail (só texto; arquivos não vêm)"
+      description: |
+        O n8n entrega o texto lido da caixa do assistente; o PCPR identifica o remetente pelo contato
+        verificado, aplica a política e responde por uma `Comunicacao` `resposta_assistente`.
+        `Idempotency-Key`: `email:<Message-ID>`.
+      operationId: receberMensagemAssistente
+      x-origem: 10-1 §6.2
+      x-escopos: [assistente:mensagens]
+      x-desligamento: recusa
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [canal, mensagem_id_canal, remetente, autenticacao, recebido_em, texto]
+              properties:
+                canal: { type: string, enum: [email] }
+                mensagem_id_canal: { type: string, maxLength: 998 }
+                remetente: { type: string, maxLength: 320 }
+                autenticacao: { type: string, enum: [aprovada, reprovada, ausente], description: "do cabeçalho Authentication-Results" }
+                recebido_em: { type: string, format: date-time }
+                assunto: { type: string, maxLength: 200 }
+                texto: { type: string, maxLength: 8000 }
+                em_resposta_a: { type: string, maxLength: 998 }
+                tem_anexo: { type: boolean }
+      responses:
+        "202":
+          description: Recebida
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pergunta_id, estado]
+                properties:
+                  pergunta_id: { type: integer }
+                  estado: { type: string, enum: [recebida, quarentena, duplicada] }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "413": { description: Acima do limite de texto }
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /excecoes:
+    post:
+      tags: [excecoes]
+      summary: Abre um item na fila de exceções (acompanhamento humano dentro do PCPR); aceito mesmo com a automação desligada
+      operationId: abrirExcecao
+      x-escopos: [excecoes:criar]
+      x-desligamento: aceita
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        description: "`Idempotency-Key`: `excecao:<fluxo>:<comunicacao ou recebimento>:<motivo>`."
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExcecaoPedido" }
+            examples:
+              limiteTentativas:
+                externalValue: exemplos/excecao-limite-tentativas.json
+      responses:
+        "201":
+          description: Aberto (ou já existente para a mesma chave)
+          headers:
+            Idempotency-Replayed: { $ref: "#/components/headers/IdempotencyReplayed" }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "422": { $ref: "#/components/responses/EntradaInvalida" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+  /ferramentas:
+    get:
+      tags: [ferramentas]
+      summary: Registro de ferramentas tipadas (ADR 0020) disponíveis para a credencial
+      operationId: listarFerramentas
+      x-escopos: [ferramentas:executar]
+      x-desligamento: aceita
+      responses:
+        "200":
+          description: Nome, versão, descrição, risco, escopo e esquemas de entrada e saída — só as permitidas à credencial
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+  /ferramentas/{nome}/executar:
+    post:
+      tags: [ferramentas]
+      summary: Executa uma ferramenta com a política de quem delegou (token de serviço) ou do dono do token pessoal
+      description: |
+        `leitura` e `preparacao` executam; `irreversivel` devolve 202 `aprovacao_pendente` com o id do
+        pedido — só um humano com permissão aprova na tela (não existe rota de aprovação nesta API).
+        Toda execução gera `ExecucaoFerramenta` com usuário da delegação, credencial e delegação usada.
+        Com a chave desligada, `preparacao` e `irreversivel` → 423; `leitura` continua.
+      operationId: executarFerramenta
+      x-escopos: [ferramentas:executar]
+      x-desligamento: "recusa (preparacao e irreversivel); aceita (leitura)"
+      parameters:
+        - { name: nome, in: path, required: true, schema: { type: string, pattern: "^[a-z_]+(\\.[a-z_]+)+$", examples: ["viagens.resumo"] } }
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/Delegacao"
+        - $ref: "#/components/parameters/Correlacao"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, description: "entrada tipada da ferramenta (esquema em GET /ferramentas)" }
+      responses:
+        "200": { description: Resultado tipado }
+        "202": { description: Aprovação pendente (ações irreversíveis) }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403":
+          description: Escopo ausente, ferramenta fora da lista da credencial, delegação ausente, vencida, usada, de outro recurso ou de usuário administrativo, ou policy negada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+        "409":
+          description: Recurso terminal ou obsoleto
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Erro" }
+        "423": { $ref: "#/components/responses/Desligada" }
+        "429": { $ref: "#/components/responses/LimiteExcedido" }
+webhooks:
+  eventoIntegracao:
+    post:
+      summary: "[novo] Entrega de evento de integração PCPR → n8n (worker de entregas com lease)"
+      description: |
+        Transporte do envelope `evento-integracao.schema.json`. O worker de entregas do PCPR posta no
+        webhook do n8n **pela rede Docker interna** (sem rota pública), fora de transação.
+
+        - Corpo: o envelope JSON em UTF-8, **byte a byte** como foi assinado; o consumidor verifica sobre
+          o corpo bruto, nunca sobre um JSON re-serializado.
+        - `X-PCPR-Assinatura: t=<segundos unix>,v1=<hex de HMAC-SHA256(segredo, t + "." + corpo_bruto)>`.
+          Segredo próprio por ambiente, guardado no n8n como credencial cifrada; comparação em tempo
+          constante.
+        - Janela de frescor: |agora − t| ≤ 300 s (±5 min).
+        - `X-PCPR-Evento-Id` igual ao `id` do envelope.
+        - O consumidor recusa envelope de outro `ambiente`.
+
+        Respostas e reentrega:
+        - 202: aceito para processar — inclusive `id` já visto (deduplicação) e `tipo` desconhecido
+          (ignorado; mudanças aditivas não quebram o consumidor).
+        - 401: assinatura, frescor, ambiente ou id divergente. O worker **não** repete: marca a entrega
+          como falha de configuração e abre exceção.
+        - Outro status, tempo esgotado ou conexão recusada: o worker repete com backoff de minutos a
+          horas; depois, exceção. A reconciliação (`/comunicacoes/devidas`) cobre o que não chegar.
+        Validado no protótipo (T1–T3, T10).
+      x-origem: arquitetura §2; prototipo/comum.py; n8n/README.md (W1)
+      security:
+        - assinaturaHmac: []
+      parameters:
+        - name: X-PCPR-Assinatura
+          in: header
+          required: true
+          schema: { type: string, pattern: "^t=[0-9]+,v1=[a-f0-9]{64}$" }
+        - name: X-PCPR-Evento-Id
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "./evento-integracao.schema.json" }
+            examples:
+              comunicacaoAgendada:
+                externalValue: exemplos/eventos/comunicacao.agendada.json
+      responses:
+        "202": { description: Aceito (ou ignorado por ser repetido ou de tipo desconhecido) }
+        "401": { description: "Assinatura inválida, fora da janela, de outro ambiente ou com id divergente" }
+components:
+  securitySchemes:
+    tokenServico:
+      type: http
+      scheme: bearer
+      description: Token de serviço por integração (transporte ou IA), com escopos e ambiente fixo.
+    tokenPessoal:
+      type: http
+      scheme: bearer
+      description: Token pessoal emitido pelo próprio usuário (clientes MCP); age com as policies dele.
+    assinaturaHmac:
+      type: apiKey
+      in: header
+      name: X-PCPR-Assinatura
+      description: HMAC-SHA256 de `t + "." + corpo_bruto` (ver o webhook `eventoIntegracao`).
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 200 }
+    Delegacao:
+      name: X-PCPR-Delegacao
+      in: header
+      required: false
+      description: |
+        [novo] Id opaco de uma `Delegacao` emitida pelo PCPR no momento da ação humana (usuário,
+        ferramentas, recurso, validade ≤ 15 min, uso único). **Obrigatório** com token de serviço;
+        **proibido** com token pessoal. Substitui o `X-PCPR-Usuario-Representado` do rascunho 2.
+      x-origem: revisão de segurança de 17/10/2026 (AUT-104 etapa 3; 10-1 §6.2; 11-1, 11-2 e 11-3 §6)
+      schema: { type: string, pattern: "^dlg_[A-Za-z0-9_-]{22,64}$" }
+    Correlacao:
+      name: X-PCPR-Correlacao
+      in: header
+      required: false
+      schema: { type: string, maxLength: 120 }
+  headers:
+    IdempotencyReplayed:
+      description: "`true` quando a resposta é a repetição guardada de uma chave já usada (validado no protótipo)."
+      schema: { type: string, enum: ["true"] }
+    RetryAfter:
+      description: Segundos até tentar de novo.
+      schema: { type: integer, minimum: 1 }
+  responses:
+    NaoAutenticado:
+      description: Token ausente, inválido, revogado, em modo emergência, vencido ou de outro ambiente
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Erro" }
+    Negado:
+      description: Escopo ausente ou policy negada
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Erro" }
+    EntradaInvalida:
+      description: Corpo inválido, SHA-256 divergente ou `Idempotency-Key` reutilizada com outra requisição
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Erro" }
+    Desligada:
+      description: Automação desligada (geral ou do fluxo) — nada foi feito; o processo continua manual. Não é guardada pela idempotência
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Erro" }
+          examples:
+            desligada:
+              externalValue: exemplos/erro-desligada.json
+    LimiteExcedido:
+      description: Concorrência por token acima do limite
+      headers:
+        Retry-After: { $ref: "#/components/headers/RetryAfter" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Erro" }
+  schemas:
+    Erro:
+      type: object
+      required: [codigo, mensagem]
+      properties:
+        codigo:
+          type: string
+          enum:
+            - entrada_invalida
+            - nao_autenticado          # [novo] 401
+            - negado
+            - aprovacao_pendente
+            - conflito_de_versao
+            - regra_violada
+            - ainda_nao_devida         # [novo] 10-3 §6.3 (reserva antes de enviar_em)
+            - suspensa                 # [novo] 10-3 §6.3
+            - obsoleta
+            - ja_processada
+            - desligada
+            - canal_bloqueado          # [novo] whatsapp-viabilidade §5.2
+            - limite_excedido          # [novo] 429 (AUT-104)
+            - integracao_indisponivel  # temporário (503): repetir depois
+            - integracao_inexistente   # [novo] 13 §6.6: não há integração oficial (501): não repetir
+            - trava_fechada            # [novo] 13 §6.6
+            - ambiente_incompativel    # [novo] 13 §6.6
+            - resultado_desconhecido   # [novo] 13 §6.6
+            - tempo_esgotado
+        mensagem: { type: string, description: "Em português, dizendo como resolver" }
+        estado_atual: { type: string }
+        disponivel_em: { type: string, format: date-time, description: "[novo] com `ainda_nao_devida` — x-origem: 10-3 §6.3" }
+    TipoComunicacao:
+      type: string
+      enum:
+        - link_km
+        - documentos_disponiveis    # substitui oficio_disponivel (10-2 X5)
+        - documentos_para_assinatura
+        - lembrete_pendencia
+        - mensagem_saque
+        - resposta_recebimento
+        - aviso_cancelamento
+        - aviso_reagendamento
+        - aviso_substituicao        # [novo] 10-2 X5; absorve documentos_substituidos (10-5)
+        - resposta_assistente       # [novo] 10-1 §6.2
+        - resposta_encaminhamento   # [novo] 10-1 §6.2
+    Alvo:
+      type: object
+      description: "[novo] Registro a quem a comunicação se refere — x-origem: 10-3 §6.3"
+      additionalProperties: false
+      required: [tipo, id]
+      properties:
+        tipo: { type: string, enum: [prestacao_servidor, diario, envio_documentos, versao_assinatura, recebimento, pergunta_assistente] }
+        id: { type: integer, minimum: 1 }
+    EstadoAutomacao:
+      type: object
+      required: [ligada, ambiente, canais]
+      properties:
+        ligada: { type: boolean }
+        motivo: { type: string }
+        ambiente: { type: string, enum: [producao, treinamento, preview, teste] }
+        fluxos:
+          type: object
+          description: |
+            Chave por fluxo (booleano). Chaves conhecidas: `km-vespera`, `km-lembretes` (10-4);
+            `envio-documentos` (10-2); `saque-aviso`, `saque-lembretes` (10-3); `db-rt-assinatura`,
+            `relato-servidor`, `rascunho-rt-ia` (10-5); `recebimento-canais`, `recebimento-portal`,
+            `recebimento-aplicacao-automatica` (10-6); `assistente-portal`, `assistente-email` (10-1);
+            `rotas-ia-programacao` (11-1); `plano-textos-ia` (11-2); `integracoes-institucionais` (13).
+          additionalProperties: { type: boolean }
+          examples: [{ "km-vespera": true, "envio-documentos": false }]
+        canais:
+          type: object
+          description: |
+            Canais de saída. `bloqueado` só muda por configuração versionada + ADR (não pela tela) e é o
+            valor do `whatsapp` em todos os ambientes reais. Reserva por canal `bloqueado` → 409
+            `canal_bloqueado`. Fora de produção o `email` é simulado (sem SMTP real).
+          additionalProperties: false
+          properties:
+            portal: { type: string, enum: [ligado, desligado] }
+            email: { type: string, enum: [ligado, desligado] }
+            whatsapp: { type: string, enum: [ligado, desligado, bloqueado] }
+        canais_entrada:
+          type: object
+          description: "[novo] Canais de entrada, separados dos de saída — x-origem: 10-6 E4"
+          additionalProperties: false
+          properties:
+            email: { type: string, enum: [ligado, desligado] }
+            whatsapp: { type: string, enum: [ligado, desligado, bloqueado] }
+        autorizacoes:
+          type: object
+          description: "[novo] Autonomia por fluxo, para o n8n saber o que pode agendar — x-origem: 11-3 §6.3"
+          additionalProperties:
+            type: object
+            additionalProperties: false
+            properties:
+              modo: { type: string, enum: [sombra, assistido, automatico] }
+              nivel_max: { type: integer, minimum: 1, maximum: 6 }
+              limites: { type: object }
+              vence_em: { type: [string, "null"], format: date-time }
+        integracoes:
+          type: object
+          description: "[novo] x-origem: 13 §6.6"
+          properties:
+            eprotocolo:
+              type: object
+              additionalProperties: false
+              properties:
+                ambiente: { type: string, enum: [producao, treinamento, homologacao, simulado, desligado] }
+                consulta: { type: boolean }
+                mutacoes_permitidas: { type: array, items: { type: string, enum: [abrir, anexar, solicitar_assinatura, encaminhar] } }
+                ultima_consulta_ok_em: { type: [string, "null"], format: date-time }
+            central_viagens:
+              type: object
+              additionalProperties: false
+              properties:
+                disponivel: { type: boolean }
+    ComunicacaoResumo:
+      type: object
+      required: [id, tipo, enviar_em, versao]
+      properties:
+        id: { type: integer }
+        tipo: { $ref: "#/components/schemas/TipoComunicacao" }
+        fluxo: { type: string, description: "[novo] fluxo dono (chave de `/estado.fluxos`)" }
+        enviar_em: { type: string, format: date-time }
+        versao: { type: integer }
+        correlacao_id: { type: string }
+        alvo: { $ref: "#/components/schemas/Alvo" }
+        marco: { type: [string, "null"], pattern: "^(saque_d[0-9]+|saque_hoje|saque_vencido)$", description: "[novo] x-origem: 10-3 §6.3" }
+        substitui: { type: [integer, "null"], description: "[novo] comunicação substituída — x-origem: 10-3 §6.3" }
+        finalidade: { type: string, enum: [diario_km], description: "[novo] distingue o lembrete de km — x-origem: 10-4 E3" }
+    ComunicacaoSituacao:
+      type: object
+      description: "[novo] x-origem: 10-2 X8"
+      required: [id, tipo, estado, versao]
+      properties:
+        id: { type: integer }
+        tipo: { $ref: "#/components/schemas/TipoComunicacao" }
+        estado: { type: string, enum: [agendada, enviando, enviada, falhou, desconhecido, sem_contato, cancelada, feita_a_mao] }
+        versao: { type: integer }
+        enviada_em: { type: [string, "null"], format: date-time }
+        provedor_mensagem_id: { type: [string, "null"] }
+        resultado: { type: [string, "null"], enum: [enviada, falha_temporaria, falha_definitiva, resultado_desconhecido, null] }
+        correlacao_id: { type: string }
+    ComunicacaoReservada:
+      type: object
+      required: [id, tipo, canal, destino, mensagem, reserva, versao]
+      properties:
+        id: { type: integer }
+        tipo: { $ref: "#/components/schemas/TipoComunicacao" }
+        versao: { type: integer }
+        correlacao_id: { type: string }
+        canal: { type: string, enum: [email, whatsapp], description: "`whatsapp` hoje nunca sai (canal bloqueado)" }
+        destino: { type: string, description: "endereço verificado; nunca vem no evento, só aqui" }
+        alvo: { $ref: "#/components/schemas/Alvo" }
+        marco: { type: [string, "null"] }
+        substitui: { type: [integer, "null"] }
+        finalidade: { type: string, enum: [diario_km] }
+        conteudo_sensivel:
+          type: boolean
+          description: |
+            [novo] O corpo leva credencial (link). O n8n Community não tem redação por campo: a proteção é
+            o workflow de mensagem não salvar execuções; a marca serve para o PCPR mascarar URL, e-mail e
+            token no `detalhe` de `/excecoes`. — x-origem: 10-4 E5
+        mensagem:
+          type: object
+          properties:
+            modelo: { type: string, description: "modelo de texto aprovado e versionado no PCPR (ex.: `km_vespera_v1`)" }
+            assunto: { type: string }
+            texto: { type: string }
+            variaveis:
+              type: object
+              description: "Para `link_km`, ver `VariaveisLinkKm`. Nunca CPF, RG, telefone, valores de diárias nem conteúdo de documento."
+        link_portal: { type: string, format: uri, description: "[novo] URL **sem token** que exige login — x-origem: 10-2 X6" }
+        itens:
+          type: array
+          description: "[novo] Peças disponibilizadas (envio de documentos) — x-origem: 10-2 X6"
+          items: { $ref: "#/components/schemas/ItemDocumento" }
+        documentos:
+          type: array
+          description: "[novo] Versões para assinatura (DB e RT) — x-origem: 10-5 §6.3"
+          items: { $ref: "#/components/schemas/DocumentoAssinatura" }
+        cabecalhos:
+          type: object
+          description: "[novo] Cabeçalhos do e-mail definidos pelo PCPR — x-origem: 10-2 X6"
+          additionalProperties: false
+          properties:
+            Message-ID: { type: string, description: "= `idempotencia_canal`" }
+            Auto-Submitted: { type: string, enum: [auto-generated] }
+            In-Reply-To: { type: string, description: "respostas no mesmo fio: o Message-ID original que 10-6 E6 chama de `variaveis.em_resposta_a_canal`" }
+        responder_para: { type: string, description: "[novo] endereço institucional de resposta — x-origem: 10-2 X6" }
+        anexos:
+          type: array
+          description: "Preferir link autenticado do portal; arquivo só quando o canal exigir. URL assinada, curta, de uso do n8n. Vazio por padrão."
+          items:
+            type: object
+            properties:
+              nome: { type: string }
+              url_assinada: { type: string, format: uri }
+              sha256: { type: string }
+              expira_em: { type: string, format: date-time }
+        reserva:
+          type: object
+          required: [token, expira_em]
+          properties:
+            token: { type: string }
+            expira_em: { type: string, format: date-time }
+        idempotencia_canal: { type: string, description: "chave estável para o canal (`<pcpr-com-<id>-v<versao>@<domínio>>`)" }
+    VariaveisLinkKm:
+      type: object
+      description: |
+        [novo] Variáveis do `link_km`. **Sem** placa, horário, local de saída ou número do ofício: a
+        mensagem passa pelo n8n e pelo provedor de e-mail. `link_url` é credencial (só existe na
+        resposta da reserva; nunca em evento, log ou exemplo). — x-origem: 10-4 E4
+      additionalProperties: false
+      required: [primeiro_nome, link_url, valido_ate, unidade]
+      properties:
+        primeiro_nome: { type: string }
+        link_url: { type: string, format: uri }
+        valido_ate: { type: string, description: "data por extenso curto, ex.: 20/11/2026" }
+        unidade: { type: string }
+    LinkAcessoMetadados:
+      type: object
+      description: |
+        [novo] Metadados de um link sem login (link de km, assinatura), como aparecem em telas, logs e
+        exceções. O token nunca aparece: o PCPR guarda só o hash. — x-origem: 10-4 §7; AUT-03
+      additionalProperties: false
+      required: [id, escopo, ativo_desde, expira_em]
+      properties:
+        id: { type: integer }
+        escopo: { type: string, enum: [km, documentos, assinatura, relato] }
+        recurso: { type: string, description: "ex.: `diario:204`" }
+        servidor_ref: { type: [integer, "null"] }
+        origem: { type: string, enum: [automatica, manual] }
+        ativo_desde: { type: string, format: date-time }
+        expira_em: { type: string, format: date-time }
+        revogado_em: { type: [string, "null"], format: date-time }
+        motivo_revogacao: { type: [string, "null"], enum: [link_novo, responsavel_trocado, oficio_cancelado, vazamento, manual, null] }
+        exibido_em: { type: [string, "null"], format: date-time }
+        primeiro_lancamento_em: { type: [string, "null"], format: date-time }
+        ultimo_lancamento_em: { type: [string, "null"], format: date-time }
+    ItemDocumento:
+      type: object
+      description: "[novo] x-origem: 10-2 X6"
+      required: [peca, titulo, versao, sha256]
+      properties:
+        peca: { type: string, enum: [oficio, justificativa, termo, ordem_servico, plano] }
+        titulo: { type: string }
+        numero: { type: [string, "null"] }
+        versao: { type: integer }
+        sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+        individual: { type: boolean }
+        substitui:
+          type: [object, "null"]
+          properties:
+            versao: { type: integer }
+            disponibilizada_em: { type: string, format: date-time }
+        situacao: { type: string, enum: [disponivel, em_correcao, substituido, revogado] }
+    DocumentoAssinatura:
+      type: object
+      description: "[novo] x-origem: 10-5 §6.3"
+      required: [versao_id, titulo, codigo, prazo_devolucao]
+      properties:
+        versao_id: { type: integer }
+        titulo: { type: string }
+        numero: { type: [string, "null"] }
+        codigo: { type: string, description: "código impresso no documento para casar a devolução" }
+        prazo_devolucao: { type: string, format: date }
+        link_portal: { type: string, format: uri }
+        url_assinada: { type: string, format: uri, description: "só se o canal exigir arquivo" }
+    ContextoTextosPlano:
+      type: object
+      description: |
+        [novo] Pacote de dados que o PCPR monta para o rascunho por IA dos textos do Plano de Trabalho
+        (servido pela ferramenta `planos.contexto_textos` ou usado direto pelo worker de IA do PCPR).
+        Só fatos do sistema, frases institucionais aprovadas e textos livres já mascarados; nada de CPF,
+        RG, telefone ou e-mail. `assinatura_entrada` = SHA-256 do JSON canônico de `fatos`,
+        `institucional` e da descrição da solicitação. `plano.versao` pressupõe a versão inteira do plano
+        (pré-requisito comum; hoje é `atualizado_em`). — x-origem: 11-2 §6.5
+      additionalProperties: false
+      required: [versao_esquema, plano, assinatura_entrada, pedir, fatos, institucional, textos_livres, limites]
+      properties:
+        versao_esquema: { const: 1 }
+        plano:
+          type: object
+          additionalProperties: false
+          required: [id, versao]
+          properties:
+            id: { type: integer }
+            numero: { type: [string, "null"] }
+            versao: { type: integer, minimum: 1 }
+        assinatura_entrada: { type: string, pattern: "^sha256:[a-f0-9]{64}$" }
+        pedir: { type: array, items: { type: string, enum: [contextualizacao, consideracoes] }, minItems: 1 }
+        fatos:
+          type: array
+          items:
+            type: object
+            required: [id, tipo, valor]
+            properties:
+              id: { type: string, pattern: "^f\\.[a-z0-9_.]+$" }
+              tipo: { type: string }
+              valor: { type: [string, integer] }
+              inicio: { type: string, format: date }
+              fim: { type: string, format: date }
+              meta: { type: string }
+        institucional:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, texto]
+            properties:
+              id: { type: string, pattern: "^i\\.[0-9]+$" }
+              texto: { type: string }
+        textos_livres:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, origem, texto]
+            properties:
+              id: { type: string, pattern: "^t\\.[a-z0-9_.]+$" }
+              origem: { type: string }
+              texto: { type: string, maxLength: 2000, description: "CPF, telefone, e-mail e URL substituídos por [removido]" }
+        lacunas_do_sistema: { type: array, items: { type: string } }
+        limites:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              paragrafos: { type: array, items: { type: integer }, minItems: 2, maxItems: 2 }
+              palavras: { type: array, items: { type: integer }, minItems: 2, maxItems: 2 }
+    ResultadoEnvio:
+      type: object
+      additionalProperties: false
+      required: [reserva_token, resultado]
+      properties:
+        reserva_token: { type: string }
+        resultado: { type: string, enum: [enviada, falha_temporaria, falha_definitiva, resultado_desconhecido] }
+        provedor: { type: string }
+        provedor_mensagem_id: { type: string }
+        erro: { type: string, maxLength: 2000, description: "gravado com URLs, e-mails e tokens mascarados" }
+    Recebimento:
+      type: object
+      required: [id, estado]
+      properties:
+        id: { type: integer }
+        mensagem_id: { type: integer, description: "[novo] `MensagemRecebida` que agrupa os anexos — x-origem: 10-6 E3" }
+        estado:
+          type: string
+          description: |
+            Estados distintos de propósito: arquivo recebido ≠ aceito ≠ identificado ≠ associado ≠
+            assinatura verificada ≠ pendência resolvida ≠ prestação concluída. `descartado` [novo, 10-6 E3]:
+            uma pessoa descartou o arquivo na revisão.
+          enum: [recebido, duplicado, quarentena_remetente, aceito_para_processamento, identificado, revisao_necessaria, associado, pendencia_resolvida, rejeitado, descartado]
+        motivo_codigo:
+          type: [string, "null"]
+          description: "[novo] x-origem: 10-6 E3"
+          enum: [formato_nao_suportado, acima_do_limite, protegido_por_senha, paginas_excedidas, arquivo_danificado, sem_anexo, remetente_nao_verificado, autenticacao_falhou, duplicado_mesma_mensagem, duplicado_conteudo, null]
+        importacao_id: { type: [integer, "null"] }
+        versao_assinatura_id: { type: [integer, "null"], description: "[novo] versão de DB/RT a que a devolução se liga — x-origem: 10-5 §6.3" }
+        motivo_revisao:
+          type: [string, "null"]
+          description: "[novo] x-origem: 10-5 §6.3"
+          enum: [versao_substituida, codigo_ausente, assinatura_nao_detectada, assinante_diferente, prestacao_finalizada, versao_divergente, null]
+        partes:
+          type: array
+          description: "[novo] Um arquivo vira várias partes na importação — x-origem: 10-6 E3"
+          items:
+            type: object
+            properties:
+              tipo: { type: string, description: "um dos tipos da importação, ou vazio" }
+              estado: { type: string, enum: [revisao, anexado, repetido, ignorado] }
+              identificado: { type: boolean }
+              destino: { type: string, description: "rótulo curto, sem CPF" }
+              assinatura: { type: string, enum: [nao_verificada, nao_detectada, presenca_conferida, verificada_icp], description: "o sistema hoje não valida assinatura criptográfica" }
+              pendencias_resolvidas: { type: array, items: { type: string } }
+        destino: { type: string, deprecated: true, description: "rascunho 2; agora por parte (`partes[].destino`)" }
+        assinatura: { type: string, deprecated: true, enum: [nao_verificada, presenca_conferida, verificada_icp], description: "rascunho 2; agora por parte" }
+        resposta_ao_remetente: { type: string, deprecated: true, description: "rascunho 2; o texto passa a ser a comunicação `resposta_recebimento` (10-6 E6)" }
+    ExcecaoPedido:
+      type: object
+      additionalProperties: false
+      required: [fluxo, correlacao_id, motivo]
+      properties:
+        fluxo: { type: string, examples: ["km-vespera", "envio-documentos", "recebimento-canais"] }
+        correlacao_id: { type: string }
+        motivo:
+          type: string
+          description: |
+            Motivos aceitos por esta rota (a mesma lista vale para as exceções que o PCPR abre sozinho).
+            Motivos abertos **só** pelo próprio PCPR são recusados aqui (422): `assinante_indefinido`,
+            `prazo_devolucao_vencido`, `devolucao_versao_vencida`, `geracao_pdf_falhou`,
+            `versao_divergente` (10-5 §6.3).
+          enum:
+            - canal_indisponivel
+            - resultado_desconhecido
+            - destinatario_sem_contato
+            - contato_nao_verificado
+            - documento_nao_identificado
+            - limite_tentativas
+            - documento_nao_pronto            # [novo] 10-2 X7
+            - destinatario_sem_acesso_portal  # [novo] 10-2 X7
+            - devolucao_canal                 # [novo] 10-2 X7 (devolução lida na caixa)
+            - orcamento_atingido              # [novo] 10-1 §6.2
+            - arquivo_nao_baixado             # [novo] 10-6 E7
+            - fila_parada                     # [novo] 10-6 E7
+            - remetente_em_excesso            # [novo] 10-6 E7
+            - infraestrutura_leitura          # [novo] 10-6 E7
+            - outro
+        recurso:
+          type: object
+          description: Registro afetado (ex. comunicação 12), para a fila de exceções apontar a tela certa.
+          additionalProperties: false
+          properties:
+            tipo: { type: string, enum: [comunicacao, recebimento, entrada, pergunta_assistente, evento] }
+            id: { type: integer }
+        detalhe: { type: string, maxLength: 2000, description: "texto técnico curto; gravado com URLs, e-mails e tokens mascarados" }
+        execucao_orquestrador: { type: string, description: "id da execução no n8n, para suporte" }

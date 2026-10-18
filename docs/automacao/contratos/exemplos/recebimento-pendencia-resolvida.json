@@ -1,0 +1,18 @@
+{
+  "id": 3301,
+  "mensagem_id": 1201,
+  "importacao_id": 7709,
+  "estado": "pendencia_resolvida",
+  "motivo_codigo": null,
+  "versao_assinatura_id": 78,
+  "partes": [
+    {
+      "tipo": "relatorio_tecnico",
+      "estado": "anexado",
+      "identificado": true,
+      "destino": "Prestação 431 / RT v1",
+      "assinatura": "presenca_conferida",
+      "pendencias_resolvidas": ["PREST_SEM_RT"]
+    }
+  ]
+}

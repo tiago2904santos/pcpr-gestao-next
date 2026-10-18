@@ -1,0 +1,361 @@
+{
+  "updatedAt": "2026-10-18T02:26:50.000Z",
+  "createdAt": "2026-10-18T02:22:07.862Z",
+  "id": "pcprWhatsStatus1",
+  "name": "PCPR · Status WhatsApp",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "8fcbe9d1-6ea0-5091-8412-1bb8dad23238",
+      "name": "Quando chamado pelo W7",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c620239-cad3-511a-859d-34007af31bfc",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8765/api/automacao/v1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "a47fdfc9-ec36-5e56-ab25-ba80ae13d5fd",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// sent → nada (o resultado já registrou o aceite); delivered → entregue; read → lida;\n// failed → falhou. A comunicação vem de biz_opaque_callback_data ('com:<id>') quando houver.\nconst MAPA = { delivered: 'entregue', read: 'lida', failed: 'falhou' };\nconst cfg = $('Configuração').first().json;\nconst saida = [];\nfor (const it of $('Quando chamado pelo W7').all()) {\n  const s = it.json;\n  const status = MAPA[s.status];\n  if (!status) continue;\n  const m = /^com:(\\d+)$/.exec(String(s.biz_opaque_callback_data || ''));\n  const e = (s.errors || [])[0] || null;\n  saida.push({ json: {\n    cfg_pcpr: cfg.cfg_pcpr,\n    comunicacao_id: m ? Number(m[1]) : null,\n    wamid: String(s.id || ''),\n    status,\n    ocorrido_em: new Date(Number(s.timestamp || 0) * 1000).toISOString(),\n    erro: e ? ('código ' + e.code + ': ' + String(e.title || e.message || '')).slice(0, 300) : '',\n  } });\n}\nreturn saida;"
+      },
+      "id": "adb64935-9034-5470-a69d-f3b471d37765",
+      "name": "Mapear status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bbee6dc1-dea9-5f8d-9ac2-bb9074ed7a6e",
+              "leftValue": "={{ $json.comunicacao_id !== null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3a491a30-064d-590e-8fa8-b15d792af9c9",
+      "name": "Tem comunicação?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_pcpr }}/comunicacoes?provedor_mensagem_id={{ encodeURIComponent($json.wamid) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "3abec23d-cebd-5fdb-b470-ef32b7315603",
+      "name": "Buscar pelo wamid",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Sem biz_opaque_callback_data: o PCPR resolve pelo mapeamento wamid → comunicação.\nconst ev = $('Mapear status').item.json;\nconst achado = ($json.itens || [])[0];\nreturn { json: { ...ev, comunicacao_id: achado ? achado.id : null } };"
+      },
+      "id": "30ee28ca-9231-5e8a-85b1-52aee751aabf",
+      "name": "Usar id encontrado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a8e0e9b6-35e0-5be8-bb98-5b0e34ab6bab",
+              "leftValue": "={{ $json.comunicacao_id !== null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ec29d409-f991-556d-8aa3-26043290cc1b",
+      "name": "Achou?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        420
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f6920070-11c4-515a-b7c2-665ff84d692d",
+      "name": "Wamid desconhecido (ignorado)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cfg_pcpr }}/comunicacoes/{{ $json.comunicacao_id }}/entrega",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=entrega:{{ $json.comunicacao_id }}:{{ $json.wamid }}:{{ $json.status }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "7dfd083a-a39e-53b6-ad95-94e1729ed249",
+      "name": "Registrar entrega",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Quando chamado pelo W7": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Mapear status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapear status": {
+      "main": [
+        [
+          {
+            "node": "Tem comunicação?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar pelo wamid": {
+      "main": [
+        [
+          {
+            "node": "Usar id encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usar id encontrado": {
+      "main": [
+        [
+          {
+            "node": "Achou?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem comunicação?": {
+      "main": [
+        [
+          {
+            "node": "Registrar entrega",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar pelo wamid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Achou?": {
+      "main": [
+        [
+          {
+            "node": "Registrar entrega",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wamid desconhecido (ignorado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "46f3894a-165d-4083-8302-b98cfae8eaab",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T02:22:07.865Z",
+      "createdAt": "2026-10-18T02:22:07.865Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprWhatsStatus1",
+      "projectId": "HhFOQ8OqUraQKQ1M",
+      "project": {
+        "updatedAt": "2026-10-18T02:21:55.864Z",
+        "createdAt": "2026-10-18T02:21:55.864Z",
+        "id": "HhFOQ8OqUraQKQ1M",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "c8000cae-c045-4496-81bd-c50027e66050"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

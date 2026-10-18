@@ -1,0 +1,358 @@
+{
+  "updatedAt": "2026-10-18T02:36:24.000Z",
+  "createdAt": "2026-10-18T02:31:50.288Z",
+  "id": "pcprRecebimento1",
+  "name": "PCPR · Recebimento de arquivo",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "canal-recebimento",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "a6af0266-3ead-5a34-a60b-3b5c82e2b302",
+      "name": "Webhook do canal",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "30671fba-17cd-5446-b77a-8b30be98b50e",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalWebhk01",
+          "name": "Canal · token do webhook de entrada"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4cbdd6aa-6618-5997-bf23-b8493f9967af",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8765/api/automacao/v1",
+              "type": "string"
+            },
+            {
+              "id": "6180400c-dd54-5909-94fe-4eb0f6d2fbee",
+              "name": "cfg_canal",
+              "value": "http://host.docker.internal:8766",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "e331e64e-4146-5b55-9d0b-2e5b56709cfd",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_canal }}/arquivos/{{ $json.body.arquivo.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "arquivo"
+            }
+          }
+        }
+      },
+      "id": "ef1d4e7a-086b-555a-90ee-428ac1d717b8",
+      "name": "Baixar arquivo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalApi0001",
+          "name": "Canal · chave de envio"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "binaryData": true,
+        "binaryPropertyName": "arquivo",
+        "dataPropertyName": "sha256",
+        "encoding": "hex"
+      },
+      "id": "a0b3a2a5-4c34-56eb-844f-368f034cb024",
+      "name": "Calcular SHA-256",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { sha256: $json.sha256 }, binary: $('Baixar arquivo').first().binary }];"
+      },
+      "id": "65dc5447-edb7-568b-a31c-f0844a44327b",
+      "name": "Reanexar arquivo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/recebimentos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=recebimento:{{ $('Configuração').first().json.body.canal }}:{{ $('Configuração').first().json.body.mensagem_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "arquivo",
+              "inputDataFieldName": "arquivo"
+            },
+            {
+              "parameterType": "formData",
+              "name": "canal",
+              "value": "={{ $('Configuração').first().json.body.canal }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "mensagem_id_canal",
+              "value": "={{ $('Configuração').first().json.body.mensagem_id }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "remetente",
+              "value": "={{ $('Configuração').first().json.body.remetente }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "recebido_em",
+              "value": "={{ $('Configuração').first().json.body.recebido_em }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "sha256",
+              "value": "={{ $json.sha256 }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "em_resposta_a_comunicacao",
+              "value": "={{ $('Configuração').first().json.body.em_resposta_a_comunicacao ?? '' }}"
+            }
+          ]
+        }
+      },
+      "id": "1d0a18c6-ebe9-5c89-b35c-5f1a43ce1aee",
+      "name": "Entregar ao PCPR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "adc2bf3a-cea0-5d3e-8c0a-e3e0eb546e9c",
+              "name": "recebimento_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "3f68f6df-562c-5226-97ba-8184393a8ca8",
+              "name": "estado",
+              "value": "={{ $json.estado }}",
+              "type": "string"
+            },
+            {
+              "id": "8da94017-09f5-5cc5-9dc8-70cd17661e18",
+              "name": "mensagem_id_canal",
+              "value": "={{ $('Configuração').first().json.body.mensagem_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "5498690c-0ca3-53bc-8716-58cf8eef84cb",
+      "name": "Registrar recebimento",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook do canal": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Baixar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Calcular SHA-256",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular SHA-256": {
+      "main": [
+        [
+          {
+            "node": "Reanexar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reanexar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Entregar ao PCPR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entregar ao PCPR": {
+      "main": [
+        [
+          {
+            "node": "Registrar recebimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "c46a4199-d0fc-4eb6-bf4e-11c3a7e5490f",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T02:31:50.290Z",
+      "createdAt": "2026-10-18T02:31:50.290Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprRecebimento1",
+      "projectId": "GLb7qKJjiCdX9SjK",
+      "project": {
+        "updatedAt": "2026-10-18T02:31:42.047Z",
+        "createdAt": "2026-10-18T02:31:42.047Z",
+        "id": "GLb7qKJjiCdX9SjK",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "3db6426f-06b9-466d-842f-0448ed7e9873"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

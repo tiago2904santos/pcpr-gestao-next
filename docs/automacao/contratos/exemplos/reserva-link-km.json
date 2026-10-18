@@ -1,0 +1,27 @@
+{
+  "id": 41,
+  "tipo": "link_km",
+  "versao": 1,
+  "correlacao_id": "viagem:812",
+  "canal": "email",
+  "destino": "motorista.exemplo@exemplo.invalid",
+  "alvo": {"tipo": "diario", "id": 204},
+  "finalidade": "diario_km",
+  "conteudo_sensivel": true,
+  "mensagem": {
+    "modelo": "km_vespera_v1",
+    "assunto": "[PCPR] Link para lançar a quilometragem",
+    "texto": "Olá, Bruno. Este é o link para lançar a quilometragem da sua próxima viagem: {link_url} (vale até 20/11/2026). Unidade Exemplo.",
+    "variaveis": {
+      "primeiro_nome": "Bruno",
+      "link_url": "https://pcpr.example.invalid/km/EXEMPLO-SEM-TOKEN/",
+      "valido_ate": "20/11/2026",
+      "unidade": "Unidade Exemplo"
+    }
+  },
+  "cabecalhos": {"Message-ID": "<pcpr-com-41-v1@pcpr.example.invalid>", "Auto-Submitted": "auto-generated"},
+  "responder_para": "viagens@pcpr.example.invalid",
+  "anexos": [],
+  "reserva": {"token": "rsv_EXEMPLO_SINTETICO_41", "expira_em": "2026-11-11T12:10:00Z"},
+  "idempotencia_canal": "<pcpr-com-41-v1@pcpr.example.invalid>"
+}

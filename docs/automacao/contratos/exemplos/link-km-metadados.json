@@ -1,0 +1,14 @@
+{
+  "id": 63,
+  "escopo": "km",
+  "recurso": "diario:204",
+  "servidor_ref": 15,
+  "origem": "automatica",
+  "ativo_desde": "2026-11-11T00:00:00-03:00",
+  "expira_em": "2026-11-20T23:59:59-03:00",
+  "revogado_em": null,
+  "motivo_revogacao": null,
+  "exibido_em": null,
+  "primeiro_lancamento_em": "2026-11-12T06:41:12-03:00",
+  "ultimo_lancamento_em": "2026-11-13T18:05:47-03:00"
+}

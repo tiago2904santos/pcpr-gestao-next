@@ -1,0 +1,16 @@
+{
+  "id": "2b3c4d5e-6f7a-4b8c-8d9e-0f1a2b3c4d18",
+  "tipo": "operacao_institucional.aguardando_aprovacao",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-04T15:05:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "operacao_institucional", "id": 12, "versao": 1},
+  "correlacao_id": "oficio:131",
+  "causa_id": null,
+  "dados": {
+    "sistema": "eprotocolo",
+    "operacao": "abrir",
+    "pedido_aprovacao_id": 340,
+    "expira_em": "2026-11-04T18:00:00-03:00"
+  }
+}

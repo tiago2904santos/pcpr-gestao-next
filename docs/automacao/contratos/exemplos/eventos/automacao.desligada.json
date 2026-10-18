@@ -1,0 +1,11 @@
+{
+  "id": "c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e12",
+  "tipo": "automacao.desligada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-20T18:01:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "chave_automacao", "id": 1, "versao": 9},
+  "correlacao_id": "automacao:geral",
+  "causa_id": null,
+  "dados": {"fluxo": null, "motivo_codigo": "incidente"}
+}

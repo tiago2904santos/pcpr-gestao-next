@@ -1,0 +1,579 @@
+{
+  "inicio": "2026-10-17T23:31:35-03:00",
+  "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
+  "python": "3.13.15",
+  "cenarios": [
+    {
+      "id": "T11",
+      "nome": "regra da véspera (unitário)",
+      "passou": true,
+      "evidencia": {
+        "testes": 18,
+        "falhas": []
+      }
+    },
+    {
+      "id": "T1",
+      "nome": "evento válido → exatamente 1 envio e 1 resultado",
+      "evidencia": {
+        "comunicacao_id": 2,
+        "respostas_n8n": [
+          202,
+          202
+        ],
+        "envios_no_canal": 1,
+        "resultados_registrados": 1,
+        "reservas": 1,
+        "estado_final": "enviada",
+        "provedor_mensagem_id": "sim-0fdacab3327d4df6b5ee",
+        "envelopes_validados_contra_schema": 2,
+        "chave_idempotencia_reserva": "reserva:2:v1:exec4"
+      },
+      "passou": true,
+      "segundos": 3.8
+    },
+    {
+      "id": "T2",
+      "nome": "mesmo evento reenviado (em série e 5x em paralelo) → continua 1 envio",
+      "evidencia": {
+        "a_reentregas_sequenciais": {
+          "reentregas": 2,
+          "respostas_n8n": [
+            202,
+            202
+          ],
+          "envios_no_canal": 1,
+          "chamadas_novas_ao_pcpr": 0,
+          "observacao": "barrado no n8n (Remove Duplicates entre execuções)"
+        },
+        "b_cinco_entregas_simultaneas": {
+          "respostas_n8n": [
+            202,
+            202,
+            202,
+            202,
+            202
+          ],
+          "execucoes_que_passaram_pela_dedup_e_tentaram_reservar": 1,
+          "reservas_por_status": {
+            "200": 1
+          },
+          "envios_no_canal": 1
+        },
+        "c_evento_com_outro_id_mesma_comunicacao": {
+          "resposta_n8n": 202,
+          "reserva": [
+            409
+          ],
+          "codigo": "ja_processada",
+          "envios_no_canal": 1,
+          "observacao": "a dedup do n8n não pega (id novo); o PCPR barra"
+        }
+      },
+      "passou": true,
+      "segundos": 12.2
+    },
+    {
+      "id": "T3",
+      "nome": "assinatura inválida/antiga/adulterada/outro ambiente → 401 e 0 envio",
+      "evidencia": {
+        "respostas_invalidas": {
+          "assinatura_invalida": 401,
+          "antigo": 401,
+          "corpo_adulterado": 401,
+          "sem_assinatura": 401,
+          "outro_ambiente": 401
+        },
+        "envios_com_eventos_invalidos": 0,
+        "controle_positivo": {
+          "status": 202,
+          "envios": 1
+        }
+      },
+      "passou": true,
+      "segundos": 4.8
+    },
+    {
+      "id": "T4",
+      "nome": "evento obsoleto (reagendada / versão antiga) → 409 e 0 envio",
+      "evidencia": {
+        "a_reagendada": {
+          "comunicacao_antiga": 8,
+          "resposta_n8n": 202,
+          "reserva": [
+            409
+          ],
+          "codigo": "obsoleta",
+          "envios": 0,
+          "nova_comunicacao": 9,
+          "nova_enviar_em": "2026-10-26T09:00:00-03:00",
+          "eventos_do_reagendamento": {
+            "viagem.reagendada": 202,
+            "comunicacao.cancelada": 202,
+            "comunicacao.agendada": 202
+          }
+        },
+        "b_versao_antiga": {
+          "comunicacao": 11,
+          "evento_v1": 202,
+          "reserva_v1": [
+            409,
+            "conflito_de_versao"
+          ],
+          "evento_v2": 202,
+          "envios_v2": 1
+        }
+      },
+      "passou": true,
+      "segundos": 6.4
+    },
+    {
+      "id": "T5",
+      "nome": "automação desligada → 423/encerra, 0 envio, segue agendada",
+      "evidencia": {
+        "a_desligada_antes": {
+          "comunicacao": 13,
+          "reservas": 0,
+          "estado": "agendada"
+        },
+        "b_desligada_no_meio": {
+          "comunicacao": 15,
+          "reserva": [
+            423
+          ],
+          "estado": "agendada",
+          "envios": 0
+        },
+        "c_religada_reconciliacao": {
+          "resposta": {
+            "devidas": 2
+          },
+          "envios": {
+            "13": 1,
+            "15": 1
+          }
+        }
+      },
+      "passou": true,
+      "segundos": 7.4
+    },
+    {
+      "id": "T6",
+      "nome": "canal falha 1x e aceita → 1 envio efetivo e 1 resultado",
+      "evidencia": {
+        "tentativas_no_canal": [
+          500,
+          200
+        ],
+        "envios_efetivos": 1,
+        "resultados": [
+          "enviada"
+        ],
+        "intervalo_entre_tentativas_s": 1.03
+      },
+      "passou": true,
+      "segundos": 4.4
+    },
+    {
+      "id": "T7",
+      "nome": "canal sempre falha → exceção, sem loop",
+      "evidencia": {
+        "tentativas": 3,
+        "tentativas_apos_reconciliacao": 3,
+        "reconciliacao": {
+          "devidas": 0
+        },
+        "estado": "falhou",
+        "excecao": {
+          "motivo": "limite_tentativas",
+          "origem": "n8n",
+          "fluxo": "km-vespera",
+          "detalhe": "comunicacao 19: 500 - \"{\\\"erro\\\":\\\"falha simulada do provedor\\\"}\" (HTTP 500)",
+          "execucao_orquestrador": "41"
+        }
+      },
+      "passou": true,
+      "segundos": 12.8
+    },
+    {
+      "id": "T8",
+      "nome": "evento perdido → reconciliação envia 1 vez",
+      "evidencia": {
+        "evento_entregue_ao_n8n": false,
+        "reconciliacao_1": {
+          "devidas": 1
+        },
+        "reconciliacao_2": {
+          "devidas": 0
+        },
+        "envios": 1
+      },
+      "passou": true,
+      "segundos": 3.4
+    },
+    {
+      "id": "T9",
+      "nome": "arquivo devolvido 2x (mesmo id) → 1 recebimento",
+      "evidencia": {
+        "webhooks_do_canal": [
+          200,
+          200
+        ],
+        "posts_recebimentos": 2,
+        "recebimentos": 1,
+        "segunda_chamada_replay": true,
+        "chave": "recebimento:email:msg.sim.T9.6add631e",
+        "sha256_conferido": true,
+        "tamanho_bytes": 634,
+        "estado": "aceito_para_processamento"
+      },
+      "passou": true,
+      "segundos": 3.8
+    },
+    {
+      "id": "T10",
+      "nome": "reinício do n8n no meio → nada duplicado, reconciliação completa",
+      "evidencia": {
+        "lease_s": 15,
+        "tempo_para_voltar_s": 20.8,
+        "reentrega_evento_A_pos_reinicio": 202,
+        "reconciliacao": {
+          "devidas": 2
+        },
+        "reconciliacao_final": {
+          "devidas": 0
+        },
+        "por_comunicacao": {
+          "25": {
+            "grupo": "A",
+            "antes_da_queda": "enviando",
+            "estado": "falhou",
+            "resultado": "resultado_desconhecido",
+            "envios": 1,
+            "excecoes": [
+              "resultado_desconhecido"
+            ]
+          },
+          "27": {
+            "grupo": "A",
+            "antes_da_queda": "enviando",
+            "estado": "falhou",
+            "resultado": "resultado_desconhecido",
+            "envios": 1,
+            "excecoes": [
+              "resultado_desconhecido"
+            ]
+          },
+          "29": {
+            "grupo": "A",
+            "antes_da_queda": "enviando",
+            "estado": "falhou",
+            "resultado": "resultado_desconhecido",
+            "envios": 1,
+            "excecoes": [
+              "resultado_desconhecido"
+            ]
+          },
+          "31": {
+            "grupo": "A",
+            "antes_da_queda": "enviando",
+            "estado": "falhou",
+            "resultado": "resultado_desconhecido",
+            "envios": 1,
+            "excecoes": [
+              "resultado_desconhecido"
+            ]
+          },
+          "33": {
+            "grupo": "B",
+            "antes_da_queda": null,
+            "estado": "enviada",
+            "resultado": "enviada",
+            "envios": 1,
+            "excecoes": []
+          },
+          "35": {
+            "grupo": "B",
+            "antes_da_queda": null,
+            "estado": "enviada",
+            "resultado": "enviada",
+            "envios": 1,
+            "excecoes": []
+          }
+        },
+        "duplicados_no_canal": 0,
+        "segundos_entre_queda_e_volta": 30.3
+      },
+      "passou": true,
+      "segundos": 32.6
+    },
+    {
+      "id": "T12",
+      "nome": "erro inesperado num fluxo → W5 abre exceção",
+      "evidencia": {
+        "excecoes_w5": [
+          {
+            "fluxo": "n8n:PCPR · Entregar comunicação",
+            "motivo": "outro",
+            "detalhe": "The service was not able to process your request (nó: Consultar estado)",
+            "execucao_orquestrador": "71"
+          }
+        ],
+        "envio_apos_normalizar": 1,
+        "reconciliacao": {
+          "devidas": 1
+        }
+      },
+      "passou": true,
+      "segundos": 4.7
+    },
+    {
+      "id": "T13",
+      "nome": "nenhum destino, link-credencial ou token de reserva retido nas execuções do n8n",
+      "evidencia": {
+        "logo_apos_os_cenarios": {
+          "ocorrencias": {
+            "link_km": 0,
+            "destino": 0,
+            "token_reserva": 0
+          },
+          "onde": {}
+        },
+        "segundos_ate_zerar": 0.7,
+        "tabelas_de_execucao_no_fim": {
+          "execution_data": 27,
+          "execution_metadata": 0,
+          "execution_annotations": 0,
+          "execution_annotation_tags": 0,
+          "execution_entity": 27
+        },
+        "ocorrencias_no_fim": {
+          "link_km": 0,
+          "destino": 0,
+          "token_reserva": 0
+        }
+      },
+      "passou": true,
+      "segundos": 0.7
+    }
+  ],
+  "metricas": {
+    "memoria_repouso_antes_mib": {
+      "min": 396.4,
+      "mediana": 396.5,
+      "max": 397.0,
+      "espera_s": 45
+    },
+    "latencia_evento_envio": {
+      "sequencial_20": {
+        "evento_ate_envio_ms": {
+          "p50": 188.5,
+          "p95": 237.8,
+          "min": 170.7,
+          "max": 241.2,
+          "media": 196.8
+        },
+        "evento_ate_resposta_202_ms": {
+          "p50": 71.5,
+          "p95": 106.1
+        },
+        "evento_ate_reserva_no_pcpr_ms": {
+          "p50": 155.8,
+          "p95": 197.0
+        }
+      },
+      "rajada_20_simultaneos": {
+        "evento_ate_envio_ms": {
+          "p50": 2870.6,
+          "p95": 3263.4,
+          "min": 1335.0,
+          "max": 3301.1,
+          "media": 2637.9
+        },
+        "evento_ate_resposta_202_ms": {
+          "p50": 716.5,
+          "p95": 1039.5
+        },
+        "evento_ate_reserva_no_pcpr_ms": {
+          "p50": 2700.3,
+          "p95": 3208.0
+        }
+      },
+      "definicao": "t0 = POST do evento ao n8n (emissor do PCPR); fim = canal simulado registra o envio. Mesmo relógio (mesma máquina)."
+    },
+    "memoria_durante_testes_mib": {
+      "max": 856.5,
+      "mediana": 473.0,
+      "amostras": 48,
+      "max_por_fase": {
+        "T1": 426.0,
+        "T2": 460.6,
+        "T3": 448.0,
+        "T4": 460.5,
+        "T5": 467.3,
+        "T6": 480.0,
+        "T7": 491.6,
+        "T8": 478.6,
+        "T9": 480.6,
+        "T10": 706.2,
+        "T12": 631.5,
+        "latencia (20 sequenciais + rajada de 20)": 856.5
+      }
+    },
+    "memoria_repouso_depois_mib": {
+      "min": 403.1,
+      "mediana": 403.1,
+      "max": 403.4,
+      "espera_s": 45
+    },
+    "banco_n8n_bytes": {
+      "database.sqlite": 3432448,
+      "database.sqlite-shm": 32768,
+      "database.sqlite-wal": 4144752
+    }
+  },
+  "preparacao": {
+    "segundos": 41.2,
+    "saida_cli": [
+      "Note: Changes will not take effect if n8n is running.",
+      "Please restart n8n for changes to take effect if n8n is currently running.",
+      "pcprEntradaEvt01|PCPR · Entrada de eventos",
+      "pcprEntregaCom01|PCPR · Entregar comunicação",
+      "pcprReconcilia01|PCPR · Reconciliação",
+      "pcprRecebimento1|PCPR · Recebimento de arquivo",
+      "pcprErros0000001|PCPR · Erros",
+      "pcprEntradaEvt01",
+      "pcprEntregaCom01",
+      "pcprReconcilia01",
+      "pcprRecebimento1",
+      "pcprErros0000001"
+    ]
+  },
+  "primeira_subida_s": 8.8,
+  "config_efetiva": {
+    "diagnostics": false,
+    "versionNotifications": false,
+    "whatsNew": false,
+    "templates": false,
+    "personalization": false,
+    "dynamicBanners": false,
+    "hiringBanner": false,
+    "licenseAutoRenew": false,
+    "ai": false,
+    "publicApiDisabled": true,
+    "ssrf": {
+      "enabled": true,
+      "allowedHostnames": [
+        "host.docker.internal"
+      ]
+    },
+    "prune": {
+      "on": true,
+      "maxAgeH": 168,
+      "maxCount": 5000
+    },
+    "timezone": "America/Sao_Paulo",
+    "runnersMode": "internal",
+    "db": "sqlite"
+  },
+  "n8n_log_final": [
+    "    at Object.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/factory.ts:167:11)",
+    "",
+    "The service was not able to process your request",
+    "500 - \"{\\\"codigo\\\":\\\"integracao_indisponivel\\\",\\\"mensagem\\\":\\\"falha simulada\\\"}\"",
+    "AxiosError: Request failed with status code 500",
+    "    at settle (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:2530:12)",
+    "    at RedirectableRequest.handleResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:4731:9)",
+    "    at RedirectableRequest.emit (node:events:526:24)",
+    "    at RedirectableRequest._processResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:424:10)",
+    "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
+    "    at ClientRequest.wrapper (node:events:639:12)",
+    "    at ClientRequest.emit (node:events:514:20)",
+    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
+    "    at Socket.socketOnData (node:_http_client:808:22)",
+    "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
+    "    at processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "    at invokeAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/axios/invoke.ts:15:10)",
+    "    at executeLegacyRequest (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/legacy-request.ts:84:6)",
+    "    at Object.requestLegacy (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/outbound-http.ts:215:13)",
+    "    at proxyRequestToAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/legacy-request-adapter.ts:28:9)",
+    "    at Object.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/factory.ts:167:11)",
+    "",
+    "The connection was aborted, perhaps the server is offline",
+    "timeout of 10000ms exceeded",
+    "AxiosError: timeout of 10000ms exceeded",
+    "    at createTimeoutError (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:4308:14)",
+    "    at RedirectableRequest.handleTimeout (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:4842:15)",
+    "    at RedirectableRequest.emit (node:events:514:20)",
+    "    at Timeout._onTimeout (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:233:12)",
+    "    at listOnTimeout (node:internal/timers:685:17)",
+    "    at processTimers (node:internal/timers:618:7)",
+    "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
+    "    at processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "    at invokeAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/axios/invoke.ts:15:10)",
+    "    at executeLegacyRequest (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/legacy-request.ts:84:6)",
+    "    at Object.requestLegacy (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/outbound-http.ts:215:13)",
+    "    at proxyRequestToAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/legacy-request-adapter.ts:28:9)",
+    "    at Object.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/factory.ts:167:11)",
+    ""
+  ],
+  "exportacao": {
+    "cli": [
+      "All workflows unpublished successfully",
+      "Note: Changes will not take effect if n8n is running.",
+      "Please restart n8n for changes to take effect if n8n is currently running.",
+      "Successfully exported 5 workflows.",
+      "Successfully exported 5 credentials.",
+      "FIM"
+    ],
+    "arquivos": {
+      "w1-entrada-de-eventos.json": {
+        "active": false,
+        "nos": 14,
+        "credenciais": [
+          "pcprHmacEventos1"
+        ]
+      },
+      "w2-entregar-comunicacao.json": {
+        "active": false,
+        "nos": 21,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprCanalApi0001"
+        ]
+      },
+      "w3-reconciliacao.json": {
+        "active": false,
+        "nos": 11,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprWebhookInt01"
+        ]
+      },
+      "w4-recebimento-de-arquivo.json": {
+        "active": false,
+        "nos": 7,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprCanalApi0001",
+          "pcprCanalWebhk01"
+        ]
+      },
+      "w5-erros.json": {
+        "active": false,
+        "nos": 3,
+        "credenciais": [
+          "pcprApiToken0001"
+        ]
+      }
+    },
+    "credenciais_criptografadas_no_banco": true
+  },
+  "limpeza": {
+    "conteiner_existe": false,
+    "portas_ainda_abertas": []
+  },
+  "fim": "2026-10-17T23:36:38-03:00",
+  "segredos_no_relatorio": []
+}

@@ -1,0 +1,11 @@
+{
+  "id": "3f1c0a52-8b7e-4d21-9c4a-1e0b7d6a2f01",
+  "tipo": "viagem.confirmada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-03T13:10:44Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "viagem", "id": 812, "versao": 3},
+  "correlacao_id": "viagem:812",
+  "causa_id": null,
+  "dados": {"inicio_previsto": "2026-11-10T06:30:00-03:00"}
+}
