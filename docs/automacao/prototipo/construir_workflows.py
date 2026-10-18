@@ -1029,9 +1029,11 @@ return [{ json: { ...base, passo: 'excecao', motivo_excecao,
 """
 
 JS_CLASSIFICAR_DOWNLOAD_W4 = r"""
-// Falha no download do anexo no canal: 404/410 = o anexo não existe mais (permanente) →
-// /recebimentos/sem-arquivo com motivo nao_baixado (o PCPR abre a exceção arquivo_nao_baixado,
-// contrato). Qualquer outra falha (rede, 5xx, 429...) → reentregar (503).
+// Falha no download do anexo no canal. 4xx estável (404/410 o anexo não existe mais; 400, 405,
+// 415, 422… id malformado ou anexo não suportado) = permanente → /recebimentos/sem-arquivo com
+// motivo nao_baixado (o PCPR abre a exceção arquivo_nao_baixado, contrato) e resposta final ao
+// canal. Só o que pode passar sozinho volta para reentrega (503): rede, 5xx, 408, 425, 429 e
+// 401/403 (credencial do canal: problema de configuração; se persistir, vira fila_parada).
 const ctx = $('Anexo atual').first().json;
 const e = $input.first().json.error || {};
 const texto = JSON.stringify(e) + ' ' + String(e.message || '');
@@ -1043,7 +1045,8 @@ if (!sc) {
 }
 const descr = 'download: ' + (sc ? 'HTTP ' + sc : String(e.message || e.code || 'erro de rede'))
   .slice(0, 200);
-if (sc === 404 || sc === 410) {
+const transitorio = [401, 403, 408, 425, 429].includes(sc);
+if (sc >= 400 && sc < 500 && !transitorio) {
   return [{ json: { ...ctx, passo: 'sem_arquivo', motivo: 'nao_baixado',
     ultima_resposta: descr } }];
 }

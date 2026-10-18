@@ -1,5 +1,5 @@
 {
-  "inicio": "2026-10-18T09:17:16-03:00",
+  "inicio": "2026-10-18T10:28:40-03:00",
   "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
   "python": "3.13.15",
   "cenarios": [
@@ -55,7 +55,7 @@
         "resultados_registrados": 1,
         "reservas": 1,
         "estado_final": "enviada",
-        "provedor_mensagem_id": "sim-e26bf864c1f644398ce2",
+        "provedor_mensagem_id": "sim-ff9ccfa4293849d692d1",
         "envelopes_validados_contra_schema": {
           "quantos": 2,
           "tipos": [
@@ -97,7 +97,7 @@
             "$.id: 'nao-e-uuid' não é uuid"
           ]
         },
-        "chave_idempotencia_reserva": "reserva:2:v1:exec4"
+        "chave_idempotencia_reserva": "reserva:2:v1:exec5"
       },
       "passou": true,
       "segundos": 3.8
@@ -141,7 +141,7 @@
         }
       },
       "passou": true,
-      "segundos": 12.1
+      "segundos": 12.2
     },
     {
       "id": "T3",
@@ -240,7 +240,7 @@
         }
       },
       "passou": true,
-      "segundos": 7.2
+      "segundos": 7.1
     },
     {
       "id": "T6",
@@ -254,7 +254,7 @@
         "resultados": [
           "enviada"
         ],
-        "intervalo_entre_tentativas_s": 1.02,
+        "intervalo_entre_tentativas_s": 1.04,
         "excecoes": 0
       },
       "passou": true,
@@ -321,7 +321,7 @@
         "envios": 1
       },
       "passou": true,
-      "segundos": 3.4
+      "segundos": 3.3
     },
     {
       "id": "T9",
@@ -334,7 +334,7 @@
         "posts_recebimentos": 2,
         "recebimentos": 1,
         "segunda_chamada_replay": true,
-        "chave": "receb:email:msg.sim.T9.4c71cba9:0",
+        "chave": "receb:email:msg.sim.T9.9f10cef8:0",
         "sha256_conferido": true,
         "tamanho_bytes": 634,
         "estado": "aceito_para_processamento"
@@ -347,7 +347,7 @@
       "nome": "reinício do n8n no meio → nada duplicado, reconciliação completa",
       "evidencia": {
         "lease_s": 15,
-        "tempo_para_voltar_s": 20.8,
+        "tempo_para_voltar_s": 19.0,
         "reentrega_evento_A_pos_reinicio": 202,
         "reconciliacao": {
           "devidas": 2
@@ -414,10 +414,10 @@
           }
         },
         "duplicados_no_canal": 0,
-        "segundos_entre_queda_e_volta": 30.2
+        "segundos_entre_queda_e_volta": 28.2
       },
       "passou": true,
-      "segundos": 32.3
+      "segundos": 30.3
     },
     {
       "id": "T12",
@@ -428,7 +428,7 @@
             "fluxo": "n8n:PCPR · Entregar comunicação",
             "motivo": "outro",
             "detalhe": "The service was not able to process your request (nó: Consultar estado)",
-            "execucao_orquestrador": "77"
+            "execucao_orquestrador": "78"
           }
         ],
         "envio_apos_normalizar": 1,
@@ -437,7 +437,7 @@
         }
       },
       "passou": true,
-      "segundos": 5.0
+      "segundos": 4.8
     },
     {
       "id": "T14",
@@ -469,7 +469,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.3
+      "segundos": 17.2
     },
     {
       "id": "T15",
@@ -492,7 +492,7 @@
         }
       },
       "passou": true,
-      "segundos": 13.6
+      "segundos": 13.5
     },
     {
       "id": "T16",
@@ -502,11 +502,11 @@
           "entregas_do_canal": [
             200
           ],
-          "ms_da_1a_entrega": 462.3,
+          "ms_da_1a_entrega": 304.9,
           "prazo_ms": 20000,
           "chaves": [
-            "receb:email:msg.sim.T16.3cdf4a7c:0",
-            "receb:email:msg.sim.T16.3cdf4a7c:1"
+            "receb:email:msg.sim.T16.6574cddd:0",
+            "receb:email:msg.sim.T16.6574cddd:1"
           ],
           "recebimentos": [
             {
@@ -551,7 +551,7 @@
         }
       },
       "passou": true,
-      "segundos": 1.2
+      "segundos": 0.9
     },
     {
       "id": "T17",
@@ -584,7 +584,7 @@
         }
       },
       "passou": true,
-      "segundos": 2.0
+      "segundos": 1.7
     },
     {
       "id": "T18",
@@ -613,7 +613,7 @@
         "duplicados": 2
       },
       "passou": true,
-      "segundos": 1.0
+      "segundos": 0.8
     },
     {
       "id": "T19",
@@ -684,6 +684,24 @@
             202
           ],
           "excecao": "arquivo_nao_baixado (aberta pelo PCPR)"
+        },
+        "e2_e3_download_4xx": {
+          "422_definitivo": {
+            "entregas_do_canal": [
+              200
+            ],
+            "sem_arquivo": [
+              202
+            ],
+            "excecao": "arquivo_nao_baixado (aberta pelo PCPR)"
+          },
+          "429_transitorio": {
+            "entregas_do_canal": [
+              503,
+              503
+            ],
+            "sem_arquivo": 0
+          }
         },
         "f_recusa_que_muda_entre_entregas": {
           "entregas_do_canal": [
@@ -789,7 +807,7 @@
         }
       },
       "passou": true,
-      "segundos": 8.2
+      "segundos": 7.3
     },
     {
       "id": "T13",
@@ -798,13 +816,13 @@
         "logo_apos_os_cenarios": {
           "ocorrencias": {
             "link_km": 0,
-            "destino": 34,
+            "destino": 37,
             "token_reserva": 0
           },
           "onde": {
             "pcprRecebimento1|running|webhook": {
               "link_km": 0,
-              "destino": 34,
+              "destino": 37,
               "token_reserva": 0
             }
           }
@@ -829,87 +847,87 @@
   ],
   "metricas": {
     "memoria_repouso_antes_mib": {
-      "min": 397.3,
-      "mediana": 397.7,
-      "max": 398.2,
+      "min": 399.4,
+      "mediana": 406.1,
+      "max": 406.1,
       "espera_s": 45
     },
     "latencia_evento_envio": {
       "sequencial_20": {
         "evento_ate_envio_ms": {
-          "p50": 288.0,
-          "p95": 345.3,
-          "min": 235.5,
-          "max": 403.8,
-          "media": 293.5
+          "p50": 152.5,
+          "p95": 185.7,
+          "min": 130.7,
+          "max": 220.4,
+          "media": 157.2
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 99.3,
-          "p95": 151.0
+          "p50": 60.0,
+          "p95": 76.3
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 231.9,
-          "p95": 291.2
+          "p50": 127.6,
+          "p95": 149.7
         }
       },
       "rajada_20_simultaneos": {
         "evento_ate_envio_ms": {
-          "p50": 4412.6,
-          "p95": 5362.6,
-          "min": 2705.8,
-          "max": 5441.8,
-          "media": 4333.3
+          "p50": 2165.7,
+          "p95": 2769.9,
+          "min": 1148.0,
+          "max": 2770.5,
+          "media": 2188.1
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 1298.7,
-          "p95": 1835.8
+          "p50": 572.5,
+          "p95": 881.1
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 4186.9,
-          "p95": 5301.3
+          "p50": 2029.7,
+          "p95": 2715.8
         }
       },
       "definicao": "t0 = POST do evento ao n8n (emissor do PCPR); fim = canal simulado registra o envio. Mesmo relógio (mesma máquina)."
     },
     "memoria_durante_testes_mib": {
-      "max": 885.8,
-      "mediana": 479.8,
-      "amostras": 81,
+      "max": 824.8,
+      "mediana": 469.3,
+      "amostras": 77,
       "max_por_fase": {
-        "T1": 426.0,
-        "T2": 449.2,
-        "T3": 450.4,
-        "T4": 454.2,
-        "T5": 461.1,
-        "T6": 480.5,
-        "T7": 493.2,
-        "T8": 480.6,
-        "T9": 487.9,
-        "T10": 721.7,
-        "T12": 658.0,
-        "T14": 671.5,
-        "T15": 453.5,
-        "T17": 429.1,
-        "T18": 448.0,
-        "T19": 490.0,
-        "T13": 494.8,
-        "latencia (20 sequenciais + rajada de 20)": 885.8
+        "T1": 435.5,
+        "T2": 461.1,
+        "T3": 462.2,
+        "T4": 465.5,
+        "T5": 486.6,
+        "T6": 480.8,
+        "T7": 494.1,
+        "T8": 482.4,
+        "T9": 486.7,
+        "T10": 716.3,
+        "T12": 684.6,
+        "T14": 653.2,
+        "T15": 425.2,
+        "T17": 432.6,
+        "T18": 455.5,
+        "T19": 497.3,
+        "T13": 503.5,
+        "latencia (20 sequenciais + rajada de 20)": 824.8
       }
     },
     "memoria_repouso_depois_mib": {
-      "min": 530.7,
-      "mediana": 530.7,
-      "max": 530.9,
+      "min": 524.2,
+      "mediana": 524.4,
+      "max": 524.6,
       "espera_s": 45
     },
     "banco_n8n_bytes": {
-      "database.sqlite": 4509696,
+      "database.sqlite": 4562944,
       "database.sqlite-shm": 32768,
-      "database.sqlite-wal": 4136512
+      "database.sqlite-wal": 4148872
     }
   },
   "preparacao": {
-    "segundos": 45.3,
+    "segundos": 37.7,
     "saida_cli": [
       "Note: Changes will not take effect if n8n is running.",
       "Please restart n8n for changes to take effect if n8n is currently running.",
@@ -925,7 +943,7 @@
       "pcprErros0000001"
     ]
   },
-  "primeira_subida_s": 13.9,
+  "primeira_subida_s": 12.3,
   "config_efetiva": {
     "diagnostics": false,
     "versionNotifications": false,
@@ -1050,6 +1068,6 @@
     "conteiner_existe": false,
     "portas_ainda_abertas": []
   },
-  "fim": "2026-10-18T09:23:46-03:00",
+  "fim": "2026-10-18T10:34:43-03:00",
   "segredos_no_relatorio": []
 }

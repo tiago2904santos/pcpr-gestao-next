@@ -1304,6 +1304,33 @@ def t19() -> dict:
         "sem_arquivo": x["sem_arquivo"],
         "excecao": "arquivo_nao_baixado (aberta pelo PCPR)",
     }
+    # (e2) download com 4xx estável que não é 404/410 (422: id malformado) → também definitivo:
+    # sem-arquivo nao_baixado + exceção do PCPR + 200 já na 1ª entrega; (e3) 429 continua
+    # transitório → 503 e o canal reentrega, sem registro sem arquivo
+    resetar()
+    mid = f"msg.sim.T19e2.{secrets.token_hex(3)}"
+    r = receber(mid, [{"texto": "T19 e2 malformado", "status_download": 422}])
+    x = da_msg(est(), mid)
+    checar(r["entregas"] == [200], f"(e2) entregas {r['entregas']}")
+    checar(not x["posts"] and x["sem_arquivo"] == [202], f"(e2) {x}")
+    checar(
+        [(y["origem"], y["motivo"]) for y in x["excecoes"]] == [("pcpr", "arquivo_nao_baixado")],
+        f"(e2) exceções {x['excecoes']}",
+    )
+    resetar()
+    mid = f"msg.sim.T19e3.{secrets.token_hex(3)}"
+    r3 = receber(mid, [{"texto": "T19 e3 limite", "status_download": 429}], reentregar=1)
+    x3 = da_msg(est(), mid)
+    checar(r3["entregas"] == [503, 503], f"(e3) entregas {r3['entregas']}")
+    checar(not x3["sem_arquivo"] and not x3["excecoes"], f"(e3) {x3}")
+    saida["e2_e3_download_4xx"] = {
+        "422_definitivo": {
+            "entregas_do_canal": r["entregas"],
+            "sem_arquivo": x["sem_arquivo"],
+            "excecao": "arquivo_nao_baixado (aberta pelo PCPR)",
+        },
+        "429_transitorio": {"entregas_do_canal": r3["entregas"], "sem_arquivo": 0},
+    }
     # (f) a recusa permanente MUDA entre entregas (422 na 1ª, 409 canal_bloqueado na 2ª): cada
     # classe de recusa tem a sua chave (corpo = função da chave) → 2 exceções, nenhuma 422 de
     # "chave reutilizada", resposta final ao canal nas duas; a 3ª entrega repete a 2ª sem efeito

@@ -56,7 +56,10 @@ segmento garante que nenhum id curto (nem um que imite `sha256:<hex>`) gere a me
 exceção do status órfão deixou de citar o prazo configurável no corpo (mesma chave → mesmo corpo,
 mesmo depois de reconfigurar). O validador aceita inteiros maiores que o `float`. A chave bruta só vale se for ASCII
 imprimível (`[ -~]`): `len` do Python e `.length` do JS (UTF-16) passam a medir igual, e nada
-fora do ASCII vai no cabeçalho HTTP (T19k, id com emoji). A regra é única
+fora do ASCII vai no cabeçalho HTTP (T19k, id com emoji); o contrato diz isso com todas as
+letras. No W4, download do anexo com 4xx estável (400, 405, 415, 422…) também é definitivo
+(sem-arquivo `nao_baixado`, resposta final ao canal); só rede, 5xx, 401/403, 408, 425 e 429
+voltam para reentrega (T19 e2/e3). A regra é única
 (`comum.chave_recebimento`, usada pelo simulador e pelos testes; `chave_recebimento_js` nos
 workflows) e também vale para a exceção `fila_parada`. Testes T19i (id de 290 caracteres, 413 →
 recebimento rejeitado com orientação) e T19j (id de 160, exceção `fila_parada`).

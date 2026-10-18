@@ -105,6 +105,7 @@ class EstadoCanal:
             self.falhar_downloads = 0
             self.tentativas: list[dict] = []
             self.arquivos: dict[str, bytes] = {}
+            self.status_download: dict[str, int] = {}
             self.mensagens_entrada: dict[str, dict] = {}
             self.inbound: list[dict] = []
             self.downloads: list[dict] = []
@@ -124,12 +125,15 @@ class EstadoCanal:
 
     def _anexo(self, texto: str, nome: str, pedido: dict | None = None) -> dict:
         """`removido`: o anexo é anunciado mas não existe mais no canal (download 404);
+        `status_download`: o canal responde sempre esse status ao baixar (ex.: 422, id malformado);
         `tamanho_declarado`: tamanho anunciado pelo canal (ex.: acima do limite)."""
         p = pedido or {}
         pdf = pdf_sintetico(texto)
         arq = "arq-" + hashlib.sha256(pdf).hexdigest()[:16]
         if not p.get("removido"):
             self.arquivos[arq] = pdf
+        if p.get("status_download"):
+            self.status_download[arq] = int(p["status_download"])
         return {
             "id": arq,
             "nome": nome,
@@ -227,6 +231,7 @@ class Manipulador(ManipuladorBase):
                 return self.responder(401, {"erro": "chave inválida"})
             with est.trava:
                 dados = est.arquivos.get(m.group(1))
+                fixo = est.status_download.get(m.group(1))
                 falhar = est.falhar_downloads > 0
                 if falhar:
                     est.falhar_downloads -= 1
@@ -234,9 +239,11 @@ class Manipulador(ManipuladorBase):
                     {
                         "arquivo": m.group(1),
                         "em": time.time(),
-                        "status": 500 if falhar else (200 if dados is not None else 404),
+                        "status": fixo or (500 if falhar else (200 if dados is not None else 404)),
                     }
                 )
+            if fixo:
+                return self.responder(fixo, {"erro": "download recusado (simulado)"})
             if falhar:
                 return self.responder(500, {"erro": "falha simulada no download"})
             if dados is None:
