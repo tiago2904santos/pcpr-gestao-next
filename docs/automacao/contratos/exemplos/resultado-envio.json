@@ -1,5 +1,5 @@
 {
-  "reserva_token": "rsv_EXEMPLO_SINTETICO_52",
+  "reserva_token": "<opaco: o mesmo token recebido na reserva>",
   "resultado": "enviada",
   "provedor": "smtp-institucional",
   "provedor_mensagem_id": "<pcpr-com-52-v1@pcpr.example.invalid>"
