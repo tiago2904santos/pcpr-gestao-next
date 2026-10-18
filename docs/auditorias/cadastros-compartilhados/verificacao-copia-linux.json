@@ -1,0 +1,8 @@
+{
+  "checked_utc": "2026-10-17T06:38:23.701331+00:00",
+  "source_manifest": "snapshot-linux.json",
+  "execution_path": "/tmp/cadastros-src-exec",
+  "files_checked": 8461,
+  "differences": [],
+  "node_modules": "/opt/cadastros-js/node_modules"
+}

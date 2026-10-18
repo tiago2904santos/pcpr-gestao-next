@@ -10,7 +10,7 @@
   {% if cartoes %}<div>{% include "componentes/lista_catalogo.html" with identificador="t-principais" titulo="Cadastros principais" itens=cartoes only %}</div>{% endif %}
   {% if plano or apoio %}<div>
     {% if plano %}{% include "componentes/lista_catalogo.html" with identificador="t-plano" titulo="Plano de trabalho" itens=plano only %}{% endif %}
-    {% if apoio %}<div{% if plano %} class="mt-4"{% endif %}>{% include "componentes/lista_catalogo.html" with identificador="t-apoio" titulo="Configuração e textos" itens=apoio only %}</div>{% endif %}
+    {% if apoio %}<div{% if plano %} class="mt-4"{% endif %}>{% include "componentes/lista_catalogo.html" with identificador="t-apoio" titulo="Textos dos documentos" itens=apoio only %}</div>{% endif %}
   </div>{% endif %}
 </div>
 {% endblock %}

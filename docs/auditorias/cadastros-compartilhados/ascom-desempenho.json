@@ -1,0 +1,27 @@
+{
+  "data": "2026-10-17",
+  "ambiente": "PostgreSQL LAB local, base test_pcpr_inventario_lab",
+  "cenario": {
+    "palestrantes": 31,
+    "servidores": 120,
+    "rota": "/palestras/cadastros/palestrantes/",
+    "teste": "tests/test_cadastros_ascom.py::test_palestrantes_volume_sem_multiplicar_formularios"
+  },
+  "antes": {
+    "consultas_totais": 42,
+    "consultas_servidores": 32,
+    "html_bytes": 387782,
+    "tempo_ms_observado": 12689.79,
+    "resultado_regressao": "falhou: 32 consultas de servidores excedem limite de 2"
+  },
+  "depois": {
+    "consultas_totais": 11,
+    "consultas_servidores": 0,
+    "html_bytes": 62699,
+    "tempo_ms_observado": 125.54,
+    "fonte": "ascom-unitarios.log",
+    "resultado_regressao": "orçamento de consulta e uma única edição solicitada atendidos"
+  },
+  "interpretacao": "A redução de consultas e bytes é comparável no mesmo cenário. Tempos incluem aquecimento/importação diferentes e não demonstram um fator de ganho de latência.",
+  "limites": "Cenário sintético de listagem; não é benchmark de fonte externa nem medição da frota completa. A seleção remota busca até 15 ativos e renderiza apenas o vínculo atual; seus custos são exercitados separadamente."
+}

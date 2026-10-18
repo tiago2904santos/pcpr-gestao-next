@@ -1,0 +1,496 @@
+{
+  "updatedAt": "2026-10-18T03:57:26.000Z",
+  "createdAt": "2026-10-18T03:52:34.191Z",
+  "id": "pcprWhatsStatus1",
+  "name": "PCPR · Status WhatsApp",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "8fcbe9d1-6ea0-5091-8412-1bb8dad23238",
+      "name": "Quando chamado pelo W7",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c620239-cad3-511a-859d-34007af31bfc",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8765/api/automacao/v1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "a47fdfc9-ec36-5e56-ab25-ba80ae13d5fd",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// sent → nada (o resultado já registrou o aceite); delivered → entregue; read → lida;\n// failed → falhou. A comunicação vem de biz_opaque_callback_data ('com:<id>') quando houver.\nconst MAPA = { delivered: 'entregue', read: 'lida', failed: 'falhou' };\nconst cfg = $('Configuração').first().json;\nconst saida = [];\nfor (const it of $('Quando chamado pelo W7').all()) {\n  const s = it.json;\n  const status = MAPA[s.status];\n  if (!status) continue;\n  const m = /^com:(\\d+)$/.exec(String(s.biz_opaque_callback_data || ''));\n  const e = (s.errors || [])[0] || null;\n  saida.push({ json: {\n    cfg_pcpr: cfg.cfg_pcpr,\n    comunicacao_id: m ? Number(m[1]) : null,\n    wamid: String(s.id || ''),\n    status,\n    ocorrido_em: new Date(Number(s.timestamp || 0) * 1000).toISOString(),\n    erro: e ? ('código ' + e.code + ': ' + String(e.title || e.message || '')).slice(0, 300) : '',\n  } });\n}\nreturn saida;"
+      },
+      "id": "adb64935-9034-5470-a69d-f3b471d37765",
+      "name": "Mapear status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bbee6dc1-dea9-5f8d-9ac2-bb9074ed7a6e",
+              "leftValue": "={{ $json.comunicacao_id !== null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3a491a30-064d-590e-8fa8-b15d792af9c9",
+      "name": "Tem comunicação?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_pcpr }}/comunicacoes?provedor_mensagem_id={{ encodeURIComponent($json.wamid) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "3abec23d-cebd-5fdb-b470-ef32b7315603",
+      "name": "Buscar pelo wamid",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Sem biz_opaque_callback_data: o PCPR resolve pelo mapeamento wamid → comunicação\n// (GET /comunicacoes?provedor_mensagem_id=, operação do contrato; resposta só {id, versao}).\nconst ev = $('Mapear status').item.json;\nconst achado = ($json.itens || [])[0];\nreturn { json: { ...ev, comunicacao_id: achado ? achado.id : null } };"
+      },
+      "id": "30ee28ca-9231-5e8a-85b1-52aee751aabf",
+      "name": "Usar id encontrado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "id": "7131101d-79c0-53c8-aac0-691dd47283a1",
+      "name": "Juntar ids",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1ff9957-3ced-535e-a6d3-ed7d58873ad9",
+              "leftValue": "={{ $json.comunicacao_id === null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9ae15f24-39e7-5430-b460-f974869b3e4c",
+      "name": "Adiar? (resultado ainda não registrado)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "803dca0c-214a-5bb1-9cf4-a702800009a9",
+              "name": "adiar",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "94bd76f8-749b-5e77-a374-47f09caeff11",
+      "name": "Marcar adiado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1760,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cfg_pcpr }}/comunicacoes/{{ $json.comunicacao_id }}/entrega",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=entrega:{{ $json.comunicacao_id }}:{{ $json.wamid }}:{{ $json.status }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "7dfd083a-a39e-53b6-ad95-94e1729ed249",
+      "name": "Registrar entrega",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2bb1357e-faba-5d0f-9421-4b4d62c5da45",
+              "name": "adiar",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "23c47006-93d5-5e3e-934c-1a2e286abdba",
+      "name": "Marcar registrado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "id": "3207f3b5-6501-534e-bd13-8a8472e9bcb3",
+      "name": "Juntar resultado",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// O W7 decide a resposta à Meta com isto: algum status adiado → não-2xx (a Meta reentrega).\nconst itens = $input.all();\nconst adiados = itens.filter((i) => i.json.adiar === true).length;\nreturn [{ json: { adiar: adiados > 0, adiados, registrados: itens.length - adiados } }];"
+      },
+      "id": "87d388dc-0766-5823-931d-1a8eda2ecd32",
+      "name": "Resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Quando chamado pelo W7": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Mapear status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapear status": {
+      "main": [
+        [
+          {
+            "node": "Tem comunicação?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar pelo wamid": {
+      "main": [
+        [
+          {
+            "node": "Usar id encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar ids": {
+      "main": [
+        [
+          {
+            "node": "Adiar? (resultado ainda não registrado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar entrega": {
+      "main": [
+        [
+          {
+            "node": "Marcar registrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar resultado": {
+      "main": [
+        [
+          {
+            "node": "Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem comunicação?": {
+      "main": [
+        [
+          {
+            "node": "Juntar ids",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar pelo wamid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usar id encontrado": {
+      "main": [
+        [
+          {
+            "node": "Juntar ids",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Adiar? (resultado ainda não registrado)": {
+      "main": [
+        [
+          {
+            "node": "Marcar adiado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar entrega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar registrado": {
+      "main": [
+        [
+          {
+            "node": "Juntar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar adiado": {
+      "main": [
+        [
+          {
+            "node": "Juntar resultado",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "920f1bca-ae90-4628-96e8-82b37036b163",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T03:52:34.193Z",
+      "createdAt": "2026-10-18T03:52:34.193Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprWhatsStatus1",
+      "projectId": "KDapCLFoTUNmEURa",
+      "project": {
+        "updatedAt": "2026-10-18T03:52:26.631Z",
+        "createdAt": "2026-10-18T03:52:26.631Z",
+        "id": "KDapCLFoTUNmEURa",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

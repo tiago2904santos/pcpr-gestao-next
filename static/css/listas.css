@@ -160,6 +160,11 @@ a.ficha:hover {
     box-shadow var(--duracao-rapida) var(--curva-padrao);
 }
 
+/* Edição incorporada: ícone e ações continuam junto à identidade do registro. */
+.registro:has(> .registro__corpo > details[open]) > :is(.registro__icone, .registro__acoes) {
+  align-self: start;
+}
+
 .registro:last-child {
   border-bottom: 0;
 }

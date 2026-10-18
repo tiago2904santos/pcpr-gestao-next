@@ -3,7 +3,7 @@ Janela "Guardar como texto pronto" (uma por página; texto-pronto.js preenche o 
 texto do campo que pediu). Grava em cadastros:salvar_texto e devolve o texto criado, que
 entra na escolha já selecionado — sem recarregar a página.
 {% endcomment %}
-<dialog id="dialogo-guardar-texto" class="dialogo" aria-labelledby="dialogo-guardar-texto-titulo">
+<dialog id="dialogo-guardar-texto" class="dialogo dialogo--cadastro" aria-labelledby="dialogo-guardar-texto-titulo">
   <form method="post" action="{% url 'cadastros:salvar_texto' %}" data-guardar-texto-form novalidate>
     {% csrf_token %}
     <input type="hidden" name="tipo" value="">

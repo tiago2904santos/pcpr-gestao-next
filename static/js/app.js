@@ -64,10 +64,12 @@ let importsPendentes = 0;
 /** @param {Promise<unknown>} promessa */
 function acompanhar(promessa) {
   importsPendentes += 1;
-  document.documentElement.dataset.controladores = "carregando";
+  const raiz = document.documentElement;
+  if (raiz) raiz.dataset.controladores = "carregando";
   return promessa.finally(() => {
     importsPendentes -= 1;
-    if (!importsPendentes) document.documentElement.dataset.controladores = "prontos";
+    // Navegar enquanto o import termina pode desmontar o documento anterior.
+    if (!importsPendentes && raiz?.isConnected) raiz.dataset.controladores = "prontos";
   });
 }
 /** @type {{botao: HTMLElement, cancelada: boolean} | null} */

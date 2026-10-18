@@ -4,7 +4,7 @@ atividades — as etiquetas da folha, já marcadas como estão no plano (conjunt
 mesmo endpoint da tela Cadastros › Conjuntos; o conjunto novo entra na lista sem ser aplicado
 (`data-sem-escolher`, cadastro-rapido.js). Fica fora do <form> da folha.
 {% endcomment %}
-<dialog id="dialogo-conjunto" class="dialogo dialogo--amplo" data-cadastro-rapido data-destino="aplicar-conjunto" data-sem-escolher aria-labelledby="dialogo-conjunto-titulo">
+<dialog id="dialogo-conjunto" class="dialogo dialogo--cadastro dialogo--amplo" data-cadastro-rapido data-destino="aplicar-conjunto" data-sem-escolher aria-labelledby="dialogo-conjunto-titulo">
   <form method="post" action="{% url 'cadastros:salvar_catalogo' 'conjuntos' %}" novalidate>
     {% csrf_token %}
     <div class="dialogo__cabecalho">

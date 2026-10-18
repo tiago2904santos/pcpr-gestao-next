@@ -1,5 +1,12 @@
 # Módulos
 
+Atualização de 17/10/2026: Viagens (incluindo Termos, OS, Planos e Prestação), Eventos Sociais,
+Coffee Break, Palestras, Imprensa e Publicações têm código/rotas ativos. O inventário atual de
+cadastros, manutenção e consumidores está em
+[`../auditorias/cadastros-compartilhados/inventario.md`](../auditorias/cadastros-compartilhados/inventario.md).
+As indicações de planejamento remanescentes neste mapa são históricas do piloto; devem ser
+confrontadas com aquele inventário, sem presumir ausência de funcionalidades.
+
 Legenda de situação: **Implementado no piloto** · **Parcial** · **Planejado** · **A confirmar**.
 Telas citadas da referência são descritas por função (não por implementação).
 

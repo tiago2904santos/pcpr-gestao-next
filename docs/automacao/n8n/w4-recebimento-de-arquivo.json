@@ -1,0 +1,575 @@
+{
+  "updatedAt": "2026-10-18T03:51:58.000Z",
+  "createdAt": "2026-10-18T03:46:18.095Z",
+  "id": "pcprRecebimento1",
+  "name": "PCPR · Recebimento de arquivo",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "canal-recebimento",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a6af0266-3ead-5a34-a60b-3b5c82e2b302",
+      "name": "Webhook do canal",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "30671fba-17cd-5446-b77a-8b30be98b50e",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalWebhk01",
+          "name": "Canal · token do webhook de entrada"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4cbdd6aa-6618-5997-bf23-b8493f9967af",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8765/api/automacao/v1",
+              "type": "string"
+            },
+            {
+              "id": "6180400c-dd54-5909-94fe-4eb0f6d2fbee",
+              "name": "cfg_canal",
+              "value": "http://host.docker.internal:8766",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "e331e64e-4146-5b55-9d0b-2e5b56709cfd",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Um item por anexo: a chave do recebimento é receb:<canal>:<mensagem_id_canal>:<anexo_indice>\n// (contrato 10-6 E1; C3 do PR #23) e o PCPR consolida a mensagem por total_anexos.\nconst cfg = $('Configuração').first().json;\nconst b = cfg.body || {};\nconst anexos = Array.isArray(b.anexos) ? b.anexos : [];\nif (!anexos.length) return [{ json: { tem_anexo: false } }];\nreturn anexos.map((a, i) => ({ json: {\n  tem_anexo: true,\n  cfg_pcpr: cfg.cfg_pcpr,\n  cfg_canal: cfg.cfg_canal,\n  canal: String(b.canal || ''),\n  mensagem_id: String(b.mensagem_id || ''),\n  remetente: String(b.remetente || ''),\n  recebido_em: String(b.recebido_em || ''),\n  em_resposta_a_comunicacao: b.em_resposta_a_comunicacao ?? '',\n  arquivo_id: String(a.id || ''),\n  nome_arquivo: String(a.nome || ('anexo-' + i)),\n  anexo_indice: i,\n  total_anexos: anexos.length,\n} }));"
+      },
+      "id": "b4b7a649-45b1-57ba-9596-665b03fd3dfa",
+      "name": "Separar anexos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "62abd68a-6085-54dc-9a2c-92d97e3f527d",
+              "leftValue": "={{ $json.tem_anexo === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f367e886-fa41-5f32-9952-ccb0a4e9dd2d",
+      "name": "Tem anexo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"erro\":\"mensagem_sem_anexo\"}",
+        "options": {
+          "responseCode": 422
+        }
+      },
+      "id": "b0f1e5a2-c384-53ee-9056-45121a96f89c",
+      "name": "Responder 422 (sem anexo)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_canal }}/arquivos/{{ $json.arquivo_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "arquivo"
+            }
+          }
+        }
+      },
+      "id": "ef1d4e7a-086b-555a-90ee-428ac1d717b8",
+      "name": "Baixar arquivo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalApi0001",
+          "name": "Canal · chave de envio"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "binaryData": true,
+        "binaryPropertyName": "arquivo",
+        "dataPropertyName": "sha256",
+        "encoding": "hex"
+      },
+      "id": "a0b3a2a5-4c34-56eb-844f-368f034cb024",
+      "name": "Calcular SHA-256",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return { json: { ...$('Separar anexos').item.json, sha256: $json.sha256 }, binary: $('Baixar arquivo').item.binary };"
+      },
+      "id": "65dc5447-edb7-568b-a31c-f0844a44327b",
+      "name": "Reanexar arquivo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cfg_pcpr }}/recebimentos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=receb:{{ $json.canal }}:{{ $json.mensagem_id }}:{{ $json.anexo_indice }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "arquivo",
+              "inputDataFieldName": "arquivo"
+            },
+            {
+              "parameterType": "formData",
+              "name": "canal",
+              "value": "={{ $json.canal }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "mensagem_id_canal",
+              "value": "={{ $json.mensagem_id }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "anexo_indice",
+              "value": "={{ $json.anexo_indice }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "total_anexos",
+              "value": "={{ $json.total_anexos }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "nome_arquivo",
+              "value": "={{ $json.nome_arquivo }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "remetente",
+              "value": "={{ $json.remetente }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "recebido_em",
+              "value": "={{ $json.recebido_em }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "sha256",
+              "value": "={{ $json.sha256 }}"
+            },
+            {
+              "parameterType": "formData",
+              "name": "em_resposta_a_comunicacao",
+              "value": "={{ $json.em_resposta_a_comunicacao }}"
+            }
+          ]
+        }
+      },
+      "id": "1d0a18c6-ebe9-5c89-b35c-5f1a43ce1aee",
+      "name": "Entregar ao PCPR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3
+      },
+      "id": "aa00e1f7-d538-5dc4-bcf4-95c0c588d67d",
+      "name": "Juntar",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 2xx ao canal SÓ se o PCPR aceitou todos os anexos (C9). Qualquer falha (download ou POST)\n// → 503: o canal reentrega a mensagem inteira; os anexos já aceitos repetem a mesma\n// Idempotency-Key e o PCPR devolve a resposta guardada, sem efeito novo.\nconst itens = $input.all();\nconst total = $('Separar anexos').all().length;\nconst falhas = itens.filter((i) => i.json.error !== undefined).length;\nconst aceitos = itens.length - falhas;\nreturn [{ json: { todos_aceitos: falhas === 0 && aceitos === total, aceitos, falhas, total } }];"
+      },
+      "id": "55e3390e-9511-5b2f-b416-60050ef45048",
+      "name": "Decidir resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f863fba9-e97a-5036-b05b-f40a0d5fe5f9",
+              "leftValue": "={{ $json.todos_aceitos === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7db80068-aa9f-5b05-bb36-a240cf16ca37",
+      "name": "Todos aceitos pelo PCPR?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ aceitos: $json.aceitos, total: $json.total }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "0d9177d2-5e33-5e37-9299-7b3cad21f1e8",
+      "name": "Responder 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ erro: 'recebimento_nao_confirmado', aceitos: $json.aceitos, falhas: $json.falhas, total: $json.total }) }}",
+        "options": {
+          "responseCode": 503
+        }
+      },
+      "id": "86541511-c740-54ae-9027-bd60c0d6a5ab",
+      "name": "Responder 503 (reentregar)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook do canal": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Separar anexos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar anexos": {
+      "main": [
+        [
+          {
+            "node": "Tem anexo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular SHA-256": {
+      "main": [
+        [
+          {
+            "node": "Reanexar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reanexar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Entregar ao PCPR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar": {
+      "main": [
+        [
+          {
+            "node": "Decidir resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decidir resposta": {
+      "main": [
+        [
+          {
+            "node": "Todos aceitos pelo PCPR?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem anexo?": {
+      "main": [
+        [
+          {
+            "node": "Baixar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 422 (sem anexo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Calcular SHA-256",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Juntar",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Entregar ao PCPR": {
+      "main": [
+        [
+          {
+            "node": "Juntar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Juntar",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Todos aceitos pelo PCPR?": {
+      "main": [
+        [
+          {
+            "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 503 (reentregar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "be0b300a-8456-4aa1-b52d-4ceb8073572e",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T03:46:18.097Z",
+      "createdAt": "2026-10-18T03:46:18.097Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprRecebimento1",
+      "projectId": "Ivrpx1fsWEVS1XJN",
+      "project": {
+        "updatedAt": "2026-10-18T03:46:09.768Z",
+        "createdAt": "2026-10-18T03:46:09.768Z",
+        "id": "Ivrpx1fsWEVS1XJN",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "e728cecd-6a3b-4aeb-a8df-5c31a79cdd38"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

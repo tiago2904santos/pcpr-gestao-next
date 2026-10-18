@@ -1,0 +1,92 @@
+# Índice de evidências visuais
+
+As listas e os modais foram capturados com dados sintéticos em 360 e 1440 px. As capturas completas permitem comparar o conteúdo; os modais finais usam viewport para registrar posição, limites e ações. Os relatórios de cada lote registram cenários funcionais, teclado e auditoria de acessibilidade.
+
+## Antes e depois por superfície
+
+- `/cadastros/servidores/` — lista: [Antes 360](evidencias/antes/360/cadastros-servidores.png) · [Antes 1440](evidencias/antes/1440/cadastros-servidores.png) · [Depois 360](evidencias/depois/360/cadastros-servidores.png) · [Depois 1440](evidencias/depois/1440/cadastros-servidores.png)
+- `/cadastros/servidores/` — modal: [Antes 360](evidencias/antes/360/cadastros-servidores-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-servidores-modal.png) · [Depois 360](evidencias/depois/360/cadastros-servidores-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-servidores-modal.png)
+- `/cadastros/viaturas/` — lista: [Antes 360](evidencias/antes/360/cadastros-viaturas.png) · [Antes 1440](evidencias/antes/1440/cadastros-viaturas.png) · [Depois 360](evidencias/depois/360/cadastros-viaturas.png) · [Depois 1440](evidencias/depois/1440/cadastros-viaturas.png)
+- `/cadastros/viaturas/` — modal: [Antes 360](evidencias/antes/360/cadastros-viaturas-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-viaturas-modal.png) · [Depois 360](evidencias/depois/360/cadastros-viaturas-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-viaturas-modal.png)
+- `/cadastros/unidades/` — lista: [Antes 360](evidencias/antes/360/cadastros-unidades.png) · [Antes 1440](evidencias/antes/1440/cadastros-unidades.png) · [Depois 360](evidencias/depois/360/cadastros-unidades.png) · [Depois 1440](evidencias/depois/1440/cadastros-unidades.png)
+- `/cadastros/unidades/` — modal: [Antes 360](evidencias/antes/360/cadastros-unidades-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-unidades-modal.png) · [Depois 360](evidencias/depois/360/cadastros-unidades-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-unidades-modal.png)
+- `/cadastros/cargos/` — lista: [Antes 360](evidencias/antes/360/cadastros-cargos.png) · [Antes 1440](evidencias/antes/1440/cadastros-cargos.png) · [Depois 360](evidencias/depois/360/cadastros-cargos.png) · [Depois 1440](evidencias/depois/1440/cadastros-cargos.png)
+- `/cadastros/cargos/` — modal: [Antes 360](evidencias/antes/360/cadastros-cargos-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-cargos-modal.png) · [Depois 360](evidencias/depois/360/cadastros-cargos-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-cargos-modal.png)
+- `/cadastros/combustiveis/` — lista: [Antes 360](evidencias/antes/360/cadastros-combustiveis.png) · [Antes 1440](evidencias/antes/1440/cadastros-combustiveis.png) · [Depois 360](evidencias/depois/360/cadastros-combustiveis.png) · [Depois 1440](evidencias/depois/1440/cadastros-combustiveis.png)
+- `/cadastros/combustiveis/` — modal: [Antes 360](evidencias/antes/360/cadastros-combustiveis-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-combustiveis-modal.png) · [Depois 360](evidencias/depois/360/cadastros-combustiveis-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-combustiveis-modal.png)
+- `/cadastros/tipos-de-viagem/` — lista: [Antes 360](evidencias/antes/360/cadastros-tipos-de-viagem.png) · [Antes 1440](evidencias/antes/1440/cadastros-tipos-de-viagem.png) · [Depois 360](evidencias/depois/360/cadastros-tipos-de-viagem.png) · [Depois 1440](evidencias/depois/1440/cadastros-tipos-de-viagem.png)
+- `/cadastros/tipos-de-viagem/` — modal: [Antes 360](evidencias/antes/360/cadastros-tipos-de-viagem-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-tipos-de-viagem-modal.png) · [Depois 360](evidencias/depois/360/cadastros-tipos-de-viagem-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-tipos-de-viagem-modal.png)
+- `/cadastros/programas/` — lista: [Antes 360](evidencias/antes/360/cadastros-programas.png) · [Antes 1440](evidencias/antes/1440/cadastros-programas.png) · [Depois 360](evidencias/depois/360/cadastros-programas.png) · [Depois 1440](evidencias/depois/1440/cadastros-programas.png)
+- `/cadastros/programas/` — modal: [Antes 360](evidencias/antes/360/cadastros-programas-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-programas-modal.png) · [Depois 360](evidencias/depois/360/cadastros-programas-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-programas-modal.png)
+- `/cadastros/horarios/` — lista: [Antes 360](evidencias/antes/360/cadastros-horarios.png) · [Antes 1440](evidencias/antes/1440/cadastros-horarios.png) · [Depois 360](evidencias/depois/360/cadastros-horarios.png) · [Depois 1440](evidencias/depois/1440/cadastros-horarios.png)
+- `/cadastros/horarios/` — modal: [Antes 360](evidencias/antes/360/cadastros-horarios-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-horarios-modal.png) · [Depois 360](evidencias/depois/360/cadastros-horarios-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-horarios-modal.png)
+- `/cadastros/atividades/` — lista: [Antes 360](evidencias/antes/360/cadastros-atividades.png) · [Antes 1440](evidencias/antes/1440/cadastros-atividades.png) · [Depois 360](evidencias/depois/360/cadastros-atividades.png) · [Depois 1440](evidencias/depois/1440/cadastros-atividades.png)
+- `/cadastros/atividades/` — modal: [Antes 360](evidencias/antes/360/cadastros-atividades-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-atividades-modal.png) · [Depois 360](evidencias/depois/360/cadastros-atividades-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-atividades-modal.png)
+- `/cadastros/conjuntos/` — lista: [Antes 360](evidencias/antes/360/cadastros-conjuntos.png) · [Antes 1440](evidencias/antes/1440/cadastros-conjuntos.png) · [Depois 360](evidencias/depois/360/cadastros-conjuntos.png) · [Depois 1440](evidencias/depois/1440/cadastros-conjuntos.png)
+- `/cadastros/conjuntos/` — modal: [Antes 360](evidencias/antes/360/cadastros-conjuntos-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-conjuntos-modal.png) · [Depois 360](evidencias/depois/360/cadastros-conjuntos-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-conjuntos-modal.png)
+- `/cadastros/diarias/` — lista: [Antes 360](evidencias/antes/360/cadastros-diarias.png) · [Antes 1440](evidencias/antes/1440/cadastros-diarias.png) · [Depois 360](evidencias/depois/360/cadastros-diarias.png) · [Depois 1440](evidencias/depois/1440/cadastros-diarias.png)
+- `/cadastros/diarias/` — modal: [Antes 360](evidencias/antes/360/cadastros-diarias-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-diarias-modal.png) · [Depois 360](evidencias/depois/360/cadastros-diarias-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-diarias-modal.png)
+- `/cadastros/textos-prontos/` — lista: [Antes 360](evidencias/antes/360/cadastros-textos-prontos.png) · [Antes 1440](evidencias/antes/1440/cadastros-textos-prontos.png) · [Depois 360](evidencias/depois/360/cadastros-textos-prontos.png) · [Depois 1440](evidencias/depois/1440/cadastros-textos-prontos.png)
+- `/cadastros/textos-prontos/` — modal: [Antes 360](evidencias/antes/360/cadastros-textos-prontos-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-textos-prontos-modal.png) · [Depois 360](evidencias/depois/360/cadastros-textos-prontos-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-textos-prontos-modal.png)
+- `/cadastros/usuarios/` — lista: [Antes 360](evidencias/antes/360/cadastros-usuarios.png) · [Antes 1440](evidencias/antes/1440/cadastros-usuarios.png) · [Depois 360](evidencias/depois/360/cadastros-usuarios.png) · [Depois 1440](evidencias/depois/1440/cadastros-usuarios.png)
+- `/cadastros/usuarios/` — modal: [Antes 360](evidencias/antes/360/cadastros-usuarios-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-usuarios-modal.png) · [Depois 360](evidencias/depois/360/cadastros-usuarios-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-usuarios-modal.png)
+- `/cadastros/configuracao/` — lista: [Antes 360](evidencias/antes/360/cadastros-configuracao.png) · [Antes 1440](evidencias/antes/1440/cadastros-configuracao.png) · [Depois 360](evidencias/depois/360/cadastros-configuracao.png) · [Depois 1440](evidencias/depois/1440/cadastros-configuracao.png)
+- `/cadastros/configuracao/` — modal: [Antes 360](evidencias/antes/360/cadastros-configuracao-modal.png) · [Antes 1440](evidencias/antes/1440/cadastros-configuracao-modal.png) · [Depois 360](evidencias/depois/360/cadastros-configuracao-modal.png) · [Depois 1440](evidencias/depois/1440/cadastros-configuracao-modal.png)
+- `/eventos/cadastros/tipos-evento/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-tipos-evento.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-tipos-evento.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-tipos-evento.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-tipos-evento.png)
+- `/eventos/cadastros/servicos/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-servicos.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-servicos.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-servicos.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-servicos.png)
+- `/eventos/cadastros/equipes/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-equipes.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-equipes.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-equipes.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-equipes.png)
+- `/eventos/cadastros/orgaos/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-orgaos.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-orgaos.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-orgaos.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-orgaos.png)
+- `/eventos/cadastros/unidades-moveis/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-unidades-moveis.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-unidades-moveis.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-unidades-moveis.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-unidades-moveis.png)
+- `/eventos/cadastros/textos-despacho/` — lista: [Antes 360](evidencias/antes/360/eventos-cadastros-textos-despacho.png) · [Antes 1440](evidencias/antes/1440/eventos-cadastros-textos-despacho.png) · [Depois 360](evidencias/depois/360/eventos-cadastros-textos-despacho.png) · [Depois 1440](evidencias/depois/1440/eventos-cadastros-textos-despacho.png)
+- `/coffee/cadastros/fornecedores/` — lista: [Antes 360](evidencias/antes/360/coffee-cadastros-fornecedores.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-fornecedores.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-fornecedores.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-fornecedores.png)
+- `/coffee/cadastros/fornecedores/` — modal: [Antes 360](evidencias/antes/360/coffee-cadastros-fornecedores-modal.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-fornecedores-modal.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-fornecedores-modal.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-fornecedores-modal.png)
+- `/coffee/cadastros/contratos/` — lista: [Antes 360](evidencias/antes/360/coffee-cadastros-contratos.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-contratos.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-contratos.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-contratos.png)
+- `/coffee/cadastros/contratos/` — modal: [Antes 360](evidencias/antes/360/coffee-cadastros-contratos-modal.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-contratos-modal.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-contratos-modal.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-contratos-modal.png)
+- `/coffee/cadastros/aditivos/` — lista: [Antes 360](evidencias/antes/360/coffee-cadastros-aditivos.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-aditivos.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-aditivos.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-aditivos.png)
+- `/coffee/cadastros/aditivos/` — modal: [Antes 360](evidencias/antes/360/coffee-cadastros-aditivos-modal.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-aditivos-modal.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-aditivos-modal.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-aditivos-modal.png)
+- `/coffee/cadastros/lotes/` — lista: [Antes 360](evidencias/antes/360/coffee-cadastros-lotes.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-lotes.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-lotes.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-lotes.png)
+- `/coffee/cadastros/lotes/` — modal: [Antes 360](evidencias/antes/360/coffee-cadastros-lotes-modal.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-lotes-modal.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-lotes-modal.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-lotes-modal.png)
+- `/coffee/cadastros/oficio/` — lista: [Antes 360](evidencias/antes/360/coffee-cadastros-oficio.png) · [Antes 1440](evidencias/antes/1440/coffee-cadastros-oficio.png) · [Depois 360](evidencias/depois/360/coffee-cadastros-oficio.png) · [Depois 1440](evidencias/depois/1440/coffee-cadastros-oficio.png)
+- `/palestras/cadastros/palestrantes/` — lista: [Antes 360](evidencias/antes/360/palestras-cadastros-palestrantes.png) · [Antes 1440](evidencias/antes/1440/palestras-cadastros-palestrantes.png) · [Depois 360](evidencias/depois/360/palestras-cadastros-palestrantes.png) · [Depois 1440](evidencias/depois/1440/palestras-cadastros-palestrantes.png)
+- `/palestras/cadastros/temas/` — lista: [Antes 360](evidencias/antes/360/palestras-cadastros-temas.png) · [Antes 1440](evidencias/antes/1440/palestras-cadastros-temas.png) · [Depois 360](evidencias/depois/360/palestras-cadastros-temas.png) · [Depois 1440](evidencias/depois/1440/palestras-cadastros-temas.png)
+- `/palestras/cadastros/respostas/` — lista: [Antes 360](evidencias/antes/360/palestras-cadastros-respostas.png) · [Antes 1440](evidencias/antes/1440/palestras-cadastros-respostas.png) · [Depois 360](evidencias/depois/360/palestras-cadastros-respostas.png) · [Depois 1440](evidencias/depois/1440/palestras-cadastros-respostas.png)
+- `/imprensa/cadastros/equipe/` — lista: [Antes 360](evidencias/antes/360/imprensa-cadastros-equipe.png) · [Antes 1440](evidencias/antes/1440/imprensa-cadastros-equipe.png) · [Depois 360](evidencias/depois/360/imprensa-cadastros-equipe.png) · [Depois 1440](evidencias/depois/1440/imprensa-cadastros-equipe.png)
+- `/imprensa/cadastros/veiculos/` — lista: [Antes 360](evidencias/antes/360/imprensa-cadastros-veiculos.png) · [Antes 1440](evidencias/antes/1440/imprensa-cadastros-veiculos.png) · [Depois 360](evidencias/depois/360/imprensa-cadastros-veiculos.png) · [Depois 1440](evidencias/depois/1440/imprensa-cadastros-veiculos.png)
+- `/publicacoes/cadastros/equipe/` — lista: [Antes 360](evidencias/antes/360/publicacoes-cadastros-equipe.png) · [Antes 1440](evidencias/antes/1440/publicacoes-cadastros-equipe.png) · [Depois 360](evidencias/depois/360/publicacoes-cadastros-equipe.png) · [Depois 1440](evidencias/depois/1440/publicacoes-cadastros-equipe.png)
+- `/publicacoes/cadastros/unidades/` — lista: [Antes 360](evidencias/antes/360/publicacoes-cadastros-unidades.png) · [Antes 1440](evidencias/antes/1440/publicacoes-cadastros-unidades.png) · [Depois 360](evidencias/depois/360/publicacoes-cadastros-unidades.png) · [Depois 1440](evidencias/depois/1440/publicacoes-cadastros-unidades.png)
+
+## Fluxos e estados adicionais
+
+- [Dados da unidade](unidade.md): menu, seções, assinantes, substituições, erros e consulta.
+- [ASCOM](ascom-validacao.md): sete cadastros, busca/paginação, erro, gravação e seletor remoto.
+- [Catálogo comum e fonte](catalogo.md): identidade, migração, permissões e histórico.
+- [Revisão cética](revisao-final.md): riscos revisados e correções.
+- [Medições 360](evidencias/depois/360/medidas.json) e [1440](evidencias/depois/1440/medidas.json): largura de modal, excesso horizontal e tamanho do HTML.
+- [Modal de evento 360](evidencias/consumidores/360/plano-evento-modal.png) e
+  [1440](evidencias/consumidores/1440/plano-evento-modal.png): cabeçalho e ações.
+- [Efetivo móvel após correção](evidencias/revisao/plano-efetivo-mobile-final.jpg):
+  Cargo/Unidade em largura completa e remover ao lado da quantidade (recorte de inspeção).
+- [Certidão com erro e validade preservada 360](evidencias/consumidores/360/coffee-certidao-modal.png)
+  e [1440](evidencias/consumidores/1440/coffee-certidao-modal.png).
+- [Calendário da certidão 360](evidencias/consumidores/360/coffee-certidao-calendario.png)
+  e [1440](evidencias/consumidores/1440/coffee-certidao-calendario.png), com limites
+  registrados nos JSONs vizinhos após controles/fontes/layout estabilizados.
+- [Motorista de Eventos 360](evidencias/motorista-eventos-360.png) e
+  [1440](evidencias/motorista-eventos-1440.png): seleção contextual canônica.
+
+As composições em `evidencias/revisao/` apoiam a inspeção global; os PNGs individuais acima são a evidência em resolução original. Não se infere tempo de resposta nem desempenho em produção de capturas ou do tamanho do HTML.
+
+Na revisão final de 17/10/2026, as quatro composições de modais foram regeneradas
+com a última rodada aprovada e inspecionadas: [360, parte 1](evidencias/revisao/final-modais-360-1.jpg),
+[parte 2](evidencias/revisao/final-modais-360-2.jpg),
+[1440, parte 1](evidencias/revisao/final-modais-1440-1.jpg) e
+[parte 2](evidencias/revisao/final-modais-1440-2.jpg). Campos longos, hierarquia,
+rolagem de corpo e acesso às ações foram conferidos. A inspeção complementar dos
+consumidores verificou o cabeçalho de evento, o efetivo móvel do Plano e o erro de
+certidão dentro do modal, com a data preservada. Os dois arquivos `medidas.json`
+registram 50 superfícies cada, com excesso horizontal máximo de zero.
+
+Os lotes usam cenários sintéticos independentes. As contagens de migração são
+verificadas no ensaio de migração, e não inferidas da quantidade de linhas visíveis
+nas capturas. Imagens nomeadas `antes-*` na pasta de revisão registram problemas
+encontrados e corrigidos durante a crítica visual.

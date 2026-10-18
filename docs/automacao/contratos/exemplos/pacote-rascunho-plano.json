@@ -1,0 +1,42 @@
+{
+  "versao_esquema": 1,
+  "plano": {"id": 57, "numero": "07/2026/UNIDADE-EXEMPLO", "versao": 4},
+  "assinatura_entrada": "sha256:3c6e0b8a9c15224a8228b9a98ca1531d6a0f4b3e2a1c9d8e7f6a5b4c3d2e1f00",
+  "pedir": ["contextualizacao", "consideracoes"],
+  "fatos": [
+    {"id": "f.unidade", "tipo": "unidade", "valor": "Unidade Exemplo de Comunicação"},
+    {"id": "f.programa.1", "tipo": "programa", "valor": "Programa Exemplo de Cidadania"},
+    {"id": "f.destino.1", "tipo": "municipio", "valor": "Cidade Exemplo/PR"},
+    {
+      "id": "f.periodo",
+      "tipo": "periodo",
+      "valor": "12 a 13 de novembro de 2026",
+      "inicio": "2026-11-12",
+      "fim": "2026-11-13"
+    },
+    {
+      "id": "f.atividade.1",
+      "tipo": "atividade",
+      "valor": "Emissão de documento de identidade",
+      "meta": "Atender a demanda agendada pelo órgão solicitante."
+    },
+    {"id": "f.evento.orgao", "tipo": "orgao", "valor": "Secretaria Municipal de Exemplo"},
+    {"id": "f.evento.cin_agendadas", "tipo": "quantidade", "valor": 120}
+  ],
+  "institucional": [
+    {"id": "i.1", "texto": "levando serviços essenciais de polícia judiciária"},
+    {"id": "i.2", "texto": "garantir o acesso à documentação básica"}
+  ],
+  "textos_livres": [
+    {
+      "id": "t.solicitacao.descricao",
+      "origem": "descrição da solicitação de evento",
+      "texto": "Mutirão de documentação no ginásio municipal; contato pelo telefone [removido]."
+    }
+  ],
+  "lacunas_do_sistema": ["publico_alvo"],
+  "limites": {
+    "contextualizacao": {"paragrafos": [2, 3], "palavras": [90, 220]},
+    "consideracoes": {"paragrafos": [1, 1], "palavras": [40, 100]}
+  }
+}

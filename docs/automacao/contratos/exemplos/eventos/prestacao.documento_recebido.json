@@ -1,0 +1,22 @@
+{
+  "id": "4c5d6e7f-8a9b-4c0d-9e1f-2a3b4c5d6e08",
+  "tipo": "prestacao.documento_recebido",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-17T12:44:09Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "prestacao", "id": 431, "versao": 4},
+  "correlacao_id": "prestacao:431",
+  "causa_id": null,
+  "dados": {
+    "anexo_id": 5120,
+    "tipo_documento": "relatorio_tecnico",
+    "prestacao_servidor_id": 902,
+    "versao_id": 78,
+    "chave": "relatorio_tecnico",
+    "recebimento_id": 3301,
+    "canal": "email",
+    "origem": "recebimento",
+    "pendencias_resolvidas": ["PREST_SEM_RT"],
+    "pendencias_restantes": 1
+  }
+}

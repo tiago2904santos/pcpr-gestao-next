@@ -1,0 +1,86 @@
+[
+  {
+    "rota": "/palestras/cadastros/palestrantes/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/imprensa/cadastros/equipe/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/imprensa/cadastros/veiculos/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/publicacoes/cadastros/equipe/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/publicacoes/cadastros/unidades/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/palestras/cadastros/temas/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  },
+  {
+    "rota": "/palestras/cadastros/respostas/",
+    "largura": 360,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  }
+]

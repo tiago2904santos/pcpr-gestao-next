@@ -3,6 +3,7 @@
 {% block titulo %}{{ cat.titulo }} · Cadastros de Eventos{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% comment %}
 Um catálogo de Eventos Sociais (paridade com a lista de cadastros da referência): incluir no
 topo; busca e situação (ativos/inativos); em cada linha, editar (nome e, no texto pronto do
@@ -10,16 +11,13 @@ despacho, o texto), ativar/inativar e excluir — o que está em uso não sai ("
 No tipo de evento, o atalho para o modelo da solicitação.
 {% endcomment %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone cat.icone classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">{{ cat.titulo }}</h1>
-    <p class="pagina-cabecalho__descricao">Informe {% if cat.com_texto %}os dados{% else %}o nome{% endif %} {{ cat.genitivo }} que {% if cat.com_texto %}poderão{% else %}poderá{% endif %} ser utilizado{% if cat.com_texto %}s{% endif %} nas solicitações. O inativo sai dos formulários novos e continua nas solicitações que já o usam.</p>
-  </div>
-  <div class="pagina-cabecalho__acoes"><a class="botao botao--sutil" href="{% url 'eventos:cadastros' %}">{% icone "layers" %}Todos os cadastros</a></div>
-</header>
+{% if cat.slug == "servicos" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos Sociais · Cadastros" titulo=cat.titulo complemento="Catálogo compartilhado com o Plano de Trabalho. As alterações valem para os próximos usos; itens inativos continuam vinculados aos registros anteriores." acoes_template="eventos/_acoes_catalogo.html" %}
+{% else %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos Sociais · Cadastros" titulo=cat.titulo complemento="Dados de apoio das solicitações. Inative um item para retirá-lo de novos formulários e preservar os registros que já o utilizam." acoes_template="eventos/_acoes_catalogo.html" %}
+{% endif %}
 
-{% if erro and not editando %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+{% if erro and not editando %}<div class="alerta alerta--perigo mb-4" role="alert" id="novo-cadastro-erro">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
 
 <section class="cartao" aria-labelledby="t-novo">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">Incluir {{ cat.singular }}</h2></div>
@@ -27,11 +25,11 @@ No tipo de evento, o atalho para o modelo da solicitação.
     {% csrf_token %}
     <div class="campo campo--lg">
       <label class="campo__rotulo" for="novo-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-      {% if cat.com_texto %}<input class="entrada" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" placeholder="Rótulo do botão (ex.: Deferir com ressalva)" value="{% if not editando %}{{ valores.nome }}{% endif %}">
-      {% else %}<div class="linha"><input class="entrada cresce" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" value="{% if not editando %}{{ valores.nome }}{% endif %}"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>{% endif %}
+      {% if cat.com_texto %}<input class="entrada" id="novo-nome" name="nome"{% if erro and not editando and campo_erro == "nome" %} aria-invalid="true" aria-describedby="novo-cadastro-erro"{% endif %} required maxlength="{% if cat.slug == "servicos" %}255{% else %}150{% endif %}" autocomplete="off" placeholder="Rótulo do botão (ex.: Deferir com ressalva)" value="{% if not editando %}{{ valores.nome }}{% endif %}">
+      {% else %}<div class="linha"><input class="entrada cresce" id="novo-nome" name="nome"{% if erro and not editando and campo_erro == "nome" %} aria-invalid="true" aria-describedby="novo-cadastro-erro"{% endif %} required maxlength="{% if cat.slug == "servicos" %}255{% else %}150{% endif %}" autocomplete="off" value="{% if not editando %}{{ valores.nome }}{% endif %}"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>{% endif %}
     </div>
     {% if cat.com_texto %}
-    <div class="campo"><label class="campo__rotulo" for="novo-texto">Texto<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="novo-texto" name="texto" rows="4" required placeholder="O que entra na observação do despacho.">{% if not editando %}{{ valores.texto }}{% endif %}</textarea></div>
+    <div class="campo"><label class="campo__rotulo" for="novo-texto">Texto<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="novo-texto" name="texto"{% if erro and not editando and campo_erro == "texto" %} aria-invalid="true" aria-describedby="novo-cadastro-erro"{% endif %} rows="4" required placeholder="O que entra na observação do despacho.">{% if not editando %}{{ valores.texto }}{% endif %}</textarea></div>
     <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
     {% endif %}
   </form>
@@ -63,10 +61,10 @@ No tipo de evento, o atalho para o modelo da solicitação.
           <summary class="botao botao--sm botao--sutil">{% icone "pencil" %}Editar<span class="sr-only"> {{ r.nome }}</span></summary>
           <form method="post" class="pilha mt-2" novalidate>
             {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}">
-            {% if editando == r.pk %}<p class="campo__erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
-            <div class="campo campo--lg"><label class="campo__rotulo" for="nome-{{ r.pk }}">Nome</label><input class="entrada" id="nome-{{ r.pk }}" name="nome" required maxlength="150" autocomplete="off" value="{% if editando == r.pk %}{{ valores.nome }}{% else %}{{ r.nome }}{% endif %}"></div>
-            {% if cat.com_texto %}<div class="campo"><label class="campo__rotulo" for="texto-{{ r.pk }}">Texto</label><textarea class="entrada" id="texto-{{ r.pk }}" name="texto" rows="4" required>{% if editando == r.pk %}{{ valores.texto }}{% else %}{{ r.texto }}{% endif %}</textarea></div>{% endif %}
-            <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar</button></div>
+            {% if editando == r.pk %}<p class="campo__erro" role="alert" id="cadastro-erro-{{ r.pk }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+            <div class="campo campo--lg"><label class="campo__rotulo" for="nome-{{ r.pk }}">Nome</label><input class="entrada" id="nome-{{ r.pk }}" name="nome"{% if editando == r.pk and campo_erro == "nome" %} aria-invalid="true" aria-describedby="cadastro-erro-{{ r.pk }}"{% endif %} required maxlength="{% if cat.slug == "servicos" %}255{% else %}150{% endif %}" autocomplete="off" value="{% if editando == r.pk %}{{ valores.nome }}{% else %}{{ r.nome }}{% endif %}"></div>
+            {% if cat.com_texto %}<div class="campo"><label class="campo__rotulo" for="texto-{{ r.pk }}">Texto</label><textarea class="entrada" id="texto-{{ r.pk }}" name="texto"{% if editando == r.pk and campo_erro == "texto" %} aria-invalid="true" aria-describedby="cadastro-erro-{{ r.pk }}"{% endif %} rows="4" required>{% if editando == r.pk %}{{ valores.texto }}{% else %}{{ r.texto }}{% endif %}</textarea></div>{% endif %}
+            <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar</button><a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a></div>
           </form>
         </details>
       </div>

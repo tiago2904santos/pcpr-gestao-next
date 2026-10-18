@@ -8,7 +8,9 @@ from __future__ import annotations
 from django.conf import settings
 from django.db import models
 
-from .models import Equipe, OrgaoResponsavel, Servico, TipoEvento, UnidadeMovel
+from gestao.cadastros.models import AtividadePlano
+
+from .models import Equipe, OrgaoResponsavel, TipoEvento, UnidadeMovel
 
 
 class Solicitacao(models.Model):
@@ -104,8 +106,10 @@ class Solicitacao(models.Model):
 class SolicitacaoServico(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="servicos")
-    servico = models.ForeignKey(Servico, on_delete=models.PROTECT, related_name="solicitacoes")
+    servico = models.ForeignKey(AtividadePlano, on_delete=models.PROTECT,
+                               related_name="solicitacoes")
     observacao = models.CharField("observação", max_length=255, blank=True)
+    nome_registrado = models.CharField("serviço no registro", max_length=255, blank=True)
 
     class Meta:
         app_label = "eventos"
@@ -114,7 +118,14 @@ class SolicitacaoServico(models.Model):
                                                name="eventos_solic_servico_unico")]
 
     def __str__(self) -> str:
-        return str(self.servico)
+        return self.nome_registrado or str(self.servico)
+
+    def save(self, *args, **kwargs):
+        if not self.nome_registrado:
+            self.nome_registrado = self.servico.nome
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = {*kwargs["update_fields"], "nome_registrado"}
+        return super().save(*args, **kwargs)
 
 
 class SolicitacaoEquipe(models.Model):

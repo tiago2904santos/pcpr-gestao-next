@@ -1,0 +1,17 @@
+{
+  "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c10",
+  "tipo": "prestacao.versao_assinatura_substituida",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-16T10:12:55Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "prestacao", "id": 431, "versao": 5},
+  "correlacao_id": "prestacao:431",
+  "causa_id": null,
+  "dados": {
+    "chave": "relatorio_tecnico",
+    "versao_anterior_id": 78,
+    "numero_anterior": 1,
+    "nova_versao_id": 81,
+    "motivo_codigo": "correcao"
+  }
+}

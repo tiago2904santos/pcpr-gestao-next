@@ -103,9 +103,9 @@ class TestPerfis:
     def test_indice_mostra_so_o_que_o_perfil_abre(self, base):
         html = _cliente(base["consulta"]).get(reverse("cadastros:indice")).content.decode()
         assert "Servidores" in html and "Cargos" in html
-        assert "Tabela de diárias" not in html and "Configuração da unidade" not in html
+        assert "Tabela de diárias" not in html and "Dados da unidade" not in html
         html = _cliente(base["gestor"]).get(reverse("cadastros:indice")).content.decode()
-        assert "Tabela de diárias" in html and "Configuração da unidade" in html
+        assert "Tabela de diárias" in html and "Dados da unidade" in html
 
 
 # ---------------------------------------------------------------- servidores
@@ -474,7 +474,7 @@ class TestConfiguracao:
     def test_operador_ve_sem_poder_alterar(self, base, dados):
         c = _cliente(base["operador"])
         html = c.get(reverse("cadastros:configuracao")).content.decode()
-        assert "Salvar configuração" not in html and "disabled" in html
+        assert "Salvar dados da unidade" not in html and "disabled" in html
         assert c.post(reverse("cadastros:configuracao"), dados).status_code == 403
 
     def test_cidade_inexistente_volta_com_erro(self, base, dados):

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}{{ meta.titulo }} · {{ meta.modulo }}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
@@ -11,23 +12,14 @@ linha. Contexto: meta (titulo, modulo, intro, icone, novo, exemplo, singular, us
 uso — "pauta,pautas"), registros (com .usos), erro, valor, editando, outros, migalhas.
 {% endcomment %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone meta.icone classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">{{ meta.titulo }}</h1>
-    <p class="pagina-cabecalho__descricao">{{ meta.intro }}</p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    {% for t, m in outros %}<a class="botao botao--sutil" href="{% url m.url %}">{% icone m.icone %}{{ m.titulo }}</a>{% endfor %}
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto=meta.modulo titulo=meta.titulo complemento=meta.intro acoes_template="arquetipos/_cadastro_nomes_acoes.html" %}
 
 <section class="cartao" aria-labelledby="t-novo">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">{{ meta.novo }}</h2></div>
   <form method="post" class="cartao__corpo" novalidate>
     {% csrf_token %}
     <div class="campos">
-      <div class="campo campo--lg{% if erro and not editando %} campo--erro{% endif %}">
+      <div class="campo campo--cresce{% if erro and not editando %} campo--erro{% endif %}">
         <label class="campo__rotulo" for="novo-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
         <div class="linha"><input class="entrada cresce" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" placeholder="{{ meta.exemplo }}" value="{% if not editando %}{{ valor }}{% endif %}"{% if erro and not editando %} aria-invalid="true" aria-describedby="novo-erro"{% endif %}><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
         {% if erro and not editando %}<p class="campo__erro" id="novo-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
@@ -37,9 +29,17 @@ uso — "pauta,pautas"), registros (com .usos), erro, valor, editando, outros, m
 </section>
 
 <section class="cartao mt-4" aria-labelledby="t-lista">
+  <form method="get" class="filtros" role="search" aria-label="Buscar em {{ meta.titulo }}">
+    <div class="campo campo--cresce">
+      <label class="campo__rotulo" for="busca-cadastro">Buscar por nome</label>
+      <input class="entrada" id="busca-cadastro" type="search" name="q" value="{{ q }}" placeholder="Digite parte do nome">
+    </div>
+    <button class="botao" type="submit">{% icone "search" %}Buscar</button>
+    {% if q %}<a class="botao botao--texto" href="{% url meta.url %}">Limpar busca</a>{% endif %}
+  </form>
   <div class="lista-cabecalho">
     <h2 class="peso-semi texto-lg" id="t-lista">{{ meta.titulo }}</h2>
-    <span class="lista-cabecalho__total" role="status">{{ registros|length }} cadastrado{{ registros|length|pluralize }}</span>
+    <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count }} {% if q %}resultado{{ page_obj.paginator.count|pluralize }}{% else %}cadastrado{{ page_obj.paginator.count|pluralize }}{% endif %}</span>
   </div>
   {% if registros %}
   <ul class="registros" aria-labelledby="t-lista">
@@ -53,9 +53,9 @@ uso — "pauta,pautas"), registros (com .usos), erro, valor, editando, outros, m
           <summary class="botao botao--sm botao--sutil">{% icone "pencil" %}Renomear<span class="sr-only"> {{ r.nome }}</span></summary>
           <form method="post" class="campos mt-2" novalidate>
             {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}">
-            <div class="campo campo--lg{% if editando == r.pk %} campo--erro{% endif %}">
+            <div class="campo campo--cresce{% if editando == r.pk %} campo--erro{% endif %}">
               <label class="campo__rotulo" for="nome-{{ r.pk }}">Novo nome</label>
-              <div class="linha"><input class="entrada cresce" id="nome-{{ r.pk }}" name="nome" required maxlength="150" autocomplete="off" value="{% if editando == r.pk %}{{ valor }}{% else %}{{ r.nome }}{% endif %}"{% if editando == r.pk %} aria-invalid="true" aria-describedby="erro-{{ r.pk }}"{% endif %}><button type="submit" class="botao">{% icone "save" %}Salvar</button></div>
+              <div class="linha"><input class="entrada cresce" id="nome-{{ r.pk }}" name="nome" required maxlength="150" autocomplete="off" value="{% if editando == r.pk %}{{ valor }}{% else %}{{ r.nome }}{% endif %}"{% if editando == r.pk %} aria-invalid="true" aria-describedby="erro-{{ r.pk }}"{% endif %}><button type="submit" class="botao">{% icone "save" %}Salvar</button><a class="botao botao--texto" href="{{ request.get_full_path }}#t-lista">Cancelar</a></div>
               {% if editando == r.pk %}<p class="campo__erro" id="erro-{{ r.pk }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
             </div>
           </form>
@@ -72,8 +72,10 @@ uso — "pauta,pautas"), registros (com .usos), erro, valor, editando, outros, m
     </li>
     {% endfor %}
   </ul>
+  {% include "componentes/paginacao.html" %}
   {% else %}
-    {% include "componentes/vazio.html" with icone=meta.icone titulo="Nada cadastrado ainda" texto="Inclua o primeiro no formulário acima." %}
+    {% if q %}{% include "componentes/vazio.html" with icone="search" titulo="Nenhum resultado" texto="Tente outro nome ou limpe a busca. Você também pode incluir um cadastro no formulário acima." %}
+    {% else %}{% include "componentes/vazio.html" with icone=meta.icone titulo="Nada cadastrado ainda" texto="Inclua o primeiro no formulário acima." %}{% endif %}
   {% endif %}
 </section>
 {% endblock %}

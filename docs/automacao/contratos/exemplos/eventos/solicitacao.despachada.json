@@ -1,0 +1,11 @@
+{
+  "id": "d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f13",
+  "tipo": "solicitacao.despachada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-10-20T16:20:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "solicitacao", "id": 77, "versao": 6},
+  "correlacao_id": "solicitacao:77",
+  "causa_id": null,
+  "dados": {"situacao": "deferida", "inicio_evento": "2026-11-12", "unidade_sugerida_id": 4}
+}

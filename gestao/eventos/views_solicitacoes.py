@@ -21,11 +21,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros.fontes import atividades_e_servicos
 from gestao.cadastros.models import Municipio
 
 from . import conflitos, dominio, ganchos, pedir_coffee, policies, queries, solicitacoes
 from .forms import FORM_ID, FormularioSolicitacao, estrutura_do_post, quantidade
-from .models import AnexoSolicitacao, Equipe, Servico, Solicitacao, TextoDespacho, TipoEvento
+from .models import AnexoSolicitacao, Equipe, Solicitacao, TextoDespacho, TipoEvento
 
 POR_PAGINA = 25
 
@@ -97,7 +98,7 @@ def _linha_exportada(s) -> list:
         s.endereco, s.bairro, s.cep, s.protocolo, s.solicitante_nome,
         s.solicitante_cargo_unidade, s.contato,
         s.orgao_responsavel.nome if s.orgao_responsavel else "",
-        "; ".join(x.servico.nome for x in s.servicos.all()),
+        "; ".join(str(x) for x in s.servicos.all()),
         "; ".join(f"{x.equipe.nome} ({x.quantidade_servidores or 0})" for x in s.equipes.all()),
         s.quantidade_servidores, s.get_tipo_operacao_display(),
         "Sim" if s.unidade_movel else "Não", s.quantidade_cin or "",
@@ -218,11 +219,12 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     elif s is None and (tipo := form.initial.get("_tipo_modelo")) is not None:
         escolhidos = {x.pk: "" for x in tipo.servicos_sugeridos.all()}
         equipes_atuais = {x.equipe_id: x.quantidade for x in tipo.equipes_padrao.all()}
-    servicos = Servico.objects.filter(ativo=True) | Servico.objects.filter(pk__in=escolhidos)
+    servicos = atividades_e_servicos(incluir=escolhidos)
     equipes = Equipe.objects.filter(ativo=True) | Equipe.objects.filter(pk__in=equipes_atuais)
     ctx = {
         "form": form, "form_id": FORM_ID, "s": s, "editavel": editavel, "reabrir": reabrir,
         "servicos": [(x, x.pk in escolhidos) for x in servicos.distinct().order_by("nome")],
+        "servicos_registrados": list(s.servicos.all()) if s else [],
         "equipes": [(x, x.pk in equipes_atuais, equipes_atuais.get(x.pk))
                     for x in equipes.distinct().order_by("nome")],
         "erros_estrutura": erros_estrutura or [],

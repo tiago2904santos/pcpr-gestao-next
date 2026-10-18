@@ -1,4 +1,4 @@
-{% load static %}
+{% load static cadastros_ui %}
 <header class="cabecalho">
   <button type="button" class="cabecalho__menu cabecalho__menu--gaveta" data-acao="abrir-gaveta"
           aria-controls="navegacao-principal" aria-expanded="false" aria-label="Abrir menu de navegação">
@@ -44,6 +44,8 @@
           {% if demo_ativo %}<span class="selo selo--aviso mt-2">Demonstração · {{ app_env|upper }}</span>{% endif %}
         </div>
         <a class="menu__item" role="menuitem" href="{% url 'identidade:alterar_senha' %}">{% icone "lock" %} Alterar senha</a>
+        {% pode_ver_dados_unidade user as ver_dados_unidade %}
+        {% if ver_dados_unidade %}<a class="menu__item" role="menuitem" href="{% url 'cadastros:configuracao' %}">{% icone "landmark" %} Dados da unidade</a>{% endif %}
         <a class="menu__item" role="menuitem" href="{% url 'ui_lab:indice' %}">{% icone "palette" %} UI Lab</a>
         <div class="menu__separador" role="separator"></div>
         <form method="post" action="{% url 'identidade:sair' %}">

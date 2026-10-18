@@ -1,0 +1,78 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from ini)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 6 items
+
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade PASSED [ 16%]
+gestao/coffee/tests/test_certidoes.py::test_imagem_vale_a_data_informada_e_quadro PASSED [ 33%]
+gestao/coffee/tests/test_certidoes.py::test_telas_das_certidoes PASSED   [ 50%]
+gestao/coffee/tests/test_certidoes.py::test_erro_do_anexo_fica_no_modal_e_preserva_validade PASSED [ 66%]
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[360] PASSED [ 83%]
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[1440] FAILED [100%]
+
+================================== FAILURES ===================================
+________________ test_certidao_coffee_modal_e_calendario[1440] ________________
+
+logado = <Page url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'>
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_certidao_coffee_modal_e_calendario(logado, largura):
+        from gestao.coffee.models import Certidao
+    
+        from .test_coffee import _lote_de_curitiba, _operador_do_modulo
+    
+        _operador_do_modulo()
+        lote = _lote_de_curitiba()
+        fornecedor = lote.contrato.fornecedor
+        fornecedor.razao_social = "Fornecedor sintético com identificação extensa para conferência"
+        fornecedor.save(update_fields=["razao_social"])
+        pg = logado
+        pg.emulate_media(reduced_motion="reduce")
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/coffee/certidoes/")
+        pg.locator('a[href^="?anexar="]').first.click()
+        janela = pg.locator("#dialogo-certidao")
+        expect(janela).to_be_visible()
+        expect(janela.get_by_role("heading")).to_contain_text(fornecedor.razao_social)
+        janela.get_by_label("Válida até", exact=True).fill("17/11/2030")
+        janela.get_by_role("button", name="Conferir e anexar", exact=True).click()
+        expect(pg.locator(".toast")).to_contain_text("escolha o PDF")
+        expect(janela).to_be_visible()
+        expect(janela.get_by_role("alert")).to_contain_text("escolha o PDF")
+        expect(janela.get_by_label("Válida até", exact=True)).to_have_value("17/11/2030")
+        calendario = janela.get_by_role("button", name="Escolher data: Válida até", exact=True)
+        calendario.click()
+        expect(pg.locator(".calendario:visible")).to_be_visible()
+>       assert pg.locator(".calendario:visible").evaluate(
+            "e => {const r=e.getBoundingClientRect(); return r.top>=0 && r.bottom<=innerHeight;}")
+E       AssertionError: assert False
+E        +  where False = evaluate('e => {const r=e.getBoundingClientRect(); return r.top>=0 && r.bottom<=innerHeight;}')
+E        +    where evaluate = <Locator frame=<Frame name= url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'> selector='.calendario:visible'>.evaluate
+E        +      where <Locator frame=<Frame name= url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'> selector='.calendario:visible'> = locator('.calendario:visible')
+E        +        where locator = <Page url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'>.locator
+
+tests\e2e\test_cadastros_missao.py:325: AssertionError
+-------------------------- Captured stderr teardown ---------------------------
+Destroying test database for alias 'default' ('test_pcpr_ui_final_local_lab')...
+
+============================== warnings summary ===============================
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\docs\auditorias\cadastros-compartilhados\certidoes-validacao-final.xml -
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[1440] - AssertionError: assert False
+ +  where False = evaluate('e => {const r=e.getBoundingClientRect(); return r.top>=0 && r.bottom<=innerHeight;}')
+ +    where evaluate = <Locator frame=<Frame name= url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'> selector='.calendario:visible'>.evaluate
+ +      where <Locator frame=<Frame name= url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'> selector='.calendario:visible'> = locator('.calendario:visible')
+ +        where locator = <Page url='http://localhost:53322/coffee/certidoes/?anexar=6%3Afederal&validade=17%2F11%2F2030'>.locator
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+============== 1 failed, 5 passed, 1 warning in 74.85s (0:01:14) ==============

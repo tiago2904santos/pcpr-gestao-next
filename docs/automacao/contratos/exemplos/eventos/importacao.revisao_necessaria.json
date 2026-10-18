@@ -1,0 +1,16 @@
+{
+  "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d11",
+  "tipo": "importacao.revisao_necessaria",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-17T12:46:30Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "importacao", "id": 7710, "versao": 1},
+  "correlacao_id": "recebimento:3302",
+  "causa_id": null,
+  "dados": {
+    "partes_em_revisao": 2,
+    "motivos": ["tipo_incerto", "destino_ambiguo"],
+    "recebimento_id": 3302,
+    "unidade_id": 4
+  }
+}

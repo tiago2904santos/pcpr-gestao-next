@@ -1,0 +1,2468 @@
+{
+  "inicio": "2026-10-18T00:52:20-03:00",
+  "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
+  "python": "3.13.15",
+  "garantias": {
+    "chamadas_reais_a_meta": "nenhuma: Graph API simulada em 127.0.0.1:8767; no contêiner graph.facebook.com, graph.whatsapp.com, lookaside.fbsbx.com, facebook.com, www.facebook.com → 127.0.0.1; SSRF do n8n libera só host.docker.internal",
+    "numeros": "fictícios +5500… (DDD 00 não existe)",
+    "segredos": "sintéticos, gerados nesta execução e removidos do relatório"
+  },
+  "cenarios": [
+    {
+      "id": "TW0",
+      "nome": "simulador aplica as regras oficiais (Bearer, janela, modelos, mídia, HMAC)",
+      "passou": true,
+      "evidencia": {
+        "sem_bearer": [
+          401,
+          190
+        ],
+        "texto_fora_da_janela": [
+          400,
+          131047
+        ],
+        "modelo_pending": [
+          400,
+          132001
+        ],
+        "modelo_parametros_errados": [
+          400,
+          132000
+        ],
+        "modelo_aprovado": [
+          200,
+          true
+        ],
+        "upload": 200,
+        "metadados": [
+          200,
+          true,
+          44
+        ],
+        "download_sem_bearer": 401,
+        "download_com_bearer": [
+          200,
+          true
+        ],
+        "download_url_vencida": 404,
+        "documento_fora_da_janela": [
+          400,
+          131047
+        ],
+        "assinatura_x_hub_confere": true
+      },
+      "segundos": 1.7
+    },
+    {
+      "id": "TW1",
+      "nome": "modelo enviado 1× e wamid registrado no PCPR",
+      "passou": true,
+      "evidencia": {
+        "comunicacao_id": 2,
+        "mensagens_na_graph_api": 1,
+        "tipo": "template",
+        "modelo": "pcpr_km_vespera_v1",
+        "variaveis": [
+          "Fulana",
+          "<link do km>"
+        ],
+        "biz_opaque_callback_data": "com:2",
+        "wamid_registrado_no_pcpr": true,
+        "mapeamento_wamid_comunicacao": true,
+        "reservas_200": 1,
+        "resultados_200": 1
+      },
+      "segundos": 4.1
+    },
+    {
+      "id": "TW2",
+      "nome": "evento duplicado (série, paralelo, outro id) → 1 mensagem",
+      "passou": true,
+      "evidencia": {
+        "a_reentregas_do_mesmo_evento": {
+          "respostas": [
+            202,
+            202
+          ],
+          "mensagens": 1
+        },
+        "b_cinco_entregas_simultaneas": {
+          "respostas": [
+            202,
+            202,
+            202,
+            202,
+            202
+          ],
+          "mensagens": 1
+        },
+        "c_evento_com_outro_id": {
+          "reserva": [
+            409
+          ],
+          "codigo": "ja_processada",
+          "mensagens": 1
+        }
+      },
+      "segundos": 5.2
+    },
+    {
+      "id": "TW3",
+      "nome": "fora da janela: modelo, nunca 131047 em laço",
+      "passou": true,
+      "evidencia": {
+        "a_fora_da_janela_pedido_texto": {
+          "estado": "enviada",
+          "graph": [
+            {
+              "tipo": "template",
+              "aceita": true,
+              "erro_codigo": null,
+              "falha_assincrona": null,
+              "template": "pcpr_documentos_disponiveis_v1"
+            }
+          ]
+        },
+        "b_131047_sincrono_troca_por_modelo": {
+          "estado": "enviada",
+          "graph": [
+            {
+              "tipo": "text",
+              "aceita": false,
+              "erro_codigo": 131047,
+              "falha_assincrona": null,
+              "template": null
+            },
+            {
+              "tipo": "template",
+              "aceita": true,
+              "erro_codigo": null,
+              "falha_assincrona": null,
+              "template": "pcpr_documentos_disponiveis_v1"
+            }
+          ]
+        },
+        "c_131047_assincrono_pcpr_reagenda_modelo": {
+          "original": {
+            "estado": "enviada",
+            "entrega": "falhou"
+          },
+          "substituta": {
+            "id": 17,
+            "estado": "enviada"
+          },
+          "graph": [
+            {
+              "tipo": "text",
+              "aceita": true,
+              "erro_codigo": null,
+              "falha_assincrona": 131047,
+              "template": null
+            },
+            {
+              "tipo": "template",
+              "aceita": true,
+              "erro_codigo": null,
+              "falha_assincrona": null,
+              "template": "pcpr_documentos_disponiveis_v1"
+            }
+          ]
+        },
+        "d_sem_modelo_recusa": {
+          "estado": "falhou",
+          "graph": [],
+          "excecao": [
+            "comunicacao 10: não enviado: forma pedida 'texto' fora da janela de 24 h e sem modelo aprovado (evita o erro 131047)"
+          ]
+        },
+        "e_modelo_nao_aprovado": {
+          "estado": "falhou",
+          "graph": [
+            {
+              "tipo": "template",
+              "aceita": false,
+              "erro_codigo": 132001,
+              "falha_assincrona": null,
+              "template": "pcpr_aviso_pendencia_v1"
+            }
+          ],
+          "excecoes": 1
+        },
+        "total_131047_na_bateria": 2
+      },
+      "segundos": 9.5
+    },
+    {
+      "id": "TW4",
+      "nome": "dentro da janela: documento por id de mídia",
+      "passou": true,
+      "evidencia": {
+        "janela_aberta_por": "mensagem de texto recebida (V2) → PCPR.janela",
+        "upload": {
+          "media_id": "<id sintético>",
+          "sha256_confere_com_o_pcpr": true
+        },
+        "mensagem": {
+          "tipo": "document",
+          "por_id_de_midia": true,
+          "filename": "oficio-sintetico-20.pdf"
+        },
+        "modelos_enviados": 0,
+        "estado": "enviada"
+      },
+      "segundos": 3.7
+    },
+    {
+      "id": "TW11",
+      "nome": "canal bloqueado → 0 chamada à Graph API, aguardando envio manual (WA-1)",
+      "passou": true,
+      "evidencia": {
+        "a_padrao_bloqueado": {
+          "estado_inicial": "bloqueado",
+          "comunicacao": "aguardando_envio_manual",
+          "eventos_emitidos": 0,
+          "reconciliacao": {
+            "devidas": 0
+          },
+          "wa1_link_wa_me": "https://wa.me/5500…?text=…",
+          "marcado_enviado_por_outro_meio": {
+            "estado": "feita_a_mao",
+            "origem": "outro_meio"
+          },
+          "chamadas_graph_api": 0
+        },
+        "b_bloqueado_depois_do_evento": {
+          "resposta_n8n": 202,
+          "reserva": [
+            409,
+            "canal_bloqueado"
+          ],
+          "estado": "aguardando_envio_manual",
+          "chamadas_graph_api": 0
+        },
+        "c_entrada_bloqueada": {
+          "webhook_v2": 403,
+          "api_sem_arquivo": [
+            409,
+            "canal_bloqueado"
+          ]
+        },
+        "d_desligado_depois_religado": {
+          "reserva": [
+            423
+          ],
+          "reconciliacao": {
+            "devidas": 1
+          },
+          "mensagens": 1
+        }
+      },
+      "segundos": 8.6
+    },
+    {
+      "id": "TW12",
+      "nome": "contato sem opt-in → não envia, exceção contato_nao_verificado",
+      "passou": true,
+      "evidencia": {
+        "sem_opt_in": {
+          "reserva": [
+            409,
+            "regra_violada"
+          ],
+          "estado": "sem_contato",
+          "excecao": "contato_nao_verificado",
+          "mensagens": 0
+        },
+        "revogado": {
+          "reserva": [
+            409,
+            "regra_violada"
+          ],
+          "estado": "sem_contato",
+          "excecao": "contato_nao_verificado",
+          "mensagens": 0
+        },
+        "nao_verificado": {
+          "reserva": [
+            409,
+            "regra_violada"
+          ],
+          "estado": "sem_contato",
+          "excecao": "contato_nao_verificado",
+          "mensagens": 0
+        }
+      },
+      "segundos": 4.1
+    },
+    {
+      "id": "TW15",
+      "nome": "W6: resposta ambígua (502 após aceitar) → resultado_desconhecido",
+      "passou": true,
+      "evidencia": {
+        "mensagens_na_graph_api": 1,
+        "resposta_vista_pelo_w6": "502 sem corpo da Graph API (a Meta tinha aceitado)",
+        "resultado": "resultado_desconhecido",
+        "estado": "falhou",
+        "excecao": "resultado_desconhecido",
+        "reconciliacao_depois": {
+          "devidas": 0
+        },
+        "reenvios": 0
+      },
+      "segundos": 4.9
+    },
+    {
+      "id": "TW5",
+      "nome": "status fora de ordem e duplicado → lida, sem regressão",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "webhooks": [
+              200,
+              200,
+              200,
+              200,
+              200,
+              200
+            ],
+            "estado_final_entrega": "lida",
+            "entregue_em_registrado": true,
+            "lida_em_registrado": true,
+            "posts_entrega": 4,
+            "repeticoes_idempotentes": 2,
+            "status_sem_biz_opaque_callback_data": {
+              "resolvido_pelo_wamid": true,
+              "entrega": "entregue"
+            }
+          },
+          "passou": true,
+          "segundos": 7.1
+        },
+        "V2": {
+          "evidencia": {
+            "webhooks": [
+              200,
+              200,
+              200,
+              200,
+              200
+            ],
+            "estado_final_entrega": "lida",
+            "entregue_em_registrado": true,
+            "lida_em_registrado": true,
+            "duplicatas_ignoradas_no_pcpr": {
+              "status:wamid.SIMOUTT1VUMDAwMDQ5MzEyNjM5NGQ2NTRk:read": 2,
+              "status:wamid.SIMOUTT1VUMDAwMDQ5MzEyNjM5NGQ2NTRk:delivered": 2,
+              "status:wamid.SIMOUTT1VUMDAwMDQ5MzEyNjM5NGQ2NTRk:sent": 1
+            }
+          },
+          "passou": true,
+          "segundos": 1.7
+        }
+      }
+    },
+    {
+      "id": "TW6",
+      "nome": "assinatura inválida → 401, nada gravado",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "respostas_invalidas": {
+              "segredo_errado": 401,
+              "sem_assinatura": 401,
+              "corpo_alterado": 401,
+              "sha1": 401
+            },
+            "recebimentos_gravados": 0,
+            "janela_aberta": false,
+            "midias_baixadas": 0,
+            "controle_positivo": {
+              "status": 200,
+              "recebimentos": 1
+            }
+          },
+          "passou": true,
+          "segundos": 4.2
+        },
+        "V2": {
+          "evidencia": {
+            "respostas_invalidas": {
+              "segredo_errado": 401,
+              "sem_assinatura": 401,
+              "corpo_alterado": 401,
+              "sha1": 401
+            },
+            "recebimentos_gravados": 0,
+            "janela_aberta": false,
+            "midias_baixadas": 0,
+            "controle_positivo": {
+              "status": 200,
+              "recebimentos": 1
+            }
+          },
+          "passou": true,
+          "segundos": 3.4
+        }
+      }
+    },
+    {
+      "id": "TW7",
+      "nome": "verificação GET correta/incorreta",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "correta": [
+              200,
+              "desafio ecoado",
+              "text/plain; charset=utf-8"
+            ],
+            "token_errado": 403,
+            "modo_errado": 403,
+            "desafio_nao_alfanumerico": 403
+          },
+          "passou": true,
+          "segundos": 0.8
+        },
+        "V2": {
+          "evidencia": {
+            "correta": [
+              200,
+              "desafio ecoado",
+              "text/plain; charset=utf-8"
+            ],
+            "token_errado": 403,
+            "modo_errado": 403,
+            "desafio_nao_alfanumerico": 403
+          },
+          "passou": true,
+          "segundos": 0.1
+        }
+      }
+    },
+    {
+      "id": "TW8",
+      "nome": "documento recebido → 1 recebimento, SHA-256, Bearer",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "webhook": 200,
+            "recebimentos": 1,
+            "estado": "aceito_para_processamento",
+            "sha256_conferido": true,
+            "midia_baixada_com_bearer": true,
+            "passos": {
+              "metadados": 1,
+              "downloads": [
+                200
+              ]
+            },
+            "resposta_ligada_a_comunicacao": true,
+            "b_sha256_divergente": {
+              "recebimentos": 0,
+              "excecao": true
+            },
+            "c_lote_misto_documento_e_status": {
+              "resposta": 200,
+              "concluido_antes_do_200": true,
+              "recebimentos": 1,
+              "entrega": "entregue"
+            }
+          },
+          "passou": true,
+          "segundos": 6.4
+        },
+        "V2": {
+          "evidencia": {
+            "webhook": 200,
+            "recebimentos": 1,
+            "estado": "aceito_para_processamento",
+            "sha256_conferido": true,
+            "midia_baixada_com_bearer": true,
+            "passos": {
+              "metadados": 1,
+              "downloads": [
+                200
+              ]
+            },
+            "resposta_ligada_a_comunicacao": true,
+            "b_sha256_divergente": {
+              "recebimentos": 0,
+              "excecao": true
+            },
+            "c_lote_misto_documento_e_status": {
+              "resposta": 200,
+              "concluido_antes_do_200": false,
+              "recebimentos": 1,
+              "entrega": "entregue"
+            }
+          },
+          "passou": true,
+          "segundos": 6.4
+        }
+      }
+    },
+    {
+      "id": "TW9",
+      "nome": "reentrega do mesmo webhook → 1 recebimento",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "entregas_identicas": 3,
+            "respostas": [
+              200,
+              200,
+              200
+            ],
+            "recebimentos": 1,
+            "downloads": 3,
+            "post_recebimentos": 3,
+            "repeticoes_idempotentes": 2
+          },
+          "passou": true,
+          "segundos": 4.1
+        },
+        "V2": {
+          "evidencia": {
+            "entregas_identicas": 3,
+            "respostas": [
+              200,
+              200,
+              200
+            ],
+            "recebimentos": 1,
+            "downloads": 1,
+            "vezes_que_chegou_ao_pcpr": 3
+          },
+          "passou": true,
+          "segundos": 3.1
+        }
+      }
+    },
+    {
+      "id": "TW10",
+      "nome": "URL de mídia vencida → pede nova e conclui",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "pedidos_de_url": 2,
+            "downloads": [
+              404,
+              200
+            ],
+            "recebimentos": 1,
+            "webhook": 200
+          },
+          "passou": true,
+          "segundos": 2.4
+        },
+        "V2": {
+          "evidencia": {
+            "pedidos_de_url": 2,
+            "downloads": [
+              404,
+              200
+            ],
+            "recebimentos": 1,
+            "webhook": 200
+          },
+          "passou": true,
+          "segundos": 2.8
+        }
+      }
+    },
+    {
+      "id": "TW14",
+      "nome": "status antes do resultado → não-2xx; reentrega após registro → gravado",
+      "passou": true,
+      "variantes": {
+        "V1": {
+          "evidencia": {
+            "a_sem_callback_data": {
+              "primeira_entrega": 503,
+              "consulta_pelo_wamid": "itens: [] (resultado ainda não registrado)",
+              "reentrega_depois_do_resultado": 200,
+              "entrega_final": "entregue"
+            },
+            "b_com_callback_data": {
+              "primeira_entrega": 200,
+              "entrega_apos_registrar_o_resultado": "entregue"
+            }
+          },
+          "passou": true,
+          "segundos": 2.0
+        }
+      }
+    },
+    {
+      "id": "TW13",
+      "nome": "retenção de dado pessoal no n8n: V1 × V2 e mitigação",
+      "passou": true,
+      "evidencia": {
+        "configuracao_n8n_nos_blocos_A_B_C": "a mesma da suíte principal (EXECUTIONS_DATA_PRUNE=true, hard-delete a cada 15 min, padrão 2.43.7); W6–W8 com saveData*='none' e saveExecutionProgress=false",
+        "apos_envio": {
+          "envio": {
+            "banco": 39,
+            "arquivos": 1
+          },
+          "status": {
+            "banco": 2,
+            "arquivos": 0
+          },
+          "status (base64)": {
+            "banco": 1,
+            "arquivos": 0
+          },
+          "envio (base64)": {
+            "banco": 1,
+            "arquivos": 0
+          },
+          "segredo": {
+            "banco": 3,
+            "arquivos": 0
+          }
+        },
+        "apos_v1": {
+          "envio": {
+            "banco": 16,
+            "arquivos": 0
+          },
+          "V1": {
+            "banco": 40,
+            "arquivos": 14
+          },
+          "V1 (base64)": {
+            "banco": 47,
+            "arquivos": 0
+          },
+          "status": {
+            "banco": 9,
+            "arquivos": 0
+          },
+          "status (base64)": {
+            "banco": 5,
+            "arquivos": 0
+          },
+          "envio (base64)": {
+            "banco": 4,
+            "arquivos": 0
+          }
+        },
+        "apos_v2": {
+          "envio": {
+            "banco": 28,
+            "arquivos": 0
+          },
+          "V1": {
+            "banco": 40,
+            "arquivos": 14
+          },
+          "V1 (base64)": {
+            "banco": 47,
+            "arquivos": 0
+          },
+          "status": {
+            "banco": 9,
+            "arquivos": 0
+          },
+          "status (base64)": {
+            "banco": 5,
+            "arquivos": 0
+          },
+          "envio (base64)": {
+            "banco": 4,
+            "arquivos": 0
+          }
+        },
+        "acrescimo_bloco_A_envio": {
+          "envio·telefone": {
+            "banco": 13
+          },
+          "envio·link_km": {
+            "banco": 14
+          },
+          "envio·token_reserva": {
+            "banco": 11
+          },
+          "status·wamid_saida": {
+            "banco": 2
+          },
+          "status·wamid_saida[b64]": {
+            "banco": 1
+          },
+          "envio·telefone[b64]": {
+            "banco": 1
+          },
+          "envio·url_assinada_pcpr": {
+            "banco": 1
+          },
+          "segredo·disparo": {
+            "banco": 3
+          },
+          "envio·documento": {
+            "arquivos": 1
+          }
+        },
+        "acrescimo_bloco_B_V1": {
+          "envio·telefone": {
+            "banco": -3
+          },
+          "envio·link_km": {
+            "banco": -10
+          },
+          "envio·token_reserva": {
+            "banco": -9
+          },
+          "V1·telefone": {
+            "banco": 7
+          },
+          "V1·telefone[b64]": {
+            "banco": 14
+          },
+          "V1·wamid": {
+            "banco": 7,
+            "arquivos": 7
+          },
+          "V1·wamid[b64]": {
+            "banco": 7
+          },
+          "V1·url_midia": {
+            "banco": 6
+          },
+          "V1·url_midia[b64]": {
+            "banco": 6
+          },
+          "V1·id_midia": {
+            "banco": 13
+          },
+          "V1·id_midia[b64]": {
+            "banco": 13
+          },
+          "V1·nome_perfil": {
+            "banco": 7
+          },
+          "V1·nome_perfil[b64]": {
+            "banco": 7
+          },
+          "status·wamid_saida": {
+            "banco": 7
+          },
+          "status·wamid_saida[b64]": {
+            "banco": 4
+          },
+          "envio·telefone[b64]": {
+            "banco": 3
+          },
+          "V1·documento": {
+            "arquivos": 7
+          }
+        },
+        "acrescimo_bloco_C_V2": {
+          "envio·telefone": {
+            "banco": 3
+          },
+          "envio·link_km": {
+            "banco": 6
+          },
+          "envio·token_reserva": {
+            "banco": 3
+          }
+        },
+        "linhas_de_execucao_apos_v2": {
+          "pcprEntradaEvt01|running|webhook|soft-deleted": 5,
+          "pcprEntregaCom01|running|integrated|soft-deleted": 5,
+          "pcprWhatsEnvio01|running|integrated|soft-deleted": 5,
+          "pcprWhatsWebhk01|running|webhook|soft-deleted": 10,
+          "pcprWhatsStatus1|running|integrated|soft-deleted": 4
+        },
+        "m1_subida_s": 29.9,
+        "m1_rodada": {
+          "documento": 1,
+          "texto": 1,
+          "status": 1,
+          "envio_modelo": 1
+        },
+        "m1_imediato": {
+          "envio": {
+            "banco": 31,
+            "arquivos": 0
+          },
+          "V1": {
+            "banco": 40,
+            "arquivos": 14
+          },
+          "V1 (base64)": {
+            "banco": 47,
+            "arquivos": 0
+          },
+          "status": {
+            "banco": 11,
+            "arquivos": 0
+          },
+          "status (base64)": {
+            "banco": 6,
+            "arquivos": 0
+          },
+          "envio (base64)": {
+            "banco": 4,
+            "arquivos": 0
+          },
+          "M1": {
+            "banco": 5,
+            "arquivos": 2
+          },
+          "M1 (base64)": {
+            "banco": 7,
+            "arquivos": 0
+          },
+          "envioM": {
+            "banco": 3,
+            "arquivos": 0
+          },
+          "envioM (base64)": {
+            "banco": 1,
+            "arquivos": 0
+          }
+        },
+        "m1_apos_hard_delete": {},
+        "m1_segundos_desde_subida_na_2a_varredura": 100.8,
+        "m2_subida_s": 37.4,
+        "m2_rodada": {
+          "documento": 1,
+          "texto": 1,
+          "status": 1,
+          "envio_modelo": 1
+        },
+        "m2_imediato": {},
+        "segredos_vindos_de_fora_retidos": {
+          "apos_envio": {
+            "segredo·disparo": 3
+          },
+          "apos_v1": {},
+          "apos_v2": {},
+          "m1_imediato": {},
+          "m1_apos_hard_delete": {},
+          "m2_imediato": {}
+        }
+      },
+      "segundos": 145.3
+    }
+  ],
+  "preparacao": {
+    "segundos": 46.5,
+    "saida_cli": [
+      "Note: Changes will not take effect if n8n is running.",
+      "Please restart n8n for changes to take effect if n8n is currently running.",
+      "pcprEntradaEvt01|PCPR · Entrada de eventos",
+      "pcprEntregaCom01|PCPR · Entregar comunicação",
+      "pcprReconcilia01|PCPR · Reconciliação",
+      "pcprRecebimento1|PCPR · Recebimento de arquivo",
+      "pcprErros0000001|PCPR · Erros",
+      "pcprWhatsEnvio01|PCPR · Enviar por WhatsApp (oficial)",
+      "pcprWhatsWebhk01|PCPR · Webhook WhatsApp",
+      "pcprWhatsStatus1|PCPR · Status WhatsApp",
+      "pcprEntradaEvt01",
+      "pcprEntregaCom01",
+      "pcprReconcilia01",
+      "pcprRecebimento1",
+      "pcprErros0000001",
+      "pcprWhatsEnvio01",
+      "pcprWhatsWebhk01",
+      "pcprWhatsStatus1"
+    ]
+  },
+  "primeira_subida_s": 10.5,
+  "config_efetiva": {
+    "diagnostics": false,
+    "versionNotifications": false,
+    "whatsNew": false,
+    "templates": false,
+    "personalization": false,
+    "dynamicBanners": false,
+    "hiringBanner": false,
+    "licenseAutoRenew": false,
+    "ai": false,
+    "publicApiDisabled": true,
+    "ssrf": {
+      "enabled": true,
+      "allowedHostnames": [
+        "host.docker.internal"
+      ]
+    },
+    "prune": {
+      "on": true,
+      "maxAgeH": 168,
+      "maxCount": 5000
+    },
+    "timezone": "America/Sao_Paulo",
+    "runnersMode": "internal",
+    "db": "sqlite"
+  },
+  "varreduras": {
+    "apos_envio": {
+      "rotulo": "apos_envio",
+      "em": "2026-10-18T00:54:03-03:00",
+      "segundos_desde_subida_do_n8n": 55.2,
+      "tabelas_de_execucao": {
+        "envio·telefone": 13,
+        "envio·link_km": 14,
+        "envio·token_reserva": 11,
+        "status·wamid_saida": 2,
+        "status·wamid_saida[b64]": 1,
+        "envio·telefone[b64]": 1,
+        "envio·url_assinada_pcpr": 1,
+        "segredo·disparo": 3
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": {
+          "envio·telefone": 11,
+          "envio·link_km": 14,
+          "envio·token_reserva": 11,
+          "envio·url_assinada_pcpr": 1
+        },
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": {
+          "status·wamid_saida": 1,
+          "status·wamid_saida[b64]": 1,
+          "envio·telefone": 1,
+          "envio·telefone[b64]": 1
+        },
+        "pcprWhatsStatus1|running|integrated|soft-deleted": {
+          "status·wamid_saida": 1,
+          "envio·telefone": 1
+        },
+        "pcprReconcilia01|running|webhook|soft-deleted": {
+          "segredo·disparo": 3
+        }
+      },
+      "linhas_execution_data": {
+        "pcprEntradaEvt01|running|webhook|soft-deleted": 23,
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": 2,
+        "pcprEntregaCom01|running|integrated|soft-deleted": 17,
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": 11,
+        "pcprWhatsStatus1|running|integrated|soft-deleted": 1,
+        "pcprReconcilia01|running|webhook|soft-deleted": 3
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "envio·documento": 1
+      },
+      "arquivos_onde": {
+        "storage:pcprWhatsEnvio01": {
+          "envio·documento": 1
+        }
+      },
+      "arquivos_varridos": 4,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 2.4,
+      "por_grupo": {
+        "envio": {
+          "banco": 39,
+          "arquivos": 1
+        },
+        "status": {
+          "banco": 2,
+          "arquivos": 0
+        },
+        "status (base64)": {
+          "banco": 1,
+          "arquivos": 0
+        },
+        "envio (base64)": {
+          "banco": 1,
+          "arquivos": 0
+        },
+        "segredo": {
+          "banco": 3,
+          "arquivos": 0
+        }
+      }
+    },
+    "apos_v1": {
+      "rotulo": "apos_v1",
+      "em": "2026-10-18T00:54:32-03:00",
+      "segundos_desde_subida_do_n8n": 83.4,
+      "tabelas_de_execucao": {
+        "envio·telefone": 10,
+        "envio·link_km": 4,
+        "envio·token_reserva": 2,
+        "V1·telefone": 7,
+        "V1·telefone[b64]": 14,
+        "V1·wamid": 7,
+        "V1·wamid[b64]": 7,
+        "V1·url_midia": 6,
+        "V1·url_midia[b64]": 6,
+        "V1·id_midia": 13,
+        "V1·id_midia[b64]": 13,
+        "V1·nome_perfil": 7,
+        "V1·nome_perfil[b64]": 7,
+        "status·wamid_saida": 9,
+        "status·wamid_saida[b64]": 5,
+        "envio·telefone[b64]": 4
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": {
+          "envio·telefone": 2,
+          "envio·link_km": 4,
+          "envio·token_reserva": 2
+        },
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": {
+          "V1·telefone": 7,
+          "V1·telefone[b64]": 14,
+          "V1·wamid": 7,
+          "V1·wamid[b64]": 7,
+          "V1·url_midia": 6,
+          "V1·url_midia[b64]": 6,
+          "V1·id_midia": 13,
+          "V1·id_midia[b64]": 13,
+          "V1·nome_perfil": 7,
+          "V1·nome_perfil[b64]": 7,
+          "status·wamid_saida": 5,
+          "status·wamid_saida[b64]": 5,
+          "envio·telefone": 4,
+          "envio·telefone[b64]": 4
+        },
+        "pcprWhatsStatus1|running|integrated|soft-deleted": {
+          "status·wamid_saida": 4,
+          "envio·telefone": 4
+        }
+      },
+      "linhas_execution_data": {
+        "pcprEntradaEvt01|running|webhook|soft-deleted": 2,
+        "pcprEntregaCom01|running|integrated|soft-deleted": 2,
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": 2,
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": 10,
+        "pcprWhatsStatus1|running|integrated|soft-deleted": 4
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 7,
+        "V1·documento": 7
+      },
+      "arquivos_onde": {
+        "storage:pcprWhatsWebhk01": {
+          "V1·wamid": 7,
+          "V1·documento": 7
+        }
+      },
+      "arquivos_varridos": 18,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 1.2,
+      "por_grupo": {
+        "envio": {
+          "banco": 16,
+          "arquivos": 0
+        },
+        "V1": {
+          "banco": 40,
+          "arquivos": 14
+        },
+        "V1 (base64)": {
+          "banco": 47,
+          "arquivos": 0
+        },
+        "status": {
+          "banco": 9,
+          "arquivos": 0
+        },
+        "status (base64)": {
+          "banco": 5,
+          "arquivos": 0
+        },
+        "envio (base64)": {
+          "banco": 4,
+          "arquivos": 0
+        }
+      }
+    },
+    "apos_v2": {
+      "rotulo": "apos_v2",
+      "em": "2026-10-18T00:54:50-03:00",
+      "segundos_desde_subida_do_n8n": 102.0,
+      "tabelas_de_execucao": {
+        "envio·telefone": 13,
+        "envio·link_km": 10,
+        "envio·token_reserva": 5,
+        "V1·telefone": 7,
+        "V1·telefone[b64]": 14,
+        "V1·wamid": 7,
+        "V1·wamid[b64]": 7,
+        "V1·url_midia": 6,
+        "V1·url_midia[b64]": 6,
+        "V1·id_midia": 13,
+        "V1·id_midia[b64]": 13,
+        "V1·nome_perfil": 7,
+        "V1·nome_perfil[b64]": 7,
+        "status·wamid_saida": 9,
+        "status·wamid_saida[b64]": 5,
+        "envio·telefone[b64]": 4
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": {
+          "envio·telefone": 5,
+          "envio·link_km": 10,
+          "envio·token_reserva": 5
+        },
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": {
+          "V1·telefone": 7,
+          "V1·telefone[b64]": 14,
+          "V1·wamid": 7,
+          "V1·wamid[b64]": 7,
+          "V1·url_midia": 6,
+          "V1·url_midia[b64]": 6,
+          "V1·id_midia": 13,
+          "V1·id_midia[b64]": 13,
+          "V1·nome_perfil": 7,
+          "V1·nome_perfil[b64]": 7,
+          "status·wamid_saida": 5,
+          "status·wamid_saida[b64]": 5,
+          "envio·telefone": 4,
+          "envio·telefone[b64]": 4
+        },
+        "pcprWhatsStatus1|running|integrated|soft-deleted": {
+          "status·wamid_saida": 4,
+          "envio·telefone": 4
+        }
+      },
+      "linhas_execution_data": {
+        "pcprEntradaEvt01|running|webhook|soft-deleted": 5,
+        "pcprEntregaCom01|running|integrated|soft-deleted": 5,
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": 5,
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": 10,
+        "pcprWhatsStatus1|running|integrated|soft-deleted": 4
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 7,
+        "V1·documento": 7
+      },
+      "arquivos_onde": {
+        "storage:pcprWhatsWebhk01": {
+          "V1·wamid": 7,
+          "V1·documento": 7
+        }
+      },
+      "arquivos_varridos": 18,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 1.3,
+      "por_grupo": {
+        "envio": {
+          "banco": 28,
+          "arquivos": 0
+        },
+        "V1": {
+          "banco": 40,
+          "arquivos": 14
+        },
+        "V1 (base64)": {
+          "banco": 47,
+          "arquivos": 0
+        },
+        "status": {
+          "banco": 9,
+          "arquivos": 0
+        },
+        "status (base64)": {
+          "banco": 5,
+          "arquivos": 0
+        },
+        "envio (base64)": {
+          "banco": 4,
+          "arquivos": 0
+        }
+      }
+    },
+    "m1_imediato": {
+      "rotulo": "m1_imediato",
+      "em": "2026-10-18T00:55:29-03:00",
+      "segundos_desde_subida_do_n8n": 37.2,
+      "tabelas_de_execucao": {
+        "envio·telefone": 13,
+        "envio·link_km": 12,
+        "envio·token_reserva": 6,
+        "V1·telefone": 7,
+        "V1·telefone[b64]": 14,
+        "V1·wamid": 7,
+        "V1·wamid[b64]": 7,
+        "V1·url_midia": 6,
+        "V1·url_midia[b64]": 6,
+        "V1·id_midia": 13,
+        "V1·id_midia[b64]": 13,
+        "V1·nome_perfil": 7,
+        "V1·nome_perfil[b64]": 7,
+        "status·wamid_saida": 11,
+        "status·wamid_saida[b64]": 6,
+        "envio·telefone[b64]": 4,
+        "M1·telefone": 2,
+        "M1·telefone[b64]": 4,
+        "M1·wamid": 2,
+        "M1·wamid[b64]": 2,
+        "M1·url_midia": 1,
+        "M1·url_midia[b64]": 1,
+        "envioM·telefone": 3,
+        "envioM·telefone[b64]": 1
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": {
+          "envio·telefone": 5,
+          "envio·link_km": 12,
+          "envio·token_reserva": 6,
+          "envioM·telefone": 1
+        },
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": {
+          "V1·telefone": 7,
+          "V1·telefone[b64]": 14,
+          "V1·wamid": 7,
+          "V1·wamid[b64]": 7,
+          "V1·url_midia": 6,
+          "V1·url_midia[b64]": 6,
+          "V1·id_midia": 13,
+          "V1·id_midia[b64]": 13,
+          "V1·nome_perfil": 7,
+          "V1·nome_perfil[b64]": 7,
+          "status·wamid_saida": 6,
+          "status·wamid_saida[b64]": 6,
+          "envio·telefone": 4,
+          "envio·telefone[b64]": 4,
+          "M1·telefone": 2,
+          "M1·telefone[b64]": 4,
+          "M1·wamid": 2,
+          "M1·wamid[b64]": 2,
+          "M1·url_midia": 1,
+          "M1·url_midia[b64]": 1,
+          "envioM·telefone": 1,
+          "envioM·telefone[b64]": 1
+        },
+        "pcprWhatsStatus1|running|integrated|soft-deleted": {
+          "status·wamid_saida": 5,
+          "envio·telefone": 4,
+          "envioM·telefone": 1
+        }
+      },
+      "linhas_execution_data": {
+        "pcprEntradaEvt01|running|webhook|soft-deleted": 7,
+        "pcprEntregaCom01|running|integrated|soft-deleted": 6,
+        "pcprWhatsEnvio01|running|integrated|soft-deleted": 6,
+        "pcprWhatsWebhk01|running|webhook|soft-deleted": 14,
+        "pcprWhatsStatus1|running|integrated|soft-deleted": 5
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 7,
+        "V1·documento": 7,
+        "M1·wamid": 1,
+        "M1·documento": 1
+      },
+      "arquivos_onde": {
+        "storage:pcprWhatsWebhk01": {
+          "V1·wamid": 7,
+          "V1·documento": 7,
+          "M1·wamid": 1,
+          "M1·documento": 1
+        }
+      },
+      "arquivos_varridos": 21,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 3.0,
+      "por_grupo": {
+        "envio": {
+          "banco": 31,
+          "arquivos": 0
+        },
+        "V1": {
+          "banco": 40,
+          "arquivos": 14
+        },
+        "V1 (base64)": {
+          "banco": 47,
+          "arquivos": 0
+        },
+        "status": {
+          "banco": 11,
+          "arquivos": 0
+        },
+        "status (base64)": {
+          "banco": 6,
+          "arquivos": 0
+        },
+        "envio (base64)": {
+          "banco": 4,
+          "arquivos": 0
+        },
+        "M1": {
+          "banco": 5,
+          "arquivos": 2
+        },
+        "M1 (base64)": {
+          "banco": 7,
+          "arquivos": 0
+        },
+        "envioM": {
+          "banco": 3,
+          "arquivos": 0
+        },
+        "envioM (base64)": {
+          "banco": 1,
+          "arquivos": 0
+        }
+      }
+    },
+    "m1_apos_hard_delete": {
+      "rotulo": "m1_apos_hard_delete",
+      "em": "2026-10-18T00:56:33-03:00",
+      "segundos_desde_subida_do_n8n": 100.8,
+      "tabelas_de_execucao": {},
+      "execucoes_com_marcadores": {},
+      "linhas_execution_data": {},
+      "demais_tabelas": {},
+      "arquivos": {},
+      "arquivos_onde": {},
+      "arquivos_varridos": 3,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 0.8,
+      "por_grupo": {}
+    },
+    "m2_imediato": {
+      "rotulo": "m2_imediato",
+      "em": "2026-10-18T00:57:15-03:00",
+      "segundos_desde_subida_do_n8n": 41.4,
+      "tabelas_de_execucao": {},
+      "execucoes_com_marcadores": {},
+      "linhas_execution_data": {},
+      "demais_tabelas": {},
+      "arquivos": {},
+      "arquivos_onde": {},
+      "arquivos_varridos": 4,
+      "tabelas_do_banco": [
+        "activity_event",
+        "agent_background_job",
+        "agent_budget_applied_call",
+        "agent_budget_spend",
+        "agent_channel_status",
+        "agent_chat_attachments",
+        "agent_chat_subscriptions",
+        "agent_checkpoints",
+        "agent_credential_dependency",
+        "agent_eval_dataset",
+        "agent_eval_rating",
+        "agent_eval_result",
+        "agent_eval_run",
+        "agent_execution",
+        "agent_execution_message_links",
+        "agent_execution_threads",
+        "agent_files",
+        "agent_history",
+        "agent_message_queue",
+        "agent_plan",
+        "agent_plan_history",
+        "agent_task_definition",
+        "agent_task_run_lock",
+        "agent_task_snapshot",
+        "agent_thread_grants",
+        "agent_workflow_dependency",
+        "agents",
+        "agents_memory_entries",
+        "agents_memory_entry_candidates",
+        "agents_memory_entry_locks",
+        "agents_memory_entry_sources",
+        "agents_messages",
+        "agents_observation_cursors",
+        "agents_observation_locks",
+        "agents_observations",
+        "agents_resources",
+        "agents_threads",
+        "ai_builder_temporary_workflow",
+        "ai_preference",
+        "annotation_tag_entity",
+        "auth_identity",
+        "auth_provider_sync_history",
+        "binary_data",
+        "chat_hub_agent_tools",
+        "chat_hub_agents",
+        "chat_hub_messages",
+        "chat_hub_session_tools",
+        "chat_hub_sessions",
+        "chat_hub_tools",
+        "credential_dependency",
+        "credentials_entity",
+        "data_table",
+        "data_table_column",
+        "deployment_key",
+        "dynamic_credential_entry",
+        "dynamic_credential_resolver",
+        "dynamic_credential_user_entry",
+        "evaluation_collection",
+        "evaluation_config",
+        "event_destinations",
+        "execution_annotation_tags",
+        "execution_annotations",
+        "execution_data",
+        "execution_entity",
+        "execution_metadata",
+        "folder",
+        "folder_tag",
+        "insights_by_period",
+        "insights_metadata",
+        "insights_raw",
+        "installed_nodes",
+        "installed_packages",
+        "instance_ai_checkpoints",
+        "instance_ai_events",
+        "instance_ai_iteration_logs",
+        "instance_ai_mcp_registry_connections",
+        "instance_ai_messages",
+        "instance_ai_observation_cursors",
+        "instance_ai_observation_locks",
+        "instance_ai_observational_memory",
+        "instance_ai_observations",
+        "instance_ai_pending_confirmations",
+        "instance_ai_resources",
+        "instance_ai_thread_grants",
+        "instance_ai_thread_tabs",
+        "instance_ai_threads",
+        "instance_ai_workflow_snapshots",
+        "instance_credential_assignment",
+        "instance_monitoring_report",
+        "instance_version_history",
+        "invalid_auth_token",
+        "mcp_registry_server",
+        "migration_finding",
+        "migration_finding_sync",
+        "migrations",
+        "oauth_access_tokens",
+        "oauth_authorization_codes",
+        "oauth_clients",
+        "oauth_refresh_tokens",
+        "oauth_user_consents",
+        "poller_state",
+        "processed_data",
+        "project",
+        "project_pool_settings",
+        "project_relation",
+        "project_secrets_provider_access",
+        "promotion_config",
+        "promotion_connection",
+        "promotion_connection_project",
+        "promotion_provider",
+        "role",
+        "role_mapping_rule",
+        "role_mapping_rule_project",
+        "role_scope",
+        "scheduled_job",
+        "scheduled_task",
+        "scope",
+        "secrets_provider_connection",
+        "settings",
+        "shared_credentials",
+        "shared_workflow",
+        "sqlite_sequence",
+        "tag_entity",
+        "test_case_execution",
+        "test_run",
+        "token_exchange_jti",
+        "trusted_key",
+        "trusted_key_source",
+        "trusted_source",
+        "trusted_source_identity",
+        "type_availability_policy",
+        "type_availability_policy_attachment",
+        "type_availability_policy_scope",
+        "user",
+        "user_api_keys",
+        "user_favorites",
+        "variables",
+        "webhook_entity",
+        "workflow_builder_session",
+        "workflow_dependency",
+        "workflow_entity",
+        "workflow_history",
+        "workflow_publication_outbox",
+        "workflow_publication_retry_state",
+        "workflow_publication_trigger_status",
+        "workflow_publish_history",
+        "workflow_published_version",
+        "workflow_review_activity",
+        "workflow_review_activity_comment",
+        "workflow_review_request",
+        "workflow_review_request_authors",
+        "workflow_review_request_reviewers",
+        "workflow_review_request_workflow",
+        "workflow_statistics",
+        "workflow_suggestion",
+        "workflow_suggestion_activity",
+        "workflows_tags"
+      ],
+      "varredura_s": 1.0,
+      "por_grupo": {}
+    }
+  },
+  "n8n_log_final": [
+    "Last session crashed",
+    "Initializing n8n process",
+    "n8n ready on ::, port 5678",
+    "n8n Task Broker ready on 127.0.0.1, port 5679",
+    "Failed to start Python task runner in internal mode. because Python 3 is missing from this system. Launching a Python runner in internal mode is intended only for debugging and is not recommended for production. Users are encouraged to deploy in external mode. See: https://docs.n8n.io/hosting/configuration/task-runners/#setting-up-external-mode",
+    "",
+    "There are deprecations related to your n8n setup. Please take the recommended actions to update your configuration:",
+    " - N8N_UNVERIFIED_PACKAGES_ENABLED -> The default for this variable will change to `false` in a future version. Set it to `true` explicitly to keep installing unverified community packages.",
+    " - N8N_RUNNERS_MODE -> Internal task runner mode is deprecated and will be removed in a future version. For isolation and scaling, run the task runner launcher as a separate process, set this variable to `external` and share `N8N_RUNNERS_AUTH_TOKEN` with the launcher. See https://docs.n8n.io/deploy/host-n8n/configure-n8n/set-up-task-runners",
+    " - N8N_SSRF_PROTECTION_ENABLED -> The built-in blocked IP ranges will expand in a future version to include the shared address space (100.64.0.0/10) and IPv6 transition ranges. To keep the current list, set N8N_SSRF_BLOCKED_IP_RANGES to the literal ranges instead of the `default` keyword, which always expands to the running version's built-in list.",
+    " - N8N_RUNNERS_TASK_TIMEOUT -> The default for this variable will be reduced from 300 (5 minutes) to 60 (1 minute) in a future version. Set it explicitly to keep your current task timeout.",
+    " - N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES -> The default for this variable will be reduced from 2 GiB to 256 MiB in a future version. Set it explicitly to keep your current limit.",
+    " - N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES -> The default for this variable will be reduced from 5000 to 1000 in a future version. Set it explicitly to keep your current limit.",
+    "",
+    "Automatic license renewal is disabled. The license will not renew automatically, and access to licensed features may be lost!",
+    "[license SDK] Skipping renewal on init: renewOnInit is disabled in config",
+    "[license SDK] Skipping renewal on init: autoRenewEnabled is disabled in config",
+    "[license SDK] Skipping renewal on init: license cert is not initialized",
+    "[runner:js] (node:19) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.",
+    "(Use `node --trace-warnings ...` to show where the warning was created)",
+    "Instance registered",
+    "Discovered 4 cluster checks",
+    "Registered runner \"JS Task Runner\" (xaErGRa2vExQlGFMKQBLW) ",
+    "Sandbox: enabled=false provider=n8n-sandbox (from env)",
+    "Version: 2.43.7",
+    "Building workflow dependency index...",
+    "Finished building workflow dependency index. Processed 0 draft workflows, 0 published workflows.",
+    "",
+    "Editor is now accessible via:",
+    "http://localhost:5678"
+  ],
+  "n8n_log_menciona_facebook": false,
+  "exportacao": {
+    "cli": [
+      "All workflows unpublished successfully",
+      "Note: Changes will not take effect if n8n is running.",
+      "Please restart n8n for changes to take effect if n8n is currently running.",
+      "Successfully exported 8 workflows.",
+      "Successfully exported 8 credentials.",
+      "FIM"
+    ],
+    "arquivos": {
+      "w2-entregar-comunicacao.json": {
+        "active": false,
+        "nos": 27,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprCanalApi0001"
+        ],
+        "settings": {
+          "saveDataSuccessExecution": "none",
+          "saveDataErrorExecution": "none",
+          "saveExecutionProgress": false
+        },
+        "menciona_facebook_com": false
+      },
+      "w6-enviar-por-whatsapp.json": {
+        "active": false,
+        "nos": 26,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprWaToken00001"
+        ],
+        "settings": {
+          "saveDataSuccessExecution": "none",
+          "saveDataErrorExecution": "none",
+          "saveExecutionProgress": false
+        },
+        "menciona_facebook_com": false
+      },
+      "w7-webhook-whatsapp.json": {
+        "active": false,
+        "nos": 31,
+        "credenciais": [
+          "pcprApiToken0001",
+          "pcprWaAppSecret1",
+          "pcprWaToken00001",
+          "pcprWaVerifyTok1"
+        ],
+        "settings": {
+          "saveDataSuccessExecution": "none",
+          "saveDataErrorExecution": "none",
+          "saveExecutionProgress": false
+        },
+        "menciona_facebook_com": false
+      },
+      "w8-status-whatsapp.json": {
+        "active": false,
+        "nos": 13,
+        "credenciais": [
+          "pcprApiToken0001"
+        ],
+        "settings": {
+          "saveDataSuccessExecution": "none",
+          "saveDataErrorExecution": "none",
+          "saveExecutionProgress": false
+        },
+        "menciona_facebook_com": false
+      }
+    },
+    "credenciais_criptografadas_no_banco": true
+  },
+  "limpeza": {
+    "conteiner_existe": false,
+    "volume_existe": false,
+    "portas_ainda_abertas": []
+  },
+  "fim": "2026-10-18T00:57:49-03:00",
+  "segredos_no_relatorio": [],
+  "regressao_suite_principal_anterior": {
+    "comando": "testar_prototipo.py --sem-exportar --relatorio <scratchpad> (não sobrescreve resultados/resultados.json)",
+    "inicio": "2026-10-17T23:10:24-03:00",
+    "fim": "2026-10-17T23:15:15-03:00",
+    "cenarios": [
+      {
+        "id": "T11",
+        "passou": true
+      },
+      {
+        "id": "T1",
+        "passou": true
+      },
+      {
+        "id": "T2",
+        "passou": true
+      },
+      {
+        "id": "T3",
+        "passou": true
+      },
+      {
+        "id": "T4",
+        "passou": true
+      },
+      {
+        "id": "T5",
+        "passou": true
+      },
+      {
+        "id": "T6",
+        "passou": true
+      },
+      {
+        "id": "T7",
+        "passou": true
+      },
+      {
+        "id": "T8",
+        "passou": true
+      },
+      {
+        "id": "T9",
+        "passou": true
+      },
+      {
+        "id": "T10",
+        "passou": true
+      },
+      {
+        "id": "T12",
+        "passou": true
+      },
+      {
+        "id": "T13",
+        "passou": false,
+        "erro": "Falha: dados sensíveis retidos no n8n: {'link_km': 0, 'destino': 2, 'token_reserva': 0}; onde: {'pcprRecebimento1|running|webhook': {'link_km': 0, 'destino': 2, 'token_reserva': 0}}"
+      }
+    ],
+    "segredos_no_relatorio": [],
+    "limpeza": {
+      "conteiner_existe": false,
+      "portas_ainda_abertas": []
+    }
+  }
+}

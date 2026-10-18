@@ -113,6 +113,7 @@ export class PcCombobox extends HTMLElement {
   /** Botão × do campo, igual ao das buscas (componentes/limpar.js). */
   criarLimpar() {
     const entrada = /** @type {HTMLInputElement} */ (this.entrada);
+    if (entrada.disabled || entrada.readOnly) return;
     this.sincronizarBotao = adicionarLimpar(entrada, () => this.aoDigitar());
   }
 
@@ -171,6 +172,8 @@ export class PcCombobox extends HTMLElement {
     const vazioEValor = this.hasAttribute("data-vazio-e-valor");
     if (atual && (atual.value || vazioEValor) && !this.hasAttribute("data-escolha-em-cartao")) entrada.value = atual.textContent?.trim() || "";
     entrada.required = select.required;
+    entrada.disabled = select.disabled;
+    if (select.hasAttribute("form")) entrada.setAttribute("form", select.getAttribute("form") || "");
     select.hidden = true;
     select.tabIndex = -1;
     select.setAttribute("aria-hidden", "true");
@@ -192,9 +195,13 @@ export class PcCombobox extends HTMLElement {
       oculto.value = "";
       oculto.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    if (this.select && this.entrada && this.entrada.value.trim() === "" && !this.hasAttribute("data-escolha-em-cartao")) {
+    if (this.select && this.entrada && !this.hasAttribute("data-escolha-em-cartao")
+        && (this.entrada.value.trim() === "" || (this.dataset.fonte
+          && this.entrada.value.trim() !== this.select.selectedOptions[0]?.textContent?.trim()))) {
+      this.escolhendo = true;
       this.select.value = "";
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      this.escolhendo = false;
     }
     window.clearTimeout(this.atraso);
     if (this.dataset.fonte) {
@@ -376,6 +383,11 @@ export class PcCombobox extends HTMLElement {
     if (this.select) {
       this.escolhendo = true;
       const mudou = this.select.value !== opcao.id;
+      if (this.dataset.fonte && !Array.from(this.select.options).some(o => o.value === opcao.id)) {
+        const nova = new Option(opcao.titulo, opcao.id);
+        if (opcao.meta) nova.dataset.meta = opcao.meta;
+        this.select.add(nova);
+      }
       this.select.value = opcao.id;
       if (mudou || !this.hasAttribute("data-escolha-em-cartao")) {
         this.select.dispatchEvent(new Event("change", { bubbles: true }));

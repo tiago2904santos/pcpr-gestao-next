@@ -6,7 +6,7 @@ cadastro de horário); sede e destinos com a rota; efetivo em linhas; deslocamen
 chegada na sede) com as diárias do evento; atividades em cartões. Os coordenadores são do
 plano (os mesmos em todos os eventos).
 {% endcomment %}
-<dialog id="dialogo-evento" class="dialogo dialogo--amplo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
+<dialog id="dialogo-evento" class="dialogo dialogo--cadastro dialogo--amplo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
   <form method="post" action="{% url 'viagens:salvar_evento_plano' plano.pk %}" novalidate>
     {% csrf_token %}
     {% if evento_editando %}<input type="hidden" name="evento" value="{{ evento_editando.pk }}">{% endif %}

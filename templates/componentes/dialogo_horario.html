@@ -4,7 +4,7 @@ gravados pelo mesmo endpoint da tela Cadastros › Horários ("HH:MM até HH:MM"
 plano guarda o texto do horário, não o id — `data-valor="nome"` (cadastro-rapido.js).
 Contexto: `form_horario` (cadastros.forms.FormularioHorario). Fica fora do <form> da folha.
 {% endcomment %}
-<dialog id="dialogo-horario" class="dialogo" data-cadastro-rapido data-valor="nome" data-destino="{{ destino }}" aria-labelledby="dialogo-horario-titulo">
+<dialog id="dialogo-horario" class="dialogo dialogo--cadastro" data-cadastro-rapido data-valor="nome" data-destino="{{ destino }}" aria-labelledby="dialogo-horario-titulo">
   <form method="post" action="{% url 'cadastros:salvar_catalogo' 'horarios' %}" novalidate>
     {% csrf_token %}
     <div class="dialogo__cabecalho">

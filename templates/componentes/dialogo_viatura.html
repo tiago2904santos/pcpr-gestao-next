@@ -6,7 +6,7 @@ Variáveis: `form` (FormularioViatura). Opcionais, só a tela de cadastro usa: `
 `abrir_dialogo`, `querystring_base`. Os cadastros rápidos de combustível e unidade que o
 "+" abre precisam estar na mesma página.
 {% endcomment %}
-<dialog id="dialogo-viatura" class="dialogo dialogo--largo" aria-labelledby="dialogo-viatura-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}{% if cadastro_rapido %} data-cadastro-rapido{% if destino %} data-destino="{{ destino }}"{% endif %}{% endif %}>
+<dialog id="dialogo-viatura" class="dialogo dialogo--cadastro dialogo--largo" aria-labelledby="dialogo-viatura-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}{% if cadastro_rapido %} data-cadastro-rapido{% if destino %} data-destino="{{ destino }}"{% endif %}{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_viatura' %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}

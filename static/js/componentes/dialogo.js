@@ -53,6 +53,20 @@ document.addEventListener("click", (e) => {
           if (foco?.isConnected) foco.focus();
         }, { once: true });
       }
+      // Cadastro auxiliar ocupa a mesma etapa visual. O formulário anterior fica no
+      // DOM, com seus valores, e volta ao fechar o auxiliar (inclusive por Escape).
+      const pai = abrir.closest("dialog[open]");
+      if (pai instanceof HTMLDialogElement && pai !== d
+          && (d.hasAttribute("data-cadastro-rapido") || d.hasAttribute("data-cadastro-url"))) {
+        pai.dataset.cadastroSuspenso = "1";
+        pai.close();
+        d.addEventListener("close", () => {
+          if (!pai.isConnected) return;
+          pai.showModal();
+          delete pai.dataset.cadastroSuspenso;
+          if (abrir.isConnected) abrir.focus({ preventScroll: true });
+        }, { once: true });
+      }
       d.showModal();
       if (d.dataset.cadastroUrl) {
         import("./cadastro-rapido.js").then((m) => m.carregarFormulario(d, abrir)).catch(() => {

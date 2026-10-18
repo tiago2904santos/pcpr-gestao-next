@@ -177,12 +177,18 @@ def registrar_resposta(usuario, pk: int, resposta: RespostaPadrao, texto: str,
 
 
 # ------------------------------------------------------------------ cadastros de apoio
-def usos_de_temas() -> dict[int, int]:
-    return dict(Tema.objects.annotate(n=Count("palestras")).values_list("pk", "n"))
+def usos_de_temas(ids: list[int] | None = None) -> dict[int, int]:
+    consulta = Tema.objects.all()
+    if ids is not None:
+        consulta = consulta.filter(pk__in=ids)
+    return dict(consulta.annotate(n=Count("palestras")).values_list("pk", "n"))
 
 
-def usos_de_palestrantes() -> dict[int, int]:
-    return dict(Palestrante.objects.annotate(n=Count("palestras")).values_list("pk", "n"))
+def usos_de_palestrantes(ids: list[int] | None = None) -> dict[int, int]:
+    consulta = Palestrante.objects.all()
+    if ids is not None:
+        consulta = consulta.filter(pk__in=ids)
+    return dict(consulta.annotate(n=Count("palestras")).values_list("pk", "n"))
 
 
 def _exigir_gestao(usuario) -> None:

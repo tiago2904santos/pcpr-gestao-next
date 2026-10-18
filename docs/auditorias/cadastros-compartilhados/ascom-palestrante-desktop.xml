@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="72.312" timestamp="2026-10-17T01:27:29.884247-03:00" hostname="SAMBOOK2-TIAGO"><testcase classname="tests.e2e.test_cadastros_ascom_refinamento" name="test_sete_cadastros_ascom[1440]" time="71.291" /></testsuite></testsuites>

@@ -27,6 +27,7 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from . import policies, services
+from .fontes import fonte_local
 from .forms import (
     FormularioAtividade,
     FormularioCatalogo,
@@ -140,13 +141,15 @@ CATALOGOS: dict[str, Catalogo] = {
         FormularioHorario, campos="cadastros/_campos_horario.html",
         vazio="Nenhum horário cadastrado ainda.", grupo="plano"),
     "atividades": Catalogo(
-        AtividadePlano, "Atividades do plano", "atividade", "a", "list-checks",
-        "Serviços oferecidos nas ações. A meta e o recurso de cada atividade marcada compõem "
-        "o plano de trabalho; planos já criados não mudam.", FormularioAtividade,
+        AtividadePlano, "Atividades e serviços", "atividade ou serviço", "a", "list-checks",
+        "Catálogo compartilhado pelo Plano de Trabalho e por Eventos Sociais. Meta e recurso "
+        "complementam o uso no plano; documentos já consolidados mantêm seus dados.",
+        FormularioAtividade,
         busca=("nome", "codigo", "meta"), salvar=services.salvar_atividade,
         campos="cadastros/_campos_atividade.html", placeholder="Nome, código ou meta",
         detalhe=lambda o: o.codigo, vazio="Nenhuma atividade cadastrada ainda.",
-        contar=(("presets", "conjunto,conjuntos"),), grupo="plano"),
+        contar=(("presets", "conjunto,conjuntos"), ("planos", "plano,planos"),
+                ("solicitacoes", "solicitação,solicitações")), grupo="plano"),
     "conjuntos": Catalogo(
         PresetAtividades, "Conjuntos de atividades", "conjunto", "o", "layers",
         "Atividades que se aplicam de uma vez no plano de trabalho.", FormularioPreset,
@@ -253,7 +256,7 @@ def indice(request: HttpRequest) -> HttpResponse:
     # Catálogos do plano de trabalho: um grupo próprio na entrada.
     textos = {"programas": "Quem pede a ação (sai na contextualização).",
               "horarios": "Faixas de atendimento ao público nos eventos.",
-              "atividades": "Serviços da ação, com a meta e o recurso de cada um.",
+              "atividades": "Catálogo comum ao Plano de Trabalho e aos Eventos Sociais.",
               "conjuntos": "Atividades aplicadas de uma vez; o padrão vem marcado."}
     plano = [{"titulo": cat.titulo, "texto": textos.get(slug, ""), "icone": cat.icone,
               "url": reverse(f"cadastros:{slug}")}
@@ -267,10 +270,6 @@ def indice(request: HttpRequest) -> HttpResponse:
             visiveis.append({"titulo": titulo, "texto": texto, "icone": icone,
                              "url": reverse(rota), "resumo": resumo, "pendencia": pendencia})
     apoio = []
-    if policies.pode_ver_configuracao(usuario):
-        apoio.append({"titulo": "Configuração da unidade", "icone": "landmark",
-                      "texto": "Cabeçalho, rodapé, quem assina e o destinatário dos ofícios.",
-                      "url": reverse("cadastros:configuracao")})
     if policies.pode_ver_textos(usuario):
         apoio.append({"titulo": "Textos prontos", "icone": "text-quote",
                       "texto": "Motivos, justificativas e trechos reaproveitados.",
@@ -790,17 +789,48 @@ def _configuracao_pedida(request: HttpRequest) -> tuple[Unidade | None, list[Uni
     política permite (`?unidade=<pk>`)."""
     propria = _unidade_do_usuario(request.user)
     unidades = list(policies.unidades_configuraveis(request.user).order_by("sigla", "nome"))
-    if not unidades:
-        return propria, []
-    pedida = _inteiro(request.GET.get("unidade") or request.POST.get("unidade"))
-    if pedida is not None:
+    if (propria is not None and policies.pode_alterar_configuracao(request.user, propria)
+            and not any(u.pk == propria.pk for u in unidades)):
+        unidades.insert(0, propria)  # mantém o contexto atual identificado, mesmo inativo
+    # O POST deve gravar exatamente na unidade exibida, mesmo se a URL for manipulada.
+    identificadores = [v for v in (request.GET.get("unidade"), request.POST.get("unidade"))
+                       if v is not None]
+    if identificadores:
+        pedidos = [_inteiro(v) for v in identificadores]
+        if any(pk is None for pk in pedidos) or len(set(pedidos)) != 1:
+            raise Http404("Unidade não encontrada. Abra novamente os dados da unidade.")
+        pedida = pedidos[0]
         escolhida = next((u for u in unidades if u.pk == pedida), None)
         if escolhida is None and propria is not None and propria.pk == pedida:
             escolhida = propria  # a própria, mesmo inativa
         if escolhida is None:
             raise Http404("Unidade não encontrada.")
         return escolhida, unidades
-    return propria or unidades[0], unidades
+    return propria or (unidades[0] if unidades else None), unidades
+
+
+@require_GET
+def buscar_assinantes(request: HttpRequest) -> JsonResponse:
+    """Busca limitada para os dados da unidade; não concede acesso ao cadastro de contas."""
+    policies.exigir(policies.pode_ver_configuracao(request.user))
+    unidade, _ = _configuracao_pedida(request)
+    if unidade is None:
+        raise Http404("Sem unidade para consultar assinantes.")
+    termo = (request.GET.get("q") or "").strip()[:120]
+    filtro = (Q(nome__unaccent__icontains=termo) |
+              Q(cargo__nome__unaccent__icontains=termo) |
+              Q(unidade__nome__unaccent__icontains=termo) |
+              Q(unidade__sigla__unaccent__icontains=termo))
+    digitos = "".join(c for c in termo if c.isascii() and c.isdecimal())
+    if len(digitos) >= 3:
+        filtro |= Q(cpf__contains=digitos)
+    # Mesmo catálogo institucional já permitido nos seletores da configuração;
+    # a autorização do contexto impede usar este endpoint para outra unidade.
+    servidores = fonte_local.consultar("servidor").filter(filtro).order_by("nome")[:15]
+    return JsonResponse({"resultados": [
+        {"id": str(s.pk), "titulo": s.nome,
+         "meta": " · ".join(p for p in (s.descricao, f"CPF final {s.cpf[-4:]}"
+                                        if s.cpf else "") if p)} for s in servidores]})
 
 
 def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
@@ -809,7 +839,8 @@ def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
         "sede").first() if unidade else None
     pode = unidade is not None and policies.pode_alterar_configuracao(request.user, unidade)
     if form is None:
-        form = FormularioConfiguracao.de(config) if config else FormularioConfiguracao()
+        form = (FormularioConfiguracao.de(config) if config else
+                FormularioConfiguracao(unidade=unidade))
     if not pode:  # leitura: sem edição e sem a marca de obrigatório
         for campo in form.fields.values():
             campo.disabled, campo.required = True, False
@@ -824,9 +855,10 @@ def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
     return render(request, "cadastros/configuracao.html", {
         "unidade": unidade, "unidades": unidades, "config": config, "form": form,
         "pode_alterar": pode, "substituicoes": substituicoes, "hoje_assina": hoje_assina,
-        "form_sub": form_sub or FormularioSubstituicao(initial={"inicio": hoje}),
+        "form_sub": form_sub or FormularioSubstituicao(initial={"inicio": hoje}, unidade=unidade),
         "abrir_substituicao": form_sub is not None,
-        "migalhas": _migalhas("Configuração da unidade")}, status=status)
+        "migalhas": [("Início", reverse("painel:inicio")), ("Dados da unidade", "")],
+    }, status=status)
 
 
 def _na_configuracao(unidade) -> str:
@@ -841,11 +873,13 @@ def configuracao(request: HttpRequest) -> HttpResponse:
         return _tela_configuracao(request, unidade, unidades)
     if unidade is None:
         raise Http404("Sem unidade para configurar.")
+    policies.exigir(policies.pode_alterar_configuracao(request.user, unidade),
+                    "Só o gestor altera os dados da unidade.")
     config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).first()
-    form = FormularioConfiguracao(request.POST, config=config)
+    form = FormularioConfiguracao(request.POST, config=config, unidade=unidade)
     if form.is_valid():
         services.salvar_configuracao(request.user, unidade, **form.cleaned_data)
-        messages.success(request, f"Configuração de {unidade} salva. Vale para os próximos "
+        messages.success(request, f"Dados de {unidade} salvos. Vale para os próximos "
                                   "documentos; os já emitidos não mudam.")
         return redirect(_na_configuracao(unidade))
     return _tela_configuracao(request, unidade, unidades, form=form, status=422)
@@ -857,7 +891,9 @@ def salvar_substituicao(request: HttpRequest) -> HttpResponse:
     unidade, unidades = _configuracao_pedida(request)
     if unidade is None:
         raise Http404("Sem unidade para configurar.")
-    form = FormularioSubstituicao(request.POST)
+    policies.exigir(policies.pode_alterar_configuracao(request.user, unidade),
+                    "Só o gestor define substituições de assinante.")
+    form = FormularioSubstituicao(request.POST, unidade=unidade)
     if form.is_valid():
         try:
             sub = services.salvar_substituicao(request.user, unidade, **form.cleaned_data)

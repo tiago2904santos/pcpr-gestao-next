@@ -51,3 +51,20 @@ quantitativos, cálculo, soma dos eventos, geração ou documento. A regressão 
 fluxo multievento com erro, edição, exclusão e PDF passou nesta revisão.
 A situação global vigente por página está em `docs/visual-agents/matriz-migracao.json`;
 o fechamento da rodada anterior acima não representa aprovação nesta meta.
+
+## Cadastros compartilhados — 17/10/2026
+
+Atividades passam a compartilhar identidade com Serviços de Eventos, preservando
+os IDs dos planos, conjuntos, usos e resultados. O aviso de meta ausente respeita
+a regra existente; não inventa conteúdo nem impede emissão já permitida.
+No celular, Cargo e Unidade do efetivo usam a linha inteira, e remover acompanha
+a quantidade. A regra substitui o nth-child genérico que encobria parte da lixeira.
+O diálogo de evento usa corpo rolável, ações acessíveis, cabeçalho com espaço para
+fechar e cadastro auxiliar de horário sem empilhar duas superfícies modais.
+
+Identidade comum e histórico passaram em 360/1440; quantidade/calendário/conferência
+e axe móvel foram revalidados após o ajuste final. Evidências e limites em
+`../auditorias/cadastros-compartilhados/relatorio.md`, `catalogo-ui-final.log`,
+`ui-encerramento.log` e `consumidores-finais.log` (neste último, o caso de Plano
+passou; os dois casos de Certidões são tentativas de localizador, reexecutadas no
+log próprio). Nenhuma regra de cálculo ou documento foi alterada por esse CSS.

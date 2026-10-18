@@ -16,7 +16,7 @@ from typing import Any
 
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Q
+from django.db.models import Count, OuterRef, Q, Subquery, Value
 from django.utils import timezone
 
 from . import dominio, policies
@@ -143,17 +143,23 @@ def em_uso(tipo: str, registro: Any) -> int:
     return Publicacao.objects.filter(unidade=registro).count()
 
 
-def usos_por_registro(tipo: str) -> dict[int, int]:
-    """Quantas pautas usam cada registro (para a lista do cadastro, numa consulta)."""
+def usos_por_registro(tipo: str, ids: list[int] | None = None) -> dict[int, int]:
+    """Conta no banco, sem transferir todo o histórico de pautas para a aplicação."""
     if tipo == "unidades":
-        return dict(Publicacao.objects.filter(unidade__isnull=False).values_list("unidade")
+        publicacoes = Publicacao.objects.filter(unidade__isnull=False)
+        if ids is not None:
+            publicacoes = publicacoes.filter(unidade_id__in=ids)
+        return dict(publicacoes.values_list("unidade")
                     .annotate(n=Count("pk")).order_by())
-    usos: dict[int, int] = {}
-    for trio in Publicacao.objects.values_list("jornalista_id", "revisao_id",
-                                               "galeria_fotos_id"):
-        for pk in set(trio) - {None}:
-            usos[pk] = usos.get(pk, 0) + 1
-    return usos
+    integrantes = Integrante.objects.all()
+    if ids is not None:
+        integrantes = integrantes.filter(pk__in=ids)
+    contagem = (Publicacao.objects.filter(Q(jornalista_id=OuterRef("pk"))
+                                         | Q(revisao_id=OuterRef("pk"))
+                                         | Q(galeria_fotos_id=OuterRef("pk")))
+                .order_by().values(chave=Value(1)).annotate(n=Count("pk")).values("n"))
+    return {pk: n or 0 for pk, n in integrantes.annotate(n=Subquery(contagem))
+            .values_list("pk", "n")}
 
 
 @transaction.atomic

@@ -1,0 +1,11 @@
+{
+  "id": "6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c06",
+  "tipo": "quilometragem.concluida",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-13T21:18:40Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "diario", "id": 204, "versao": 5},
+  "correlacao_id": "viagem:812",
+  "causa_id": null,
+  "dados": {"origem_ultima": "link"}
+}

@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import re
 from typing import cast
+from urllib.parse import urlencode
 
 from django import forms
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Q, Value
 from django.db.models.functions import Lower
 from django.forms.models import ModelChoiceIterator
+from django.urls import reverse
 
 from gestao.plataforma.widgets import (
     CaixasDeEscolha,
@@ -22,8 +24,10 @@ from gestao.plataforma.widgets import (
     EntradaHora,
     EscolhaMultiplaRemota,
     Selecao,
+    SelecaoRemota,
 )
 
+from .fontes import atividades_e_servicos, fonte_local
 from .models import (
     AtividadePlano,
     Cargo,
@@ -64,7 +68,8 @@ class OpcaoUnidade(forms.ModelChoiceField):
 
 
 def _unidades(atual: int | None = None):
-    return Unidade.objects.filter(Q(ativo=True) | Q(pk=atual)).order_by("sigla", "nome")
+    return fonte_local.consultar("unidade", incluir=([atual] if atual else ())).order_by(
+        "sigla", "nome")
 
 
 # ---------------------------------------------------------------- município
@@ -169,7 +174,8 @@ class FormularioServidor(forms.Form):
         self.instancia = instancia
         atual_cargo = instancia.cargo_id if instancia else None
         cargo = cast(forms.ModelChoiceField, self.fields["cargo"])
-        cargo.queryset = Cargo.objects.filter(Q(ativo=True) | Q(pk=atual_cargo))
+        cargo.queryset = fonte_local.consultar(
+            "cargo", incluir=([atual_cargo] if atual_cargo else ()))
         unidade = cast(forms.ModelChoiceField, self.fields["unidade"])
         unidade.queryset = _unidades(instancia.unidade_id if instancia else None)
         if instancia is None and not self.is_bound:
@@ -279,7 +285,7 @@ class FormularioViatura(forms.Form):
         unidade.queryset = _unidades(instancia.unidade_id if instancia else None)
         motoristas = cast(forms.ModelMultipleChoiceField, self.fields["motoristas"])
         atuais = list(instancia.motoristas.values_list("pk", flat=True)) if instancia else []
-        motoristas.queryset = Servidor.objects.filter(Q(ativo=True) | Q(pk__in=atuais))
+        motoristas.queryset = fonte_local.consultar("servidor", incluir=atuais)
         motoristas.widget = EscolhaMultiplaRemota(
             fonte=fonte_motoristas, rotulo_vazio="Nenhum motorista escolhido.",
             placeholder="Nome, cargo ou CPF…")
@@ -377,8 +383,12 @@ class OpcaoServidor(forms.ModelChoiceField):
 
 
 def _servidores(*atuais: int | None):
-    return (Servidor.objects.filter(Q(ativo=True) | Q(pk__in=[a for a in atuais if a]))
-            .select_related("cargo", "unidade").order_by("nome"))
+    return fonte_local.consultar("servidor", incluir=[a for a in atuais if a]).order_by("nome")
+
+
+def _fonte_assinantes(unidade_id: int | None) -> str:
+    contexto = urlencode({"unidade": unidade_id}) + "&" if unidade_id is not None else ""
+    return f"{reverse('cadastros:buscar_assinantes')}?{contexto}q="
 
 
 class FormularioConfiguracao(forms.Form):
@@ -413,10 +423,12 @@ class FormularioConfiguracao(forms.Form):
         widget=_entrada())
     assina_oficio = OpcaoServidor(
         label="Assina os ofícios", queryset=Servidor.objects.none(), required=False,
-        empty_label="A chefia (abaixo)")
+        empty_label="A chefia (abaixo)",
+        help_text="Sem seleção, assina a chefia informada abaixo.")
     assina_justificativa = OpcaoServidor(
         label="Assina as justificativas", queryset=Servidor.objects.none(), required=False,
-        empty_label="A chefia (abaixo)")
+        empty_label="A chefia (abaixo)",
+        help_text="Sem seleção, assina a chefia informada abaixo.")
     chefia_nome = forms.CharField(label="Chefia", max_length=150,
                                   help_text="Assina quando não há assinante escolhido.",
                                   widget=_entrada())
@@ -444,7 +456,8 @@ class FormularioConfiguracao(forms.Form):
     # Plano de trabalho (referência: sem assinante, o plano sai sem nome — não cai na chefia).
     assina_plano = OpcaoServidor(
         label="Assina os planos de trabalho", queryset=Servidor.objects.none(), required=False,
-        empty_label="Ninguém (o plano sai sem nome)")
+        empty_label="Ninguém (o plano sai sem nome)",
+        help_text="Sem seleção, o plano é gerado sem nome de assinante.")
     coordenador_plano = OpcaoServidor(
         label="Coordenador administrativo padrão", queryset=Servidor.objects.none(),
         required=False, empty_label="Nenhum",
@@ -455,11 +468,15 @@ class FormularioConfiguracao(forms.Form):
 
     SERVIDORES = ("assina_oficio", "assina_justificativa", "assina_plano", "coordenador_plano")
 
-    def __init__(self, *args, config=None, **kwargs):
+    def __init__(self, *args, config=None, unidade=None, **kwargs):
         super().__init__(*args, **kwargs)
-        atuais = [getattr(config, f"{c}_id") for c in self.SERVIDORES] if config else []
+        unidade_id = unidade.pk if unidade else (config.unidade_id if config else None)
+        fonte = _fonte_assinantes(unidade_id)
         for campo in self.SERVIDORES:
-            cast(forms.ModelChoiceField, self.fields[campo]).queryset = _servidores(*atuais)
+            escolha = cast(forms.ModelChoiceField, self.fields[campo])
+            escolha.queryset = _servidores(getattr(config, f"{campo}_id") if config else None)
+            escolha.widget = SelecaoRemota(fonte=fonte, placeholder="Nome, cargo ou unidade…")
+            escolha.widget.choices = escolha.choices
 
     def clean_sufixo_plano(self) -> str:
         return espacos(self.cleaned_data["sufixo_plano"]).upper()
@@ -516,9 +533,14 @@ class FormularioSubstituicao(forms.Form):
     motivo = forms.CharField(label="Motivo", max_length=120, required=False,
                              widget=_entrada(placeholder="Ex.: férias do titular"))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, unidade=None, **kwargs):
         super().__init__(*args, **kwargs)
-        cast(forms.ModelChoiceField, self.fields["servidor"]).queryset = _servidores()
+        escolha = cast(forms.ModelChoiceField, self.fields["servidor"])
+        escolha.queryset = _servidores()
+        escolha.widget = SelecaoRemota(
+            fonte=_fonte_assinantes(unidade.pk if unidade else None),
+            placeholder="Nome, cargo ou unidade…")
+        escolha.widget.choices = escolha.choices
 
     def clean(self):
         dados = super().clean() or {}
@@ -638,8 +660,7 @@ class FormularioPreset(forms.Form):
     def __init__(self, *args, atuais=(), **kwargs):
         super().__init__(*args, **kwargs)
         campo = cast(forms.ModelMultipleChoiceField, self.fields["atividades"])
-        campo.queryset = AtividadePlano.objects.filter(
-            Q(ativo=True) | Q(pk__in=list(atuais))).order_by("nome")
+        campo.queryset = atividades_e_servicos(incluir=atuais)
 
     def clean_nome(self) -> str:
         return espacos(self.cleaned_data["nome"]).upper()

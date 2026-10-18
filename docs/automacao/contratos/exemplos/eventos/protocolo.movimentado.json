@@ -1,0 +1,11 @@
+{
+  "id": "1a2b3c4d-5e6f-4a7b-9c8d-0e1f2a3b4c17",
+  "tipo": "protocolo.movimentado",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-06T09:15:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "protocolo", "id": 66, "versao": 4},
+  "correlacao_id": "oficio:131",
+  "causa_id": null,
+  "dados": {"mudancas": ["local", "situacao"], "relevancia": "chegou_ao_setor_do_despacho"}
+}

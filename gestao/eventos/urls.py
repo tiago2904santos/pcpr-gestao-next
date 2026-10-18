@@ -1,12 +1,13 @@
 from django.urls import path
 
-from . import views, views_painel
+from . import views, views_motoristas, views_painel
 from . import views_solicitacoes as vs
 from .catalogos import CATALOGOS
 
 app_name = "eventos"
 
 urlpatterns = [
+    path("api/motoristas/", views_motoristas.buscar, name="buscar_motoristas"),
     path("", views_painel.painel_eventos, name="painel"),
     path("solicitacoes/", vs.lista, name="solicitacoes"),
     path("solicitacoes/exportar/", vs.exportar, name="exportar"),

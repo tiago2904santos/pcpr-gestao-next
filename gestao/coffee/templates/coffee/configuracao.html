@@ -3,18 +3,13 @@
 {% block titulo %}Ofício e protocolo · Cadastros do Coffee Break{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% comment %}
 Configuração do ofício ao GAF, do protocolo e dos e-mails ao fornecedor (registro único, como
 na referência: não se cria nem se exclui, só se edita). Nasce com valores neutros.
 {% endcomment %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <div class="pagina-cabecalho__texto">
-    <p class="rotulo-caixa-alta">Coffee Break · Cadastros</p>
-    <h1 class="pagina-cabecalho__titulo">Ofício e protocolo</h1>
-    <p class="pagina-cabecalho__descricao">O que o ofício ao GAF, o protocolo de pagamento e os e-mails ao fornecedor usam. Nos e-mails, os campos entre chaves são trocados pelos dados da ordem de serviço.</p>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee Break · Cadastros" titulo="Ofício e protocolo" complemento="Dados usados nos ofícios ao GAF, nos protocolos de pagamento e nos e-mails ao fornecedor. Os campos entre chaves nos e-mails recebem os dados da ordem de serviço." %}
 <nav class="abas" aria-label="Cadastros do Coffee Break">
   {% for chave, titulo, icone_aba, n in tabelas %}<a class="aba" href="{% url 'coffee:cadastros' chave %}">{{ titulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
   <a class="aba" href="{% url 'coffee:configuracao' %}" aria-current="page">Ofício e protocolo</a>

@@ -75,6 +75,7 @@ class ComVersao(forms.ModelForm):
                 campo.input_formats = FORMATOS_DATA
             if isinstance(campo, forms.ModelChoiceField) and not isinstance(
                     campo, forms.ModelMultipleChoiceField):
+                campo.empty_label = "Selecione…" if campo.required else "Nenhum (opcional)"
                 campo.widget = Selecao()
                 campo.widget.choices = campo.choices
             if isinstance(campo, forms.DecimalField):

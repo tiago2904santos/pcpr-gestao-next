@@ -1,0 +1,17 @@
+{
+  "id": "9d8c7b6a-5f4e-4d3c-8b2a-1f0e9d8c7b09",
+  "tipo": "prestacao.liberacao_registrada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-18T14:30:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "prestacao_servidor", "id": 902, "versao": 2},
+  "correlacao_id": "prestacao:431",
+  "causa_id": null,
+  "dados": {
+    "campos_alterados": ["numero", "liberacao", "prazo"],
+    "primeira": true,
+    "situacao_aviso": "pronto",
+    "liberacao": "2026-11-18",
+    "prazo": "2026-11-27"
+  }
+}

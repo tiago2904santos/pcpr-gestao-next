@@ -15,6 +15,9 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError
 
+from gestao.cadastros.fontes import exigir_campos_locais
+from gestao.cadastros.services import vinculos
+
 from . import policies
 from .models import (
     Equipe,
@@ -54,7 +57,7 @@ class Catalogo:
 CATALOGOS: dict[str, Catalogo] = {c.slug: c for c in (
     Catalogo("tipos-evento", "Tipos de evento", "tipo de evento", "do tipo de evento",
              TipoEvento, "calendar-days"),
-    Catalogo("servicos", "Serviços", "serviço", "do serviço", Servico, "list-checks"),
+    Catalogo("servicos", "Atividades e serviços", "serviço", "do serviço", Servico, "list-checks"),
     Catalogo("equipes", "Equipes", "equipe", "da equipe", Equipe, "users"),
     Catalogo("orgaos", "Órgãos responsáveis", "órgão responsável", "do órgão responsável",
              OrgaoResponsavel, "landmark"),
@@ -79,12 +82,17 @@ def salvar(usuario, slug: str, dados: dict[str, Any], pk: int | None = None):
     nome = " ".join((dados.get("nome") or "").split())
     if not nome:
         raise CatalogoInvalido("Informe o nome.", "nome")
-    if len(nome) > 150:
-        raise CatalogoInvalido("Use no máximo 150 caracteres.", "nome")
+    limite = cat.modelo._meta.get_field("nome").max_length
+    if len(nome) > limite:
+        raise CatalogoInvalido(f"Use no máximo {limite} caracteres.", "nome")
     modelo = cat.modelo
     if modelo.objects.filter(nome__iexact=nome).exclude(pk=pk or 0).exists():
         raise CatalogoInvalido(f"Já existe “{nome}” em {cat.titulo.lower()}.", "nome")
     registro = modelo.objects.select_for_update().get(pk=pk) if pk else modelo()
+    try:
+        exigir_campos_locais(registro, {"nome": nome})
+    except ValueError as exc:
+        raise CatalogoInvalido(str(exc), "nome") from exc
     registro.nome = nome
     if cat.com_texto:
         texto = (dados.get("texto") or "").strip()
@@ -103,6 +111,10 @@ def salvar(usuario, slug: str, dados: dict[str, Any], pk: int | None = None):
 def alternar_ativo(usuario, slug: str, pk: int):
     cat = _exigir(usuario, slug)
     registro = cat.modelo.objects.select_for_update().get(pk=pk)
+    try:
+        exigir_campos_locais(registro, {"ativo": not registro.ativo})
+    except ValueError as exc:
+        raise CatalogoInvalido(str(exc)) from exc
     registro.ativo = not registro.ativo
     registro.save(update_fields=["ativo", "atualizado_em"])
     return registro
@@ -113,6 +125,8 @@ def excluir(usuario, slug: str, pk: int) -> str:
     cat = _exigir(usuario, slug)
     registro = cat.modelo.objects.select_for_update().get(pk=pk)
     nome = registro.nome
+    if isinstance(registro, Servico) and vinculos(registro):
+        raise CatalogoInvalido(MSG_EM_USO)
     try:
         with transaction.atomic():
             registro.delete()

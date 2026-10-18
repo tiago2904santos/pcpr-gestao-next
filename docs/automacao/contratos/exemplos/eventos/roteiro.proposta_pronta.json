@@ -1,0 +1,11 @@
+{
+  "id": "e5f6a7b8-c9d0-4e1f-8a2b-3c4d5e6f7a14",
+  "tipo": "roteiro.proposta_pronta",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-10-21T11:03:12Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "proposta_roteiro", "id": 31, "versao": 1},
+  "correlacao_id": "viagem:812",
+  "causa_id": null,
+  "dados": {"viagem_id": 812, "estado": "pronta", "pendencias_bloqueantes": 0, "alternativas": 2}
+}

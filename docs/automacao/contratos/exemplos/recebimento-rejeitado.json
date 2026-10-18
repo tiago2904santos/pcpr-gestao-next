@@ -1,0 +1,7 @@
+{
+  "id": 3306,
+  "mensagem_id": 1205,
+  "estado": "rejeitado",
+  "motivo_codigo": "acima_do_limite",
+  "importacao_id": null
+}

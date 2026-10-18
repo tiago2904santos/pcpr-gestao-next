@@ -10,10 +10,13 @@ from django.core.paginator import Paginator
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.views.decorators.http import require_GET, require_http_methods
 
+from gestao.cadastros.fontes import atividades_e_servicos
+
 from . import catalogos, policies
-from .models import Equipe, OrgaoResponsavel, Servico, TipoEvento
+from .models import Equipe, OrgaoResponsavel, TipoEvento
 
 POR_PAGINA = 25
 
@@ -43,10 +46,14 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     if not policies.pode_gerir_catalogo(request.user, slug):
         raise PermissionDenied
     cat = catalogos.CATALOGOS[slug]
-    erro, editando, valores = "", None, {}
+    erro, editando, valores, campo_erro = "", None, {}, ""
     if request.method == "POST":
         pk = request.POST.get("pk") or ""
-        pk_int = int(pk) if pk.isdigit() else None
+        if pk and (not pk.isascii() or not pk.isdecimal() or len(pk) > 18):
+            raise Http404
+        pk_int = int(pk) if pk else None
+        if pk_int is not None and pk_int <= 0:
+            raise Http404
         acao = request.POST.get("acao")
         try:
             if acao == "excluir" and pk_int:
@@ -63,6 +70,7 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
             raise Http404 from exc
         except catalogos.CatalogoInvalido as exc:
             erro, editando = str(exc), pk_int
+            campo_erro = exc.campo or ""
             valores = {"nome": request.POST.get("nome", ""), "texto": request.POST.get("texto", "")}
     q = " ".join((request.GET.get("q") or "").split())[:100]
     situacao = request.GET.get("situacao") or ""
@@ -72,11 +80,12 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     if situacao in ("ativos", "inativos"):
         qs = qs.filter(ativo=situacao == "ativos")
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    base = "&".join(p for p in (f"q={q}" if q else "",
-                                f"situacao={situacao}" if situacao else "") if p)
+    base = urlencode({chave: valor for chave, valor in
+                      (("q", q), ("situacao", situacao)) if valor})
     return render(request, "eventos/catalogo.html", {
         "cat": cat, "page_obj": pagina, "registros": list(pagina.object_list), "q": q,
         "situacao": situacao, "erro": erro, "editando": editando, "valores": valores,
+        "campo_erro": campo_erro,
         "querystring_base": f"{base}&" if base else "",
         "outros": [catalogos.CATALOGOS[s] for s in policies.catalogos_visiveis(request.user)
                    if s != slug],
@@ -93,21 +102,25 @@ def modelo_do_tipo(request: HttpRequest, pk: int) -> HttpResponse:
     orgaos = OrgaoResponsavel.objects.filter(ativo=True) | OrgaoResponsavel.objects.filter(
         pk=tipo.orgao_padrao_id or 0)
     escolhidos = {s.pk for s in tipo.servicos_sugeridos.all()}
-    servicos = Servico.objects.filter(ativo=True) | Servico.objects.filter(pk__in=escolhidos)
+    servicos = atividades_e_servicos(incluir=escolhidos)
     atuais = {e.equipe_id: e.quantidade for e in tipo.equipes_padrao.all()}
     equipes = Equipe.objects.filter(ativo=True) | Equipe.objects.filter(pk__in=atuais)
     erros: list[str] = []
     if request.method == "POST":
         orgao_id = request.POST.get("orgao") or ""
-        orgao = orgaos.filter(pk=orgao_id).first() if orgao_id.isdigit() else None
-        marcados = [int(x) for x in request.POST.getlist("servicos") if x.isdigit()]
+        orgao = (orgaos.filter(pk=orgao_id).first()
+                 if orgao_id.isascii() and orgao_id.isdecimal() and len(orgao_id) <= 18 else None)
+        marcados = [int(x) for x in request.POST.getlist("servicos")
+                    if x.isascii() and x.isdecimal() and len(x) <= 18]
         novas: dict[int, int | None] = {}
         for e in equipes.distinct():
             if request.POST.get(f"equipe_{e.pk}"):
                 texto = (request.POST.get(f"quantidade_{e.pk}") or "").strip()
-                if texto and not (texto.isdigit() and int(texto) > 0):
+                valido = (texto.isascii() and texto.isdecimal() and len(texto) <= 9
+                          and int(texto) > 0)
+                if texto and not valido:
                     erros.append(f"Informe uma quantidade válida para {e.nome}.")
-                novas[e.pk] = int(texto) if texto.isdigit() and int(texto) > 0 else None
+                novas[e.pk] = int(texto) if valido else None
         if not erros:
             catalogos.salvar_modelo(request.user, tipo.pk,
                                     solicitante=request.POST.get("solicitante", ""),

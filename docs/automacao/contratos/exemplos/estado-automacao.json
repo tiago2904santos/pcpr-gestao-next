@@ -1,0 +1,26 @@
+{
+  "ligada": true,
+  "ambiente": "teste",
+  "fluxos": {
+    "km-vespera": true,
+    "km-lembretes": true,
+    "envio-documentos": true,
+    "saque-aviso": false,
+    "recebimento-canais": true,
+    "recebimento-aplicacao-automatica": false
+  },
+  "canais": {"portal": "ligado", "email": "ligado", "whatsapp": "bloqueado"},
+  "canais_entrada": {"email": "ligado", "whatsapp": "bloqueado"},
+  "autorizacoes": {
+    "envio-documentos": {
+      "modo": "assistido",
+      "nivel_max": 3,
+      "limites": {"por_dia": 200},
+      "vence_em": "2027-01-31T23:59:59-03:00"
+    }
+  },
+  "integracoes": {
+    "eprotocolo": {"ambiente": "simulado", "consulta": false, "mutacoes_permitidas": [], "ultima_consulta_ok_em": null},
+    "central_viagens": {"disponivel": false}
+  }
+}

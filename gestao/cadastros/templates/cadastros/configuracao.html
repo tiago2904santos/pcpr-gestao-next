@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block titulo %}Configuração da unidade{% endblock %}
+{% block titulo %}Dados da unidade{% endblock %}
 {% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
@@ -10,15 +10,23 @@ sistema" da referência, por unidade como lá é por setor). Quem não altera v�
 Assinantes por tipo com substituições e endereço em campos: ficha docs/migration/cadastros.md.
 {% endcomment %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Configuração da unidade" complemento="Identificação institucional, assinantes e destinatário." %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Administração da unidade" titulo="Dados da unidade" complemento="Dados compartilhados da unidade, assinantes e informações dos próximos documentos." %}
 
-{% if unidades %}
+{% if unidade %}
+<div class="alerta alerta--info mt-4" role="status">
+  {% icone "building-2" %}<div class="alerta__corpo">
+    <p><strong>Unidade em administração: {% if unidade.sigla %}{{ unidade.sigla }} — {% endif %}{{ unidade.nome }}</strong></p>
+    <p>Estes dados são compartilhados pela unidade. O nome no cadastro institucional e o nome usado no cabeçalho dos documentos são informações distintas.</p>
+  </div>
+</div>
+{% endif %}
+{% if unidades|length > 1 %}
 <form class="filtros mt-4" method="get" action="{% url 'cadastros:configuracao' %}">
   <div class="campo campo--lg">
     <label class="campo__rotulo" for="escolha-unidade">Unidade</label>
     <pc-select class="seletor">
       <select class="selecao" id="escolha-unidade" name="unidade">
-        {% for u in unidades %}<option value="{{ u.pk }}"{% if u.pk == unidade.pk %} selected{% endif %}>{% if u.sigla %}{{ u.sigla }} — {% endif %}{{ u.nome }}</option>{% endfor %}
+        {% for u in unidades %}<option value="{{ u.pk }}"{% if u.pk == unidade.pk %} selected{% endif %}>{% if u.sigla %}{{ u.sigla }} — {% endif %}{{ u.nome }}{% if not u.ativo %} (inativa){% endif %}</option>{% endfor %}
       </select>
     </pc-select>
   </div>
@@ -33,11 +41,11 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
   {% csrf_token %}
   <input type="hidden" name="unidade" value="{{ unidade.pk }}">
   {% include "componentes/resumo_erros.html" %}
-  {% if not pode_alterar %}<div class="alerta alerta--info">{% icone "info" %}<div class="alerta__corpo"><p>Só o gestor altera a configuração da unidade. Viu algo errado? Peça a correção ao gestor de viagens.</p></div></div>{% endif %}
+  {% if not pode_alterar %}<div class="alerta alerta--info">{% icone "info" %}<div class="alerta__corpo"><p>Só o gestor altera os dados da unidade. Viu algo errado? Peça a correção ao gestor de viagens.</p></div></div>{% endif %}
   {% if not config %}<div class="alerta alerta--aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ unidade }} ainda não tem configuração: os ofícios desta unidade não podem ser emitidos até ela ser salva.</p></div></div>{% endif %}
 
   <section class="secao" aria-labelledby="t-instituicao">
-    <header class="secao__cabecalho"><h2 class="secao__titulo" id="t-instituicao">Instituição</h2><p class="secao__nota">Vale para os próximos documentos; os já emitidos não mudam.</p></header>
+    <header class="secao__cabecalho"><h2 class="secao__titulo" id="t-instituicao">Identificação institucional</h2><p class="secao__nota">Vale para os próximos documentos; os já emitidos não mudam.</p></header>
     <div class="secao__conteudo pilha">
       <div class="campos">
         {% include "componentes/campo.html" with campo=form.nome_extenso classe="campo--lg" %}
@@ -75,18 +83,12 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
   </section>
 
   <section class="secao" aria-labelledby="t-assinaturas">
-    <header class="secao__cabecalho"><h2 class="secao__titulo" id="t-assinaturas">Quem assina</h2></header>
+    <header class="secao__cabecalho"><h2 class="secao__titulo" id="t-assinaturas">Assinantes</h2><p class="secao__nota">Selecionar um assinante não concede acesso ao sistema, aprovação ou assinatura digital.</p></header>
     <div class="secao__conteudo pilha">
       {% if hoje_assina %}<ul class="hoje-assina">{% for rotulo, q in hoje_assina %}<li><span class="texto-secundario">{{ rotulo }} de hoje:</span> <strong>{{ q.0|default:"—" }}</strong>{% if q.1 %}, {{ q.1 }}{% endif %} <span class="texto-secundario">({{ q.2 }})</span></li>{% endfor %}</ul>{% endif %}
       <div class="campos">
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="{{ form.assina_oficio.id_for_label }}">{{ form.assina_oficio.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_oficio|campo_acessivel:"" }}</pc-combobox>
-        </div>
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="{{ form.assina_justificativa.id_for_label }}">{{ form.assina_justificativa.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_justificativa|campo_acessivel:"" }}</pc-combobox>
-        </div>
+        {% include "cadastros/configuracao_servidor.html" with campo=form.assina_oficio %}
+        {% include "cadastros/configuracao_servidor.html" with campo=form.assina_justificativa %}
       </div>
       <div class="campos">
         {% include "componentes/campo.html" with campo=form.chefia_nome classe="campo--lg" %}
@@ -96,15 +98,8 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
       <fieldset class="grupo-campos grupo-campos--afastado">
         <legend>Plano de trabalho</legend>
         <div class="campos">
-          <div class="campo campo--lg">
-            <label class="campo__rotulo" for="{{ form.assina_plano.id_for_label }}">{{ form.assina_plano.label }}</label>
-            <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_plano|campo_acessivel:"" }}</pc-combobox>
-          </div>
-          <div class="campo campo--lg">
-            <label class="campo__rotulo" for="{{ form.coordenador_plano.id_for_label }}">{{ form.coordenador_plano.label }}</label>
-            <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.coordenador_plano|campo_acessivel:True }}</pc-combobox>
-            <p class="campo__ajuda" id="{{ form.coordenador_plano.auto_id }}-ajuda">{{ form.coordenador_plano.help_text }}</p>
-          </div>
+        {% include "cadastros/configuracao_servidor.html" with campo=form.assina_plano %}
+        {% include "cadastros/configuracao_servidor.html" with campo=form.coordenador_plano %}
           {% include "componentes/campo.html" with campo=form.sufixo_plano classe="campo--md" %}
         </div>
       </fieldset>
@@ -132,8 +127,8 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
 
   {% if pode_alterar %}
   <div class="barra-acoes barra-acoes--rodape barra-acoes--preparacao barra-acoes--confirmacao">
-    <p class="barra-acoes__status">Configuração de {{ unidade }}</p>
-    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button>
+    <p class="barra-acoes__status">Dados de {{ unidade }}</p>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar dados da unidade</button>
   </div>
   {% endif %}
 </form>
@@ -179,7 +174,7 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
 </section>
 
 {% if pode_alterar %}
-<dialog id="dialogo-substituicao" class="dialogo" aria-labelledby="dialogo-substituicao-titulo"{% if abrir_substituicao %} data-abrir-ao-carregar{% endif %}>
+<dialog id="dialogo-substituicao" class="dialogo dialogo--largo dialogo--cadastro" aria-labelledby="dialogo-substituicao-titulo"{% if abrir_substituicao %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_substituicao' %}" novalidate>
     {% csrf_token %}
     <input type="hidden" name="unidade" value="{{ unidade.pk }}">
@@ -191,11 +186,7 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
     </div>
     <div class="dialogo__corpo pilha">
       {% if form_sub.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_sub.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      <div class="campo{% if form_sub.servidor.errors %} campo--erro{% endif %}">
-        <label class="campo__rotulo" for="{{ form_sub.servidor.id_for_label }}">{{ form_sub.servidor.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-        <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form_sub.servidor|campo_acessivel:"" }}</pc-combobox>
-        {% if form_sub.servidor.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form_sub.servidor.errors|join:" " }}</span></p>{% endif %}
-      </div>
+      {% include "cadastros/configuracao_servidor.html" with campo=form_sub.servidor %}
       {% include "componentes/campo.html" with campo=form_sub.tipo %}
       {% periodo_calendario form_sub.inicio form_sub.fim prefixo="substituicao" rotulo="Período da substituição" natureza="substituição" fonte="Fim em branco: até ser encerrada." compacto=True fim_aberto=True vivo=False %}
       {% include "componentes/campo.html" with campo=form_sub.motivo %}

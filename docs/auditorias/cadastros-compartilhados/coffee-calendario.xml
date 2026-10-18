@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="66.225" timestamp="2026-10-17T02:06:37.482545-03:00" hostname="SAMBOOK2-TIAGO"><testcase classname="tests.e2e.test_cadastros_missao" name="test_certidao_coffee_modal_e_calendario[1440]" time="65.232" /></testsuite></testsuites>

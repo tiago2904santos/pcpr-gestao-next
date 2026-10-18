@@ -1,0 +1,1463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pcpr.gerenciadorviagens.tech/contratos/automacao/evento-integracao.v1.json",
+  "title": "Evento de integração do PCPR (v1, rascunho 3) — CONTRATO NOVO, ainda não implementado",
+  "description": "Envelope que o PCPR entrega ao orquestrador (n8n) depois do commit da transação de negócio. Gerado a partir da outbox (ADR 0005), tópico `integracao.evento`: entrega 'pelo menos uma vez', por isso todo consumidor deduplica por `id` e revalida o estado pela API antes de agir. Não carrega dados pessoais nem conteúdo de documentos — só referências. Transporte (cabeçalhos, HMAC, janela de ±5 min, respostas e reentrega): webhook `eventoIntegracao` em `api-automacao.v1.yaml`.\n\n**Minimização verificável.** Cada `tipo` tem uma lista fechada de campos em `dados` (`allOf` com if/then e `additionalProperties: false`, em `$defs`). O PCPR valida o envelope em `outbox.publicar` do tópico `integracao.evento` (falha = erro de programação, a transação desfaz) e um teste de contrato gera um envelope de cada tipo e o valida contra este esquema (generaliza o CA-20 do fluxo 10-6). Nomes, CPF, telefones, e-mails, placas, valores e textos livres não têm onde entrar.\n\n**Versionamento.** Mudanças aditivas — tipo novo, valor novo de `recurso.tipo`, campo opcional novo em `dados` — mantêm `versao_contrato: 1` e este `$id`. Remover tipo ou campo, tornar um campo obrigatório ou mudar seu significado cria `versao_contrato: 2` com `$id` novo, publicada em paralelo até os consumidores migrarem. O PCPR só publica tipos deste enum; um consumidor que receba `tipo` que não conhece responde 202 e ignora (o W1 do protótipo já faz isso). A ampliação do rascunho 3 é aditiva, por isso o AUT-100 não precisa de `versao_contrato` nova.\n\n**Rascunho 3 (17/10/2026).** Incorpora os tipos e recursos pedidos pelos fluxos e fichas; cada definição em `$defs` traz `x-origem`. Unificações: `solicitacao.deferida` (11-3) = `solicitacao.despachada` com `situacao: deferida` (AUT-100); `plano.texto_ia_solicitado|pronto|aceito` (11-2) e `texto.rascunho_solicitado` (11-3) = família `texto.rascunho_*`, recurso `sugestao_texto` (generaliza `sugestao_texto_plano`) e `dados.alvo` ({plano|proposta_viagem, id}); `motivo_codigo` de `comunicacao.cancelada` (10-3, 10-5) = `motivo`; `automacao.desligada|religada` ganham o recurso `chave_automacao` (o envelope exige `recurso`). O campo `rotulo` que o simulador do protótipo põe em `comunicacao.agendada` (só para testar UTF-8) não faz parte do contrato.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "tipo", "versao_contrato", "ocorrido_em", "ambiente", "recurso", "correlacao_id"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identificador único e estável do evento (o mesmo em todas as reentregas). Chave de deduplicação do consumidor; igual ao cabeçalho `X-PCPR-Evento-Id`."
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "viagem.confirmada",
+        "viagem.reagendada",
+        "viagem.cancelada",
+        "viagem.participantes_alterados",
+        "viagem.veiculo_alterado",
+        "viagem.gerada",
+        "viagem.destinos_alterados",
+        "documento.emitido",
+        "documento.retificado",
+        "documento.cancelado",
+        "comunicacao.agendada",
+        "comunicacao.cancelada",
+        "quilometragem.trecho_salvo",
+        "quilometragem.concluida",
+        "prestacao.documentos_gerados",
+        "prestacao.documento_recebido",
+        "prestacao.pendencia_aberta",
+        "prestacao.concluida",
+        "prestacao.liberacao_registrada",
+        "prestacao.versao_assinatura_substituida",
+        "importacao.parte_aplicada",
+        "importacao.revisao_necessaria",
+        "importacao.concluida",
+        "automacao.desligada",
+        "automacao.religada",
+        "automacao.autorizacao_concedida",
+        "automacao.autorizacao_revogada",
+        "automacao.autorizacao_suspensa",
+        "assistente.encaminhada",
+        "roteiro.proposta_pronta",
+        "roteiro.proposta_aplicada",
+        "roteiro.proposta_obsoleta",
+        "programacao.leitura_solicitada",
+        "programacao.leitura_registrada",
+        "texto.rascunho_solicitado",
+        "texto.rascunho_pronto",
+        "texto.rascunho_aceito",
+        "proposta_viagem.pronta",
+        "proposta_viagem.aprovada",
+        "proposta_viagem.obsoleta",
+        "solicitacao.enviada",
+        "solicitacao.alterada",
+        "solicitacao.cancelada",
+        "solicitacao.concluida",
+        "solicitacao.despachada",
+        "operacao_institucional.aguardando_aprovacao",
+        "operacao_institucional.concluida",
+        "operacao_institucional.falhou",
+        "operacao_institucional.resultado_desconhecido",
+        "protocolo.aberto",
+        "protocolo.movimentado",
+        "protocolo.documento_anexado",
+        "protocolo.assinatura_solicitada",
+        "protocolo.assinatura_concluida",
+        "protocolo.encaminhado",
+        "protocolo.consulta_falhando",
+        "central.solicitacao_registrada",
+        "central.situacao_alterada"
+      ]
+    },
+    "versao_contrato": {"const": 1},
+    "ocorrido_em": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instante do commit, em UTC (ISO 8601 com Z). Horários de negócio vêm em `dados` com fuso America/Sao_Paulo explícito."
+    },
+    "ambiente": {
+      "type": "string",
+      "enum": ["producao", "treinamento", "preview", "teste"],
+      "description": "Um consumidor de produção recusa eventos de outro ambiente, e vice-versa."
+    },
+    "recurso": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tipo", "id", "versao"],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "viagem",
+            "oficio",
+            "documento",
+            "documento_congelado",
+            "envio_documentos",
+            "comunicacao",
+            "prestacao",
+            "prestacao_servidor",
+            "diario",
+            "importacao",
+            "servidor",
+            "encaminhamento",
+            "roteiro",
+            "proposta_roteiro",
+            "leitura_programacao",
+            "plano",
+            "sugestao_texto",
+            "solicitacao",
+            "proposta_viagem",
+            "autorizacao_fluxo",
+            "chave_automacao",
+            "operacao_institucional",
+            "protocolo"
+          ]
+        },
+        "id": {"type": "integer", "minimum": 1},
+        "versao": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Versão do registro no commit. Evento com versão menor que a atual (consultada na API) é obsoleto e deve ser ignorado — trata eventos fora de ordem."
+        }
+      }
+    },
+    "correlacao_id": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Liga todos os eventos, comunicações, execuções do n8n e chamadas de IA de um mesmo processo (ex.: 'viagem:812'). Aparece nos logs dos dois lados."
+    },
+    "causa_id": {"type": ["string", "null"], "format": "uuid", "description": "Evento que provocou este, quando houver."},
+    "dados": {
+      "type": "object",
+      "description": "Mínimo necessário para rotear, com lista fechada de campos por `tipo` (ver `allOf` e `$defs`). Nunca nomes, CPF, telefones, e-mails, placas, valores ou conteúdo de documentos: o consumidor busca pela API com autorização."
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.confirmada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.confirmada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.reagendada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.reagendada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.cancelada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.cancelada"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.participantes_alterados"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.participantes_alterados"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.veiculo_alterado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.veiculo_alterado"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.gerada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.gerada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "viagem.destinos_alterados"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.viagem.destinos_alterados"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "documento.emitido"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["documento", "documento_congelado"]}}},
+          "dados": {"$ref": "#/$defs/dados.documento.emitido"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "documento.retificado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["documento", "documento_congelado"]}}},
+          "dados": {"$ref": "#/$defs/dados.documento.retificado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "documento.cancelado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["documento", "documento_congelado"]}}},
+          "dados": {"$ref": "#/$defs/dados.documento.cancelado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "comunicacao.agendada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["comunicacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.comunicacao.agendada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "comunicacao.cancelada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["comunicacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.comunicacao.cancelada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "quilometragem.trecho_salvo"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["diario"]}}},
+          "dados": {"$ref": "#/$defs/dados.quilometragem.trecho_salvo"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "quilometragem.concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["diario"]}}},
+          "dados": {"$ref": "#/$defs/dados.quilometragem.concluida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.documentos_gerados"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.documentos_gerados"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.documento_recebido"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.documento_recebido"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.pendencia_aberta"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.pendencia_aberta"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.concluida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.liberacao_registrada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao_servidor"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.liberacao_registrada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "prestacao.versao_assinatura_substituida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.prestacao.versao_assinatura_substituida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "importacao.parte_aplicada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["importacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.importacao.parte_aplicada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "importacao.revisao_necessaria"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["importacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.importacao.revisao_necessaria"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "importacao.concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["importacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.importacao.concluida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "automacao.desligada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["chave_automacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.automacao.desligada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "automacao.religada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["chave_automacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.automacao.religada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "automacao.autorizacao_concedida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["autorizacao_fluxo"]}}},
+          "dados": {"$ref": "#/$defs/dados.automacao.autorizacao_concedida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "automacao.autorizacao_revogada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["autorizacao_fluxo"]}}},
+          "dados": {"$ref": "#/$defs/dados.automacao.autorizacao_revogada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "automacao.autorizacao_suspensa"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["autorizacao_fluxo"]}}},
+          "dados": {"$ref": "#/$defs/dados.automacao.autorizacao_suspensa"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "assistente.encaminhada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["encaminhamento"]}}},
+          "dados": {"$ref": "#/$defs/dados.assistente.encaminhada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "roteiro.proposta_pronta"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_roteiro"]}}},
+          "dados": {"$ref": "#/$defs/dados.roteiro.proposta_pronta"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "roteiro.proposta_aplicada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_roteiro"]}}},
+          "dados": {"$ref": "#/$defs/dados.roteiro.proposta_aplicada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "roteiro.proposta_obsoleta"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_roteiro"]}}},
+          "dados": {"$ref": "#/$defs/dados.roteiro.proposta_obsoleta"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "programacao.leitura_solicitada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["leitura_programacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.programacao.leitura_solicitada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "programacao.leitura_registrada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["leitura_programacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.programacao.leitura_registrada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "texto.rascunho_solicitado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["sugestao_texto"]}}},
+          "dados": {"$ref": "#/$defs/dados.texto.rascunho_solicitado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "texto.rascunho_pronto"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["sugestao_texto"]}}},
+          "dados": {"$ref": "#/$defs/dados.texto.rascunho_pronto"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "texto.rascunho_aceito"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["sugestao_texto"]}}},
+          "dados": {"$ref": "#/$defs/dados.texto.rascunho_aceito"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "proposta_viagem.pronta"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.proposta_viagem.pronta"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "proposta_viagem.aprovada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.proposta_viagem.aprovada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "proposta_viagem.obsoleta"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["proposta_viagem"]}}},
+          "dados": {"$ref": "#/$defs/dados.proposta_viagem.obsoleta"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "solicitacao.enviada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["solicitacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.solicitacao.enviada"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "solicitacao.alterada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["solicitacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.solicitacao.alterada"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "solicitacao.cancelada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["solicitacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.solicitacao.cancelada"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "solicitacao.concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["solicitacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.solicitacao.concluida"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "solicitacao.despachada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["solicitacao"]}}},
+          "dados": {"$ref": "#/$defs/dados.solicitacao.despachada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "operacao_institucional.aguardando_aprovacao"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["operacao_institucional"]}}},
+          "dados": {"$ref": "#/$defs/dados.operacao_institucional.aguardando_aprovacao"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "operacao_institucional.concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["operacao_institucional"]}}},
+          "dados": {"$ref": "#/$defs/dados.operacao_institucional.concluida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "operacao_institucional.falhou"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["operacao_institucional"]}}},
+          "dados": {"$ref": "#/$defs/dados.operacao_institucional.falhou"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"tipo": {"const": "operacao_institucional.resultado_desconhecido"}},
+        "required": ["tipo"]
+      },
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["operacao_institucional"]}}},
+          "dados": {"$ref": "#/$defs/dados.operacao_institucional.resultado_desconhecido"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.aberto"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.aberto"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.movimentado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.movimentado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.documento_anexado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.documento_anexado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.assinatura_solicitada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.assinatura_solicitada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.assinatura_concluida"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.assinatura_concluida"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.encaminhado"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.encaminhado"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "protocolo.consulta_falhando"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["protocolo"]}}},
+          "dados": {"$ref": "#/$defs/dados.protocolo.consulta_falhando"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "central.solicitacao_registrada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao", "prestacao_servidor"]}}},
+          "dados": {"$ref": "#/$defs/dados.central.solicitacao_registrada"}
+        },
+        "required": ["dados"]
+      }
+    },
+    {
+      "if": {"properties": {"tipo": {"const": "central.situacao_alterada"}}, "required": ["tipo"]},
+      "then": {
+        "properties": {
+          "recurso": {"properties": {"tipo": {"enum": ["prestacao", "prestacao_servidor"]}}},
+          "dados": {"$ref": "#/$defs/dados.central.situacao_alterada"}
+        },
+        "required": ["dados"]
+      }
+    }
+  ],
+  "$defs": {
+    "dados.viagem.confirmada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; protótipo",
+      "properties": {"inicio_previsto": {"type": "string", "format": "date-time"}},
+      "required": ["inicio_previsto"]
+    },
+    "dados.viagem.reagendada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; protótipo",
+      "properties": {
+        "inicio_previsto": {"type": "string", "format": "date-time"},
+        "inicio_anterior": {"type": "string", "format": "date-time"}
+      },
+      "required": ["inicio_previsto"]
+    },
+    "dados.viagem.cancelada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; 10-2 §6.1",
+      "properties": {"motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}}
+    },
+    "dados.viagem.participantes_alterados": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; 11-1 §6.1 (o consumidor busca o detalhe pela API)",
+      "properties": {}
+    },
+    "dados.viagem.veiculo_alterado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; 11-1 §6.1 (o consumidor busca o detalhe pela API)",
+      "properties": {}
+    },
+    "dados.viagem.gerada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {
+        "origem": {"type": "string", "enum": ["solicitacao", "tela"]},
+        "solicitacao_id": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "required": ["origem"]
+    },
+    "dados.viagem.destinos_alterados": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {"quantidade_destinos": {"type": "integer", "minimum": 0}},
+      "required": ["quantidade_destinos"]
+    },
+    "dados.documento.emitido": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-2 §6.1 (publicado só quando o PDF fica pronto, com hash)",
+      "properties": {
+        "peca": {"type": "string", "enum": ["oficio", "justificativa", "termo", "ordem_servico", "plano"]},
+        "dono": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        },
+        "versao": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      },
+      "required": ["peca", "dono", "versao", "sha256"]
+    },
+    "dados.documento.retificado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-2 §6.1",
+      "properties": {
+        "peca": {"type": "string", "enum": ["oficio", "justificativa", "termo", "ordem_servico", "plano"]},
+        "dono": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        },
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["motivo_codigo"]
+    },
+    "dados.documento.cancelado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-2 §6.1",
+      "properties": {
+        "peca": {"type": "string", "enum": ["oficio", "justificativa", "termo", "ordem_servico", "plano"]},
+        "dono": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        },
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["motivo_codigo"]
+    },
+    "dados.comunicacao.agendada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-2/10-3/10-4/10-5 §6.1; campos que o W1 do protótipo usa (comunicacao_id, enviar_em, imediato)",
+      "properties": {
+        "comunicacao_id": {"type": "integer", "minimum": 1},
+        "fluxo": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+        "tipo_comunicacao": {
+          "type": "string",
+          "enum": [
+            "link_km",
+            "documentos_disponiveis",
+            "documentos_para_assinatura",
+            "lembrete_pendencia",
+            "mensagem_saque",
+            "resposta_recebimento",
+            "aviso_cancelamento",
+            "aviso_reagendamento",
+            "aviso_substituicao",
+            "resposta_assistente",
+            "resposta_encaminhamento"
+          ]
+        },
+        "enviar_em": {"type": "string", "format": "date-time", "description": "horário de negócio com fuso -03:00"},
+        "imediato": {
+          "type": "boolean",
+          "description": "enviar já, sem esperar `enviar_em` (o n8n ainda antecipa até 2 min)"
+        },
+        "finalidade": {"type": "string", "enum": ["diario_km"]},
+        "aviso": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z0-9_]{1,64}$",
+          "description": "código da regra da véspera (ex.: `viagem_ja_iniciada`)"
+        }
+      },
+      "required": ["comunicacao_id", "fluxo", "tipo_comunicacao", "enviar_em"]
+    },
+    "dados.comunicacao.cancelada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-2/10-3/10-4/10-5 §6.1 (`motivo` unifica o `motivo_codigo` de 10-3 e 10-5)",
+      "properties": {
+        "comunicacao_id": {"type": "integer", "minimum": 1},
+        "fluxo": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+        "motivo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["comunicacao_id", "motivo"]
+    },
+    "dados.quilometragem.trecho_salvo": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-4 §6.1 E2",
+      "properties": {
+        "linhas_alteradas": {"type": "integer", "minimum": 0},
+        "origem": {"type": "string", "enum": ["link", "operador"]},
+        "completas": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      },
+      "required": ["linhas_alteradas", "origem", "completas", "total"]
+    },
+    "dados.quilometragem.concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-4 §6.1 E2",
+      "properties": {"origem_ultima": {"type": "string", "enum": ["link", "operador"]}},
+      "required": ["origem_ultima"]
+    },
+    "dados.prestacao.documentos_gerados": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-5 §6.1",
+      "properties": {
+        "oficio_id": {"type": "integer", "minimum": 1},
+        "documentos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["versao_id", "chave"],
+            "properties": {
+              "versao_id": {"type": "integer", "minimum": 1},
+              "chave": {"type": "string", "enum": ["diario", "relatorio_tecnico"]},
+              "numero": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      },
+      "required": ["oficio_id", "documentos"]
+    },
+    "dados.prestacao.documento_recebido": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-3 §6.1, 10-5 §6.1, 10-6 E5 (campos unificados)",
+      "properties": {
+        "anexo_id": {"type": "integer", "minimum": 1},
+        "tipo_documento": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "prestacao_servidor_id": {"type": ["integer", "null"], "minimum": 1},
+        "versao_id": {"type": ["integer", "null"], "minimum": 1},
+        "chave": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "recebimento_id": {"type": ["integer", "null"], "minimum": 1},
+        "canal": {"type": "string", "enum": ["email", "whatsapp", "portal", "tela"]},
+        "origem": {"type": "string", "enum": ["tela", "recebimento", "portal"]},
+        "pendencias_resolvidas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_]{1,64}$",
+            "description": "código estável de pendência (ex.: `PREST_SEM_RT`)"
+          }
+        },
+        "pendencias_restantes": {"type": "integer", "minimum": 0}
+      },
+      "required": ["tipo_documento", "origem"]
+    },
+    "dados.prestacao.pendencia_aberta": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-5 §6.1",
+      "properties": {
+        "codigo_pendencia": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{1,64}$",
+          "description": "código estável de pendência (ex.: `PREST_SEM_RT`)"
+        },
+        "versao_id": {"type": ["integer", "null"], "minimum": 1},
+        "prestacao_servidor_id": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "required": ["codigo_pendencia"]
+    },
+    "dados.prestacao.concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-3 §6.1",
+      "properties": {"prestacoes_servidor": {"type": "integer", "minimum": 0}},
+      "required": ["prestacoes_servidor"]
+    },
+    "dados.prestacao.liberacao_registrada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-3 §6.3 (opcional; métricas)",
+      "properties": {
+        "campos_alterados": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["numero", "liberacao", "prazo"]},
+          "minItems": 1
+        },
+        "primeira": {"type": "boolean"},
+        "situacao_aviso": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "liberacao": {"type": "string", "format": "date"},
+        "prazo": {"type": "string", "format": "date"}
+      },
+      "required": ["campos_alterados", "primeira"]
+    },
+    "dados.prestacao.versao_assinatura_substituida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-5 §6.3",
+      "properties": {
+        "chave": {"type": "string", "enum": ["diario", "relatorio_tecnico"]},
+        "versao_anterior_id": {"type": "integer", "minimum": 1},
+        "numero_anterior": {"type": "integer", "minimum": 1},
+        "nova_versao_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {
+          "type": "string",
+          "enum": ["correcao", "dados_mudaram", "cancelamento", "servidor_removido", "finalizacao"]
+        }
+      },
+      "required": ["chave", "versao_anterior_id", "nova_versao_id", "motivo_codigo"]
+    },
+    "dados.importacao.parte_aplicada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-6 E5",
+      "properties": {
+        "parte_id": {"type": "integer", "minimum": 1},
+        "tipo_documento": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "estado": {"type": "string", "enum": ["anexado", "repetido"]},
+        "alvo": {"type": "string", "enum": ["via", "anexo"]},
+        "oficio_id": {"type": ["integer", "null"], "minimum": 1},
+        "prestacao_id": {"type": ["integer", "null"], "minimum": 1},
+        "origem": {"type": "string", "enum": ["tela", "recebimento"]},
+        "recebimento_id": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "required": ["parte_id", "estado", "origem"]
+    },
+    "dados.importacao.revisao_necessaria": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-6 E5",
+      "properties": {
+        "partes_em_revisao": {"type": "integer", "minimum": 0},
+        "motivos": {"type": "array", "items": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}},
+        "recebimento_id": {"type": ["integer", "null"], "minimum": 1},
+        "unidade_id": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "required": ["partes_em_revisao"]
+    },
+    "dados.importacao.concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100 (campos propostos aqui)",
+      "properties": {
+        "partes": {"type": "integer", "minimum": 0},
+        "anexadas": {"type": "integer", "minimum": 0},
+        "em_revisao": {"type": "integer", "minimum": 0},
+        "origem": {"type": "string", "enum": ["tela", "recebimento"]}
+      },
+      "required": ["partes", "anexadas", "em_revisao"]
+    },
+    "dados.automacao.desligada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; 10-2/10-4/10-5 §6.1 (`fluxo` nulo = chave geral)",
+      "properties": {
+        "fluxo": {"type": ["string", "null"], "pattern": "^[a-z0-9-]{1,64}$"},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["fluxo"]
+    },
+    "dados.automacao.religada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "rascunho 1; 10-2/10-4/10-5 §6.1 (`fluxo` nulo = chave geral)",
+      "properties": {
+        "fluxo": {"type": ["string", "null"], "pattern": "^[a-z0-9-]{1,64}$"},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["fluxo"]
+    },
+    "dados.automacao.autorizacao_concedida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {
+        "fluxo": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+        "unidade_id": {"type": ["integer", "null"], "minimum": 1},
+        "modo": {"type": "string", "enum": ["sombra", "assistido", "automatico"]},
+        "vence_em": {"type": ["string", "null"], "format": "date-time"}
+      },
+      "required": ["fluxo", "modo"]
+    },
+    "dados.automacao.autorizacao_revogada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {
+        "fluxo": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+        "unidade_id": {"type": ["integer", "null"], "minimum": 1},
+        "modo": {"type": "string", "enum": ["sombra", "assistido", "automatico"]},
+        "vence_em": {"type": ["string", "null"], "format": "date-time"}
+      },
+      "required": ["fluxo", "modo"]
+    },
+    "dados.automacao.autorizacao_suspensa": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {
+        "fluxo": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+        "unidade_id": {"type": ["integer", "null"], "minimum": 1},
+        "modo": {"type": "string", "enum": ["sombra", "assistido", "automatico"]},
+        "vence_em": {"type": ["string", "null"], "format": "date-time"}
+      },
+      "required": ["fluxo", "modo"]
+    },
+    "dados.assistente.encaminhada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "10-1 §6.2 (só métricas; sem texto da pergunta)",
+      "properties": {"unidade_id": {"type": "integer", "minimum": 1}},
+      "required": ["unidade_id"]
+    },
+    "dados.roteiro.proposta_pronta": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {
+        "viagem_id": {"type": "integer", "minimum": 1},
+        "estado": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "pendencias_bloqueantes": {"type": "integer", "minimum": 0},
+        "alternativas": {"type": "integer", "minimum": 0}
+      },
+      "required": ["viagem_id", "estado"]
+    },
+    "dados.roteiro.proposta_aplicada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {
+        "viagem_id": {"type": "integer", "minimum": 1},
+        "roteiro_id": {"type": "integer", "minimum": 1},
+        "alternativa": {"type": "string", "pattern": "^[A-Z]$"}
+      },
+      "required": ["viagem_id", "roteiro_id"]
+    },
+    "dados.roteiro.proposta_obsoleta": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {
+        "viagem_id": {"type": "integer", "minimum": 1},
+        "motivo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["viagem_id", "motivo"]
+    },
+    "dados.programacao.leitura_solicitada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {"viagem_id": {"type": "integer", "minimum": 1}, "fontes": {"type": "integer", "minimum": 0}},
+      "required": ["viagem_id", "fontes"]
+    },
+    "dados.programacao.leitura_registrada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-1 §6.2",
+      "properties": {
+        "viagem_id": {"type": "integer", "minimum": 1},
+        "itens": {"type": "integer", "minimum": 0},
+        "rejeitados": {"type": "integer", "minimum": 0}
+      },
+      "required": ["viagem_id", "itens", "rejeitados"]
+    },
+    "dados.texto.rascunho_solicitado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-2 §6.2 (plano.texto_ia_solicitado) + 11-3 §6.2 (texto.rascunho_solicitado)",
+      "properties": {
+        "alvo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tipo", "id"],
+          "properties": {
+            "tipo": {"type": "string", "enum": ["plano", "proposta_viagem"]},
+            "id": {"type": "integer", "minimum": 1}
+          }
+        },
+        "campos": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["contextualizacao", "consideracoes", "justificativa", "motivo"]},
+          "minItems": 1
+        },
+        "prompt_versao": {"type": "string", "maxLength": 64}
+      },
+      "required": ["alvo", "campos", "prompt_versao"]
+    },
+    "dados.texto.rascunho_pronto": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-2 §6.2 (plano.texto_ia_pronto)",
+      "properties": {
+        "alvo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tipo", "id"],
+          "properties": {
+            "tipo": {"type": "string", "enum": ["plano", "proposta_viagem"]},
+            "id": {"type": "integer", "minimum": 1}
+          }
+        },
+        "estado": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "erros_validacao": {"type": "integer", "minimum": 0},
+        "tokens_entrada": {"type": "integer", "minimum": 0},
+        "tokens_saida": {"type": "integer", "minimum": 0}
+      },
+      "required": ["alvo", "estado"]
+    },
+    "dados.texto.rascunho_aceito": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-2 §6.2 (plano.texto_ia_aceito)",
+      "properties": {
+        "alvo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tipo", "id"],
+          "properties": {
+            "tipo": {"type": "string", "enum": ["plano", "proposta_viagem"]},
+            "id": {"type": "integer", "minimum": 1}
+          }
+        },
+        "campo": {"type": "string", "enum": ["contextualizacao", "consideracoes", "justificativa", "motivo"]},
+        "editada_antes": {"type": "boolean"},
+        "aplicada_no_documento": {"type": "boolean"}
+      },
+      "required": ["alvo", "campo"]
+    },
+    "dados.proposta_viagem.pronta": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {
+        "origem": {"type": "string", "enum": ["solicitacao", "viagem"]},
+        "pendencias_bloqueantes": {"type": "integer", "minimum": 0},
+        "oficios_previstos": {"type": "integer", "minimum": 0}
+      },
+      "required": ["origem"]
+    },
+    "dados.proposta_viagem.aprovada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {
+        "viagem_id": {"type": "integer", "minimum": 1},
+        "oficios": {"type": "integer", "minimum": 0},
+        "termos": {"type": "integer", "minimum": 0},
+        "ordem": {"type": "boolean"},
+        "plano": {"type": "boolean"}
+      },
+      "required": ["viagem_id"]
+    },
+    "dados.proposta_viagem.obsoleta": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "11-3 §6.2",
+      "properties": {"motivo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}},
+      "required": ["motivo"]
+    },
+    "dados.solicitacao.enviada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100",
+      "properties": {
+        "inicio_evento": {"type": "string", "format": "date"},
+        "unidade_sugerida_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      }
+    },
+    "dados.solicitacao.alterada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100",
+      "properties": {
+        "inicio_evento": {"type": "string", "format": "date"},
+        "unidade_sugerida_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      }
+    },
+    "dados.solicitacao.cancelada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100",
+      "properties": {
+        "inicio_evento": {"type": "string", "format": "date"},
+        "unidade_sugerida_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      }
+    },
+    "dados.solicitacao.concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100",
+      "properties": {
+        "inicio_evento": {"type": "string", "format": "date"},
+        "unidade_sugerida_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      }
+    },
+    "dados.solicitacao.despachada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "fichas/plataforma-e-modulos.md AUT-100; 11-3 §6.2 (`solicitacao.deferida` = `situacao: deferida`)",
+      "properties": {
+        "inicio_evento": {"type": "string", "format": "date"},
+        "unidade_sugerida_id": {"type": ["integer", "null"], "minimum": 1},
+        "motivo_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "situacao": {"type": "string", "enum": ["deferida", "devolvida", "nao_atendida"]}
+      },
+      "required": ["situacao"]
+    },
+    "dados.operacao_institucional.aguardando_aprovacao": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "sistema": {"type": "string", "enum": ["eprotocolo", "central_viagens"]},
+        "operacao": {
+          "type": "string",
+          "enum": ["abrir", "anexar", "solicitar_assinatura", "encaminhar", "registrar_solicitacao"]
+        },
+        "pedido_aprovacao_id": {"type": "integer", "minimum": 1},
+        "expira_em": {"type": "string", "format": "date-time"}
+      },
+      "required": ["sistema", "operacao", "pedido_aprovacao_id", "expira_em"]
+    },
+    "dados.operacao_institucional.concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "sistema": {"type": "string", "enum": ["eprotocolo", "central_viagens"]},
+        "operacao": {
+          "type": "string",
+          "enum": ["abrir", "anexar", "solicitar_assinatura", "encaminhar", "registrar_solicitacao"]
+        },
+        "protocolo_id": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "required": ["sistema", "operacao"]
+    },
+    "dados.operacao_institucional.falhou": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "sistema": {"type": "string", "enum": ["eprotocolo", "central_viagens"]},
+        "operacao": {
+          "type": "string",
+          "enum": ["abrir", "anexar", "solicitar_assinatura", "encaminhar", "registrar_solicitacao"]
+        },
+        "codigo_erro": {"type": "string", "enum": ["recusado", "esgotada", "invalidada", "expirada"]}
+      },
+      "required": ["codigo_erro"]
+    },
+    "dados.operacao_institucional.resultado_desconhecido": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "sistema": {"type": "string", "enum": ["eprotocolo", "central_viagens"]},
+        "operacao": {
+          "type": "string",
+          "enum": ["abrir", "anexar", "solicitar_assinatura", "encaminhar", "registrar_solicitacao"]
+        }
+      },
+      "required": ["operacao"]
+    },
+    "dados.protocolo.aberto": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "origem": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "recurso_vinculado": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        }
+      },
+      "required": ["origem"]
+    },
+    "dados.protocolo.movimentado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "mudancas": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["situacao", "local", "pendencia"]},
+          "minItems": 1
+        },
+        "relevancia": {
+          "type": "string",
+          "enum": ["chegou_ao_setor_do_despacho", "pendencia_aberta", "devolvido", "encerrado", "outra"]
+        }
+      },
+      "required": ["mudancas", "relevancia"]
+    },
+    "dados.protocolo.documento_anexado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "documento_ref": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        }
+      },
+      "required": ["documento_ref"]
+    },
+    "dados.protocolo.assinatura_solicitada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "documento_ref": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        },
+        "assinante_ref": {"type": "integer", "minimum": 1}
+      },
+      "required": ["documento_ref", "assinante_ref"]
+    },
+    "dados.protocolo.assinatura_concluida": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "documento_ref": {
+          "type": "string",
+          "pattern": "^[a-z_]+:[0-9]+$",
+          "description": "referência `tipo:id` (ex.: `oficio:131`)"
+        }
+      },
+      "required": ["documento_ref"]
+    },
+    "dados.protocolo.encaminhado": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {"local_destino_codigo": {"type": "string", "maxLength": 64}},
+      "required": ["local_destino_codigo"]
+    },
+    "dados.protocolo.consulta_falhando": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4",
+      "properties": {
+        "falhas_consecutivas": {"type": "integer", "minimum": 0},
+        "desde": {"type": "string", "format": "date-time"}
+      },
+      "required": ["falhas_consecutivas", "desde"]
+    },
+    "dados.central.solicitacao_registrada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4 (futuro, só com API oficial)",
+      "properties": {"servidor_ref": {"type": "integer", "minimum": 1}},
+      "required": ["servidor_ref"]
+    },
+    "dados.central.situacao_alterada": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-origem": "13 §6.4 (futuro, só com API oficial)",
+      "properties": {
+        "servidor_ref": {"type": "integer", "minimum": 1},
+        "situacao_codigo": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"}
+      },
+      "required": ["servidor_ref", "situacao_codigo"]
+    }
+  },
+  "examples": [
+    {
+      "id": "5d0c2b8e-6c8f-4a51-9d1e-2f4b7a1c9e30",
+      "tipo": "viagem.reagendada",
+      "versao_contrato": 1,
+      "ocorrido_em": "2026-11-03T14:22:05Z",
+      "ambiente": "teste",
+      "recurso": {"tipo": "viagem", "id": 812, "versao": 7},
+      "correlacao_id": "viagem:812",
+      "causa_id": null,
+      "dados": {"inicio_previsto": "2026-11-10T06:30:00-03:00", "inicio_anterior": "2026-11-08T06:30:00-03:00"}
+    }
+  ]
+}

@@ -105,7 +105,11 @@ histórico.
     <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
       <legend class="sr-only">Serviços e estrutura</legend>
       <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Serviços</legend>
+        {% if not editavel %}
+        <ul class="pilha">{% for uso in servicos_registrados %}<li>{{ uso }}{% if uso.observacao %} — {{ uso.observacao }}{% endif %}</li>{% empty %}<li class="vazio-inline">Nenhum serviço registrado.</li>{% endfor %}</ul>
+        {% else %}
         <div class="caixas">{% for sv, marcado in servicos %}<label class="escolha caixas__item"><input type="checkbox" name="servico_{{ sv.pk }}" value="1" form="{{ form_id }}"{% if marcado %} checked{% endif %}><span>{{ sv.nome }}{% if not sv.ativo %} (inativo){% endif %}</span></label>{% empty %}<p class="vazio-inline">Nenhum serviço cadastrado.</p>{% endfor %}</div>
+        {% endif %}
       </fieldset>
       <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Equipes</legend>
         <div class="pilha">

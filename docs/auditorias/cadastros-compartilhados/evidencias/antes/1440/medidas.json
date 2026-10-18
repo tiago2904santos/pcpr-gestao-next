@@ -1,0 +1,334 @@
+[
+  {
+    "rota": "/cadastros/servidores/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 68845,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/servidores/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/viaturas/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 44032,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/viaturas/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/unidades/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 30781,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/unidades/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/cargos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 34288,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/cargos/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/combustiveis/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 30891,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/combustiveis/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/tipos-de-viagem/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 27639,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/tipos-de-viagem/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/programas/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 34473,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/programas/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/horarios/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 35989,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/horarios/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/atividades/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 60688,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/atividades/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/conjuntos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 29132,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/conjuntos/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/diarias/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 34184,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/diarias/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/textos-prontos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 30889,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/textos-prontos/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 461
+  },
+  {
+    "rota": "/cadastros/usuarios/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 45384,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/usuarios/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/cadastros/configuracao/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 53582,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/cadastros/configuracao/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/eventos/cadastros/tipos-evento/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 22020,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/eventos/cadastros/servicos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 56023,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/eventos/cadastros/equipes/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 21956,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/eventos/cadastros/orgaos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 22050,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/eventos/cadastros/unidades-moveis/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 22004,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/eventos/cadastros/textos-despacho/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 22428,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/coffee/cadastros/fornecedores/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 26094,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/coffee/cadastros/fornecedores/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/coffee/cadastros/contratos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 32643,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/coffee/cadastros/contratos/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/coffee/cadastros/aditivos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 26734,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/coffee/cadastros/aditivos/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/coffee/cadastros/lotes/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 28279,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/coffee/cadastros/lotes/",
+    "largura": 1440,
+    "superficie": "modal",
+    "largura_modal": 634
+  },
+  {
+    "rota": "/coffee/cadastros/oficio/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 25288,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/palestras/cadastros/palestrantes/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 23307,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/palestras/cadastros/temas/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 18959,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/palestras/cadastros/respostas/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 19554,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/imprensa/cadastros/equipe/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 18541,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/imprensa/cadastros/veiculos/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 18627,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/publicacoes/cadastros/equipe/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 18564,
+    "superficie": "lista"
+  },
+  {
+    "rota": "/publicacoes/cadastros/unidades/",
+    "largura": 1440,
+    "overflow": 0,
+    "html_bytes": 18673,
+    "superficie": "lista"
+  }
+]

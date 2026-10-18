@@ -1,0 +1,26 @@
+{
+  "id": 3302,
+  "mensagem_id": 1202,
+  "estado": "revisao_necessaria",
+  "motivo_codigo": null,
+  "importacao_id": 7710,
+  "motivo_revisao": "codigo_ausente",
+  "partes": [
+    {
+      "tipo": "",
+      "estado": "revisao",
+      "identificado": false,
+      "destino": "",
+      "assinatura": "nao_verificada",
+      "pendencias_resolvidas": []
+    },
+    {
+      "tipo": "comprovante",
+      "estado": "revisao",
+      "identificado": true,
+      "destino": "Prestação 431",
+      "assinatura": "nao_verificada",
+      "pendencias_resolvidas": []
+    }
+  ]
+}

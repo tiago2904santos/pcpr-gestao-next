@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from django.contrib.auth.models import Group
+from django.db import connection
 from django.utils import timezone
 
 from gestao.cadastros.carga import garantir_catalogos_do_plano, garantir_municipios
@@ -67,6 +68,12 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
 
     hoje = hoje or timezone.localdate()
     garantir_municipios()
+    # O flush transacional pode deixar estatísticas de tabela vazia. Atualizá-las
+    # após a carga sintética evita joins cruzados de 5.571 municípios nos testes
+    # e no semear_dev, sem alterar resultados nem depender do autovacuum assíncrono.
+    if connection.vendor == "postgresql":
+        with connection.cursor() as cursor:
+            cursor.execute("ANALYZE cadastros_municipio")
     garantir_catalogos_do_plano()
     sincronizar_papeis()
     # Os tipos de OS vêm das migrações; o banco transacional do E2E é limpo entre testes,

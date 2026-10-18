@@ -1,0 +1,10 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______________________ test_sete_cadastros_ascom[360] ________________________
+tests\e2e\test_cadastros_ascom_refinamento.py:166: in test_sete_cadastros_ascom
+    for v in violacoes]
+E   AssertionError: [('target-size', [['.campo--cresce.campo > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title="Limpar o campo"][type="button"]']])]
+E   assert not [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}]
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_cadastros_ascom_refinamento.py::test_sete_cadastros_ascom[360]
+1 failed in 61.06s (0:01:01)

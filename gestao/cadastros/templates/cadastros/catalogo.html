@@ -104,7 +104,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
-<dialog id="dialogo-cadastro" class="dialogo{% if cat.campos %} dialogo--largo{% endif %}" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+<dialog id="dialogo-cadastro" class="dialogo dialogo--cadastro{% if cat.campos %} dialogo--largo{% endif %}" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_catalogo' slug %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
@@ -117,7 +117,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
       {% if cat.campos %}
         {% include cat.campos %}
       {% elif slug == "unidades" %}
-        <div class="grade grade--2">
+        <div class="pilha">
           {% include "componentes/campo.html" with campo=form.nome %}
           {% include "componentes/campo.html" with campo=form.sigla %}
         </div>

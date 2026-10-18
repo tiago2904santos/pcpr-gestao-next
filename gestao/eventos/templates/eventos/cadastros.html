@@ -3,15 +3,10 @@
 {% block titulo %}Cadastros de Eventos Sociais{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% comment %}Índice dos catálogos de Eventos Sociais (paridade com o índice de cadastros da referência): um cartão por catálogo, com o total e os inativos.{% endcomment %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "layers" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Cadastros de Eventos Sociais</h1>
-    <p class="pagina-cabecalho__descricao">O que as solicitações de evento usam: tipos (com o modelo da solicitação), serviços, equipes, órgãos, unidades móveis e os textos prontos do despacho.</p>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos Sociais" titulo="Cadastros de Eventos Sociais" complemento="Tipos e modelos de solicitação, atividades e serviços compartilhados, equipes, órgãos, unidades móveis e textos do despacho." %}
 <div class="modulos">
   {% for cat, total, inativos in cartoes %}
   <section class="cartao modulo" aria-labelledby="cat-{{ cat.slug }}">

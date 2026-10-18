@@ -1,0 +1,11 @@
+{
+  "id": "2e4f6a8c-1b3d-4f5a-9c7e-0d2f4a6c8e05",
+  "tipo": "comunicacao.cancelada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-04T14:22:05Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "comunicacao", "id": 37, "versao": 2},
+  "correlacao_id": "viagem:812",
+  "causa_id": "5d0c2b8e-6c8f-4a51-9d1e-2f4b7a1c9e30",
+  "dados": {"comunicacao_id": 37, "fluxo": "km-vespera", "motivo": "reagendada"}
+}

@@ -19,6 +19,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
+from gestao.cadastros.fontes import atividades_e_servicos
 from gestao.plataforma.notificacoes import notificar
 
 from . import dominio, ganchos, policies
@@ -26,7 +27,6 @@ from .models import (
     AnexoSolicitacao,
     Equipe,
     Movimento,
-    Servico,
     Solicitacao,
     SolicitacaoEquipe,
     SolicitacaoServico,
@@ -450,7 +450,7 @@ def remover_anexo(usuario, anexo_pk: int) -> str:
 
 
 def servicos_ativos():
-    return Servico.objects.filter(ativo=True).order_by("nome")
+    return atividades_e_servicos()
 
 
 def equipes_ativas():

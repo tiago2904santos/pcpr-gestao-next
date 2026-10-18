@@ -1,0 +1,53 @@
+ANALYZE
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=12.73..12.74 rows=4 width=36)
+   Sort Key: t.ordem
+   ->  Hash Join  (cost=4.21..12.69 rows=4 width=36)
+         Hash Cond: (t.destino_id = n.id)
+         ->  Hash Join  (cost=4.19..12.66 rows=4 width=31)
+               Hash Cond: (t.origem_id = m.id)
+               ->  Bitmap Heap Scan on viagens_trecho t  (cost=4.18..12.64 rows=4 width=26)
+                     Recheck Cond: (oficio_id = 1666)
+                     ->  Bitmap Index Scan on viagens_trecho_oficio_id_0f22d8c6  (cost=0.00..4.18 rows=4 width=0)
+                           Index Cond: (oficio_id = 1666)
+               ->  Hash  (cost=0.00..0.00 rows=1 width=21)
+                     ->  Seq Scan on cadastros_municipio m  (cost=0.00..0.00 rows=1 width=21)
+         ->  Hash  (cost=0.00..0.00 rows=1 width=21)
+               ->  Seq Scan on cadastros_municipio n  (cost=0.00..0.00 rows=1 width=21)
+(14 rows)
+
+ANALYZE
+                                                       QUERY PLAN                                                        
+-------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=79.09..79.10 rows=4 width=36)
+   Sort Key: t.ordem
+   ->  Nested Loop  (cost=4.75..79.05 rows=4 width=36)
+         ->  Nested Loop  (cost=4.46..45.84 rows=4 width=31)
+               ->  Bitmap Heap Scan on viagens_trecho t  (cost=4.18..12.64 rows=4 width=26)
+                     Recheck Cond: (oficio_id = 1666)
+                     ->  Bitmap Index Scan on viagens_trecho_oficio_id_0f22d8c6  (cost=0.00..4.18 rows=4 width=0)
+                           Index Cond: (oficio_id = 1666)
+               ->  Index Scan using cadastros_municipio_pkey on cadastros_municipio m  (cost=0.28..8.30 rows=1 width=21)
+                     Index Cond: (id = t.origem_id)
+         ->  Index Scan using cadastros_municipio_pkey on cadastros_municipio n  (cost=0.28..8.30 rows=1 width=21)
+               Index Cond: (id = t.destino_id)
+(12 rows)
+
+ANALYZE
+                                                       QUERY PLAN                                                        
+-------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=79.09..79.10 rows=4 width=36)
+   Sort Key: t.ordem
+   ->  Nested Loop  (cost=4.75..79.05 rows=4 width=36)
+         ->  Nested Loop  (cost=4.46..45.84 rows=4 width=31)
+               ->  Bitmap Heap Scan on viagens_trecho t  (cost=4.18..12.64 rows=4 width=26)
+                     Recheck Cond: (oficio_id = 1666)
+                     ->  Bitmap Index Scan on viagens_trecho_oficio_id_0f22d8c6  (cost=0.00..4.18 rows=4 width=0)
+                           Index Cond: (oficio_id = 1666)
+               ->  Index Scan using cadastros_municipio_pkey on cadastros_municipio m  (cost=0.28..8.30 rows=1 width=21)
+                     Index Cond: (id = t.origem_id)
+         ->  Index Scan using cadastros_municipio_pkey on cadastros_municipio n  (cost=0.28..8.30 rows=1 width=21)
+               Index Cond: (id = t.destino_id)
+(12 rows)
+

@@ -1,0 +1,11 @@
+{
+  "id": "5d0c2b8e-6c8f-4a51-9d1e-2f4b7a1c9e30",
+  "tipo": "viagem.reagendada",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-04T14:22:05Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "viagem", "id": 812, "versao": 7},
+  "correlacao_id": "viagem:812",
+  "causa_id": null,
+  "dados": {"inicio_previsto": "2026-11-12T06:30:00-03:00", "inicio_anterior": "2026-11-10T06:30:00-03:00"}
+}

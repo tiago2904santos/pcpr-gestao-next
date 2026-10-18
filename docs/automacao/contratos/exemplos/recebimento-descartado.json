@@ -1,0 +1,17 @@
+{
+  "id": 3307,
+  "mensagem_id": 1206,
+  "estado": "descartado",
+  "motivo_codigo": null,
+  "importacao_id": 7712,
+  "partes": [
+    {
+      "tipo": "",
+      "estado": "ignorado",
+      "identificado": false,
+      "destino": "",
+      "assinatura": "nao_verificada",
+      "pendencias_resolvidas": []
+    }
+  ]
+}

@@ -1852,6 +1852,61 @@ dialog.dialogo--amplo {
   width: min(68rem, calc(100vw - 2 * var(--esp-4)));
 }
 
+/* Cadastros: uma superfície proporcional ao conteúdo e uma só área de rolagem.
+   Seletores/calendários já usam popover na camada superior (painel-flutuante.js). */
+dialog.dialogo--cadastro {
+  width: min(38rem, calc(100vw - 2 * var(--esp-4)));
+  max-height: calc(100dvh - 2 * var(--esp-4));
+  overflow: hidden;
+}
+
+dialog.dialogo--cadastro.dialogo--largo {
+  width: min(52rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+dialog.dialogo--cadastro.dialogo--amplo {
+  width: min(68rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+dialog.dialogo--cadastro[open],
+.dialogo--cadastro > form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.dialogo--cadastro > form { max-height: inherit; }
+.dialogo--cadastro .dialogo__cabecalho,
+.dialogo--cadastro .dialogo__rodape { flex: none; }
+.dialogo--cadastro .dialogo__cabecalho { padding: var(--esp-6) var(--esp-6) var(--esp-4); }
+.dialogo--cadastro .dialogo__corpo {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--esp-3) var(--esp-6) var(--esp-6);
+  scroll-padding-block: var(--esp-4);
+}
+.dialogo--cadastro .dialogo__rodape { padding-inline: var(--esp-6); }
+.dialogo--cadastro .grupo-campos { gap: var(--esp-5); }
+.dialogo--cadastro .grupo-campos + .grupo-campos { margin-top: var(--esp-6); }
+.dialogo--cadastro .campos { row-gap: var(--esp-5); }
+.dialogo--cadastro .dialogo__titulo { overflow-wrap: anywhere; }
+.dialogo--cadastro .dialogo__cabecalho-texto { flex: 1; }
+.dialogo--cadastro .dialogo__cabecalho > .dialogo__fechar {
+  position: static;
+  flex: none;
+  margin-left: auto;
+}
+
+@media (max-width: 767.98px) {
+  .dialogo--cadastro .dialogo__cabecalho { padding: var(--esp-5) var(--esp-4) var(--esp-3); }
+  .dialogo--cadastro .dialogo__corpo { padding: var(--esp-3) var(--esp-4) var(--esp-5); }
+  .dialogo--cadastro .dialogo__rodape { padding: var(--esp-3) var(--esp-4); }
+  .dialogo--cadastro .campos > :is(.campo--xs, .campo--sm, .campo--md) {
+    flex-basis: 100%;
+  }
+}
+
 /* Grupo de campos com título (fieldset): "Identificação", "Lotação"… */
 .grupo-campos {
   display: grid;

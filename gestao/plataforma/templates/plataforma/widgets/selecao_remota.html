@@ -1,0 +1,7 @@
+<pc-combobox class="combobox" data-fonte="{{ widget.fonte }}" data-placeholder="{{ widget.placeholder }}">
+  <select name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+    <option value="">{{ widget.vazio|default:"Selecione" }}</option>
+    {% if widget.atual %}<option value="{{ widget.atual.pk }}" selected>{{ widget.rotulo }}</option>{% endif %}
+  </select>
+</pc-combobox>
+<noscript><p class="campo__ajuda">Ative o JavaScript para buscar outro registro. O vínculo atual será preservado.</p></noscript>

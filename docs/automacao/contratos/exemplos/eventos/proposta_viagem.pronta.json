@@ -1,0 +1,11 @@
+{
+  "id": "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c16",
+  "tipo": "proposta_viagem.pronta",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-10-20T16:21:30Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "proposta_viagem", "id": 19, "versao": 1},
+  "correlacao_id": "solicitacao:77",
+  "causa_id": null,
+  "dados": {"origem": "solicitacao", "pendencias_bloqueantes": 1, "oficios_previstos": 2}
+}

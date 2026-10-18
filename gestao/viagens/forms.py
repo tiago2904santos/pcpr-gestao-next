@@ -11,6 +11,7 @@ from django import forms
 from django.db.models import Prefetch, Q
 from django.utils import timezone
 
+from gestao.cadastros.fontes import atividades_e_servicos, fonte_local
 from gestao.cadastros.forms import CampoMunicipio, resolver_municipio
 from gestao.cadastros.models import (
     AtividadePlano,
@@ -353,8 +354,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         # Ativos, mais o que o rascunho já usa: desativar um cadastro (em Cadastros) não
         # pode travar a gravação de quem já o escolheu.
         inst = self.instance
-        servidor_externo.queryset = Servidor.objects.filter(
-            Q(ativo=True) | Q(pk=inst.motorista_externo_servidor_id))
+        servidor_externo.queryset = fonte_local.consultar(
+            "servidor", incluir=[inst.motorista_externo_servidor_id])
         servidor_externo.required = False
         cast(forms.ChoiceField, self.fields["transporte_meio"]).choices = [
             ("", "Selecione o meio…"), *Oficio.MeioTransporte.choices]
@@ -363,8 +364,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
         ]
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
-        viatura.queryset = (Viatura.objects.filter(Q(ativo=True) | Q(pk=inst.viatura_id))
-                            .select_related("combustivel", "unidade")
+        viatura.queryset = (fonte_local.consultar("viatura", incluir=[inst.viatura_id])
                             .prefetch_related("motoristas"))
         viatura.empty_label = "Selecione a viatura…"
         combustivel = cast(forms.ModelChoiceField, self.fields["transporte_combustivel"])
@@ -1168,10 +1168,10 @@ class EfetivoEmLinhas:
     def _carregar_unidades_e_cargos(self, usadas) -> None:
         """Ativos e os já usados (desativar um cargo não pode sumir com a linha)."""
         self.erros_do_efetivo = []
-        self.unidades = list(Unidade.objects.filter(
-            Q(ativo=True) | Q(pk__in=[u for u, _c in usadas if u])).order_by("sigla"))
-        self.cargos = list(Cargo.objects.filter(
-            Q(ativo=True) | Q(pk__in=[c for _u, c in usadas])).order_by("nome"))
+        self.unidades = list(fonte_local.consultar(
+            "unidade", incluir=[u for u, _c in usadas if u]).order_by("sigla"))
+        self.cargos = list(fonte_local.consultar(
+            "cargo", incluir=[c for _u, c in usadas]).order_by("nome"))
 
     def linhas_informadas(self) -> list[dict]:
         """As linhas como vieram (para redesenhar a tela com erro)."""
@@ -1327,7 +1327,7 @@ class FormularioPlano(EfetivoEmLinhas, forms.Form):
                 choices=[("", "Selecione o cargo"), *[(n, n) for n in nomes]])
         marcadas = list(plano.atividades.values_list("pk", flat=True)) if plano else []
         cast(forms.ModelMultipleChoiceField, self.fields["atividades"]).queryset = (
-            AtividadePlano.objects.filter(Q(ativo=True) | Q(pk__in=marcadas)).order_by("nome"))
+            atividades_e_servicos(incluir=marcadas))
         self._carregar_unidades_e_cargos(
             list(plano.efetivo.values_list("unidade_id", "cargo_id")) if plano else [])
 
@@ -1462,7 +1462,7 @@ class FormularioEvento(EfetivoEmLinhas, forms.Form):
             list(evento.efetivo.values_list("unidade_id", "cargo_id")) if evento else [])
         marcadas = list(evento.atividades.values_list("pk", flat=True)) if evento else []
         cast(forms.ModelMultipleChoiceField, self.fields["atividades"]).queryset = (
-            AtividadePlano.objects.filter(Q(ativo=True) | Q(pk__in=marcadas)).order_by("nome"))
+            atividades_e_servicos(incluir=marcadas))
 
     def clean(self):
         dados = super().clean() or {}

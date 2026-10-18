@@ -1,0 +1,17 @@
+{
+  "id": "0b8e4f6a-2c1d-4e7b-9a55-6f3d2e1c0a99",
+  "tipo": "prestacao.documentos_gerados",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-11-14T13:05:41Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "prestacao", "id": 431, "versao": 3},
+  "correlacao_id": "viagem:812",
+  "causa_id": null,
+  "dados": {
+    "oficio_id": 131,
+    "documentos": [
+      {"versao_id": 77, "chave": "diario", "numero": 1},
+      {"versao_id": 78, "chave": "relatorio_tecnico", "numero": 1}
+    ]
+  }
+}

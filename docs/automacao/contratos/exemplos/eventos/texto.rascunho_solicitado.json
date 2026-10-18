@@ -1,0 +1,15 @@
+{
+  "id": "f6a7b8c9-d0e1-4f2a-9b3c-4d5e6f7a8b15",
+  "tipo": "texto.rascunho_solicitado",
+  "versao_contrato": 1,
+  "ocorrido_em": "2026-10-22T13:40:00Z",
+  "ambiente": "teste",
+  "recurso": {"tipo": "sugestao_texto", "id": 58, "versao": 1},
+  "correlacao_id": "plano:57",
+  "causa_id": null,
+  "dados": {
+    "alvo": {"tipo": "plano", "id": 57},
+    "campos": ["contextualizacao", "consideracoes"],
+    "prompt_versao": "plano-textos-v1"
+  }
+}

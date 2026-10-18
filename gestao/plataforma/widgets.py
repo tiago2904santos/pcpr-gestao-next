@@ -120,6 +120,34 @@ class SelecaoDeTexto(Selecao):
         return opcao
 
 
+class SelecaoRemota(Selecao):
+    """Escolha individual por busca; renderiza apenas o vínculo atual, sem lista inteira.
+
+    A validação continua no ModelChoiceField com seu queryset autorizado. A fonte é
+    um endpoint do contexto consumidor, com as mesmas policies do formulário.
+    """
+
+    template_name = "plataforma/widgets/selecao_remota.html"
+
+    def __init__(self, *, fonte: str = "", placeholder: str = "Nome ou cargo…", attrs=None):
+        super().__init__(attrs=attrs)
+        self.fonte, self.placeholder = fonte, placeholder
+
+    def get_context(self, name, value, attrs):
+        contexto = forms.Widget.get_context(self, name, value, attrs)
+        consulta = getattr(self.choices, "queryset", None)
+        valores = [v for v in (contexto["widget"]["value"] or [])
+                   if str(v).isascii() and str(v).isdecimal() and len(str(v)) <= 18]
+        atual = (consulta.filter(pk__in=valores).first()
+                 if consulta is not None and valores else None)
+        campo = getattr(self.choices, "field", None)
+        rotulo = campo.label_from_instance(atual) if atual is not None and campo is not None else ""
+        contexto["widget"].update({"fonte": self.fonte, "placeholder": self.placeholder,
+                                   "atual": atual, "rotulo": rotulo,
+                                   "vazio": getattr(campo, "empty_label", "Selecione")})
+        return contexto
+
+
 class EscolhaMultiplaRemota(forms.SelectMultiple):
     """Vários registros escolhidos por busca (<pc-multiescolha>): cada escolhido vira uma
     linha com um <input type="hidden"> do mesmo nome, e a busca consulta `fonte`
