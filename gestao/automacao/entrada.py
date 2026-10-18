@@ -160,7 +160,12 @@ def registrar_status(s: StatusRecebido, canal: str = CANAL_WHATSAPP) -> StatusEn
             "categoria_preco": preco.categoria if preco else "",
             "tipo_preco": preco.tipo if preco else "",
             "cobravel": preco.cobravel if preco else None})
-    if criado and comunicacao is not None:
+    if comunicacao is not None and (criado or registro.comunicacao_id is None):
+        # Também o órfão que chegou antes do resultado e escapou da varredura de `_aceita`
+        # (corrida): a reentrega da Meta, agora com a comunicação conhecida, religa e aplica.
+        if not criado:
+            registro.comunicacao = comunicacao
+            registro.save(update_fields=["comunicacao"])
         aplicar_status(comunicacao, registro)
     return registro
 

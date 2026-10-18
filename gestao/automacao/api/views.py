@@ -24,7 +24,17 @@ from gestao.integracoes.whatsapp import erros as erros_canal
 from gestao.integracoes.whatsapp.porta import Envio, Origem, StatusRecebido
 from gestao.plataforma import ambiente
 
-from .. import chaves, contrato, entrada, entrega, excecoes, ferramentas, ganchos, recebimentos
+from .. import (
+    chaves,
+    contrato,
+    dominio,
+    entrada,
+    entrega,
+    excecoes,
+    ferramentas,
+    ganchos,
+    recebimentos,
+)
 from ..models import CANAL_WHATSAPP, ChaveAutomacao, Comunicacao, ExcecaoAutomacao, Recebimento
 from ..models_api import CredencialIntegracao
 from . import delegacoes
@@ -61,6 +71,27 @@ def _recusa_do_canal_de_entrada(canal: str) -> JsonResponse | None:
     if estado != ChaveAutomacao.Estado.LIGADA:
         return erro(423, "desligada", "O canal de entrada está desligado: nada foi registrado; "
                     "reentregue depois.")
+    return None
+
+
+def _chave_do_recebimento(d: dict) -> str:
+    """A chave de negócio do recebimento pedido (a que o contrato manda no cabeçalho)."""
+    indice = str(d.get("anexo_indice") or "0")
+    return dominio.chave_recebimento(str(d.get("canal") or ""),
+                                     str(d.get("mensagem_id_canal") or ""),
+                                     int(indice) if indice.isdigit() else -1)
+
+
+def _identificacao_invalida(d: dict) -> JsonResponse | None:
+    """`mensagem_id_canal` obrigatório (1 a 300) e `anexo_indice` inteiro ≥ 0 (contrato): sem
+    isso, entradas malformadas dividiriam a mesma chave `receb:whatsapp::N` ou dariam 500 no
+    banco (índice negativo) — e a retentativa do transporte repetiria o 500."""
+    mensagem_id = str(d.get("mensagem_id_canal") or "").strip()
+    if not 1 <= len(mensagem_id) <= 300:
+        return erro(422, "entrada_invalida", "Informe mensagem_id_canal (1 a 300 caracteres).")
+    indice = str(d.get("anexo_indice") if d.get("anexo_indice") is not None else "")
+    if not indice.isdigit() or int(indice) > 999:
+        return erro(422, "entrada_invalida", "anexo_indice é um inteiro de 0 a 999.")
     return None
 
 
@@ -270,7 +301,8 @@ def entrega_status(ch: Chamada, pk: int) -> JsonResponse:
 
 
 # ------------------------------------------------------------------ recebimentos
-@rota("recebimentos:criar", metodo="POST", desligamento="recusa", reuso_pelo_servico=True)
+@rota("recebimentos:criar", metodo="POST", desligamento="recusa",
+      reuso_pelo_servico=lambda d: _chave_do_recebimento(d))
 def criar_recebimento(ch: Chamada) -> JsonResponse:
     """Variante V1 (o n8n baixou a mídia). A V2, preferida, é o webhook direto no PCPR."""
     d, arquivo = ch.dados, ch.request.FILES.get("arquivo")
@@ -284,6 +316,8 @@ def criar_recebimento(ch: Chamada) -> JsonResponse:
     conteudo = arquivo.read(limite + 1)
     if len(conteudo) > limite:
         return erro(413, "entrada_invalida", "Arquivo acima do limite.")
+    if (problema := _identificacao_invalida(d)) is not None:
+        return problema
     sha = hashlib.sha256(conteudo).hexdigest()
     if (d.get("sha256") or "").lower() != sha:
         return erro(422, "entrada_invalida", "O SHA-256 informado não confere com o arquivo.")
@@ -302,7 +336,8 @@ def criar_recebimento(ch: Chamada) -> JsonResponse:
     return JsonResponse(_recebimento(r, duplicado=not novo), status=202)
 
 
-@rota("recebimentos:criar", metodo="POST", desligamento="recusa", reuso_pelo_servico=True)
+@rota("recebimentos:criar", metodo="POST", desligamento="recusa",
+      reuso_pelo_servico=lambda d: _chave_do_recebimento(d))
 def recebimento_sem_arquivo(ch: Chamada) -> JsonResponse:
     d = ch.dados
     if d.get("canal") != "whatsapp":
@@ -312,9 +347,9 @@ def recebimento_sem_arquivo(ch: Chamada) -> JsonResponse:
     motivo = d.get("motivo")
     if motivo not in ("acima_do_limite", "sem_anexo", "nao_baixado"):
         return erro(422, "entrada_invalida", "motivo inválido.")
-    indice = str(d.get("anexo_indice") or 0)
-    if not indice.isdigit():
-        return erro(422, "entrada_invalida", "anexo_indice é um inteiro.")
+    if (problema := _identificacao_invalida(d)) is not None:
+        return problema
+    indice = str(d.get("anexo_indice"))
     r = recebimentos.registrar_sem_arquivo(
         mensagem_id=str(d.get("mensagem_id_canal") or "")[:300],
         indice=int(indice), remetente=str(d.get("remetente") or ""),

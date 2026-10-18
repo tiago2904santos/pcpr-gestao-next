@@ -33,6 +33,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor, Viatura
@@ -416,6 +417,31 @@ def _solicitacoes(viagem: Viagem) -> list[int]:
 
 
 # ---------------------------------------------------------------- aplicar (cria rascunhos)
+def _travar_fontes(viagem: Viagem, entrada: Entrada) -> None:
+    """Trava, em ordem fixa, as linhas que a assinatura da prévia cobre e que outros
+    escritores travam por conta própria (`salvar_roteiro` trava o Roteiro, não a viagem):
+    roteiros da viagem (e os dos ofícios dela), ofícios, OS, planos, as pessoas e a viatura.
+    Assim nada muda entre a conferência da assinatura e a criação pelo lote."""
+    from .models import Oficio, OrdemServico, PlanoTrabalho, Roteiro
+
+    oficios = list(Oficio.objects.select_for_update().filter(viagem=viagem)
+                   .order_by("pk").values_list("pk", flat=True))
+    roteiros = set(Roteiro.objects.filter(Q(viagem=viagem) | Q(oficios__pk__in=oficios))
+                   .values_list("pk", flat=True))
+    list(Roteiro.objects.select_for_update().filter(pk__in=roteiros).order_by("pk")
+         .values_list("pk", flat=True))  # FOR UPDATE não aceita DISTINCT: trava pelos ids
+    list(OrdemServico.objects.select_for_update().filter(viagem=viagem).order_by("pk")
+         .values_list("pk", flat=True))
+    list(PlanoTrabalho.objects.select_for_update().filter(viagem=viagem).order_by("pk")
+         .values_list("pk", flat=True))
+    pessoas = sorted({*entrada.servidores, *([entrada.motorista] if entrada.motorista else [])})
+    list(Servidor.objects.select_for_update().filter(pk__in=pessoas).order_by("pk")
+         .values_list("pk", flat=True))
+    if entrada.viatura:
+        list(Viatura.objects.select_for_update().filter(pk=entrada.viatura)
+             .values_list("pk", flat=True))
+
+
 @transaction.atomic
 def aplicar(usuario, entrada: Entrada, assinatura: str):
     """Cria os rascunhos da prévia conferida. Trava a viagem, remonta a proposta com as
@@ -425,7 +451,8 @@ def aplicar(usuario, entrada: Entrada, assinatura: str):
 
     viagem = viagem_no_escopo(usuario, entrada.viagem)
     Viagem.objects.select_for_update().filter(pk=viagem.pk).first()
-    proposta = montar(usuario, entrada)
+    _travar_fontes(viagem, entrada)
+    proposta = montar(usuario, entrada)  # remontada DEPOIS das travas: assinatura = o que se cria
     if not assinatura or proposta.assinatura != assinatura:
         raise PropostaDesatualizada(
             "Algo mudou desde a prévia (equipe, viatura, roteiro, documentos da viagem ou a "

@@ -638,3 +638,77 @@ def test_resposta_que_cita_aviso_vencido_vai_para_uma_pessoa(c):
     assert r.comunicacao_id == aviso.pk  # a citação fica registrada…
     assert r.situacao != Recebimento.Situacao.ASSOCIADO  # …mas não associa sozinha
     assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()
+
+
+# ------------------------------------------------------------------ revisão do PR #24 (Codex)
+def test_status_orfao_existente_e_religado_na_reentrega(c):
+    """Status que chegou antes do resultado e escapou da varredura de `_aceita` (corrida):
+    a reentrega da Meta, com a comunicação já conhecida, religa e aplica."""
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import StatusRecebido
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    orfao = StatusEntrega.objects.create(mensagem_id=aviso.mensagem_id, status="lida",
+                                         comunicacao=None)
+    st = StatusRecebido(mensagem_id=aviso.mensagem_id, status="read",
+                        ocorrido_em=timezone.now())
+    from django.db import transaction as tx
+    with tx.atomic():
+        entrada_mod.registrar_status(st)
+    orfao.refresh_from_db()
+    aviso.refresh_from_db()
+    assert orfao.comunicacao_id == aviso.pk and aviso.entrega == "lida"
+
+
+def test_v1_recusa_identificacao_invalida_e_chave_de_outro_recebimento(c, n8n):
+    _com_recebimentos(n8n)
+    sem_id = Client().post("/api/automacao/v1/recebimentos", {
+        "arquivo": _arquivo(PDF), "canal": "whatsapp", "mensagem_id_canal": "",
+        "anexo_indice": "0", "total_anexos": "1", "remetente": E164,
+        "sha256": hashlib.sha256(PDF).hexdigest()},
+        HTTP_AUTHORIZATION=f"Bearer {n8n}", HTTP_IDEMPOTENCY_KEY="receb:whatsapp::0-xxxxxxxx")
+    assert sem_id.status_code == 422
+    negativo = _post(n8n, "/recebimentos/sem-arquivo", {
+        "canal": "whatsapp", "mensagem_id_canal": "wamid.NEG", "anexo_indice": -1,
+        "total_anexos": 1, "remetente": E164, "motivo": "sem_anexo"}, "receb:whatsapp:wamid.NEG:-1")
+    assert negativo.status_code == 422
+    # A mesma Idempotency-Key reaproveitada para OUTRO recebimento: 422 (não executa de novo).
+    chave = "receb:whatsapp:wamid.REUSO:0"
+    assert _v1(n8n, PDF, mid="wamid.REUSO", chave=chave).status_code == 202
+    assert _v1(n8n, PDF + b"%%x", mid="wamid.OUTRO", chave=chave).status_code == 422
+    assert not Recebimento.objects.filter(mensagem_id="wamid.OUTRO").exists()
+
+
+def test_sem_arquivo_nao_abre_atendimento_nem_responde_duas_vezes(c, n8n):
+    _com_recebimentos(n8n)
+    r = _post(n8n, "/recebimentos/sem-arquivo", {
+        "canal": "whatsapp", "mensagem_id_canal": "wamid.SEMARQ", "anexo_indice": 0,
+        "total_anexos": 1, "remetente": E164, "motivo": "acima_do_limite"},
+        "receb:whatsapp:wamid.SEMARQ:0")
+    assert r.status_code in (200, 201, 202), r.content
+    receb = Recebimento.objects.get(mensagem_id="wamid.SEMARQ")
+    assert receb.situacao == Recebimento.Situacao.RECUSADO
+    assert not ExcecaoAutomacao.objects.filter(chave=f"atendimento:receb:{receb.pk}").exists()
+    tipos = set(Comunicacao.objects.filter(em_resposta_a=receb).values_list("tipo", flat=True))
+    assert tipos == {"automacao.arquivo_recusado"}
+
+
+def test_contato_com_a_outra_forma_do_celular_e_recusado(c):
+    """Duas pessoas com o mesmo celular com e sem o 9º dígito: o 2º cadastro é recusado
+    (as respostas cairiam no servidor errado)."""
+    from gestao.automacao import contatos as contatos_mod
+    from gestao.automacao import dominio
+    from gestao.cadastros.models import Servidor
+
+    _contato_ativo(c)
+    variantes = dominio.variantes(E164) - {E164}
+    assert variantes
+    outro = Servidor.objects.filter(ativo=True).exclude(pk=c.ps.servidor_id).first()
+    outro.telefone = next(iter(variantes))[2:]  # o cadastro guarda DDD + número, sem o 55
+    outro.save(update_fields=["telefone"])
+    with pytest.raises(contatos_mod.ContatoInvalido):
+        contatos_mod.cadastrar(c.usuarios["operador"], outro.pk)

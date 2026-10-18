@@ -71,7 +71,13 @@ def custo_maximo(pedido: PedidoIA, porta: PortaIA) -> Decimal:
     reserva do orçamento antes de chamar."""
     if porta.origem == Origem.SIMULADO:
         return Decimal(0)
-    return cfg.custo_estimado(porta.modelo, tokens_de_entrada(pedido), pedido.max_tokens_saida)
+    entrada, saida = tokens_de_entrada(pedido), pedido.max_tokens_saida
+    configuracao = getattr(porta, "c", None)
+    if getattr(configuracao, "fallback_no_servidor", False):
+        # Com o fallback no servidor, a resposta pode vir de outro modelo (e a liquidação
+        # usa o preço dele): reservar pelo mais caro da tabela, nunca pelo principal.
+        return max(cfg.custo_estimado(m, entrada, saida) for m in cfg.PRECOS)
+    return cfg.custo_estimado(porta.modelo, entrada, saida)
 
 
 def executar(pedido: PedidoIA, porta: PortaIA, limites: Limites | None = None, *,

@@ -130,10 +130,13 @@ def _sair(chave: str) -> None:
 
 
 def rota(escopo: str, *, metodo: str = "GET", desligamento: str = "aceita",
-         impressao_sem: tuple[str, ...] = (), reuso_pelo_servico: bool = False):
+         impressao_sem: tuple[str, ...] = (),
+         reuso_pelo_servico: Callable[[dict], str] | None = None):
     """`desligamento="recusa"`: com a chave geral desligada responde 423 (não guardado).
     `impressao_sem`: campos fora da impressão digital (repetição com outro horário = mesma).
-    `reuso_pelo_servico`: mesma chave com outra requisição não é 422 aqui — o serviço decide
+    `reuso_pelo_servico(dados) -> chave de negócio`: mesma chave com outra requisição não é 422
+    aqui SÓ quando o cabeçalho é a chave de negócio desta requisição (mesmo recebimento, outro
+    arquivo) — o serviço decide
     (o recebimento responde 409 `conflito_de_versao` para outro arquivo, como o contrato)."""
     def decorar(funcao: Callable[[Chamada], JsonResponse]):
         @csrf_exempt  # máquina-a-máquina, autenticada pela credencial (Bearer)
@@ -195,7 +198,8 @@ def _repeticao(request, c, guardado: RegistroIdempotencia, impressao: str):
 
 
 def _executar(funcao, request, c, correlacao, metodo, desligamento, args, kwargs,
-              impressao_sem: tuple[str, ...] = (), reuso_pelo_servico: bool = False):
+              impressao_sem: tuple[str, ...] = (),
+              reuso_pelo_servico: Callable[[dict], str] | None = None):
     """A chave é RESERVADA antes do efeito (registro "em andamento", único por credencial e
     chave): duas chamadas simultâneas com a mesma chave não executam duas vezes. No fim, o
     registro guarda a resposta (2xx e 409) ou é apagado (423, 4xx, 5xx: repetir depois
@@ -215,7 +219,12 @@ def _executar(funcao, request, c, correlacao, metodo, desligamento, args, kwargs
         except IntegrityError:
             guardado = RegistroIdempotencia.objects.get(credencial=c, chave=chave)
             outra = guardado.impressao != impressao and guardado.rota == request.path[:120]
-            if not (reuso_pelo_servico and outra and guardado.status != EM_ANDAMENTO):
+            try:
+                mesmo_recebimento = (reuso_pelo_servico is not None
+                                     and reuso_pelo_servico(_dados(request)) == chave)
+            except ErroApi:
+                mesmo_recebimento = False
+            if not (mesmo_recebimento and outra and guardado.status != EM_ANDAMENTO):
                 return _repeticao(request, c, guardado, impressao)
             registro = None  # o serviço é idempotente pela própria chave e responde o 409
     try:

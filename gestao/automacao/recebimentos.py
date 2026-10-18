@@ -363,7 +363,9 @@ def registrar_sem_arquivo(*, mensagem_id: str, indice: int, remetente: str, moti
     existente = Recebimento.objects.filter(chave=chave).first()
     if existente is not None:
         return existente
-    m = MensagemRecebida(mensagem_id=mensagem_id, tipo="outro", recebida_em=recebido_em,
+    # Como documento (sem mídia: o worker não tenta baixar): "outro" abriria o encaminhamento
+    # de tipo não tratado e mandaria uma 2ª resposta além da orientação do arquivo recusado.
+    m = MensagemRecebida(mensagem_id=mensagem_id, tipo="document", recebida_em=recebido_em,
                          remetente=dominio.somente_digitos(remetente))
     r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice) or \
         Recebimento.objects.get(chave=chave)

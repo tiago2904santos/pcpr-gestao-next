@@ -91,6 +91,11 @@ def opcoes_limpas(uso: ganchos.UsoIA, opcoes: dict | None) -> dict[str, str]:
 
 
 # ------------------------------------------------------------------ pedir
+def _trava(texto: str) -> int:
+    """Chave de advisory lock (bigint) estável para um texto."""
+    return int.from_bytes(hashlib.sha256(texto.encode()).digest()[:8], "big", signed=True)
+
+
 def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
           ) -> PedidoSugestao:
     """Cria o pedido (ou devolve o que já está na fila para a mesma versão). No modo REGRA a
@@ -103,11 +108,6 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
     if not config.ligado:
         raise PedidoRecusado("Este uso está desligado. Escreva o texto à mão ou use os "
                              "textos prontos; quem administra liga em Assistência › Usos.")
-    hoje = PedidoSugestao.objects.filter(uso=uso.chave, usuario=usuario,
-                                         criado_em__gte=_inicio_do_dia()).count()
-    if hoje >= config.max_pedidos_pessoa_dia:
-        raise PedidoRecusado(f"Você já fez {hoje} pedidos deste tipo hoje (limite do uso). "
-                             "Siga com o texto à mão; o limite volta amanhã.")
     opcoes = opcoes_limpas(uso, opcoes)
     ctx = uso.montar(usuario, recurso_id, opcoes)  # leitura com a política de quem pede
     base = hashlib.sha256(json.dumps(
@@ -122,6 +122,16 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
             if (p.estado == E.CONCLUIDO
                     and Sugestao.objects.filter(pedido=p, estado=S.PRONTA).exists()):
                 return p
+        # Cota por pessoa e dia, contada E incrementada sob a mesma trava (pessoa + uso): dois
+        # pedidos simultâneos de registros diferentes não passam juntos do limite.
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)",
+                           [_trava(f"ia-cota:{usuario.pk}:{uso.chave}")])
+        hoje = PedidoSugestao.objects.filter(uso=uso.chave, usuario=usuario,
+                                             criado_em__gte=_inicio_do_dia()).count()
+        if hoje >= config.max_pedidos_pessoa_dia:
+            raise PedidoRecusado(f"Você já fez {hoje} pedidos deste tipo hoje (limite do uso). "
+                                 "Siga com o texto à mão; o limite volta amanhã.")
         pedido = PedidoSugestao.objects.create(
             uso=uso.chave, recurso_id=recurso_id, usuario=usuario, modo=config.modo,
             versao_fonte=ctx.versao, versao_prompt=uso.versao_prompt,

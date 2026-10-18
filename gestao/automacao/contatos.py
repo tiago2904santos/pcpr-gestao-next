@@ -9,8 +9,10 @@ Revogar é imediato e cancela o que estava para sair.
 
 from __future__ import annotations
 
+import hashlib
+
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
 from gestao.cadastros.models import Servidor
@@ -42,6 +44,12 @@ def servidores_sem_contato(usuario):
     return qs
 
 
+def _trava_do_numero(numero: str) -> int:
+    """Chave de advisory lock (bigint) estável para um número de telefone."""
+    return int.from_bytes(hashlib.sha256(f"contato:{numero}".encode()).digest()[:8], "big",
+                          signed=True)
+
+
 @transaction.atomic
 def cadastrar(usuario, servidor_pk: int) -> ContatoVerificado:
     servidor = Servidor.objects.select_for_update().get(pk=servidor_pk)
@@ -50,6 +58,16 @@ def cadastrar(usuario, servidor_pk: int) -> ContatoVerificado:
     endereco = dominio.e164_do_brasil(servidor.telefone)
     if not endereco:
         raise ContatoInvalido("O telefone do cadastro não é um celular brasileiro válido.")
+    # A unicidade do banco compara o número exato; a identificação de quem escreveu aceita as
+    # duas formas do celular (com e sem o 9º dígito). Duas pessoas com variantes do mesmo
+    # número fariam respostas e arquivos caírem no servidor errado: recusar aqui, com uma
+    # trava pelo número canônico para dois cadastros simultâneos não passarem juntos.
+    formas = sorted(dominio.variantes(endereco))
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_advisory_xact_lock(%s)", [_trava_do_numero(formas[-1])])
+    if ContatoVerificado.objects.filter(canal=CANAL_WHATSAPP, revogado_em__isnull=True,
+                                        endereco__in=formas).exists():
+        raise ContatoInvalido("Este número (com ou sem o 9º dígito) já tem um contato vigente.")
     try:
         with transaction.atomic():
             contato = ContatoVerificado.objects.create(servidor=servidor, endereco=endereco,

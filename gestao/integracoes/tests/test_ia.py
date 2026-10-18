@@ -236,3 +236,18 @@ def test_tempo_esgotado_conta_custo_maximo_estimado():
     t.respostas.append(TalvezEnviado("de novo"))
     with pytest.raises(TempoEsgotado):
         porta.gerar(_pedido())
+
+
+def test_reserva_pelo_modelo_mais_caro_com_fallback_no_servidor():
+    """Com o fallback no servidor, a resposta pode vir de um modelo mais caro que o principal
+    (e a liquidação usa o preço dele): a reserva é a do mais caro da tabela."""
+    barato = min(cfg.PRECOS, key=lambda m: cfg.PRECOS[m].saida)
+    pedido = _pedido()
+    entrada, saida = servico.tokens_de_entrada(pedido), pedido.max_tokens_saida
+    mais_caro = max(cfg.custo_estimado(m, entrada, saida) for m in cfg.PRECOS)
+    com = AdaptadorAnthropic(_config(modelo=barato), transporte=TransporteGravado([]))
+    sem = AdaptadorAnthropic(_config(modelo=barato, fallback_no_servidor=False),
+                             transporte=TransporteGravado([]))
+    assert servico.custo_maximo(pedido, com) == mais_caro
+    assert servico.custo_maximo(pedido, sem) == cfg.custo_estimado(barato, entrada, saida)
+    assert mais_caro > cfg.custo_estimado(barato, entrada, saida)
