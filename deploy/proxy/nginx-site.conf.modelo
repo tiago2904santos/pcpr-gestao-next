@@ -51,6 +51,8 @@ server {
     # Documentos e mídia nunca saem pelo proxy (só pelas views, com autorização).
     location ^~ /media/ { return 404; }
     location ^~ /var/   { return 404; }
+    # API de automação: só a rede interna do n8n (Docker) chega nela, nunca a Internet.
+    location ^~ /api/automacao/ { return 404; }
 
     location / {
         proxy_pass http://127.0.0.1:PORTA;

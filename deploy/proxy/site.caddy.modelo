@@ -12,6 +12,10 @@ DOMINIO {
 	@interno path /media/* /var/*
 	respond @interno 404
 
+	# API de automação: só a rede interna do n8n (Docker) chega nela, nunca a Internet.
+	@api_automacao path /api/automacao/*
+	respond @api_automacao 404
+
 	# Django já envia CSP, X-Frame-Options, nosniff, Referrer-Policy e COOP; aqui só o que
 	# falta. "?" = definir apenas se a aplicação não enviou.
 	header {

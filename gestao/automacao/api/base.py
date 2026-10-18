@@ -7,7 +7,6 @@ Erros sempre no formato `Erro` do contrato: `{"codigo", "mensagem"}` em portugu�
 
 from __future__ import annotations
 
-import contextlib
 import hashlib
 import json
 import re
@@ -18,8 +17,7 @@ from functools import wraps
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_not_required
-from django.core.cache import cache
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, transaction
 from django.http import Http404, HttpRequest, JsonResponse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
@@ -112,23 +110,26 @@ def _dados(request: HttpRequest) -> dict:
     return dados
 
 
-def _entrar(chave: str) -> bool:
-    if cache.add(chave, 1, 60):
-        return True
-    try:
-        n = cache.incr(chave)
-    except ValueError:
-        cache.set(chave, 1, 60)
-        return True
-    if n > CONCORRENCIA_POR_TOKEN:
-        cache.decr(chave)
-        return False
-    return True
+def _vaga_trava(chave: str, i: int) -> int:
+    return int.from_bytes(hashlib.sha256(f"{chave}:{i}".encode()).digest()[:8], "big",
+                          signed=True)
 
 
-def _sair(chave: str) -> None:
-    with contextlib.suppress(ValueError):
-        cache.decr(chave)
+def _entrar(chave: str) -> int | None:
+    """Uma das `CONCORRENCIA_POR_TOKEN` vagas da credencial, como advisory lock de sessão do
+    PostgreSQL: vale entre processos e réplicas (o cache local de cada processo não valia)."""
+    with connection.cursor() as cursor:
+        for i in range(CONCORRENCIA_POR_TOKEN):
+            trava = _vaga_trava(chave, i)
+            cursor.execute("SELECT pg_try_advisory_lock(%s)", [trava])
+            if cursor.fetchone()[0]:
+                return trava
+    return None
+
+
+def _sair(trava: int) -> None:
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_advisory_unlock(%s)", [trava])
 
 
 def rota(escopo: str, *, metodo: str = "GET", desligamento: str = "aceita",
@@ -157,8 +158,8 @@ def rota(escopo: str, *, metodo: str = "GET", desligamento: str = "aceita",
             if escopo not in (c.escopos or []):
                 return erro(403, "negado", f"Esta credencial não tem o escopo {escopo}.")
             correlacao = (request.headers.get("X-PCPR-Correlacao") or "")[:120]
-            vaga = f"api-concorrencia:{c.pk}"
-            if not _entrar(vaga):
+            vaga = _entrar(f"api-concorrencia:{c.pk}")
+            if vaga is None:
                 resposta = erro(429, "limite_excedido",
                                 "Chamadas simultâneas demais para esta credencial.")
                 resposta["Retry-After"] = "2"

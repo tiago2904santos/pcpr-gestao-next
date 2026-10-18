@@ -465,7 +465,8 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         pk=t.comunicacao_id)
     agora = timezone.now()
     t.terminada_em, t.duracao_ms = agora, duracao_ms
-    cancelada = c.situacao == S.CANCELADA  # opt-out (ou cancelamento) com o envio já reservado
+    # Cancelada (opt-out) ou obsoleta (o assunto se resolveu) com o envio já reservado.
+    cancelada = c.situacao in (S.CANCELADA, S.OBSOLETA)
     if envio is not None:
         t.resultado = R.ACEITA
         t.save()
@@ -546,7 +547,11 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
 
 def _aceita(c: Comunicacao, envio: Envio, origem: str, agora) -> None:
     era_incerta = c.situacao == S.INCERTA
+    falha_confirmada = c.entrega == "falhou"  # o status "failed" chegou antes deste aceite
     c.situacao, c.reservada_ate, c.motivo, c.simular = S.ENVIADA, None, "", ""
+    if falha_confirmada:
+        c.situacao = S.FALHOU
+        c.motivo = "A Meta informou falha na entrega antes do resultado do envio."
     c.mensagem_id, c.origem_envio = envio.mensagem_id, str(origem or envio.origem)
     c.enviada_em = c.enviada_em or agora
     if not c.entrega:

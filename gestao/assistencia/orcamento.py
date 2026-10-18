@@ -145,10 +145,28 @@ def liberar_do_pedido(pedido) -> bool:
     return True
 
 
+def cobrar_reserva_presa(pedido) -> bool:
+    """A chamada pode ter sido feita (e cobrada) e ninguém liquidou: a reserva vira GASTO no
+    pior caso, em vez de voltar ao orçamento (o teto nunca é furado por uma chamada perdida)."""
+    from .models import PedidoSugestao
+
+    if not pedido.reserva_usd or pedido.reserva_mes is None:
+        return False
+    for linha in (OrcamentoIA.objects.select_for_update()
+                  .filter(escopo__in=escopos_de(pedido.uso), mes=pedido.reserva_mes)
+                  .order_by("id")):
+        linha.reservado_usd = max(Decimal(0), linha.reservado_usd - pedido.reserva_usd)
+        linha.gasto_estimado_usd += pedido.reserva_usd
+        linha.save(update_fields=["reservado_usd", "gasto_estimado_usd", "atualizado_em"])
+    PedidoSugestao.objects.filter(pk=pedido.pk).update(reserva_usd=Decimal(0), reserva_mes=None)
+    pedido.reserva_usd, pedido.reserva_mes = Decimal(0), None
+    return True
+
+
 def liberar_reservas_presas(agora=None, folga: timedelta = FOLGA_RESERVA_PRESA) -> int:
     """Reservas de pedidos que passaram do prazo da chamada (mais a folga) sem liquidar: o
-    worker morreu entre reservar e liquidar. O valor volta ao orçamento; o pedido volta à
-    fila pelo lease vencido (e reserva de novo, se ainda couber)."""
+    worker morreu entre reservar e liquidar, e a chamada pode ter sido feita. O valor reservado
+    vira gasto (pior caso, `cobrar_reserva_presa`); nunca volta ao orçamento."""
     from .models import PedidoSugestao
 
     agora = agora or timezone.now()
@@ -167,7 +185,10 @@ def liberar_reservas_presas(agora=None, folga: timedelta = FOLGA_RESERVA_PRESA) 
                       .order_by("id").first())
             if pedido is None:
                 return liberadas
-            liberar_do_pedido(pedido)
+            if pedido.estado == PedidoSugestao.Estado.PROCESSANDO:
+                cobrar_reserva_presa(pedido)  # pode ter havido chamada: conta como gasta
+            else:
+                liberar_do_pedido(pedido)  # já encerrado sem chamada em curso
             liberadas += 1
 
 

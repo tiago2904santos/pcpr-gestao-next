@@ -69,7 +69,9 @@ def _pedido(django_user_model, n: int = 1):
 
 
 @pytest.mark.django_db
-def test_reserva_presa_de_worker_morto_volta_ao_orcamento(django_user_model):
+def test_reserva_presa_de_worker_morto_vira_gasto(django_user_model):
+    """O worker morreu entre reservar e liquidar: a chamada pode ter sido feita (e cobrada),
+    então a reserva vira gasto no pior caso — nunca volta ao orçamento."""
     from datetime import timedelta
 
     from django.utils import timezone
@@ -88,13 +90,13 @@ def test_reserva_presa_de_worker_morto_volta_ao_orcamento(django_user_model):
     depois = timezone.now() + timedelta(minutes=12)
     assert orcamento.liberar_reservas_presas(agora=depois) == 1
     g.refresh_from_db()
-    assert g.reservado_usd == Decimal("0.2")
+    assert g.reservado_usd == Decimal("0.2") and g.gasto_estimado_usd == Decimal("0.3")
     assert PedidoSugestao.objects.get(pk=preso.pk).reserva_usd == 0
     assert OrcamentoIA.objects.get(escopo=USO).reservado_usd == Decimal("0.2")
     # O vivo liquida normalmente; a rotina diária também varre (e não acha mais nada).
     orcamento.liquidar(reserva_viva, Decimal("0.05"))
     g.refresh_from_db()
-    assert g.reservado_usd == 0 and g.gasto_estimado_usd == Decimal("0.05")
+    assert g.reservado_usd == 0 and g.gasto_estimado_usd == Decimal("0.35")
     assert "0 reserva(s) presa(s)" in manutencao.diaria()
 
 
@@ -112,11 +114,13 @@ def test_liquidar_depois_de_liberada_nao_desconta_duas_vezes(django_user_model):
     orcamento.liquidar(reserva, Decimal("0.020"))  # o lento ainda terminou
     g = OrcamentoIA.objects.get(escopo=orcamento.GLOBAL)
     assert g.reservado_usd == Decimal("0.1")  # a reserva do outro continua intacta
-    assert g.gasto_estimado_usd == Decimal("0.02")
+    # Cobrado o pior caso (0,30) quando ficou presa, mais o que o lento ainda informou (0,02):
+    # conservador — o teto nunca é furado; a reserva não é descontada duas vezes.
+    assert g.gasto_estimado_usd == Decimal("0.32")
 
 
 @pytest.mark.django_db
-def test_lease_vencido_devolve_a_reserva_antes_de_refazer(django_user_model):
+def test_lease_vencido_com_chamada_admitida_nao_refaz_as_cegas(django_user_model):
     from datetime import timedelta
 
     from django.utils import timezone
@@ -126,9 +130,13 @@ def test_lease_vencido_devolve_a_reserva_antes_de_refazer(django_user_model):
 
     p = _pedido(django_user_model, 5)
     orcamento.reservar(USO, Decimal("0.300"), pedido_pk=p.pk, prazo=timedelta(minutes=1))
-    assert servicos.reservar_proximo(agora=timezone.now() + timedelta(minutes=2)) == p.pk
-    assert PedidoSugestao.objects.get(pk=p.pk).reserva_usd == 0
-    assert OrcamentoIA.objects.get(escopo=orcamento.GLOBAL).reservado_usd == 0
+    PedidoSugestao.objects.filter(pk=p.pk).update(tentativas_admitidas=2)
+    assert servicos.reservar_proximo(agora=timezone.now() + timedelta(minutes=2)) is None
+    p.refresh_from_db()
+    assert p.estado == "falhou" and p.reserva_usd == 0 and p.chamadas_sem_registro == 2
+    g = OrcamentoIA.objects.get(escopo=orcamento.GLOBAL)
+    assert g.reservado_usd == 0 and g.gasto_estimado_usd == Decimal("0.3")
+    assert servicos.chamadas_hoje(USO) == 2  # as vagas do dia continuam tomadas
 
 
 @pytest.mark.django_db

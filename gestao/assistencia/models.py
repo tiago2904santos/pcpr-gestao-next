@@ -136,6 +136,9 @@ class PedidoSugestao(models.Model):
     #: Vagas do teto diário de chamadas tomadas por este pedido enquanto a chamada está em voo
     #: (zera ao concluir/encerrar): outros workers descontam estas vagas antes de admitir.
     tentativas_admitidas = models.PositiveSmallIntegerField(default=0)
+    #: Chamadas que podem ter sido feitas sem registro (o worker morreu no meio): contam no
+    #: teto diário como feitas.
+    chamadas_sem_registro = models.PositiveSmallIntegerField(default=0)
     motivo = models.CharField(max_length=255, blank=True)  # código/mensagem, sem conteúdo
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)

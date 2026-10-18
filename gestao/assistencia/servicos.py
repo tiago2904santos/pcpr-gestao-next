@@ -162,15 +162,27 @@ def reservar_proximo(agora: datetime | None = None) -> int | None:
     """Transação curta: pega o próximo pedido (skip_locked) e marca o prazo (lease)."""
     agora = agora or timezone.now()
     with transaction.atomic():
-        pedido = (PedidoSugestao.objects.select_for_update(skip_locked=True)
-                  .filter(Q(estado=E.PENDENTE)
-                          | Q(estado=E.PROCESSANDO, reservado_ate__lt=agora))
-                  .order_by("criado_em", "id").first())
-        if pedido is None:
-            return None
-        # Lease vencido com orçamento ainda reservado: o worker anterior morreu no meio. A
-        # reserva dele volta ao orçamento antes de a chamada ser refeita.
-        orcamento.liberar_do_pedido(pedido)
+        while True:
+            pedido = (PedidoSugestao.objects.select_for_update(skip_locked=True)
+                      .filter(Q(estado=E.PENDENTE)
+                              | Q(estado=E.PROCESSANDO, reservado_ate__lt=agora))
+                      .order_by("criado_em", "id").first())
+            if pedido is None:
+                return None
+            if pedido.estado != E.PROCESSANDO or not (pedido.reserva_usd
+                                                      or pedido.tentativas_admitidas):
+                break
+            # Lease vencido COM chamada admitida: o worker morreu e a chamada pode ter sido
+            # feita (e cobrada). Não refaz às cegas: a reserva vira gasto, as vagas do dia
+            # continuam contadas e o pedido encerra (quem pediu pede de novo).
+            orcamento.cobrar_reserva_presa(pedido)
+            pedido.chamadas_sem_registro += pedido.tentativas_admitidas
+            pedido.tentativas_admitidas = 0
+            pedido.estado, pedido.reservado_ate = E.FALHOU, None
+            pedido.motivo = "chamada_incerta"
+            pedido.save(update_fields=["estado", "reservado_ate", "motivo",
+                                       "chamadas_sem_registro", "tentativas_admitidas",
+                                       "atualizado_em"])
         pedido.estado = E.PROCESSANDO
         pedido.tentativas += 1
         pedido.reservado_ate = agora + LEASE
@@ -263,8 +275,13 @@ def _admitir(pedido: PedidoSugestao, uso: str, config) -> int:
 
 
 def chamadas_hoje(uso: str) -> int:
-    return (Sugestao.objects.filter(uso=uso, criada_em__gte=_inicio_do_dia())
-            .aggregate(n=Sum("tentativas_ia"))["n"] or 0)
+    """Chamadas de hoje: as das sugestões e as que podem ter sido feitas sem registro (worker
+    que morreu no meio da chamada)."""
+    feitas = (Sugestao.objects.filter(uso=uso, criada_em__gte=_inicio_do_dia())
+              .aggregate(n=Sum("tentativas_ia"))["n"] or 0)
+    perdidas = (PedidoSugestao.objects.filter(uso=uso, atualizado_em__gte=_inicio_do_dia())
+                .aggregate(n=Sum("chamadas_sem_registro"))["n"] or 0)
+    return feitas + perdidas
 
 
 def chamadas_hoje_por_uso() -> dict[str, int]:

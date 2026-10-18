@@ -77,11 +77,14 @@ def encerrar_relacionadas(recurso: str, tipos: tuple[str, ...], motivo: str) -> 
     """O assunto se resolveu (ex.: o comprovante chegou): o que ainda não saiu fica
     obsoleto. O que já saiu fica como está — não se "desmanda" mensagem."""
     pendentes = Comunicacao.objects.select_for_update().filter(
-        recurso=recurso, tipo__in=tipos, situacao__in=(S.AGUARDANDO_APROVACAO, S.AGENDADA))
+        recurso=recurso, tipo__in=tipos,
+        situacao__in=(S.AGUARDANDO_APROVACAO, S.AGENDADA, S.RESERVADA))
     total = 0
     for c in pendentes:
-        c.situacao, c.motivo = S.OBSOLETA, motivo[:255]
-        c.save(update_fields=["situacao", "motivo", "atualizada_em"])
+        # Também o já reservado pelo transporte: se o resultado chegar depois,
+        # `registrar_resultado` não o reagenda e, se saiu, abre exceção (como no opt-out).
+        c.situacao, c.motivo, c.reservada_ate = S.OBSOLETA, motivo[:255], None
+        c.save(update_fields=["situacao", "motivo", "reservada_ate", "atualizada_em"])
         total += 1
     return total
 

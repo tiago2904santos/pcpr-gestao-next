@@ -135,11 +135,12 @@ def processar_entrada(pk: int) -> EntradaWebhook:
 
 
 # ------------------------------------------------------------------ status
-def _da_referencia(referencia: str) -> int | None:
-    """`com:<id>:t<n>` (o biz_opaque_callback_data que mandamos) → id da comunicação."""
+def _da_referencia(referencia: str) -> tuple[int, int | None] | None:
+    """`com:<id>:t<n>` (o biz_opaque_callback_data que mandamos) → (comunicação, tentativa)."""
     partes = (referencia or "").split(":")
-    if len(partes) == 3 and partes[0] == "com" and partes[1].isdigit():
-        return int(partes[1])
+    if len(partes) >= 2 and partes[0] == "com" and partes[1].isdigit():
+        n = partes[2][1:] if len(partes) == 3 and partes[2].startswith("t") else ""
+        return int(partes[1]), (int(n) if n.isdigit() else None)
     return None
 
 
@@ -149,9 +150,15 @@ def registrar_status(s: StatusRecebido, canal: str = CANAL_WHATSAPP) -> StatusEn
         return None
     comunicacao = (Comunicacao.objects.select_for_update()
                    .filter(canal=canal, mensagem_id=s.mensagem_id).first())
-    if comunicacao is None and (pk := _da_referencia(s.referencia)):
+    if comunicacao is None and (ref := _da_referencia(s.referencia)):
+        pk, tentativa = ref
         comunicacao = Comunicacao.objects.select_for_update().filter(
             pk=pk, canal=canal).filter(Q(mensagem_id="") | Q(mensagem_id=s.mensagem_id)).first()
+        if (comunicacao is not None and tentativa is not None
+                and tentativa != comunicacao.tentativas):
+            # Status de uma tentativa ANTERIOR (a pessoa já tentou de novo): não confirma a
+            # atual. Fica órfão e a reconciliação abre exceção para uma pessoa conferir.
+            comunicacao = None
     preco = s.preco
     registro, criado = StatusEntrega.objects.get_or_create(
         canal=canal, mensagem_id=s.mensagem_id, status=status, defaults={

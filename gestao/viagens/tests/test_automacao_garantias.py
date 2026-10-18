@@ -759,3 +759,56 @@ def test_lidas_hoje_conta_pela_hora_da_leitura(c):
         situacao=S.ENVIADA, enviada_em=ontem, entrega="lida", lida_em=timezone.now())
     resposta = _cliente(c.usuarios["operador"]).get("/automacao/")
     assert resposta.context["numeros"]["lidas_hoje"] == 1
+
+
+def test_status_de_tentativa_antiga_nao_confirma_a_atual(c):
+    from django.db import transaction as tx
+
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import StatusRecebido
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(situacao=S.RESERVADA, tentativas=2,
+                                                   mensagem_id="")
+    with tx.atomic():
+        entrada_mod.registrar_status(StatusRecebido(
+            mensagem_id="wamid.T1", status="delivered", ocorrido_em=timezone.now(),
+            referencia=f"com:{aviso.pk}:t1"))
+    aviso.refresh_from_db()
+    assert aviso.mensagem_id == "" and aviso.situacao == S.RESERVADA
+    assert StatusEntrega.objects.get(mensagem_id="wamid.T1").comunicacao_id is None
+
+
+def test_falha_que_chegou_antes_do_aceite_continua_falha(c):
+    from gestao.automacao.models import TentativaEntrega
+    from gestao.integracoes.whatsapp.porta import Envio, Origem
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(situacao=S.FALHOU, entrega="falhou")
+    t = TentativaEntrega.objects.create(comunicacao=aviso, numero=1, chave="t-r7-1",
+                                        adaptador="n8n")
+    entrega.registrar_resultado(t.pk, envio=Envio(mensagem_id="wamid.R7",
+                                                  origem=Origem.CLOUD_API), origem="n8n")
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.FALHOU and aviso.mensagem_id == "wamid.R7"
+
+
+def test_lembrete_reservado_fica_obsoleto_quando_o_assunto_resolve(c):
+    from gestao.automacao import comunicacoes as com_mod
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(situacao=S.RESERVADA)
+    from django.db import transaction as tx
+    with tx.atomic():
+        com_mod.encerrar_relacionadas(aviso.recurso, (aviso.tipo,), "O comprovante chegou.")
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.OBSOLETA and aviso.reservada_ate is None
