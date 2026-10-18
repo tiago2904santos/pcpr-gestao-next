@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}E-mail ao fornecedor · {{ s }} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+E-mail ao fornecedor (a OS ou a OB): a faixa com a OS, a mesma tela para os dois envios —
+para, cópia, assunto e texto já preenchidos com a configuração e os dados da OS, todos
+editáveis —, o anexo que vai junto e o que impede o envio. Enviar confirma antes; o envio
+fica no histórico, e reenviar registra outro.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · E-mail ao fornecedor" rotulo="OS" numero=s.numero|default:"—" titulo=titulo_tela complemento=s.descricao|truncatechars:120 %}
+
+{% if erro %}<div class="alerta alerta--perigo mt-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+{% if r.problemas %}<div class="alerta alerta--aviso mt-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">Ainda não dá para enviar.</p><ul class="checklist">{% for p in r.problemas %}<li class="checklist__item">{{ p }}</li>{% endfor %}</ul></div></div>
+{% elif r.enviado_em %}<div class="alerta alerta--info mt-4" role="status">{% icone "history" %}<div class="alerta__corpo"><p>{% if r.qual == "os" %}A OS já foi enviada{% elif r.qual == "link" %}Já há um link ativo, enviado{% else %}A ordem bancária já foi enviada{% endif %} ao fornecedor em {{ r.enviado_em|date:"d/m/Y" }}. {% if r.qual == "link" %}Enviar um novo desativa o anterior.{% else %}Enviar de novo registra outro envio no histórico.{% endif %}</p></div></div>{% endif %}
+{% if r.sem_email_fornecedor %}<div class="alerta alerta--aviso mt-4" role="status">{% icone "mail" %}<div class="alerta__corpo"><p>{{ s.lote.contrato.fornecedor }} não tem e-mail cadastrado: informe o destino abaixo{% if pode_gerir %} ou <a href="{% url 'coffee:fornecedores' %}?editar={{ s.lote.contrato.fornecedor_id }}">cadastre o e-mail do fornecedor</a>{% endif %}.</p></div></div>{% endif %}
+
+<form method="post" novalidate id="form-email" class="documento documento--preparacao mt-4" data-proteger
+      data-confirmar="Enviar este e-mail ao fornecedor agora?" data-confirmar-titulo="Enviar o e-mail?" data-confirmar-rotulo="Enviar">
+  {% csrf_token %}
+  <section class="secao" id="mensagem" aria-labelledby="t-mensagem">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-mensagem"><span class="secao__numero">1</span>Mensagem</h2><p class="secao__nota">Já vem com o texto da configuração e os dados da OS; ajuste o que precisar. Vários e-mails: separe por vírgula.</p></div>
+    <div class="pilha">
+      <div class="campos-folha">
+        <div class="campo"><label class="campo__rotulo" for="email-para">Para<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" id="email-para" name="para" value="{{ r.para }}" autocomplete="off" required></div>
+        <div class="campo"><label class="campo__rotulo" for="email-copia">Cópia</label><input class="entrada" id="email-copia" name="copia" value="{{ r.copia }}" autocomplete="off" aria-describedby="email-copia-ajuda"><p class="campo__ajuda" id="email-copia-ajuda">A ASCOM, da configuração do ofício; as respostas vão para o primeiro.</p></div>
+      </div>
+      <div class="campo"><label class="campo__rotulo" for="email-assunto">Assunto<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" id="email-assunto" name="assunto" value="{{ r.assunto }}" maxlength="200" autocomplete="off" required></div>
+      <div class="campo"><label class="campo__rotulo" for="email-texto">Texto</label><textarea class="entrada" id="email-texto" name="texto" rows="10">{{ r.texto }}</textarea></div>
+    </div>
+  </section>
+{% if r.anexo %}
+  <section class="secao" id="anexo" aria-labelledby="t-anexo">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexo"><span class="secao__numero">2</span>Anexo</h2><p class="secao__nota">{% if r.qual == "os" %}A ordem de serviço em PDF (a versão assinada, se houver; senão, a gerada agora).{% else %}O PDF da ordem bancária anexado à solicitação.{% endif %}</p></div>
+    <ul class="registros">
+      <li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "file-text" %}</span><div class="registro__corpo"><div class="registro__titulo"><span class="registro__texto">{{ r.anexo }}</span></div></div>
+        <div class="registro__acoes registro__acoes--fixas">{% if r.qual == "os" %}{% if not r.problemas %}<a class="botao botao--sm botao--sutil" href="{% url 'coffee:documento' s.pk 'os' %}?formato=html">{% icone "eye" %}Ver</a>{% endif %}{% elif s.ob_pdf %}<a class="botao botao--sm botao--sutil" href="{% url 'coffee:baixar_pdf' s.pk 'ob' %}">{% icone "download" %}PDF</a>{% endif %}</div>
+      </li>
+    </ul>
+  </section>
+  {% else %}
+  <section class="secao" id="anexo" aria-labelledby="t-anexo">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexo"><span class="secao__numero">2</span>O link</h2><p class="secao__nota">O endereço é criado na hora do envio e entra no lugar de {link}; {validade} vira a data até quando ele vale (30 dias). Ele não aparece em tela: só o fornecedor o recebe. Um link novo desativa o anterior.</p></div>
+  </section>
+  {% endif %}
+</form>
+
+<div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>{% if r.problemas %}Resolva o que falta para enviar.{% elif r.qual == "link" %}Confira e envie: o fornecedor recebe o link por e-mail.{% else %}Confira e envie: o fornecedor recebe com o PDF anexo.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacao' s.pk %}">Voltar</a>
+    {% if not r.problemas %}<button type="submit" form="form-email" class="botao botao--primario">{% icone "send" %}{% if r.enviado_em %}Reenviar{% else %}Enviar{% endif %}</button>{% endif %}
+  </div>
+</div>
+{% endblock %}

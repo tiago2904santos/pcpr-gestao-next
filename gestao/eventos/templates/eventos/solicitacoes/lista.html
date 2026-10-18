@@ -1,83 +1,110 @@
 {% extends "arquetipos/lista.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo %}Solicitações de evento{% endblock %}
-{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
-{% block titulo_lista %}Solicitações de evento{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos de eventos sociais à PCPR, do rascunho ao atendimento, com o despacho da Diretoria-Geral.</p>{% endblock %}
-{% block acoes_lista %}
-<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a><a class="botao" href="{{ url_exportar_xlsx }}">{% icone "table" %}Planilha (XLSX)</a>
-<a class="botao botao--primario" href="{% url 'eventos:nova' %}">{% icone "plus" %}Nova solicitação</a>
-{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais" titulo="Solicitações de evento" complemento="Do pedido ao atendimento, com o despacho da Diretoria-Geral." %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% comment %}
-Paridade com a lista da referência: filas (Todas, Aguardando despacho — só a DG —,
-Devolvidas, Deferidas, Confirmar atendimento, Canceladas, Meus rascunhos, Minhas) com
-contagens que respeitam a busca; busca por nº, solicitante, local, município, protocolo,
-tipo ou órgão; período do evento, município e tipo. Linha: tipo · município, status, selo
-de tempo ("Evento em N dias") e "pedido em cima da hora".
+Lista de solicitações de evento no padrão das listas de Viagens (Ofícios, Prestação): faixa
+grafite no topo; filas (Todas, Aguardando despacho — só a DG —, Devolvidas, Deferidas,
+Confirmar atendimento, Canceladas, Meus rascunhos, Minhas) e a busca no mesmo cartão, com
+resultado ao vivo (HTMX: troca #resultados e, fora de banda, as filas e a barra); gaveta
+"Mais filtros" (período do evento, município, tipo) com as fichas do que vale; um registro
+operacional por solicitação (placa do pedido, tipo · município, situação, tempo do evento,
+período, local, solicitante, unidade móvel, servidores e o ⋮); e a barra fixa no rodapé
+com a contagem, a paginação, "Mais" (exportar planilha ou CSV) e "Nova solicitação".
 {% endcomment %}
 
-{% block abas_filtro %}
-<nav class="abas" id="abas-filtro" aria-label="Filas">
-  {% for chave, rotulo, total in filas %}
-    <a class="aba" href="?{% if chave %}fila={{ chave }}{% if qs_sem_fila %}&amp;{% endif %}{% endif %}{{ qs_sem_fila }}"{% if chave == filtros.fila %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
-  {% endfor %}
-</nav>
-{% endblock %}
+{% block abas_filtro %}{% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'eventos:solicitacoes' %}">
+<div class="filtro-conjunto">
+<nav class="abas abas--conteudo" id="abas-filtro" aria-label="Filas">
+  {% for chave, rotulo, total in filas %}
+    <a class="aba{% if not total %} aba--vazia{% endif %}" href="?{% if chave %}fila={{ chave }}{% if qs_sem_fila %}&amp;{% endif %}{% endif %}{{ qs_sem_fila }}"{% if chave == filtros.fila %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'eventos:solicitacoes' %}"
+      hx-get="{% url 'eventos:solicitacoes' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro, #barra-solicitacoes, #conta-filtros" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-solicitacoes, change from:#filtros-mais">
   {% if filtros.fila %}<input type="hidden" name="fila" value="{{ filtros.fila }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-solicitacoes">Buscar</label>
-    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-solicitacoes" type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar por nº, solicitante, local, município, tipo ou órgão…" autocomplete="off"></div>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-solicitacoes" type="search" name="q" value="{{ filtros.q }}" placeholder="Nº, solicitante, local, município, tipo ou órgão…" data-dica-curta="Nº, solicitante, local…|Nº, solicitante…" autocomplete="off"></div>
   </div>
-  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
-  <details class="filtros__mais" id="filtros-mais"{% if filtros.ativos %} open{% endif %}>
-    <summary class="filtros__mais-resumo">
-      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
-      {% if filtros.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ filtros.ativos }}</span>{% endif %}
-      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
-    </summary>
-    <div class="filtros__avancados">
-      <div class="campo">
-        <label class="campo__rotulo" for="filtro-inicio">Eventos a partir de</label>
-        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-inicio" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+  <div class="filtros__lado">
+    <details class="filtros__mais" id="filtros-mais">
+      <summary class="filtros__mais-resumo" aria-controls="filtros-avancados">
+        {% icone "sliders-horizontal" classe="icone--sm" %}<span>Filtros</span>
+        <span id="conta-filtros">{% if filtros.ativos %}<span class="filtros__mais-conta">{{ filtros.ativos }}</span>{% endif %}</span>
+        {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+      </summary>
+      <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
+        <div class="filtros__gaveta-cabecalho"><h2 class="filtros__gaveta-titulo">Filtros e ordem</h2></div>
+        <div class="campo filtros__campo--ordem">
+          <label class="campo__rotulo" for="ordem-solicitacoes">Ordenar por</label>
+          <pc-select class="seletor"><select class="selecao" id="ordem-solicitacoes" name="ordem">
+            {% for chave, rotulo in ordens %}<option value="{{ chave }}"{% if chave == ordem %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+          </select></pc-select>
+        </div>
+        {# Período do evento num campo só (o calendário marca começo e fim); as pontas vão escondidas. #}
+        <div class="campo filtros__campo--periodo">
+          <label class="campo__rotulo" for="filtro-periodo">Período do evento</label>
+          <pc-data class="seletor" data-periodo>
+            <input class="entrada" type="text" id="filtro-periodo" value="{% if filtros.inicio or filtros.fim %}{{ filtros.inicio|date:'d/m/Y' }} a {{ filtros.fim|date:'d/m/Y' }}{% endif %}" placeholder="Qualquer data" autocomplete="off">
+            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
+            <input type="hidden" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" data-periodo-de>
+            <input type="hidden" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" data-periodo-ate>
+          </pc-data>
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="filtro-municipio">Município</label>
+          <pc-select class="seletor"><select class="selecao" id="filtro-municipio" name="municipio"><option value="">Todos</option>{% for m in municipios %}<option value="{{ m.pk }}"{% if filtros.municipio == m.pk %} selected{% endif %}>{{ m.nome }}/{{ m.uf }}</option>{% endfor %}</select></pc-select>
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="filtro-tipo">Tipo de evento</label>
+          <pc-select class="seletor"><select class="selecao" id="filtro-tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}"{% if filtros.tipo == t.pk %} selected{% endif %}>{{ t.nome }}</option>{% endfor %}</select></pc-select>
+        </div>
+        <div class="filtros__gaveta-rodape">
+          {% if filtros.ativos %}<a class="botao botao--texto" href="{{ url_limpar_tudo }}">{% icone "x" %}Limpar filtros</a>{% endif %}
+          <button type="button" class="botao" data-fechar-filtros hidden>Fechar</button>
+        </div>
       </div>
-      <div class="campo">
-        <label class="campo__rotulo" for="filtro-fim">Eventos até</label>
-        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-fim" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
-      </div>
-      <div class="campo">
-        <label class="campo__rotulo" for="filtro-municipio">Município</label>
-        <pc-select class="seletor"><select class="selecao" id="filtro-municipio" name="municipio"><option value="">Todos</option>{% for m in municipios %}<option value="{{ m.pk }}"{% if filtros.municipio == m.pk %} selected{% endif %}>{{ m.nome }}/{{ m.uf }}</option>{% endfor %}</select></pc-select>
-      </div>
-      <div class="campo">
-        <label class="campo__rotulo" for="filtro-tipo">Tipo</label>
-        <pc-select class="seletor"><select class="selecao" id="filtro-tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}"{% if filtros.tipo == t.pk %} selected{% endif %}>{{ t.nome }}</option>{% endfor %}</select></pc-select>
-      </div>
-      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if filtros.ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'eventos:solicitacoes' %}{% if filtros.fila %}?fila={{ filtros.fila }}{% endif %}">Limpar filtros</a>{% endif %}</div>
-    </div>
-  </details>
+    </details>
+    <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
+  </div>
 </form>
+</div>
 {% endblock %}
 
 {% block resultados %}
-<div class="lista-cabecalho">
-  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”{% else %}Solicitações{% endif %}</h2>
-  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"solicitação,solicitações" }}</span>
+<div id="resultados">
+  {% include "viagens/oficios/_fichas.html" %}
+  <h2 class="sr-only" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”: {{ page_obj.paginator.count|pluralizar:"solicitação,solicitações" }}{% else %}Solicitações de evento{% endif %}</h2>
+  {% if linhas %}
+    <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
+      {% for l in linhas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}
+    </ul>
+  {% elif filtros.q or filtros.ativos or filtros.fila %}
+    {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma solicitação neste recorte" texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
+  {% else %}
+    {% url 'eventos:nova' as url_nova %}
+    {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação ainda" texto="Registre o primeiro pedido de evento social." acao_url=url_nova acao_rotulo="Nova solicitação" %}
+  {% endif %}
+  {% for l in linhas %}<form id="duplicar-{{ l.s.pk }}" method="post" action="{% url 'eventos:duplicar' l.s.pk %}" hidden>{% csrf_token %}</form>{% if l.concluir %}<form id="concluir-{{ l.s.pk }}" method="post" action="{% url 'eventos:concluir' l.s.pk %}" hidden>{% csrf_token %}</form>{% endif %}{% endfor %}
 </div>
-{% if linhas %}
-  <ul class="registros" aria-labelledby="titulo-resultados">
-    {% for l in linhas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}
-  </ul>
-  {# A paginação mora na barra que acompanha a rolagem (depois da lista). #}
-{% elif filtros.q or filtros.ativos or filtros.fila %}
-  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma solicitação encontrada com os filtros aplicados." texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
-{% else %}
-  {% url 'eventos:nova' as url_nova %}
-  {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação registrada ainda." texto="Registre o primeiro pedido de evento." acao_url=url_nova acao_rotulo="Nova solicitação" %}
-{% endif %}
 {% endblock %}
 
 {% block depois_lista %}
-{% include "componentes/barra_paginacao.html" %}
+{# Barra fixa: contagem do recorte · paginação · Mais (exportar planilha ou CSV) · Nova solicitação. #}
+<div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
+  <div class="barra-acoes__conteudo" id="barra-solicitacoes">
+    <p class="barra-acoes__status" role="status">{% if page_obj.paginator.num_pages > 1 %}Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}{% else %}{{ page_obj.paginator.count|pluralizar:"solicitação,solicitações" }}{% endif %}{% if filtros.q or filtros.ativos %} no filtro de agora{% endif %}</p>
+    {% include "componentes/paginacao.html" with na_barra=True %}
+  </div>
+  {% include "componentes/menu_mais.html" with itens=mais titulo="Solicitações de evento" %}
+  <a class="botao botao--primario" href="{% url 'eventos:nova' %}">{% icone "plus" %}<span>Nova <span class="barra-acoes__extra">solicitação</span></span></a>
+</div>
 {% endblock %}

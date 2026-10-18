@@ -5,14 +5,16 @@
 <title>{{ d.titulo }}</title>
 <meta name="author" content="{{ d.unidade }}">
 {% comment %}
-Relatório técnico de viagem, um por servidor, com a mesma composição do documento do sistema
+Relatório técnico de viagem, um por servidor e igual para toda a equipe — muda só quem é
+(nome e CPF) e a diária recebida (quem sacou parte em dinheiro) —, com a mesma composição do documento do sistema
 modelo (a folha ASCOM): cabeçalho com o brasão e três linhas em negrito, referência ao ofício
 à esquerda e local e data à direita, o título sublinhado, a tabela do servidor (nome e CPF),
 "VALORES UTILIZADOS NA VIAGEM" (diária, translado, combustível, passagem), as cinco seções do
 relato numa tabela de grade com os títulos centralizados, a declaração em negrito e a linha
 de assinatura com o CPF; no pé, a marca e o endereço da unidade. Dados em
-relatorio.dados_do_documento; o texto editado no visualizador (EdicaoPrestacao, regiões
-"corpo" e "assinatura") entra no lugar do que o modelo gera.
+relatorio.dados_do_documento. Só o relato e a declaração (região "relato") se editam no
+visualizador, e a edição vale para o RT de todos os servidores (EdicaoPrestacao com a chave
+"rt", prestacao_texto.chave_de_edicao); servidor, valores e assinatura vêm sempre dos dados.
 {% endcomment %}
 {% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
@@ -63,30 +65,28 @@ relatorio.dados_do_documento; o texto editado no visualizador (EdicaoPrestacao, 
   </header>
   <main>
     <p class="ref"><span>Ref. ao Ofício {{ d.oficio }}</span><span>{% if d.sede %}{{ d.sede }}, {% endif %}{{ d.data_extenso }}</span></p>
-    {% regiao "corpo" "Relatório" %}
-    <h1 data-bloco="titulo" data-rotulo="Título">Relatório técnico de viagem</h1>
-    <table class="servidor" data-bloco="servidor" data-rotulo="Servidor">
+    <h1>Relatório técnico de viagem</h1>
+    <table class="servidor">
       <tr><th scope="row">Nome</th><td>{{ d.nome }}</td></tr>
       <tr><th scope="row">CPF</th><td>{{ d.cpf }}</td></tr>
     </table>
-    <h2 data-bloco="titulo_valores" data-rotulo="Título dos valores">Valores utilizados na viagem:</h2>
-    <table class="valores" data-bloco="valores" data-rotulo="Valores utilizados">
+    <h2>Valores utilizados na viagem:</h2>
+    <table class="valores">
       <tr><th scope="row">Diária:</th><td>{{ d.diaria }}</td></tr>
       <tr><th scope="row">Translado:</th><td>{{ d.translado }}</td></tr>
       <tr><th scope="row">Combustível:</th><td>{{ d.combustivel }}</td></tr>
       <tr><th scope="row">Passagem:</th><td>{{ d.passagem }}</td></tr>
     </table>
+    {% regiao "relato" "Relato" %}
     <table class="relato">
       {% for s in d.secoes %}<tbody data-bloco="secao-{{ forloop.counter }}" data-rotulo="{{ s.titulo }}"><tr><th scope="rowgroup">{{ s.titulo }}</th></tr><tr><td>{{ s.texto }}</td></tr></tbody>{% endfor %}
     </table>
     <p class="declaracao" data-bloco="declaracao" data-rotulo="Declaração">Declaramos que o trabalho previsto na programação de viagem foi realizado, assim como cumprido o período de realização da viagem e a documentação encaminhada ao setor responsável</p>
     {% endregiao %}
-    {% regiao "assinatura" "Assinatura" %}
-    <div class="assinatura" data-bloco="assinatura" data-rotulo="Assinatura">
+    <div class="assinatura">
       <p class="linha"></p>
       <p>CPF {{ d.cpf }}</p>
     </div>
-    {% endregiao %}
   </main>
 </body>
 </html>

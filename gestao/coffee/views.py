@@ -316,9 +316,13 @@ def configuracao(request: HttpRequest) -> HttpResponse:
     obj = services.configuracao()
     form = FormularioConfiguracao(request.POST or None, instance=obj)
     if request.method == "POST" and form.is_valid():
-        services.salvar_configuracao(request.user, form, form.cleaned_data.get("versao", ""))
-        messages.success(request, "Configuração do ofício salva com sucesso.")
-        return redirect("coffee:configuracao")
+        try:
+            services.salvar_configuracao(request.user, form, form.cleaned_data.get("versao", ""))
+        except services.CadastroEmUso as exc:  # alguém salvou depois que a tela abriu
+            form.add_error(None, str(exc))
+        else:
+            messages.success(request, "Configuração do ofício salva com sucesso.")
+            return redirect("coffee:configuracao")
     return render(request, "coffee/configuracao.html", {
         "form": form, "tabelas": [(c, x.titulo, x.icone, x.modelo.objects.count())
                                   for c, x in TABELAS.items()],

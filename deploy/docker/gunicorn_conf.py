@@ -8,7 +8,7 @@ import re
 
 from gunicorn.glogging import Logger
 
-PADRAO = re.compile(r"(/agenda/ics/)[^/\s'\"?]+")
+PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/)[^/\s'\"?]+")
 
 
 class LoggerMascarado(Logger):

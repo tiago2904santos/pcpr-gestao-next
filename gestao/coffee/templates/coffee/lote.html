@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ lote }} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+O lote (paridade com o detalhe do lote da referência): a faixa com o lote e o fornecedor; o
+saldo, o consumo, a vigência e o empenho; os municípios atendidos, as orientações e as
+especificações; e as OS mais recentes que consumiram dele, com o caminho para todas.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% with n=lote.numero|stringformat:"s" %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Lote" rotulo="Lote" numero=n complemento_numero=lote.exercicio titulo=lote.contrato.fornecedor.razao_social complemento=lote.contrato.referencia_documental acoes_template="coffee/_lote_hero_acoes.html" %}
+{% endwith %}
+<section aria-label="Saldo e vigência" class="grade grade--kpi mt-4">
+  <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "layers" classe="icone--sm" %}Saldo restante</span><span class="indicador__valor">{{ saldo.restante }}</span><span class="indicador__nota">de {{ saldo.total }} unidades</span></div>
+  <div class="indicador{% if saldo.percentual >= 70 %} indicador--atencao{% endif %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "activity" classe="icone--sm" %}Consumido</span><span class="indicador__valor">{{ saldo.percentual }}%</span><span class="indicador__nota">{{ saldo.consumido }} unidades em {{ total_os|pluralizar:"OS,OS" }}</span></div>
+  <div class="indicador{% if vencido %} indicador--atencao{% endif %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Vigência</span><span class="indicador__valor">{% if fim %}{{ fim|date:"d/m/Y" }}{% else %}—{% endif %}</span><span class="indicador__nota">{% if vencido %}Contrato vencido{% elif lote.ativo %}Lote vigente{% else %}Lote encerrado{% endif %}</span></div>
+  <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "receipt" classe="icone--sm" %}Empenho</span><span class="indicador__valor">{{ lote.empenho|default:"—" }}</span><span class="indicador__nota">{% if lote.valor_empenho is not None %}{{ lote.valor_empenho|moeda }}{% else %}Valor não informado{% endif %}</span></div>
+</section>
+<div class="documento documento--preparacao mt-4">
+  <section class="secao" aria-labelledby="t-valores">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-valores"><span class="secao__numero">1</span>Valores e contatos</h2><p class="secao__nota">Comprometido: as OS não canceladas; pago: as que têm ordem bancária.</p></div>
+    <dl class="metadados grade grade--2">
+      <div class="metadado"><dt>Comprometido</dt><dd>{{ comprometido|moeda }}</dd></div>
+      <div class="metadado"><dt>Pago</dt><dd>{{ pago|moeda }}</dd></div>
+      <div class="metadado"><dt>Saldo do empenho</dt><dd>{% if saldo_empenho is not None %}{{ saldo_empenho|moeda }}{% else %}<span class="vazio-inline">Sem valor de empenho</span>{% endif %}</dd></div>
+      <div class="metadado"><dt>Fornecedor</dt><dd>{{ lote.contrato.fornecedor.razao_social }}{% if lote.contrato.fornecedor.contato or lote.contrato.fornecedor.telefone or lote.contrato.fornecedor.email %}<br><span class="texto-secundario texto-sm">{{ lote.contrato.fornecedor.contato }}{% if lote.contrato.fornecedor.telefone %} · {{ lote.contrato.fornecedor.telefone }}{% endif %}{% if lote.contrato.fornecedor.email %} · {{ lote.contrato.fornecedor.email }}{% endif %}</span>{% endif %}</dd></div>
+      <div class="metadado"><dt>Fiscal do contrato</dt><dd>{% if lote.contrato.fiscal %}{{ lote.contrato.fiscal }}{% if lote.contrato.cargo_fiscal %} <span class="texto-secundario texto-sm">({{ lote.contrato.cargo_fiscal }})</span>{% endif %}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
+    </dl>
+  </section>
+  <section class="secao" aria-labelledby="t-municipios">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-municipios"><span class="secao__numero">2</span>Municípios atendidos</h2><p class="secao__nota">O pedido de um destes municípios cai neste lote.</p></div>
+    {% if lote.municipios.all %}<p>{% for m in lote.municipios.all %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% else %}<p class="vazio-inline">Nenhum município cadastrado.</p>{% endif %}
+  </section>
+  {% if lote.orientacoes or lote.especificacoes or lote.observacoes %}
+  <section class="secao" aria-labelledby="t-orientacoes">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-orientacoes"><span class="secao__numero">3</span>Orientações e especificações</h2><p class="secao__nota">O que vai na ordem de serviço ao fornecedor.</p></div>
+    {% if lote.orientacoes %}<div class="secao__bloco"><div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "info" classe="icone--sm" %}Orientações</h3></div><p>{{ lote.orientacoes|linebreaksbr }}</p></div>{% endif %}
+    {% if lote.especificacoes %}<div class="secao__bloco"><div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "list-checks" classe="icone--sm" %}Especificações técnicas</h3></div><p>{{ lote.especificacoes|linebreaksbr }}</p></div>{% endif %}
+    {% if lote.observacoes %}<div class="secao__bloco"><div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "text-quote" classe="icone--sm" %}Observações</h3></div><p>{{ lote.observacoes|linebreaksbr }}</p></div>{% endif %}
+  </section>
+  {% endif %}
+</div>
+<section class="colecao-operacional pilha-sm mt-6" aria-labelledby="t-os">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-os">Solicitações do lote</h2>{% if total_os %}<div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">Ver as {{ total_os }}</a></div>{% endif %}</div>
+  {% if linhas %}<ul class="registros registros--operacionais">{% for l in linhas %}{% include "coffee/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with compacto=True icone="receipt" titulo="Nenhuma solicitação neste lote" texto="As OS dos municípios do lote aparecem aqui." %}{% endif %}
+</section>
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "layers" classe="icone--sm" %}<span>{{ saldo.restante }} de {{ saldo.total }} unidades disponíveis · {{ saldo.percentual }}% consumido</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:lotes' %}">Voltar</a>
+    <a class="botao botao--primario" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">{% icone "list" %}Solicitações do lote</a>
+  </div>
+</div>
+{% endblock %}

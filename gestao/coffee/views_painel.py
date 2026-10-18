@@ -63,7 +63,7 @@ def registrar_entrega(request: HttpRequest, pk: int) -> HttpResponse:
         request.session[RASCUNHO] = {**dados, "pk": pk, "campo": exc.campo or ""}
     else:
         messages.success(request, entregas.mensagem(e))
-    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#entregas")
+    return redirect(reverse("coffee:ordem_servico", args=[pk]) + "#entregas")
 
 
 @require_GET

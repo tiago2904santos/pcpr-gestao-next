@@ -80,6 +80,26 @@ def test_rascunho_envio_e_despacho(logado, dados_e2e):
     assert not pg.erros_console  # type: ignore[attr-defined]
 
 
+def test_textos_prontos_se_somam(logado, dados_e2e):
+    """EV-F41 (referência): no despacho, cada texto pronto entra numa linha nova, sem
+    repetir — não substitui o que já foi escrito."""
+    from gestao.eventos import solicitacoes
+    from gestao.eventos.models import TextoDespacho
+
+    u, s = _cenario("GESTOR_DG")
+    TextoDespacho.objects.create(nome="Equipe (e2e)", texto="Equipe a confirmar.")
+    solicitacoes.enviar(u, s.pk)
+    pg = logado
+    pg.goto(f"/eventos/solicitacoes/{s.pk}/#despacho")
+    pg.locator("#observacao-dg").fill("Atenção ao horário.")
+    for nome in ("Deferido (e2e)", "Equipe (e2e)", "Deferido (e2e)"):
+        pg.get_by_role("combobox", name="Textos prontos").click()
+        pg.get_by_role("option", name=nome).click()
+    expect(pg.locator("#observacao-dg")).to_have_value(
+        "Atenção ao horário.\nDeferido. Providencie-se.\nEquipe a confirmar.")
+    assert not pg.erros_console  # type: ignore[attr-defined]
+
+
 @pytest.mark.parametrize("largura", [360, 1440])
 def test_telas_sem_rolagem_horizontal(logado, dados_e2e, largura):
     _u, s = _cenario("GESTOR_DG")

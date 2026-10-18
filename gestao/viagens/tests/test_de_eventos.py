@@ -90,13 +90,23 @@ def test_quem_gera_e_para_qual_unidade(c):
     assert not de_eventos.pode_gerar(consulta)
     with pytest.raises(PermissionDenied):
         de_eventos.gerar(consulta, s, operador.lotacao.unidade_id)
-    with pytest.raises(PermissionDenied):  # não vê a solicitação
-        de_eventos.gerar(outra, s, outra.lotacao.unidade_id)
     # Operador de viagens (aqui, o responsável) só gera para a própria unidade.
     with pytest.raises(ValueError, match="Escolha a unidade"):
         de_eventos.gerar(operador, s, outra.lotacao.unidade_id)
-    v = de_eventos.gerar(operador, s, operador.lotacao.unidade_id)
-    assert v.unidade_id == operador.lotacao.unidade_id
+    # Quem opera Viagens gera mesmo sem ver a solicitação (referência; EV-F65): sem a folha
+    # (seria 404), volta para a viagem criada; o erro volta para a lista de viagens.
+    cli = Client()
+    cli.force_login(outra)
+    assert cli.get(reverse("eventos:solicitacao", args=[s.pk])).status_code == 404
+    r = cli.post(reverse("eventos:gerar_viagem", args=[s.pk]), {"unidade": "x"})
+    assert r["Location"] == reverse("viagens:viagens")
+    r = cli.post(reverse("eventos:gerar_viagem", args=[s.pk]),
+                 {"unidade": str(outra.lotacao.unidade_id)})
+    v = Viagem.objects.get(solicitacoes_de_evento__solicitacao=s)
+    assert r["Location"] == reverse("viagens:editar_viagem", args=[v.pk])
+    assert v.unidade_id == outra.lotacao.unidade_id
+    cli.force_login(consulta)  # sem ver nem gerar: nada se revela
+    assert cli.post(reverse("eventos:gerar_viagem", args=[s.pk]), {}).status_code == 404
 
 
 def test_so_deferida_com_municipio_e_data(c):

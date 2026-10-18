@@ -26,7 +26,7 @@ commitou (ver "Bloqueios").
 | 10 | Plataforma (usuários, notificações, rotinas, agenda, busca, relatórios) | IMPLEMENTADO | esqueci a senha (SMTP); setor/módulo | SMTP; decisão |
 | 11 | Eventos Sociais | IMPLEMENTADO (E1–E5) | consultar protocolo; preencher com e-mail | eProtocolo; — |
 | 12 | ASCOM: imprensa, publicações, palestras | IMPLEMENTADO (I2, P2, PL2a) | importadores de planilha; pedido público de palestra | decisão do usuário |
-| 13 | Coffee Break | IMPLEMENTADO (CB1–CB7, CB5d) | e-mails e link do fornecedor (CB8); importações (CB9) | SMTP + decisão institucional; decisão |
+| 13 | Coffee Break | IMPLEMENTADO (CB1–CB8, CB5d) | importações (CB9) | SMTP em produção para os e-mails do CB8; decisão (CB9) |
 | 14 | ETL (dados da referência) | BLOQUEADO EXTERNAMENTE | acesso aos dados | — |
 | — | Rodapé padrão das folhas (pedido do usuário via sessão paralela) | FEITO | coffee, eventos, palestras | — |
 

@@ -5,6 +5,7 @@ na finalização; permissões; a folha e o documento por servidor."""
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 
 import pytest
@@ -41,26 +42,32 @@ def test_nasce_com_padroes_e_marcadores(c):
     ModeloTexto.objects.create(tipo="rt_motivo", nome="Padrão", padrao=True,
                                texto="Evento em {destino} ({periodo}). {desconhecido}")
     d = diario.obter(p)
-    diario.trocar_motorista_e_viatura(c.usuarios["operador"], d.pk, motorista_modo="outro_oficio",
-                                      motorista_nome="Fulano de Tal", viatura_modo="oficio")
+    colega = p.oficio.viajantes.filter(motorista=False).select_related("servidor").first().servidor
+    diario.trocar_motorista_e_viatura(c.usuarios["operador"], d.pk, motorista_modo="servidor",
+                                      motorista_servidor_id=colega.pk, viatura_modo="oficio")
     rt = relatorio.obter(p)
     assert (rt.translado, rt.combustivel, rt.passagem) == ("Não houve", "Cartão Prime",
                                                            "Não houve")
     assert rt.diaria.startswith("R$ ")
     assert rt.motivo.startswith("Evento em Arapongas/PR (") and "{desconhecido}" in rt.motivo
-    assert "Fulano de Tal" in rt.info_complementares
+    assert colega.nome in rt.info_complementares
     # Abrir de novo não sobrescreve o que a equipe escreveu.
     relatorio.salvar(c.usuarios["operador"], rt.pk, {"motivo": "Escrito pela equipe."})
     assert relatorio.obter(p).motivo == "Escrito pela equipe."
 
 
-def test_sugestoes_so_como_valor_inicial(c):
+def test_sugestoes_so_no_fundo_do_campo(c):
+    """A sugestão aparece no fundo do campo vazio (placeholder): o campo continua vazio e
+    nada é gravado até a pessoa escrever ou pedir "Sugerir texto"."""
     p = _p(c)
     s = relatorio.sugestoes(p)
     assert s["motivo"] == p.oficio.motivo
     relatorio.obter(p)
     html = _cliente(c, "operador").get(reverse("viagens:relatorio", args=[p.pk])).content.decode()
-    assert "Sugestão — ainda não gravada" in html
+    sugestao = relatorio.sugestoes_de_texto(p)["motivo"]
+    assert sugestao.startswith(p.oficio.motivo.rstrip("."))
+    assert 'placeholder="Sugestão: ' in html and 'name="motivo"' in html
+    assert re.search(r'name="motivo"[^>]*></textarea>', html)  # o campo segue vazio
     assert RelatorioTecnico.objects.get(prestacao=p).motivo == ""
 
 
@@ -167,7 +174,9 @@ def test_sugerir_texto_pela_tela(c):
     assert "Arapongas/PR" in texto
     r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "medidas"]))
     assert r.json()["texto"].startswith("Recomenda-se ao órgão:")
-    assert op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "motivo"])).status_code == 404
+    r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "motivo"]))
+    assert "Arapongas/PR" in r.json()["texto"]
+    assert op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "outro"])).status_code == 404
     consulta = _cliente(c, "consulta")
     assert consulta.post(reverse("viagens:sugerir_relatorio",
                                  args=[p.pk, "conclusao"])).status_code == 403

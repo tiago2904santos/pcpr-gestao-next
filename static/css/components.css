@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* =====================================================================
    COMPONENTES — catálogo completo documentado em
    docs/design-system/components.md e exercitado no UI Lab (/ui-lab/).
@@ -3735,6 +3736,3697 @@ fieldset.campo--escolhas > .campo__erro {
   .mesa-evento { grid-template-columns: minmax(0, 1fr); padding: var(--esp-4); }
   .mesa-evento__seletor { justify-self: center; }
 }
+=======
+/* =====================================================================
+   COMPONENTES — catálogo completo documentado em
+   docs/design-system/components.md e exercitado no UI Lab (/ui-lab/).
+   Convenção de nomes: bloco__elemento--modificador (BEM em português).
+   ===================================================================== */
+
+/* =============== Botão =============== */
+.botao {
+  --botao-fundo: var(--cor-superficie);
+  --botao-texto: var(--cor-texto);
+  --botao-borda: var(--cor-borda-forte);
+  --botao-fundo-hover: var(--cor-superficie-sutil);
+  --botao-sombra: var(--sombra-1);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle);
+  padding: 0 var(--esp-4);
+  border: 1px solid var(--botao-borda);
+  border-radius: var(--raio-md);
+  background: var(--botao-fundo);
+  color: var(--botao-texto);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--botao-sombra);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    border-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao),
+    transform var(--duracao-instantanea) var(--curva-padrao);
+}
+
+.botao:hover {
+  background: var(--botao-fundo-hover);
+  border-color: var(--cor-borda-campo);
+  text-decoration: none;
+}
+
+/* Pressão: encolhe 1,5% — feedback físico sem pular layout. */
+.botao:active:not(:disabled) {
+  transform: scale(var(--escala-pressao));
+  box-shadow: none;
+}
+
+/* Foco: o anel global, mantendo a sombra própria do botão. */
+.botao:focus-visible {
+  box-shadow: 0 0 0 var(--foco-offset) var(--foco-contraste), var(--botao-sombra);
+}
+
+.botao > .icone {
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+/* Setas e ícones de ação "andam" no hover (seta → avança, download ↓ desce). */
+.botao:hover > .icone.icone--seta {
+  transform: translateX(2px);
+}
+
+.botao--primario {
+  --botao-fundo: var(--cor-primaria);
+  --botao-texto: var(--cor-primaria-texto);
+  --botao-borda: var(--cor-primaria-ativa);
+  --botao-fundo-hover: var(--cor-primaria-hover);
+  --botao-sombra: var(--sombra-interna-topo), var(--sombra-1);
+}
+
+.botao--primario:hover {
+  border-color: var(--cor-primaria-ativa);
+  box-shadow: var(--sombra-interna-topo), var(--sombra-2);
+}
+
+/* Ação de destaque institucional (no máximo uma por tela): dourado com brilho suave. */
+.botao--marca {
+  --botao-fundo: linear-gradient(180deg, var(--dourado-400), var(--dourado-500));
+  --botao-texto: var(--grafite-950);
+  --botao-borda: var(--dourado-600);
+  --botao-fundo-hover: linear-gradient(180deg, var(--dourado-300), var(--dourado-400));
+  --botao-sombra: var(--sombra-interna-topo), var(--sombra-marca);
+}
+
+.botao--marca:hover {
+  border-color: var(--dourado-600);
+  box-shadow: var(--sombra-interna-topo), var(--sombra-marca), var(--sombra-2);
+}
+
+.botao--sutil {
+  --botao-fundo: transparent;
+  --botao-borda: transparent;
+  --botao-texto: var(--cor-texto-secundario);
+  --botao-fundo-hover: var(--cor-superficie-realce);
+  --botao-sombra: none;
+}
+
+.botao--sutil:hover {
+  --botao-texto: var(--cor-texto);
+  border-color: transparent;
+}
+
+.botao--perigo {
+  --botao-fundo: var(--cor-perigo-solida);
+  --botao-texto: var(--cor-texto-inverso);
+  --botao-borda: var(--cor-perigo);
+  --botao-fundo-hover: var(--vermelho-700);
+}
+
+.botao--perigo:hover {
+  border-color: var(--cor-perigo);
+}
+
+.botao--sm {
+  min-height: var(--altura-controle-sm);
+  padding: 0 var(--esp-3);
+  font-size: var(--texto-sm);
+}
+
+.botao--lg {
+  min-height: var(--altura-controle-lg);
+  padding: 0 var(--esp-6);
+  font-size: var(--texto-lg);
+}
+
+.botao--bloco {
+  width: 100%;
+  white-space: normal;
+  line-height: var(--altura-linha-justa);
+  padding-top: var(--esp-2);
+  padding-bottom: var(--esp-2);
+}
+
+.botao--icone {
+  width: var(--altura-controle);
+  padding: 0;
+}
+
+.botao--icone.botao--sm {
+  width: var(--altura-controle-sm);
+}
+
+.botao[aria-pressed="true"] {
+  --botao-fundo: var(--grafite-900);
+  --botao-texto: var(--neutro-0);
+  --botao-borda: var(--grafite-900);
+  --botao-fundo-hover: var(--grafite-700);
+}
+
+.botao:disabled,
+.botao[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---- Linguagem de ação: ocioso → processando → concluído (ou recusado) ----
+   O botão conta o que está acontecendo sem sair do lugar nem mudar de largura.
+   `aria-busy` (processando) e `data-estado` são postos por static/js/componentes/acao.js
+   ou pelo envio do formulário (app.js). */
+
+/* Processando: o conteúdo some, um indicador gira no centro; a largura é preservada. */
+.botao[aria-busy="true"] {
+  color: transparent;
+  pointer-events: none;
+}
+
+.botao[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--botao-texto);
+  border-right-color: transparent;
+  border-radius: var(--raio-pilula);
+  animation: girar 700ms linear infinite;
+}
+
+.botao[aria-busy="true"] > * {
+  opacity: 0; /* some, mas o nome acessível continua */
+}
+/* Concluído: vira verde por um instante e o ícone "carimba" — confirmação no próprio
+   botão,
+.botao[data-estado="concluido"] {
+  --botao-fundo: var(--cor-sucesso-fundo);
+  --botao-texto: var(--cor-sucesso);
+  --botao-borda: var(--cor-sucesso-borda);
+  --botao-fundo-hover: var(--cor-sucesso-fundo);
+  --botao-sombra: none;
+}.botao[data-estado="concluido"] > .icone {
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva);
+}
+/* Recusado: balança uma vez (erro de validação ou servidor) e volta ao normal. */
+.botao[data-estado="erro"] {
+  --botao-borda: var(--cor-perigo-solida);
+  animation: sacudir var(--duracao-enfase) var(--curva-suave);
+}
+
+/* Botão-ícone: anel suave no hover, para o alvo "aparecer" antes do clique. */
+.botao--icone:hover {
+  box-shadow: 0 0 0 3px var(--tinta-06);
+}
+
+/* Botão "texto": só o rótulo, sublinhado dourado no hover. Para ações terciárias. */
+.botao--texto {
+  --botao-fundo: transparent;
+  --botao-borda: transparent;
+  --botao-fundo-hover: transparent;
+  --botao-sombra: none;
+  --botao-texto: var(--cor-texto);
+  min-height: max(1.5rem, var(--alvo-minimo)); /* alvo de toque ≥ 24px mesmo a 90% */
+  padding: var(--esp-05) 0;
+  border-radius: var(--raio-xs);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 2px;
+}
+
+.botao--texto:hover {
+  border-color: transparent;
+  text-decoration-color: var(--cor-marca);
+}
+
+.grupo-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* =============== Campos de formulário =============== */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-1);
+  min-width: 0;
+}
+
+.campo__rotulo {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+/* O campo em foco "acende" o rótulo e a ajuda: o contexto chega na hora certa. */
+.campo:focus-within > .campo__rotulo,
+.campo:focus-within > .escolha {
+  color: var(--cor-texto);
+}
+
+.campo:focus-within > .campo__ajuda {
+  color: var(--cor-texto);
+}
+
+.campo__obrigatorio {
+  color: var(--cor-marca-texto);
+  margin-left: var(--esp-05);
+}
+
+.campo__opcional {
+  color: var(--cor-texto-terciario);
+  font-weight: var(--peso-normal);
+  margin-left: var(--esp-1);
+}
+
+.campo__ajuda {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.campo__ajuda ul {
+  margin: var(--esp-1) 0 0;
+  padding-left: var(--esp-4);
+  display: grid;
+  gap: var(--esp-05);
+}
+
+.campo__erro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-perigo);
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* Campo: caixa branca com borda, rótulo sobre a borda (como no sistema de referência).
+   No hover a borda escurece; no foco a borda fica grafite e ganha o halo dourado. */
+.entrada,
+.selecao,
+.area-texto {
+  width: 100%;
+  min-height: var(--altura-controle);
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: var(--texto-md);
+  line-height: var(--altura-linha-justa);
+  box-shadow: none;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.area-texto {
+  min-height: 6rem;
+  line-height: var(--altura-linha);
+  resize: vertical;
+}
+
+.selecao {
+  appearance: none;
+  padding-right: var(--esp-8);
+  background-image: linear-gradient(45deg, transparent 50%, var(--neutro-600) 50%),
+    linear-gradient(135deg, var(--neutro-600) 50%, transparent 50%);
+  background-position: calc(100% - 1.05rem) 50%, calc(100% - 0.75rem) 50%;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
+
+.entrada::placeholder,
+.area-texto::placeholder {
+  color: var(--cor-texto-terciario);
+}
+
+.entrada:hover,
+.selecao:hover,
+.area-texto:hover {
+  border-color: var(--neutro-500);
+  background-color: var(--cor-superficie);
+}
+
+/* Foco: fundo branco, borda grafite e halo dourado. Sem anel externo: o próprio campo é
+   o indicador (borda 3:1 + halo), o que evita o "duplo contorno". */
+.entrada:focus-visible,
+.selecao:focus-visible,
+.area-texto:focus-visible {
+  outline: none;
+  /* `background-color`, não o atalho: ele apagaria a seta do <select>, desenhada no fundo. */
+  background-color: var(--cor-superficie);
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.entrada:disabled,
+.selecao:disabled,
+.area-texto:disabled,
+.entrada[readonly] {
+  background-color: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.entrada[readonly] {
+  cursor: default;
+}
+
+/* Campos de cópia continuam navegáveis por teclado: preservar o halo de foco
+   também na leitura, sem dar aparência de campo desabilitado. */
+.entrada[readonly]:focus-visible {
+  background-color: var(--cor-superficie);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+/* Campo de arquivo (via assinada): a caixa do campo com o botão de escolher no idioma do
+   sistema visual (o botão nativo do navegador destoava). O nome do arquivo escolhido fica
+   ao lado, como o navegador escreve. */
+.entrada--arquivo {
+  display: flex;
+  align-items: center;
+  padding: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.entrada--arquivo::file-selector-button {
+  min-height: calc(var(--altura-controle) - var(--esp-3));
+  margin-right: var(--esp-3);
+  padding: 0 var(--esp-3);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.entrada--arquivo:hover::file-selector-button {
+  background: var(--cor-superficie-realce);
+}
+
+.campo--erro .entrada,
+.campo--erro .selecao,
+.campo--erro .area-texto,
+[aria-invalid="true"] {
+  border-color: var(--cor-perigo-solida);
+  background-color: var(--cor-perigo-fundo);
+}
+
+.campo--erro .entrada:focus-visible,
+.campo--erro .area-texto:focus-visible,
+.campo--erro .selecao:focus-visible {
+  box-shadow: var(--sombra-erro-campo);
+}
+
+/* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
+   é metade "papel" (--fundo-rotulo: onde o campo está) e metade caixa (--fundo-entrada),
+   então serve sobre a folha branca e sobre faixas cinzas sem recorte. */
+.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .passos, .itin__chegada, .campo__com-acao, .multiescolha)) {
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .passos, .itin__chegada, .campo__com-acao, .multiescolha)) {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--esp-2);
+  max-width: calc(100% - var(--esp-4));
+  padding: 0 var(--esp-1);
+  overflow: hidden;
+  font-size: var(--texto-xs);
+  line-height: 1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: linear-gradient(var(--fundo-rotulo, var(--cor-superficie)) 50%,
+    var(--fundo-entrada, var(--cor-superficie)) 50%);
+}
+
+.campo--erro > .campo__rotulo {
+  --fundo-entrada: var(--cor-perigo-fundo);
+}
+
+.campo:has(:disabled) > .campo__rotulo {
+  --fundo-entrada: var(--cor-superficie-realce);
+}
+
+/* =============== Combobox (pc-combobox) =============== */
+.combobox {
+  position: relative;
+}
+
+.combobox__lista {
+  position: absolute;
+  z-index: var(--z-painel-campo);
+  top: calc(100% + var(--esp-1));
+  left: 0;
+  right: 0;
+  max-height: 18rem;
+  margin: 0;
+  padding: var(--esp-1);
+  overflow-y: auto;
+  list-style: none;
+  border: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top center;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.combobox__opcao {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  cursor: pointer;
+}
+
+.combobox__opcao[aria-selected="true"],
+.combobox__opcao:hover {
+  background: var(--cor-marca-fundo);
+}
+
+.combobox__opcao[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: var(--esp-2);
+  bottom: var(--esp-2);
+  width: var(--filete-fino);
+  border-radius: var(--raio-xs);
+  background: var(--cor-marca);
+}
+
+.combobox__opcao-titulo {
+  font-weight: var(--peso-semi);
+}
+
+/* Sugestões: cabeçalho de grupo e chips ao lado do título (viaturas da equipe). */
+.combobox__grupo {
+  padding: var(--esp-2) var(--esp-3) var(--esp-1);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-terciario);
+}
+
+.combobox__grupo + .combobox__grupo {
+  display: none;
+}
+
+.combobox__chip {
+  vertical-align: middle;
+  margin-left: var(--esp-1);
+}
+
+.combobox__opcao-meta {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.combobox__vazio {
+  padding: var(--esp-3);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+/* =============== Lista própria (pc-select) =============== */
+/* Lista própria (<pc-select>): o botão tem a cara do campo; a lista é a do combobox. */
+.seletor__gatilho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  /* Com a seta dentro do botão, a sobra à direita é só o respiro do ícone. */
+  padding-right: var(--esp-2);
+  background-image: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.seletor__seta {
+  flex: none;
+  color: var(--cor-texto-terciario);
+  transition: rotate var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__gatilho:hover .seletor__seta {
+  color: var(--cor-texto-secundario);
+}
+
+/* Aberta, a seta aponta para cima: o botão diz em que estado a lista está. */
+.seletor__gatilho[aria-expanded="true"] .seletor__seta {
+  rotate: 180deg;
+  color: var(--cor-texto);
+}
+
+.seletor__valor {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.seletor__gatilho--vazio {
+  color: var(--cor-texto-secundario);
+}
+
+.seletor__gatilho[aria-expanded="true"] {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.combobox__opcao--atual {
+  font-weight: var(--peso-semi);
+}
+
+.combobox__opcao--atual::after {
+  content: "";
+  width: 0.75rem;
+  height: 0.6rem;
+  margin-left: auto;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+/* =============== Lista de ligações =============== */
+/* Itens que levam a outro registro (ofícios de um roteiro, na folha e na caixinha). */
+.lista-ligacoes {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-ligacoes__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.lista-ligacoes__item:hover {
+  background: var(--cor-superficie-realce);
+  text-decoration: none;
+}
+
+/* Destino e período na mesma linha, separados por ponto — a linha inteira fica de uma
+   altura só e centrada com a placa e o selo. */
+.lista-ligacoes__texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-1) var(--esp-2);
+}
+
+.lista-ligacoes__titulo {
+  font-weight: var(--peso-medio);
+}
+
+.lista-ligacoes__meta {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.lista-ligacoes__meta::before {
+  content: "·";
+  margin-right: var(--esp-2);
+  color: var(--cor-texto-terciario);
+}
+
+/* =============== Pessoa e avatar =============== */
+/* Cartão de uma pessoa (ou de um veículo): avatar à esquerda, nome e detalhe à
+   direita. Vale na folha do ofício e na janela de resumo da lista. */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.avatar--escuro {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.pessoa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+  min-width: 0;
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.pessoa:hover {
+  box-shadow: 0 0 0 1px var(--cor-borda-forte), var(--sombra-1);
+}
+
+.pessoa__texto {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+.pessoa__nome {
+  display: block;
+  font-weight: var(--peso-semi);
+  overflow-wrap: anywhere;
+}
+
+.pessoa__meta {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Cartões de pessoa na mesma grade (janela de resumo e folha do ofício): seis colunas de
+   base, cada cartão ocupando duas (três por linha) ou três (duas por linha) — a última
+   linha nunca fica pela metade. Quem decide a largura de cada um é larguras_de_cartoes,
+   no servidor. */
+.resumo__cartoes {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__cartao--2 { grid-column: span 2; }
+.resumo__cartao--3 { grid-column: span 3; }
+.resumo__cartao--6 { grid-column: span 6; }
+
+@media (max-width: 767.98px) {
+  .resumo__cartoes > * {
+    grid-column: span 6;
+  }
+}
+
+/* Documentos emitidos: fichas numa linha só, quebrando quando precisar. */
+.resumo__documentos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__documento {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+a.resumo__documento:hover {
+  background: var(--cor-marca-fundo);
+  text-decoration: none;
+}
+
+.resumo__documento--parado {
+  color: var(--cor-texto-secundario);
+}
+.ficha-documental__texto { display: grid; gap: var(--esp-1); font-weight: var(--peso-semi); }
+.ficha-documental__meta { color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
+
+/* =============== Campo composto, linha de campos, escolhas e resumo de erros =============== */
+/* Campo com ícone/prefixo/sufixo. */
+.entrada-composta {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.entrada-composta > .icone {
+  position: absolute;
+  left: var(--esp-3);
+  color: var(--cor-texto-terciario);
+  pointer-events: none;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.entrada-composta:focus-within > .icone {
+  color: var(--cor-marca-texto);
+}
+
+.entrada-composta > .icone + .entrada {
+  padding-left: calc(var(--esp-3) * 2 + var(--tamanho-icone));
+}
+
+/* Detalhe da escolha dentro do campo, logo depois do nome (ex.: o cargo do servidor
+   escolhido): posição medida pelo combobox (`--meta-x`), cortado com reticências. */
+.entrada-composta__meta {
+  position: absolute;
+  left: calc(var(--meta-x, 0px) + var(--esp-2));
+  right: calc(var(--esp-3) + 1.75rem);
+  overflow: hidden;
+  color: var(--cor-texto-terciario);
+  font-size: var(--texto-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.entrada-composta__meta::before {
+  content: "· ";
+}
+
+.entrada-composta__meta[hidden] {
+  display: none;
+}
+
+.entrada-composta__texto-fixo {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  padding: 0 var(--esp-3);
+  border: 1px solid var(--cor-borda-campo);
+  border-left: 0;
+  border-radius: 0 var(--raio-md) var(--raio-md) 0;
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.entrada-composta__texto-fixo:first-child {
+  border-left: 1px solid var(--cor-borda-campo);
+  border-right: 0;
+  border-radius: var(--raio-md) 0 0 var(--raio-md);
+}
+
+/* Só o texto fixo colado à direita corta o canto; um botão dentro da caixa não. */
+.entrada-composta .entrada:has(+ .entrada-composta__texto-fixo) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.entrada-composta__texto-fixo + .entrada {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Botão dentro do campo (mostrar senha, limpar): à direita, com a mesma altura da caixa. */
+.entrada-composta--senha > .entrada,
+.entrada-composta--limpavel > .entrada {
+  padding-right: calc(var(--esp-2) + 2rem);
+}
+
+.entrada-composta__botao {
+  position: absolute;
+  /* Acima do próprio campo, que em alguns pares (UF + município) sobe no hover e no foco
+     para encostar as bordas — sem isso o botão sumiria debaixo dele e não receberia o clique. */
+  z-index: 3;
+  top: 50%;
+  right: var(--esp-1);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  translate: 0 -50%;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.entrada-composta__botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.entrada-composta__botao:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
+}
+
+.entrada-composta__botao[aria-pressed="true"] .entrada-composta__ver,
+.entrada-composta__botao[aria-pressed="false"] .entrada-composta__ocultar {
+  display: none;
+}
+
+/* Linha de campos: cada campo tem a largura do que recebe, não uma fatia da tela.
+   xs = UF, placa, quantidade · sm = data, hora, valor · md = protocolo, telefone, CEP ·
+   lg/xl = nomes e descrições (crescem até fechar a linha) · auto = o próprio conteúdo ·
+   sem classe = linha inteira (texto longo). No celular os curtos vão dois a dois. */
+.campos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--esp-3) var(--esp-4);
+}
+
+.campos > * { flex: 1 1 100%; min-width: 0; }
+.campos > .campo--auto { flex: 0 0 auto; }
+.campos > .campo--xs { flex: 0 1 6.5rem; }
+.campos > .campo--sm { flex: 0 1 10rem; }
+.campos > .campo--md { flex: 0 1 14rem; }
+.campos > .campo--lg { flex: 1 1 18rem; }
+.campos > .campo--cresce { flex-grow: 1; }
+
+/* Abaixo de ~420px duas datas lado a lado cortam "dd/mm/aaaa": cada uma na sua linha. */
+@media (max-width: 419.98px) {
+  .campos > :is(.campo--sm, .campo--md):has(pc-data) { flex-basis: 100%; }
+}
+
+@media (max-width: 767.98px) {
+  .campos > :is(.campo--xs, .campo--sm, .campo--md) { flex: 1 1 calc(50% - var(--esp-4)); }
+  .campos > .campo--auto { flex-basis: 100%; }
+  .entrada, .selecao, .area-texto { font-size: var(--texto-lg); min-height: var(--altura-controle-lg); }
+}
+
+/* Escolha: checkbox, rádio e interruptor */
+.escolha {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  min-height: max(1.5rem, var(--alvo-minimo)); /* alvo de toque ≥ 24px mesmo a 90% */
+  cursor: pointer;
+}
+
+/* Caixa e rádio desenhados no DS (appearance: none): grafite ao marcar, marca branca
+   que "brota". Continuam inputs nativos — teclado, rótulo e leitor de tela intactos. */
+.escolha input[type="checkbox"],
+.escolha input[type="radio"] {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--alvo-minimo);
+  height: var(--alvo-minimo);
+  margin: 0.15rem 0 0;
+  border: 1.5px solid var(--neutro-500); /* 5,3:1 sobre branco (1.4.11) */
+  border-radius: var(--raio-xs);
+  background: var(--cor-superficie);
+  flex: none;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    border-color var(--duracao-rapida) var(--curva-padrao),
+    transform var(--duracao-instantanea) var(--curva-padrao);
+}
+
+.escolha input[type="radio"] {
+  border-radius: var(--raio-pilula);
+}
+
+.escolha input[type="checkbox"]::before,
+.escolha input[type="radio"]::before {
+  content: "";
+  width: 0.7rem;
+  height: 0.55rem;
+  background: var(--neutro-0);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+  transform: scale(0);
+  transition: transform var(--duracao-rapida) var(--curva-expressiva);
+}
+
+.escolha input[type="radio"]::before {
+  width: 0.5rem;
+  height: 0.5rem;
+  clip-path: none;
+  border-radius: var(--raio-pilula);
+}
+
+.escolha:hover input {
+  border-color: var(--grafite-700);
+}
+
+.escolha input:checked {
+  background: var(--grafite-900);
+  border-color: var(--grafite-900);
+}
+
+.escolha input:checked::before {
+  transform: scale(1);
+}
+
+.escolha input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.escolha:active input:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.escolha__descricao {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.interruptor {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--esp-3);
+  cursor: pointer;
+  font-weight: var(--peso-medio);
+}
+
+.interruptor input {
+  appearance: none;
+  position: relative;
+  width: calc(var(--alvo-minimo) + 1rem);
+  height: var(--alvo-minimo);
+  margin: 0;
+  border-radius: var(--raio-pilula);
+  background: var(--neutro-300);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+  flex: none;
+  cursor: pointer;
+}
+
+.interruptor input::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(var(--alvo-minimo) - 4px);
+  height: calc(var(--alvo-minimo) - 4px);
+  border-radius: var(--raio-pilula);
+  background: var(--neutro-0);
+  box-shadow: var(--sombra-1);
+  transition: transform var(--duracao-media) var(--curva-expressiva);
+}
+
+.interruptor input:checked {
+  background: var(--grafite-900);
+}
+
+.interruptor input:checked::after {
+  transform: translateX(1rem);
+}
+
+/* Interruptor com descrição: o texto em duas linhas, alinhado ao topo. */
+.interruptor--descrito {
+  align-items: flex-start;
+}
+
+.interruptor--descrito input {
+  margin-top: 0.15rem;
+}
+
+/* Resumo de erros no topo do formulário (WCAG 3.3.1). */
+.resumo-erros {
+  border-left: var(--filete) solid var(--cor-perigo-solida);
+  margin-bottom: var(--esp-4);
+}
+
+.resumo-erros ul {
+  margin: var(--esp-2) 0 0;
+  padding-left: var(--esp-5);
+}
+
+.resumo-erros li + li {
+  margin-top: var(--esp-1);
+}
+
+.resumo-erros a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo-minimo);
+  color: var(--cor-perigo);
+  font-weight: var(--peso-medio);
+}
+
+/* =============== Seção / cartão =============== */
+/* Sem borda cinza: um anel de 1px na sombra define o contorno e uma sombra
+   difusa dá a sensação de folha sobre a mesa. */
+.cartao {
+  border: 0;
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
+  min-width: 0;
+  transition: box-shadow var(--duracao-media) var(--curva-padrao);
+}
+
+.cartao__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  padding: var(--esp-4) var(--esp-5);
+  border-bottom: var(--borda-sutil);
+}
+
+.cartao__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.cartao__acoes {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+.cartao__corpo {
+  padding: var(--esp-5);
+}
+
+.cartao__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-5);
+  border-top: var(--borda-sutil);
+  background: var(--cor-superficie-sutil);
+  border-radius: 0 0 var(--raio-lg) var(--raio-lg);
+}
+
+/* =============== Indicadores (KPI) =============== */
+.indicador {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-1);
+  padding: var(--esp-4) var(--esp-5);
+  border: 0;
+  border-radius: var(--raio-lg);
+  /* Tom polido: o cartão se destaca do papel por um degradê curto, não por uma fita. */
+  background: linear-gradient(var(--cor-superficie), var(--cor-superficie-sutil));
+  box-shadow: inset 0 0 0 1px var(--cor-borda), var(--sombra-cartao);
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  transition: box-shadow var(--duracao-media) var(--curva-padrao),
+    transform var(--duracao-media) var(--curva-padrao);
+}
+
+.indicador:hover {
+  box-shadow: inset 0 0 0 1px var(--cor-borda), var(--sombra-cartao-hover);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.indicador__rotulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.indicador__rotulo > .icone {
+  color: var(--cor-marca-texto);
+}
+
+.indicador__valor {
+  font-size: var(--texto-3xl);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-titulo);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Compacto: o mesmo cartão, no tamanho de uma linha de formulário. */
+.indicador--compacto {
+  gap: var(--esp-05);
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.indicador--compacto .indicador__valor {
+  font-size: var(--texto-md);
+  letter-spacing: normal;
+}
+
+.indicador__nota {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Atenção: o número é que muda de cor — todos os cartões têm a mesma moldura. */
+.indicador--atencao .indicador__valor {
+  color: var(--cor-marca-texto);
+}
+
+/* =============== Placa (número do ofício) =============== */
+/* Assinatura visual das listas: o número como uma pequena placa de papel. */
+.placa {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.25rem;
+  padding: var(--esp-1) var(--esp-2);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie);
+  box-shadow: 0 0 0 1px var(--cor-borda), 0 1px 2px var(--tinta-06);
+  line-height: 1.15;
+  text-align: center;
+  color: var(--cor-texto);
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.placa__rotulo {
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cor-marca-texto);
+}
+
+.placa__numero {
+  font-size: var(--texto-md);
+  font-weight: var(--peso-forte);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Cancelado: só o número é riscado — o rótulo ("OFÍCIO") continua legível. */
+.placa--cancelada {
+  color: var(--cor-texto-terciario);
+}
+
+.placa--cancelada .placa__numero {
+  text-decoration: line-through;
+  text-decoration-color: var(--cor-perigo);
+}
+
+.placa--cancelada .placa__rotulo {
+  color: var(--cor-texto-terciario);
+}
+
+.placa--campo {
+  margin: 0;
+  align-self: flex-start;
+}
+
+.placa--grande {
+  min-width: 6rem;
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.placa--grande .placa__numero {
+  font-size: var(--texto-2xl);
+}
+
+/* =============== Selo de status =============== */
+.selo {
+  --selo-fundo: var(--cor-superficie-realce);
+  --selo-texto: var(--cor-texto-secundario);
+  --selo-borda: var(--cor-borda);
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--esp-1);
+  max-width: 100%;
+  padding: var(--esp-05) var(--esp-2);
+  border: 1px solid var(--selo-borda);
+  border-radius: var(--raio-pilula);
+  background: var(--selo-fundo);
+  color: var(--selo-texto);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.selo::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: var(--raio-pilula);
+  background: currentColor;
+  flex: none;
+}
+
+.selo--sem-ponto::before { display: none; }
+
+/* Neutro: o tom de base, declarado. Quem monta o selo por um "tom" vindo do domínio
+   (rascunho, encerrado, "Previsto", "Avulso"…) pede `selo--neutro` — antes a classe não
+   existia e o selo caía no padrão por sorte. */
+.selo--neutro {
+  --selo-fundo: var(--cor-superficie-realce);
+  --selo-texto: var(--cor-texto-secundario);
+  --selo-borda: var(--cor-borda);
+}
+
+.selo--info {
+  --selo-fundo: var(--cor-info-fundo);
+  --selo-texto: var(--cor-info);
+  --selo-borda: var(--cor-info-borda);
+}
+
+.selo--sucesso {
+  --selo-fundo: var(--cor-sucesso-fundo);
+  --selo-texto: var(--cor-sucesso);
+  --selo-borda: var(--cor-sucesso-borda);
+}
+
+.selo--aviso {
+  --selo-fundo: var(--cor-aviso-fundo);
+  --selo-texto: var(--cor-aviso);
+  --selo-borda: var(--cor-aviso-borda);
+}
+
+.selo--perigo {
+  --selo-fundo: var(--cor-perigo-fundo);
+  --selo-texto: var(--cor-perigo);
+  --selo-borda: var(--cor-perigo-borda);
+}
+
+/* Contorno: o selo diz uma CARACTERÍSTICA do registro, não o estado dele (ex.: o tipo do
+   ofício — Convalidação, Retificado, Complementar). Sem fundo, ao lado do selo de situação
+   (cheio), os dois não se confundem de relance (QA M5). */
+.selo--contorno {
+  --selo-fundo: transparent;
+}
+
+.selo--forte {
+  --selo-fundo: var(--grafite-900);
+  --selo-texto: var(--neutro-0);
+  --selo-borda: var(--grafite-900);
+}
+
+/* Linguagem de estado: a FORMA do marcador diz o estado antes do texto.
+   anel vazio = incompleto (rascunho) · ponto cheio = vigente · ✓ = concluído (emitido)
+   · × = encerrado sem efeito (cancelado) · pulso = em processamento. */
+.selo--situacao-rascunho::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 1.5px solid currentColor;
+  background: transparent;
+}
+
+.selo--situacao-emitido::before {
+  width: 0.6rem;
+  height: 0.5rem;
+  border-radius: 0;
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+.selo--situacao-cancelado::before {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 0;
+  clip-path: polygon(20% 0, 50% 30%, 80% 0, 100% 20%, 70% 50%, 100% 80%, 80% 100%, 50% 70%, 20% 100%, 0 80%, 30% 50%, 0 20%);
+}
+
+/* Em andamento: o ponto pulsa (gerando PDF, processando). */
+.selo--processo::before {
+  animation: pulsar 1.4s var(--curva-suave) infinite;
+}
+
+/* =============== Alerta =============== */
+.alerta {
+  --alerta-fundo: var(--cor-info-fundo);
+  --alerta-texto: var(--cor-info);
+  --alerta-borda: var(--cor-info-borda);
+  display: flex;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid var(--alerta-borda);
+  border-left: var(--filete) solid var(--alerta-texto);
+  border-radius: var(--raio-md);
+  background: var(--alerta-fundo);
+  color: var(--cor-texto);
+}
+
+.alerta > .icone {
+  margin-top: 0.1rem;
+  color: var(--alerta-texto);
+}
+
+.alerta__titulo {
+  font-weight: var(--peso-semi);
+  color: var(--alerta-texto);
+}
+
+.alerta__corpo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Aviso que termina numa ação: o texto à esquerda, o botão à direita, na mesma linha
+   (e um embaixo do outro quando a largura aperta) — tudo centrado no mesmo eixo. */
+.alerta:has(.alerta__acao) {
+  align-items: center;
+}
+
+.alerta__acao {
+  margin-left: auto;
+  align-self: center;
+  flex: none;
+}
+
+/* Celular estreito: a ação desce para uma linha só dela, na largura toda — ao lado, o
+   texto ficava espremido em quatro linhas. */
+@media (max-width: 479.98px) {
+  .alerta:has(.alerta__acao) { flex-wrap: wrap; }
+  .alerta__acao { flex: 1 1 100%; margin-left: 0; justify-content: center; }
+}
+
+.alerta__corpo ul {
+  margin: var(--esp-1) 0 0;
+  padding-left: var(--esp-5);
+}
+
+.alerta--sucesso {
+  --alerta-fundo: var(--cor-sucesso-fundo);
+  --alerta-texto: var(--cor-sucesso);
+  --alerta-borda: var(--cor-sucesso-borda);
+}
+
+.alerta--aviso {
+  --alerta-fundo: var(--cor-aviso-fundo);
+  --alerta-texto: var(--cor-aviso);
+  --alerta-borda: var(--cor-aviso-borda);
+}
+
+.alerta--perigo {
+  --alerta-fundo: var(--cor-perigo-fundo);
+  --alerta-texto: var(--cor-perigo);
+  --alerta-borda: var(--cor-perigo-borda);
+}
+
+/* =============== Toast =============== */
+.toasts {
+  position: fixed;
+  right: var(--esp-4);
+  bottom: var(--esp-4);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  width: min(24rem, calc(100vw - 2 * var(--esp-4)));
+  pointer-events: none;
+}
+
+.toast {
+  --toast-cor: var(--dourado-300);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+  box-shadow: var(--sombra-4);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toast-entrar var(--duracao-media) var(--curva-expressiva);
+}
+
+.toast > .icone { margin-top: 0.1rem; color: var(--toast-cor); }
+.toast--sucesso { --toast-cor: var(--verde-100); }
+.toast--aviso { --toast-cor: var(--ambar-100); }
+.toast--perigo { --toast-cor: var(--vermelho-100); }
+
+/* Barra de tempo restante: encolhe em 6s e pausa no hover (JS marca .toast--pausado). */
+.toast::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: var(--filete-fino);
+  width: 100%;
+  background: var(--toast-cor);
+  opacity: 0.7;
+  transform-origin: left center;
+  animation: toast-tempo 6s linear forwards;
+}
+
+.toast--perigo::after,
+.toast--fixo::after {
+  display: none;
+}
+
+.toast--pausado::after {
+  animation-play-state: paused;
+}
+
+.toast--saindo {
+  animation: toast-sair var(--duracao-rapida) var(--curva-saida) forwards;
+}
+
+.toast__fechar {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto-inverso-sutil);
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-xs);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.toast__fechar:hover {
+  color: var(--neutro-0);
+}
+
+@keyframes toast-entrar {
+  from { opacity: 0; transform: translateX(1.5rem) scale(0.97); }
+}
+
+@keyframes toast-sair {
+  to { opacity: 0; transform: translateX(1rem); }
+}
+
+@keyframes toast-tempo {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* =============== Tabela =============== */
+.tabela-rolagem {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: inherit;
+  /* Contêiner posicionado: os rótulos sr-only (absolutos) das células ficam dentro da
+     caixa que rola, em vez de esticar a página no celular. */
+  position: relative;
+}
+
+.tabela {
+  width: 100%;
+  font-size: var(--texto-md);
+}
+
+.tabela caption {
+  text-align: left;
+  padding: var(--esp-3) var(--esp-4);
+  font-weight: var(--peso-semi);
+}
+
+.tabela th {
+  position: sticky;
+  top: 0;
+  padding: var(--esp-2) var(--esp-4);
+  border-bottom: var(--borda);
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Cabeçalho de linha (th no corpo, ex.: o nome da atividade): é o rótulo da linha, não do
+   bloco — texto normal, em destaque, sem a caixa alta nem o fundo do cabeçalho. */
+.tabela tbody th {
+  position: static;
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda-sutil);
+  background: none;
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+}
+
+/* Tabela "aberta" dentro do documento: sem fundo no cabeçalho nem recuo lateral —
+   é a tabela do papel, não um widget. */
+.tabela--aberta th {
+  position: static;
+  padding-left: 0;
+  padding-right: var(--esp-4);
+  background: transparent;
+}
+
+.tabela--aberta td {
+  padding-left: 0;
+}
+
+.tabela--aberta tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela td {
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda-sutil);
+  vertical-align: middle;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.tabela tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela tbody tr:hover td {
+  background: var(--cor-superficie-sutil);
+}
+
+/* Linha sob o ponteiro ganha o trilho dourado à esquerda. */
+.tabela tbody tr:hover td:first-child {
+  box-shadow: inset var(--filete) 0 0 var(--cor-marca);
+}
+
+.tabela--compacta td {
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.tabela--compacta th {
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.tabela .num,
+.tabela .coluna-num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tabela__principal {
+  white-space: nowrap;
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+/* O link da linha é alvo de toque: nunca abaixo de 24px de altura (WCAG 2.5.8) — com a
+   tipografia da tabela ele ficava em 15px, a 13px do vizinho. */
+a.tabela__principal {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo-minimo);
+}
+
+a.tabela__principal:hover {
+  text-decoration: underline;
+}
+
+.tabela tfoot td {
+  border-top: var(--borda-forte);
+  border-bottom: 0;
+  font-weight: var(--peso-semi);
+  background: var(--cor-superficie-sutil);
+}
+
+/* Em telas estreitas a tabela vira lista de cartões (sem rolagem lateral). */
+@media (max-width: 767.98px) {
+  .tabela--responsiva thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .tabela--responsiva,
+  .tabela--responsiva tbody,
+  .tabela--responsiva tr,
+  .tabela--responsiva td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Cada linha vira um cartão: a célula principal no alto, as demais em duas colunas com
+     o rótulo em micro-caixa-alta — metade da altura de uma lista rótulo/valor. */
+  .tabela--responsiva tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--esp-2) var(--esp-4);
+    padding: var(--esp-3) var(--esp-4);
+    border-bottom: var(--borda);
+  }
+
+  .tabela--responsiva td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--esp-05);
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+
+  .tabela tbody tr:hover td:first-child { box-shadow: none; }
+
+  .tabela--responsiva td::before {
+    content: attr(data-rotulo);
+    color: var(--cor-texto-terciario);
+    font-size: var(--texto-2xs);
+    font-weight: var(--peso-semi);
+    text-transform: uppercase;
+    letter-spacing: var(--rastreio-rotulo);
+  }
+
+  .tabela--responsiva td[data-rotulo=""]::before { display: none; }
+  .tabela--responsiva td.tabela__celula-principal,
+  .tabela--responsiva td:has(> .selo) { grid-column: 1 / -1; } /* selo não quebra linha: ganha a largura toda */
+  .tabela--responsiva td.tabela__celula-principal::before { display: none; }
+  .tabela--responsiva td.num { text-align: left; }
+  .tabela--responsiva tfoot td { grid-column: 1 / -1; }
+}
+
+/* =============== Estado vazio =============== */
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-12) var(--esp-6);
+  text-align: center;
+  animation: aparecer var(--duracao-lenta) var(--curva-padrao);
+}
+
+/* Ícone num anel dourado com um segundo anel difuso — a "marca d'água" vazia. */
+.vazio__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: var(--esp-3);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+  box-shadow: 0 0 0 1px var(--cor-marca-borda), 0 0 0 0.6rem var(--brilho-dourado-08);
+}
+
+.vazio__titulo {
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.vazio__texto {
+  max-width: 28rem;
+  color: var(--cor-texto-secundario);
+}
+
+.vazio .grupo-botoes {
+  margin-top: var(--esp-3);
+  justify-content: center;
+}
+
+/* Filas secundárias: conserva a mensagem sem ocupar uma página vazia. */
+.vazio--compacto {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--esp-3);
+  row-gap: var(--esp-1);
+  padding: var(--esp-5) var(--esp-4);
+  text-align: left;
+}
+.vazio--compacto .vazio__icone {
+  grid-row: span 2;
+  width: var(--esp-10);
+  height: var(--esp-10);
+  margin: 0;
+  box-shadow: none;
+}
+.vazio--compacto .vazio__titulo { font-size: var(--texto-md); }
+.vazio--compacto .vazio__texto { grid-column: 2; max-width: none; }
+.vazio--compacto .grupo-botoes { grid-column: 2; justify-content: flex-start; }
+
+/* =============== Diálogo / gaveta (pc-dialogo) =============== */
+dialog.dialogo {
+  position: fixed;
+  width: min(32rem, calc(100vw - 2 * var(--esp-4)));
+  max-height: calc(100vh - 2 * var(--esp-8));
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-xl);
+  background: var(--cor-superficie-elevada);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-4);
+}
+
+dialog.dialogo::backdrop {
+  background: var(--cor-veu);
+  backdrop-filter: blur(var(--desfoque-veu));
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+dialog.dialogo[open] {
+  animation: dialogo-entrar var(--duracao-media) var(--curva-expressiva);
+}
+
+dialog.dialogo.dialogo--saindo {
+  animation: recolher var(--duracao-rapida) var(--curva-saida) forwards;
+}
+
+@keyframes dialogo-entrar {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.96); }
+}
+
+.dialogo__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-5) var(--esp-5) var(--esp-2);
+}
+
+.dialogo__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+  box-shadow: 0 0 0 1px var(--cor-marca-borda);
+  flex: none;
+}
+
+.dialogo--perigo .dialogo__icone {
+  background: var(--cor-perigo-fundo);
+  color: var(--cor-perigo);
+  box-shadow: 0 0 0 1px var(--cor-perigo-borda);
+}
+
+.dialogo__titulo {
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-semi);
+}
+
+.dialogo__corpo {
+  padding: var(--esp-2) var(--esp-5) var(--esp-5);
+  color: var(--cor-texto-secundario);
+}
+
+/* Janela de resumo (lista de ofícios): mais larga, com as três colunas do resumo dentro
+   e o fechar flutuando no canto, fora do pedaço que o HTMX troca. */
+dialog.dialogo--resumo {
+  width: min(52rem, calc(100vw - 2 * var(--esp-4)));
+  /* A rolagem é do conteúdo, não da janela: assim a quina arredondada corta a barra em
+     vez de deixá-la escapar pelo canto. */
+  overflow: hidden;
+}
+
+/* Só a janela aberta vira coluna: `display` fora do [open] anularia o `display: none`
+   que o navegador dá ao <dialog> fechado — e ela ficaria na tela como um fantasma. */
+dialog.dialogo--resumo[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogo--resumo .dialogo__conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Cadastro com mais campos (servidor, viatura): janela mais larga, para duas ou três
+   colunas de campos lado a lado. */
+dialog.dialogo--largo {
+  width: min(44rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+/* Formulário completo numa janela (o evento do plano: destinos com a rota, atividades em
+   três colunas): a largura de uma folha. */
+dialog.dialogo--amplo {
+  width: min(68rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+/* Grupo de campos com título (fieldset): "Identificação", "Lotação"… */
+.grupo-campos {
+  display: grid;
+  gap: var(--esp-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.grupo-campos + .grupo-campos {
+  padding-top: var(--esp-4);
+  border-top: var(--borda-sutil);
+}
+
+/* float: a legenda deixa de ficar presa na borda do fieldset e vira um item comum da grade. */
+.grupo-campos > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* "Sem sigla", "Ainda não usado": valor ausente dito em voz baixa. */
+.vazio-inline {
+  color: var(--cor-texto-terciario);
+}
+
+.vazio-inline > .icone {
+  display: inline-block; /* corre com o texto (o reset deixa svg em bloco) */
+  margin-right: var(--esp-1);
+  vertical-align: -0.15em;
+}
+
+/* Revisão: o sobretítulo diz que esta é a etapa de emissão; a nota lembra a retificação. */
+.dialogo__sobretitulo {
+  margin: 0 0 var(--esp-05);
+  color: var(--cor-texto-secundario);
+}
+
+.dialogo__nota {
+  flex: 1 1 auto;
+  align-self: center;
+  margin: 0;
+}
+
+.dialogo__acao {
+  display: flex;
+}
+
+/* As decisões (Emitir, Abrir o ofício) ficam sempre à vista: o rodapé gruda no pé da área
+   que rola, por cima do conteúdo que passa por baixo. */
+.dialogo--resumo .dialogo__rodape {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+
+.dialogo__fechar {
+  position: absolute;
+  top: var(--esp-3);
+  right: var(--esp-3);
+  z-index: 1;
+}
+
+.dialogo__cabecalho-texto {
+  min-width: 0;
+}
+
+/* Na janela de resumo o cabeçalho é uma linha só: placa, destino e selos no mesmo eixo. */
+.dialogo--resumo .dialogo__cabecalho {
+  align-items: center;
+}
+
+.dialogo--resumo .dialogo__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+}
+
+.dialogo__linha-selos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-3);
+  margin-top: var(--esp-1);
+  font-size: var(--texto-sm);
+}
+
+.dialogo__linha-selos .texto-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-texto-secundario);
+}
+
+.dialogo__corpo .resumo {
+  color: var(--cor-texto);
+}
+
+@media (max-width: 767.98px) {
+  .dialogo__corpo .resumo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.dialogo__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  padding: var(--esp-4) var(--esp-5);
+  border-top: var(--borda-sutil);
+  background: var(--cor-superficie-sutil);
+}
+
+dialog.dialogo.gaveta {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(30rem, 100vw);
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: none;
+  flex-direction: column;
+}
+
+dialog.dialogo.gaveta[open] {
+  display: flex;
+  animation: gaveta-entrar var(--duracao-media) var(--curva-padrao);
+}
+
+@keyframes gaveta-entrar {
+  from { transform: translateX(100%); }
+}
+
+.gaveta .dialogo__corpo {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  color: var(--cor-texto);
+}
+
+@media (max-width: 479.98px) {
+  .dialogo__rodape .botao,
+  .dialogo__rodape > .dialogo__acao { flex: 1 1 100%; }
+  .dialogo__acao .botao { width: 100%; }
+  .dialogo__rodape { flex-direction: column-reverse; }
+}
+
+/* =============== Texto pronto (componentes/texto_pronto.html) =============== */
+/* A escolha e as ações na mesma linha, na base dos campos; no celular as ações descem. */
+.texto-pronto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--esp-2) var(--esp-3);
+}
+
+.texto-pronto__escolha {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+
+.texto-pronto__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+/* Sem a escolha (nenhum texto pronto cadastrado), as ações ficam sozinhas, à direita. */
+.texto-pronto__acoes:only-child {
+  margin-left: auto;
+}
+
+/* =============== Menu suspenso (pc-menu) =============== */
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+.menu__painel {
+  position: absolute;
+  z-index: var(--z-painel-campo);
+  right: 0;
+  top: calc(100% + var(--esp-1));
+  /* Largura do rótulo mais longo (os itens não quebram linha), com teto no celular. */
+  width: max-content;
+  min-width: 14rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: var(--esp-1);
+  border: 0;
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-elevada);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top right;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.menu__painel--esquerda,
+.menu__painel--forcar-esquerda {
+  right: auto;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* menu.js: o painel que sairia pela borda abre para o outro lado. */
+.menu__painel--forcar-direita {
+  right: 0;
+  left: auto;
+  transform-origin: top right;
+}
+
+/* Caixa que abre ao pousar o mouse (ou ao focar pelo teclado): é o mesmo painel do menu
+   de ações, sem clique e sem JavaScript — nenhum evento para se perder no caminho. */
+.menu--pousar {
+  display: inline-flex;
+}
+
+.menu--pousar .menu__painel {
+  width: max-content;
+  max-width: min(26rem, calc(100vw - 2rem));
+  min-width: 0;
+  padding: var(--esp-3);
+  visibility: hidden;
+  opacity: 0;
+  /* Ao sair, a caixa espera um instante antes de começar a sumir: dá tempo de levar o
+     mouse até ela sem que pisque no caminho. */
+  transition: opacity var(--duracao-rapida) var(--curva-padrao) var(--duracao-media),
+    visibility 0s linear calc(var(--duracao-media) + var(--duracao-rapida));
+}
+
+/* Ao entrar, espera mais: passar o mouse de raso pela linha não chega a abrir nada —
+   e, quando abre, abre inteira, sem aquele meio-apagado. */
+.menu--pousar:hover .menu__painel {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: var(--duracao-lenta), var(--duracao-lenta);
+}
+
+/* Pelo teclado não há "passar de raso": abre na hora. */
+.menu--pousar:focus-within .menu__painel {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* Nas últimas linhas da lista a caixa abre para cima, para a quina arredondada do cartão
+   não a cortar. */
+/* menu.js: sem espaço abaixo (pé da página, barra flutuante), o painel abre para cima. */
+.menu__painel--acima {
+  top: auto;
+  bottom: calc(100% + var(--esp-1));
+  transform-origin: bottom right;
+}
+
+.registro:nth-last-child(-n + 2) .menu--pousar .menu__painel {
+  top: auto;
+  bottom: calc(100% + var(--esp-1));
+  transform-origin: bottom left;
+}
+
+.menu__titulo {
+  margin-bottom: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+
+.menu__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  width: 100%;
+  padding: var(--esp-2) var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: var(--texto-md);
+  text-align: left;
+  text-decoration: none;
+  /* Uma ação, uma linha: o painel cresce até o rótulo caber (ver .menu__painel). */
+  white-space: nowrap;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.menu__item > .icone {
+  color: var(--cor-texto-terciario);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.menu__item:hover,
+.menu__item:focus-visible {
+  outline-offset: calc(-1 * var(--foco-offset));
+  box-shadow: none;
+  background: var(--cor-superficie-realce);
+  text-decoration: none;
+}
+
+.menu__item:hover > .icone,
+.menu__item:focus-visible > .icone {
+  color: var(--cor-marca-texto);
+}
+
+.menu__item--perigo {
+  color: var(--cor-perigo);
+}
+
+.menu__item--perigo > .icone {
+  color: var(--cor-perigo);
+}
+
+.menu__separador {
+  height: 1px;
+  margin: var(--esp-1) 0;
+  background: var(--cor-borda);
+}
+
+.menu__cabecalho {
+  padding: var(--esp-2) var(--esp-3);
+  border-bottom: var(--borda);
+  margin-bottom: var(--esp-1);
+}
+
+/* Item com linha de descrição (menu ⋮ canônico das listas, D7): título em cima, o que a
+   ação faz (ou por que está inativa) embaixo, em texto secundário. A descrição fica fora
+   do nome do item (aria-hidden) e entra como descrição (aria-describedby). */
+.menu__item--descrito {
+  align-items: flex-start;
+  white-space: normal;
+}
+
+.menu__item--descrito > .icone {
+  flex: none;
+  margin-top: var(--esp-05);
+}
+
+.menu__item-texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-05);
+  min-width: 0;
+}
+
+.menu__item-descricao {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  line-height: var(--altura-linha-justa);
+}
+
+/* Inativo: recebe o foco (o porquê está na descrição), mas não age nem acende. */
+.menu__item[aria-disabled="true"] {
+  color: var(--cor-texto-terciario);
+  cursor: not-allowed;
+}
+
+.menu__item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.menu__item[aria-disabled="true"] > .icone,
+.menu__item[aria-disabled="true"]:hover > .icone,
+.menu__item[aria-disabled="true"]:focus-visible > .icone {
+  color: var(--cor-texto-terciario);
+}
+
+/* Painel na camada de topo (menu.js, linhas das listas): sem a moldura que o navegador
+   dá a todo popover; a posição vem do JS. O que não couber na janela rola dentro dele. */
+.menu__painel[popover] {
+  z-index: auto;
+  margin: 0;
+  border: 0;
+  color: var(--cor-texto);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu__painel--descrito {
+  min-width: 17rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+}
+
+/* Num menu com descrições, o título de cada item em peso médio: a vista corre pelos títulos
+   e só desce à descrição quando precisa. */
+.menu__painel--descrito .menu__item {
+  font-weight: var(--peso-medio);
+}
+
+.menu__painel--descrito .menu__item-descricao {
+  font-weight: var(--peso-normal);
+}
+
+/* Véu do menu flutuante: invisível no desktop (o toque fora só fecha, sem acionar o que
+   está atrás); no celular escurece por trás da folha. */
+.menu__veu {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.menu__veu::backdrop {
+  background: transparent;
+}
+
+/* Toque no véu (celular): ele fica um instante, já transparente, para receber o "click" que
+   vem depois do toque — o foco volta ao ⋮, não ao corpo da página. */
+.menu__veu.menu__veu--saindo {
+  background: transparent;
+  animation: none;
+}
+
+/* Grupo recolhido dentro do menu (ex.: "Criar a partir deste ofício"): o título abre os
+   itens no lugar, recuados sob ele; a seta gira. Menos itens à vista, nenhum escondido. */
+.menu__item--grupo > .menu__grupo-seta {
+  flex: none;
+  margin-left: auto;
+  align-self: center;
+  color: var(--cor-texto-terciario);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.menu__item--grupo[aria-expanded="true"] > .menu__grupo-seta {
+  transform: rotate(180deg);
+}
+
+.menu__grupo {
+  margin-left: var(--esp-6);
+  border-left: var(--borda);
+}
+
+/* Ação dentro de um aviso (ex.: "Entrar de novo" na sessão expirada). */
+.toast__acao {
+  color: inherit;
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+}
+
+/* Sem espaço acima nem abaixo, o painel abre ao lado do botão (menu.js). */
+.menu__painel--lado {
+  transform-origin: center right;
+}
+
+/* Título da folha (celular): o registro de que se trata, já que a folha se solta da linha. */
+.menu__folha-titulo {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .menu__veu {
+    background: var(--cor-veu);
+    animation: aparecer var(--duracao-media) var(--curva-padrao);
+    touch-action: none;
+  }
+
+  .menu__painel.menu__painel--folha {
+    inset: auto 0 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    max-height: min(85dvh, calc(100dvh - var(--altura-cabecalho)));
+    padding: 0 var(--esp-2) calc(var(--esp-3) + env(safe-area-inset-bottom));
+    border-radius: var(--raio-xl) var(--raio-xl) 0 0;
+    transform-origin: bottom center;
+    animation: folha-subir var(--duracao-media) var(--curva-padrao);
+  }
+
+  .menu__painel--folha .menu__folha-titulo {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    display: block;
+    margin: 0 calc(-1 * var(--esp-2)) var(--esp-1);
+    padding: var(--esp-4) var(--esp-5) var(--esp-2);
+    border-bottom: var(--borda);
+    background: var(--cor-superficie-elevada);
+    overflow: hidden;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-sm);
+    font-weight: var(--peso-semi);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Na folha, alvos de toque confortáveis. */
+  .menu__painel--folha .menu__item {
+    min-height: var(--altura-controle-lg);
+  }
+}
+
+/* =============== Paleta de comandos (pc-comandos) =============== */
+.comandos {
+  width: min(40rem, calc(100vw - 2 * var(--esp-4)));
+  margin-top: 10vh;
+}
+
+.comandos__busca {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-4) var(--esp-5);
+  border-bottom: var(--borda);
+}
+
+.comandos__busca > .icone {
+  color: var(--cor-marca-texto);
+}
+
+.comandos__busca input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  font-size: var(--texto-xl);
+  background: transparent;
+}
+
+.comandos__lista {
+  max-height: 22rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--esp-2);
+  list-style: none;
+}
+
+.comandos__grupo {
+  padding: var(--esp-2) var(--esp-3) var(--esp-1);
+}
+
+.comandos__opcao {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.comandos__opcao[aria-selected="true"] {
+  background: var(--cor-marca-fundo);
+}
+
+.comandos__opcao[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: var(--esp-2);
+  bottom: var(--esp-2);
+  width: var(--filete-fino);
+  border-radius: var(--raio-xs);
+  background: var(--cor-marca);
+}
+
+.comandos__opcao .icone {
+  color: var(--cor-texto-secundario);
+}
+
+.comandos__opcao[aria-selected="true"] .icone {
+  color: var(--cor-marca-texto);
+}
+
+@media (max-width: 479.98px) {
+  .comandos { margin-top: var(--esp-4); }
+  .comandos__busca { padding: var(--esp-3) var(--esp-4); }
+  .comandos__busca .botao { display: none; }
+}
+
+.comandos__rodape {
+  display: flex;
+  gap: var(--esp-4);
+  padding: var(--esp-2) var(--esp-5);
+  border-top: var(--borda-sutil);
+  background: var(--cor-superficie-sutil);
+  border-radius: 0 0 var(--raio-xl) var(--raio-xl);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+kbd {
+  padding: 0 var(--esp-1);
+  border: var(--borda);
+  border-bottom-width: 2px;
+  border-radius: var(--raio-xs);
+  background: var(--cor-superficie-sutil);
+  font-family: var(--fonte-mono);
+  font-size: var(--texto-xs);
+}
+
+/* =============== Carregamento =============== */
+.esqueleto {
+  display: block;
+  height: 0.875rem;
+  border-radius: var(--raio-xs);
+  background: linear-gradient(90deg, var(--neutro-100) 0%, var(--neutro-50) 50%, var(--neutro-100) 100%);
+  background-size: 200% 100%;
+  animation: esqueleto 1.2s ease-in-out infinite;
+}
+
+.esqueleto--linha {
+  width: 100%;
+}
+
+.esqueleto--curto {
+  width: 30%;
+}
+
+.girando {
+  animation: girar 800ms linear infinite;
+}
+
+/* =============== Dica (tooltip) =============== */
+[data-dica] {
+  position: relative;
+}
+
+[data-dica]:hover::after,
+[data-dica]:focus-visible::after {
+  content: attr(data-dica);
+  position: absolute;
+  z-index: var(--z-dica);
+  left: 50%;
+  bottom: calc(100% + var(--esp-1));
+  transform: translateX(-50%);
+  padding: var(--esp-1) var(--esp-2);
+  border-radius: var(--raio-sm);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--sombra-3);
+  /* Animação própria: `brotar` termina em `transform: none` e apagaria o translateX(-50%)
+     que centraliza a dica — ela nascia torta e saltava para o lugar no fim. Aqui o
+     deslocamento de centragem entra em todos os quadros. */
+  animation: dica-brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+@keyframes dica-brotar {
+  from { opacity: 0; transform: translateX(-50%) scale(0.96) translateY(-4px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+
+/* =============== Escolha múltipla por busca (pc-multiescolha) =============== */
+/* Ex.: motoristas habituais da viatura — a busca em cima, os escolhidos embaixo. */
+.multiescolha {
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.multiescolha__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.multiescolha__lista:empty {
+  display: none;
+}
+
+.multiescolha__item {
+  flex-wrap: nowrap;
+  padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3);
+}
+
+.multiescolha__vazio {
+  margin: 0;
+}
+
+/* Prévia dos percentuais da diária (cadastro de vigência): dois valores lado a lado. */
+.previa-diaria {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-3);
+  margin: 0;
+}
+
+.previa-diaria > div {
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+}
+
+.previa-diaria dt {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+}
+
+.previa-diaria dd {
+  margin: 0;
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fieldset que só agrupa para desabilitar tudo de uma vez (termo cancelado): sem moldura. */
+.grupo-campos--livre {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Grupo que vem logo depois de uma lista (funções da equipe sob os escolhidos). */
+.grupo-campos--afastado {
+  margin-top: var(--esp-4);
+}
+
+/* Grupo de campo (fieldset.campo): sem a moldura "groove" do navegador. */
+fieldset.campo {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Escolhas numa caixa de campo (tipos da viagem, programas do plano): a mesma caixa das
+   entradas, com o rótulo na borda (a legenda do fieldset já corta a linha de cima), e as
+   opções em pílulas compactas numa faixa — a marcada ganha a borda grafite. Uma linha tem
+   a altura de uma entrada. */
+fieldset.campo--escolhas {
+  min-height: var(--altura-controle);
+  padding: var(--esp-1) var(--esp-1) var(--esp-1);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+fieldset.campo--escolhas:hover {
+  border-color: var(--neutro-500);
+}
+
+fieldset.campo--escolhas:focus-within {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.campo--erro.campo--escolhas {
+  border-color: var(--cor-perigo);
+}
+
+fieldset.campo--escolhas > legend {
+  margin-left: var(--esp-1);
+  padding: 0 var(--esp-1);
+  font-size: var(--texto-xs);
+  line-height: 1rem;
+}
+
+fieldset.campo--escolhas .caixas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+fieldset.campo--escolhas .caixas__item {
+  align-items: center;
+  min-height: var(--altura-controle-sm);
+  padding: 0 var(--esp-3) 0 var(--esp-2);
+  border: 1px solid transparent;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-sm);
+  line-height: var(--altura-linha-justa);
+  white-space: nowrap;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+fieldset.campo--escolhas .caixas__item:hover {
+  border-color: var(--cor-borda);
+}
+
+fieldset.campo--escolhas .caixas__item:has(input:checked) {
+  border-color: var(--grafite-800);
+  background: var(--cor-superficie);
+  font-weight: var(--peso-medio);
+}
+
+fieldset.campo--escolhas .caixas__item input {
+  margin: 0;
+}
+
+fieldset.campo--escolhas > .campo__erro {
+  padding: 0 var(--esp-2) var(--esp-1);
+}
+
+/* =============== Várias escolhas num campo (pc-escolhas) ===============
+   O botão tem a cara de um select (o que está marcado, resumido); o painel flutua abaixo,
+   como a lista do select, com uma caixa por linha. Sem JavaScript o painel fica no fluxo. */
+.escolhas {
+  position: relative;
+  display: block;
+}
+
+/* Numa linha de colunas iguais, o campo de várias escolhas leva o dobro (o resumo dele é
+   mais longo): programa do plano · período · horário; tipo da viagem · período. */
+.campos--iguais > .campo:has(> pc-escolhas) {
+  flex: 2 1 0;
+}
+
+.escolhas__painel .caixas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.escolhas__painel .caixas__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle-sm);
+  padding: var(--esp-1) var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  font-size: var(--texto-sm);
+}
+
+.escolhas__painel .caixas__item input {
+  margin: 0;
+}
+
+.escolhas__painel .caixas__item:hover,
+.escolhas__painel .caixas__item:has(input:focus-visible) {
+  background: var(--cor-superficie-sutil);
+  outline: none;
+}
+
+.escolhas__painel .caixas__item:has(input:checked) {
+  border: 0;
+  background: transparent;
+  font-weight: var(--peso-medio);
+}
+
+.escolhas__painel .caixas__item:has(input:checked):hover {
+  background: var(--cor-superficie-sutil);
+}
+
+/* "Outro" fecha a lista, separado por um filete. */
+.escolhas__painel .caixas__item.escolhas__outro {
+  margin-top: var(--esp-1);
+  padding-top: var(--esp-2);
+  border-top: var(--borda-sutil);
+  border-radius: 0;
+}
+
+.escolhas[data-pronto] .escolhas__painel {
+  position: absolute;
+  z-index: var(--z-painel-campo);
+  top: calc(100% + var(--esp-1));
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(26rem, calc(100vw - 2rem));
+  max-height: 20rem;
+  padding: var(--esp-1);
+  overflow-y: auto;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top center;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.escolhas__painel[hidden] {
+  display: none;
+}
+
+/* Com JavaScript, a lista não pisca aberta enquanto o componente carrega. */
+@media (scripting: enabled) {
+  pc-escolhas:not([data-pronto]) .escolhas__painel {
+    display: none;
+  }
+}
+
+/* Sem JavaScript, o botão não abre nada: fica só a lista. */
+@media (scripting: none) {
+  pc-escolhas [data-gatilho] {
+    display: none;
+  }
+}
+
+/* Caixas de escolha em grade (widget CaixasDeEscolha): várias escolhas de uma lista
+   curta — atividades de um conjunto, atividades do plano. Linhas sempre cheias. */
+.caixas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.caixas__item {
+  padding: var(--esp-2) var(--esp-3);
+  border: var(--borda-sutil);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+
+.caixas__item:has(input:checked) {
+  border-color: var(--grafite-900);
+  background: var(--cor-superficie-sutil);
+}
+
+.caixas__item:has(input:focus-visible) {
+  outline: 2px solid var(--grafite-900);
+  outline-offset: 2px;
+}
+
+/* Linha de colunas iguais: cada campo recebe a mesma fatia, independentemente do que
+   carrega. Vale para a primeira linha da Identificação (número · data · protocolo · tipo ·
+   custeio), onde larguras diferentes faziam a linha parecer desalinhada. */
+.campos--iguais > * { flex: 1 1 0; }
+
+/* Os campos que só aparecem por condição (ex.: "Instituição que custeia") continuam
+   ocupando a linha inteira. */
+.campos--iguais > .condicional { flex-basis: 100%; }
+
+/* Variante: a linha quebra antes de comprimir rótulos em tablet/desktop. */
+@media (min-width: 768px) {
+  .campos--legiveis > :not(.condicional) { flex-basis: 12rem; }
+}
+
+@media (max-width: 767.98px) {
+  .campos--iguais > * { flex: 1 1 calc(50% - var(--esp-4)); }
+}
+
+/* Campo com atalho de cadastro: o controle ocupa a linha e o "+" fica encostado nele, na
+   mesma altura. Serve a "Cargo" e "Unidade de lotação" nos diálogos de cadastro — quem
+   não acha o que precisa cadastra ali mesmo, sem perder o que já digitou. */
+.campo__com-acao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.campo__com-acao > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.campo__com-acao > .botao--icone {
+  flex: none;
+}
+
+/* Nos diálogos de cadastro os grupos de campos não levam filete entre si: a janela já é
+   curta e a linha cortava o formulário sem necessidade. */
+.dialogo .grupo-campos + .grupo-campos {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Sair fica à esquerda, como na barra de ações das folhas: o olho acha o "voltar" no
+   começo da linha e as ações que gravam ficam juntas, à direita. */
+.dialogo__rodape > .botao--texto:first-child,
+.dialogo__rodape > [data-fechar-dialogo]:first-child {
+  margin-right: auto;
+}
+
+/* Diálogos de cadastro respiram um pouco mais entre as linhas de campos: a janela é curta
+   e o ganho de clareza vale os poucos pixels. */
+.dialogo .grupo-campos {
+  gap: var(--esp-4);
+}
+
+.dialogo .campos {
+  row-gap: var(--esp-4);
+}
+
+/* Alertas que recebem o foco por programa (`foco=...` nas views) só o recebem para serem
+   lidos em voz alta: o anel de foco ali não guia ninguém — não há o que teclar dentro —
+   e aparecia sozinho ao voltar de uma ação. O papel role="alert"/"status" é que anuncia. */
+.alerta:focus,
+.alerta:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Indicador centrado: usado no quadro de diárias, onde os três cartões são lidos como uma
+   linha de resultados e o alinhamento à esquerda deixava os valores soltos na caixa. */
+.indicador--centro {
+  align-items: center;
+  text-align: center;
+}
+
+/* O indicador centrado também centra na vertical: nos quadros de diárias os três cartões
+   têm a mesma altura e os valores precisam ficar na mesma linha de leitura. */
+.indicador--centro {
+  justify-content: center;
+}
+
+/* =============== Abas =============== */
+/* Componente do Design System, não da lista: as abas da minuta (Ofício/Justificativa)
+   vivem na folha do ofício, que não carrega listas.css. Por isso o bloco mora aqui, em
+   components.css, que toda página carrega. */
+.abas {
+  display: flex;
+  gap: var(--esp-1);
+  /* Rolar só de lado (telas estreitas): com overflow-x sozinho o navegador liga a rolagem
+     vertical junto e um fio de sobra já fazia aparecer a barra. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: var(--borda);
+}
+
+.aba {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-3);
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba:hover {
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+/* Aba sem nada no recorte de agora (ex.: "Cancelados 0" com uma busca): continua
+   clicável, mas recua — o olho vai para onde há resultado. */
+.aba--vazia {
+  color: var(--cor-texto-terciario);
+}
+
+.aba--vazia .aba__contagem {
+  background: transparent;
+  color: var(--cor-texto-terciario);
+}
+
+/* Foco com o anel do Design System (LP-11), por dentro: a fileira rola de lado e cortaria
+   um anel de fora. Antes era um retângulo de cantos vivos (outline com recuo negativo). */
+.aba:focus-visible {
+  outline: none;
+  border-radius: var(--raio-md);
+  box-shadow: var(--anel-foco-interno);
+}
+
+/* Indício de rolagem (abas-rolagem.js marca data-rola): a borda que esconde abas se
+   esmaece. A máscara só lê o alfa — qualquer cor opaca serve. */
+.abas[data-rola="fim"] {
+  mask-image: linear-gradient(to right, var(--cor-texto) calc(100% - 2.5rem), transparent);
+}
+
+.abas[data-rola="inicio"] {
+  mask-image: linear-gradient(to left, var(--cor-texto) calc(100% - 2.5rem), transparent);
+}
+
+.abas[data-rola="inicio fim"] {
+  mask-image: linear-gradient(to right, transparent, var(--cor-texto) 2.5rem,
+    var(--cor-texto) calc(100% - 2.5rem), transparent);
+}
+
+.aba[aria-selected="true"],
+.aba[aria-current="page"] {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+/* Ao trocar de aba, quem se mexe é o que mudou de estado: o filete, que cresce de lado
+   (eixo X), e a contagem, que sobe (eixo Y). O rótulo fica parado — ele não mudou. */
+.aba[aria-current="page"] .aba__contagem {
+  animation: contagem-entrar var(--duracao-media) var(--curva-padrao);
+}
+
+@keyframes contagem-entrar {
+  from { opacity: 0; translate: 0 0.4rem; }
+}
+
+/* Filete dourado sob a aba ativa (DNA das referências), nasce da esquerda. */
+.aba[aria-selected="true"]::after,
+.aba[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: var(--esp-2);
+  right: var(--esp-2);
+  bottom: -1px;
+  height: var(--filete);
+  border-radius: var(--raio-xs) var(--raio-xs) 0 0;
+  background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-media) var(--curva-padrao);
+}
+
+.aba__contagem {
+  min-width: 1.5rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba[aria-current="page"] .aba__contagem,
+.aba[aria-selected="true"] .aba__contagem {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* As duas ações do texto pronto andam juntas — guardar o que foi escrito e ir gerenciar os
+   modelos — então viram UMA peça: moldura própria, divisória entre elas e a mesma altura do
+   campo ao lado. Soltas, pareciam dois links perdidos na linha. */
+.texto-pronto__acoes {
+  align-items: stretch;
+  gap: 0;
+  border: var(--borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  overflow: clip;
+}
+
+.texto-pronto__acoes .botao {
+  min-height: var(--altura-controle);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--cor-texto-secundario);
+}
+
+.texto-pronto__acoes .botao + .botao {
+  border-left: var(--borda-sutil);
+}
+
+.texto-pronto__acoes .botao--icone {
+  width: var(--altura-controle);
+}
+
+.texto-pronto__acoes .botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.texto-pronto__acoes .botao:focus-visible {
+  z-index: 1;
+}
+
+/* Valor do indicador centrado não pode ser cortado: "INTERIOR + CAPITAL" não cabe numa
+   linha no tamanho cheio e o cartão esconde o que passa. O cartão vira o contêiner de
+   consulta e o valor encolhe junto com ele, até o piso legível. */
+.indicador--centro {
+  container-type: inline-size;
+}
+
+.indicador--centro .indicador__valor {
+  font-size: clamp(var(--texto-lg), 9cqw, var(--texto-3xl));
+}
+
+/* =============== Controle segmentado (.segmentado) =============== */
+/* Uma escolha entre poucas opções curtas: rádios de verdade (teclado e leitor de tela como
+   num grupo de rádio) com o rótulo como botão — o mesmo desenho do "Texto | PDF" do editor:
+   trilho cinza, a opção marcada em grafite. */
+.segmentado {
+  display: inline-flex;
+  gap: var(--esp-05);
+  padding: 0.1875rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+}
+
+/* O rádio some da tela sem sair do teclado nem do leitor de tela (como .sr-only): 1×1 px
+   e recortado — com o tamanho natural, os rádios absolutos de um segmentado flex caíam
+   todos no mesmo ponto, uns sobre os outros. */
+.segmentado > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmentado > label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0 var(--esp-4);
+  border-radius: calc(var(--raio-md) - 0.1875rem);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.segmentado > input:not(:checked):not(:disabled) + label:hover {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+.segmentado > input:checked + label {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.segmentado > input:focus-visible + label {
+  outline: none;
+  box-shadow: var(--anel-foco-interno); /* por dentro: o trilho pode rolar de lado */
+}
+
+/* Com contagem (filtro Documento da lista): cada opção diz quantos itens traz; a altura é a
+   de um controle comum, para alinhar com a busca ao lado. */
+.segmentado--contagem > label {
+  gap: var(--esp-2);
+  min-width: 0;
+  min-height: calc(var(--altura-controle) - 0.375rem);
+  padding: 0 var(--esp-3);
+  font-weight: var(--peso-medio);
+}
+
+.segmentado--contagem > input:checked + label {
+  font-weight: var(--peso-semi);
+}
+
+.segmentado__conta {
+  min-width: 1.25rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmentado > input:checked + label .segmentado__conta {
+  background: var(--grafite-700);
+  color: var(--neutro-0);
+}
+
+.segmentado--contagem > input:not(:checked) + label .segmentado__conta {
+  background: var(--cor-superficie-realce);
+}
+
+/* Segmentado de links (atalhos que trocam a página, ex.: "Pedem atenção" da prestação): o mesmo desenho dos rádios,
+   com a opção atual (aria-current) em grafite. */
+.segmentado > a { display: inline-flex; align-items: center; justify-content: center; min-width: 4.5rem; min-height: 2.25rem; padding: 0 var(--esp-4); border-radius: calc(var(--raio-md) - 0.1875rem); font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto-secundario); white-space: nowrap; text-decoration: none; transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.segmentado > a:not([aria-current]):hover { background: var(--cor-superficie); color: var(--cor-texto); text-decoration: none; }
+.segmentado > a[aria-current] { background: var(--grafite-900); color: var(--neutro-0); }
+.segmentado > a:focus-visible { outline: none; box-shadow: var(--anel-foco-interno); }
+.segmentado--contagem > a { gap: var(--esp-2); min-width: 0; min-height: calc(var(--altura-controle) - 0.375rem); padding: 0 var(--esp-3); font-weight: var(--peso-medio); }
+.segmentado--contagem > a[aria-current] { font-weight: var(--peso-semi); }
+.segmentado > a[aria-current] .segmentado__conta { background: var(--grafite-700); color: var(--neutro-0); }
+.segmentado--contagem > a:not([aria-current]) .segmentado__conta { background: var(--cor-superficie-realce); }
+
+/* Trilho que rola de lado quando não cabe (`data-rola-lado`: o segmentado Documento e as
+   fichas de filtro no celular): sem barra visível, com a borda que esconde itens esmaecida
+   (abas-rolagem.js marca data-rola, como nas abas). */
+.segmentado[data-rola-lado] {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+[data-rola-lado]::-webkit-scrollbar { display: none; }
+
+[data-rola-lado][data-rola="fim"] {
+  mask-image: linear-gradient(to right, var(--cor-texto) calc(100% - 2rem), transparent);
+}
+
+[data-rola-lado][data-rola="inicio"] {
+  mask-image: linear-gradient(to left, var(--cor-texto) calc(100% - 2rem), transparent);
+}
+
+[data-rola-lado][data-rola="inicio fim"] {
+  mask-image: linear-gradient(to right, transparent, var(--cor-texto) 2rem,
+    var(--cor-texto) calc(100% - 2rem), transparent);
+}
+
+/* Opção que não vale agora (ex.: "Um PDF só" com um documento): some do caminho sem sumir. */
+.segmentado > input:disabled + label {
+  color: var(--cor-texto-terciario);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============== Baixar documentos (componentes/dialogo_baixar.html) =============== */
+.dialogo--baixar {
+  width: min(36rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+.baixar {
+  display: grid;
+  gap: var(--esp-4);
+}
+
+.baixar__lista {
+  display: grid;
+  gap: var(--esp-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.baixar__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+}
+
+.baixar__instrucao {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__carregando {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__carregando[hidden] {
+  display: none;
+}
+
+/* Até 5 cartões inteiros à vista; do 6º em diante rola (a altura exata vem de baixar.js).
+   A folga em volta deixa o realce do foco e a borda dos cartões sem recorte. */
+.baixar__itens {
+  display: grid;
+  gap: var(--esp-2);
+  padding: 0.1875rem;
+  margin: -0.1875rem;
+  overflow-y: auto;
+}
+
+.baixar__itens--rolagem {
+  padding-right: var(--esp-2);
+  overscroll-behavior: contain;
+}
+
+.baixar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 3.5rem;
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.baixar__item.escolha input[type="checkbox"] {
+  margin: 0;
+}
+
+.baixar__item:hover {
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
+}
+
+.baixar__item:has(input:checked) {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
+}
+
+/* Desmarcado: o documento continua na lista, mas sai do primeiro plano. */
+.baixar__item:not(:has(input:checked)) :is(.baixar__nome, .baixar__estado) {
+  color: var(--cor-texto-terciario);
+}
+
+/* Foco pelo teclado: realce dourado suave no cartão, sem o contorno preto. */
+.baixar__item:has(input:focus-visible) {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--cor-marca), 0 0 0 3px var(--cor-marca-fundo-forte);
+}
+
+.baixar__item input:focus-visible {
+  outline: none;
+}
+
+.baixar__texto {
+  display: grid;
+  gap: var(--esp-05);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.baixar__nome {
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+.baixar__detalhe {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* O estado em selo pequeno, à direita (gerado na hora / assinado). */
+.baixar__estado {
+  flex: none;
+  padding: var(--esp-05) var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.baixar__estado:empty {
+  display: none;
+}
+
+.baixar__estado--assinado {
+  background: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso);
+}
+
+/* Formato · Versão · Saída lado a lado, separados da lista por um filete. */
+.baixar__escolhas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3) var(--esp-6);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.baixar__escolha {
+  display: grid;
+  gap: var(--esp-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.baixar__escolha[hidden] {
+  display: none;
+}
+
+.baixar__rotulo {
+  padding: 0;
+  margin-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__resumo {
+  margin: calc(-1 * var(--esp-2)) 0 0;
+}
+
+/* =============== Anexar via assinada (componentes/dialogo_assinado.html) =============== */
+.dialogo--anexo {
+  width: min(32rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+/* O documento ao lado de um selo com o ícone da assinatura. */
+.anexo__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+}
+
+.anexo__selo {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+}
+
+.anexo {
+  display: grid;
+  gap: var(--esp-3);
+}
+
+/* A área de soltar: tracejada, clicável inteira (é o rótulo do campo de arquivo). */
+.anexo__area {
+  position: relative;
+  display: block;
+  padding: var(--esp-6) var(--esp-4);
+  border: 1.5px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    border-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.anexo__area:hover,
+.anexo__area--sobre {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca-fundo);
+}
+
+.anexo__area:has(.anexo__entrada:focus-visible) {
+  border-color: var(--cor-marca);
+  box-shadow: 0 0 0 3px var(--cor-marca-fundo-forte);
+}
+
+/* Arquivo escolhido: a caixa vira um cartão comum, sem o tracejado. */
+.anexo__area--com-arquivo {
+  padding: var(--esp-3) var(--esp-4);
+  border-style: solid;
+  border-color: var(--cor-borda);
+  background: var(--cor-superficie);
+  text-align: left;
+}
+
+.anexo__entrada {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anexo__vazio {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-1);
+}
+
+.anexo__vazio[hidden],
+.anexo__arquivo[hidden] {
+  display: none;
+}
+
+.anexo__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+  color: var(--cor-marca-texto);
+}
+
+.anexo__chamada {
+  font-size: var(--texto-md);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto);
+}
+
+.anexo__link {
+  color: var(--cor-marca-texto);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.anexo__limite {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.anexo__arquivo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+}
+
+.anexo__icone--pdf {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-perigo-fundo);
+  box-shadow: none;
+  color: var(--cor-perigo);
+}
+
+.anexo__arquivo-texto {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.anexo__nome {
+  overflow: hidden;
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anexo__tamanho {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.anexo__trocar {
+  flex: none;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-marca-texto);
+}
+
+.anexo__nota {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* =============== Cabeçalho de registro (.registro-hero) =============== */
+/* Faixa escura de identidade das páginas e janelas de registro; de uso geral (a Central
+   também o usa), por isso fica no compartilhado e não em operacional.css. */
+.registro-hero { display: flex; align-items: center; gap: var(--esp-8); padding: var(--esp-8) var(--esp-16) var(--esp-8) var(--esp-8); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.registro-hero__identidade { flex: none; padding-right: var(--esp-8); border-right: var(--filete-fino) solid var(--cor-marca); }
+.registro-hero .identidade-documental__rotulo, .registro-hero__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; margin: 0 0 var(--esp-2); font-weight: var(--peso-semi); }
+.registro-hero .identidade-documental__numero { color: var(--cor-texto-inverso); font-size: calc(var(--texto-4xl) * 1.5); line-height: var(--altura-linha-justa); }
+.registro-hero__conteudo { min-width: 0; }
+.registro-hero .registro-hero__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
+.registro-hero__complemento { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-sm); margin: var(--esp-2) 0 0; font-variant-numeric: tabular-nums; }
+.registro-hero__complemento > .icone { color: var(--shell-filete-claro); }
+/* A data em destaque nos resumos, logo abaixo do destino: número, destino e data são o
+   que identifica a viagem; o resto fica no sub-header, que rola com o corpo. */
+.registro-hero__data { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); margin: var(--esp-2) 0 0; font-size: var(--texto-xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; }
+.registro-hero__data > .icone { color: var(--shell-filete-claro); }
+@media (max-width: 767.98px) {
+  .registro-hero__data { font-size: var(--texto-lg); }
+}
+.registro-hero__metadados { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); margin-top: var(--esp-3); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
+.registro-hero__metadado { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 0; color: inherit; overflow-wrap: anywhere; }
+.registro-hero__metadado > .icone { flex: none; color: var(--shell-filete-claro); }
+.registro-hero__linha { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); }
+.registro-hero .selo { --selo-fundo: transparent; --selo-borda: var(--luz-28); --selo-texto: var(--cor-texto-inverso); padding: var(--esp-05) var(--esp-3); font-weight: var(--peso-medio); }
+.registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
+.registro-hero--pagina { padding: var(--esp-6) var(--esp-8); border-radius: var(--raio-lg); margin-bottom: var(--esp-6); }
+.registro-hero--pagina .registro-hero__titulo { margin: 0; font-size: var(--texto-4xl); }
+.registro-hero--pagina .registro-hero__conteudo { flex: 1; }
+.registro-hero__acoes { display: flex; align-items: center; gap: var(--esp-2); flex: none; }
+.registro-hero--pagina :is(.botao, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
+.registro-hero__acoes .botao { --botao-fundo: transparent; --botao-borda: var(--luz-28); --botao-texto: var(--cor-texto-inverso); }
+.registro-hero__acoes .botao:hover { --botao-fundo-hover: var(--luz-10); }
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .registro-hero--pagina:has(> .registro-hero__identidade):has(> .registro-hero__acoes > :nth-child(2)) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--esp-4) var(--esp-6);
+  }
+  .registro-hero--pagina:has(> .registro-hero__identidade) > .registro-hero__acoes:has(> :nth-child(2)) {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 767px) {
+  .registro-hero--pagina { padding: var(--esp-5); gap: var(--esp-4); margin-bottom: var(--esp-4); flex-wrap: wrap; }
+  .registro-hero--pagina .registro-hero__titulo { font-size: var(--texto-3xl); }
+  .registro-hero--pagina .registro-hero__complemento { font-size: var(--texto-xs); }
+  .registro-hero--pagina .registro-hero__identidade { padding-right: var(--esp-4); }
+}
+@media (max-width: 767px) {
+  .registro-hero--pagina .registro-hero__acoes { flex-wrap: nowrap; width: 100%; }
+  .registro-hero--pagina .registro-hero__acoes > .botao { padding-inline: var(--esp-2); font-size: var(--texto-xs); }
+}
+@media (max-width: 1023.98px) {
+  .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
+  .registro-hero__identidade { padding-right: var(--esp-5); }
+  .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }
+}
+@media (max-width: 767.98px) {
+  .registro-hero { display: grid; gap: var(--esp-3); padding: var(--esp-5); }
+  .registro-hero__identidade { border: 0; padding: 0 var(--esp-12) 0 0; }
+  .registro-hero__identidade .identidade-documental { display: flex; align-items: center; gap: var(--esp-3); }
+  .registro-hero__identidade .identidade-documental__numero { order: -1; font-size: var(--texto-3xl); }
+  .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
+  .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
+}
+/* Número do documento à esquerda do campo seguinte, na mesma linha (OS: o Tipo de OS). */
+.campos.campos--numero-ao-lado { display: grid; grid-template-columns: minmax(6rem, 8rem) minmax(0, 1fr); }
+@media (max-width: 767.98px) { .campos.campos--numero-ao-lado { grid-template-columns: minmax(0, 1fr); } }
+.campos.campos--agenda-periodo { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.campos--agenda-periodo > .programa-plano__outro { order: 1; grid-column: 1 / -1; }
+@media (max-width: 767.98px) { .campos.campos--agenda-periodo { grid-template-columns: minmax(0, 1fr); } }
+.registro-hero a.registro-hero__metadado { color: var(--cor-texto-inverso-sutil); text-underline-offset: var(--esp-1); }
+.registro-hero a.registro-hero__metadado:hover { color: var(--cor-texto-inverso); }
+.registro-hero .identidade-documental__complemento { color: var(--cor-texto-inverso-sutil); }
+.registro-hero__metadado--vazio { font-style: italic; }
+/* =============== Termo: Data do evento (calendário de mesa) =============== */
+/* As próprias folhas abrem o período. Calendário, descrição e duração ocupam a linha;
+   o canto inferior direito dobra sobre a folha, revelando o papel de baixo. */
+.mesa-evento { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: var(--esp-3); padding: var(--esp-1) var(--esp-5); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: linear-gradient(110deg, var(--cor-superficie-sutil), var(--cor-superficie)); transition: border-color var(--duracao-rapida) var(--curva-padrao); }
+.mesa-evento:hover { border-color: var(--cor-borda-forte); }
+.mesa-evento--evento { box-shadow: inset 3px 0 0 var(--cor-marca); }
+.mesa-evento--vazia { border-style: dashed; background: var(--cor-superficie); }
+.mesa-evento__vivo { display: grid; grid-template-columns: minmax(0, 1fr) 11rem; align-items: center; gap: var(--esp-2) var(--esp-5); min-width: 0; }
+.mesa-evento__folhas { display: flex; align-items: center; justify-content: flex-start; gap: var(--esp-2); width: max-content; padding-bottom: var(--esp-1); }
+.mesa-evento__folha { position: relative; display: grid; gap: var(--esp-1); width: 3.5rem; flex: none; }
+.mesa-evento__extremo { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.mesa-evento__folha::before { content: ""; position: absolute; inset: calc(var(--esp-4) + 3px) 3px -3px; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-realce); transform: rotate(2deg); }
+.mesa-evento__pagina { position: relative; display: grid; justify-items: center; overflow: hidden; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); box-shadow: var(--sombra-1); transform-origin: top left; transition: transform var(--duracao-media) var(--curva-expressiva), box-shadow var(--duracao-media) var(--curva-padrao); }
+.mesa-evento__pagina::after { content: ""; position: absolute; right: 0; bottom: 0; width: 1.2rem; height: 1.2rem; background: linear-gradient(135deg, var(--cor-superficie-realce) 40%, var(--cor-superficie) 50%, var(--cor-borda) 54%, var(--cor-superficie-realce) 65%); clip-path: polygon(100% 0, 0 100%, 100% 100%); transform: scale(0.18); transform-origin: bottom right; transition: transform var(--duracao-lenta) var(--curva-expressiva); }
+.mesa-evento__folha:last-child .mesa-evento__pagina::after { transition-delay: 60ms; }
+.mesa-evento__botao:not(:disabled):is(:hover, :focus-visible, [aria-expanded="true"]) .mesa-evento__pagina { transform: translateY(-2px) rotate(-1deg); box-shadow: var(--sombra-2); }
+.mesa-evento__botao:not(:disabled):is(:hover, :focus-visible, [aria-expanded="true"]) .mesa-evento__pagina::after { transform: scale(1); }
+.mesa-evento__mes { display: flex; align-items: center; justify-content: center; gap: var(--esp-1); width: 100%; padding: 2px 0; background: var(--cor-primaria); color: var(--cor-texto-inverso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-align: center; text-transform: uppercase; }
+.mesa-evento__mes small { display: none; }
+.mesa-evento--evento .mesa-evento__mes { background: linear-gradient(90deg, var(--cor-primaria), color-mix(in srgb, var(--cor-primaria) 82%, var(--cor-marca))); }
+.mesa-evento__dia { padding-top: 2px; font-size: var(--texto-xl); font-weight: var(--peso-forte); line-height: 1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__semana { padding: 2px 0 var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); text-transform: capitalize; }
+.mesa-evento__folha--vazia .mesa-evento__pagina { border-style: dashed; box-shadow: none; }
+.mesa-evento__folha--vazia .mesa-evento__mes { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.mesa-evento__folha--vazia .mesa-evento__dia { color: var(--cor-texto-terciario); }
+.mesa-evento__ate { position: relative; display: grid; place-items: center; flex: none; min-width: 4rem; margin-top: var(--esp-5); }
+.mesa-evento__ate::before { content: ""; position: absolute; inset: 50% calc(-1 * var(--esp-2)) auto; height: 1px; background: var(--cor-marca-borda); }
+.mesa-evento__duracao { position: relative; padding: 1px var(--esp-2); border: 1px solid var(--cor-marca-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-marca-texto); font-size: var(--texto-2xs); font-weight: var(--peso-semi); white-space: nowrap; }
+.mesa-evento__antecedencia { display: grid; gap: var(--esp-1); padding-left: var(--esp-5); border-left: var(--borda-sutil); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.mesa-evento__antecedencia strong { font-size: var(--texto-4xl); font-weight: var(--peso-medio); line-height: 1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__trilho { height: var(--esp-2); margin-top: var(--esp-1); background: repeating-linear-gradient(90deg, var(--cor-marca-borda) 0 2px, transparent 2px var(--esp-2)); mask-image: linear-gradient(90deg, var(--cor-texto), transparent); }
+.mesa-evento__texto { display: grid; gap: var(--esp-1); min-width: 0; }
+.mesa-evento__rotulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.mesa-evento__frase { margin: 0; font-size: var(--texto-xl); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); text-wrap: balance; color: var(--cor-texto); }
+.mesa-evento--vazia .mesa-evento__frase { color: var(--cor-texto-secundario); }
+.mesa-evento__fonte { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.mesa-evento--evento .mesa-evento__fonte { color: var(--cor-marca-texto); font-weight: var(--peso-medio); }
+/* Trajeto: quando a viagem vai além do evento, uma estrada entre a ida e a volta com o
+   trecho do evento em dourado no lugar dele (degraus de 5% em data-de/data-largura — a CSP
+   não deixa estilo em linha) e o carro que percorre a estrada. Coluna própria, na mesma
+   linha da data: não empurra o texto. */
+.mesa-evento__vivo:has(> .trajeto) { grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem) 11rem; }
+
+
+
+/* Briefing: o horário na mesma linha da data, como a antecedência — a hora grande se digita
+   direto (máscara hh:mm) e o botão abre o relógio do sistema (<pc-hora>). */
+.mesa-evento__vivo:has(> .briefing:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto 11rem; }
+.mesa-evento__vivo:has(> .trajeto):has(> .briefing:not([hidden])) { grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem) auto 11rem; }
+.briefing { display: grid; align-content: center; gap: var(--esp-1); padding-left: var(--esp-5); border-left: var(--borda-sutil); }
+.briefing[hidden] { display: none; }
+.briefing__rotulo { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.briefing__seletor { position: relative; display: inline-flex; align-items: center; gap: var(--esp-2); }
+.briefing__entrada { width: 5.4ch; margin: 0 0 0 calc(-1 * var(--esp-1)); padding: 0 var(--esp-1); border: 1px solid transparent; border-radius: var(--raio-sm); background: transparent; font: inherit; font-size: var(--texto-4xl); font-weight: var(--peso-medio); line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--cor-texto); transition: border-color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
+.briefing__entrada::placeholder { color: var(--cor-texto-terciario); }
+.briefing__entrada:hover:not([readonly]) { border-color: var(--cor-borda); background: var(--cor-superficie); }
+.briefing__entrada:focus { outline: none; border-color: var(--cor-borda-forte); background: var(--cor-superficie); box-shadow: var(--sombra-foco-campo); }
+.briefing__entrada[aria-invalid="true"] { border-color: var(--cor-perigo); }
+.briefing__botao.seletor__botao { position: static; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border: 1px solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-secundario); translate: none; }
+.briefing__botao.seletor__botao:hover { border-color: var(--cor-borda-forte); color: var(--cor-texto); }
+.briefing__nota { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.briefing .campo__erro { margin: 0; }
+@media (max-width: 1023.98px) { .mesa-evento__vivo:has(> .briefing:not([hidden])) { grid-template-columns: minmax(0, 1fr); } .briefing { padding: 0; border: 0; } }
+.trajeto { display: grid; gap: var(--esp-1); min-width: 0; padding-left: var(--esp-5); border-left: var(--borda-sutil); }
+.trajeto__rotulo { display: inline-flex; align-items: center; gap: var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.trajeto__rotulo strong { font-weight: var(--peso-semi); color: var(--cor-texto); }
+.trajeto__linha { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-3); }
+.trajeto__ponta { display: grid; font-size: var(--texto-sm); font-weight: var(--peso-semi); line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.trajeto__ponta small { font-size: var(--texto-2xs); font-weight: var(--peso-medio); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.trajeto__ponta--volta { text-align: right; }
+.trajeto__trilho { position: relative; height: 0.5rem; margin: var(--esp-3) 0; border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); box-shadow: inset 0 0 0 1px var(--cor-borda); }
+.trajeto__trilho::before { content: ""; position: absolute; inset: 50% var(--esp-2) auto; height: 1px; translate: 0 -50%; background: repeating-linear-gradient(90deg, var(--cor-borda-forte) 0 6px, transparent 6px 11px); }
+.trajeto__evento { position: absolute; top: -3px; bottom: -3px; left: var(--trajeto-de, 0%); width: var(--trajeto-largura, 5%); min-width: 0.5rem; border-radius: var(--raio-pilula); background: linear-gradient(90deg, var(--cor-marca-borda), var(--cor-marca)); box-shadow: 0 0 0 2px var(--cor-superficie), var(--sombra-1); animation: trajeto-evento var(--duracao-lenta) var(--curva-expressiva) backwards; transform-origin: left center; }
+.trajeto__marca { position: absolute; top: calc(100% + 3px); left: 50%; translate: -50% 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); line-height: 1; white-space: nowrap; color: var(--cor-marca-texto); }
+.trajeto__carro { position: absolute; top: 50%; left: 0; display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border-radius: var(--raio-pilula); background: var(--cor-primaria); color: var(--cor-texto-inverso); box-shadow: 0 0 0 2px var(--cor-superficie); translate: -50% -50%; animation: trajeto-carro 9s var(--curva-suave) infinite; }
+.trajeto__carro > .icone { width: 0.75rem; height: 0.75rem; }
+.trajeto__evento[data-de="0"] { --trajeto-de: 0%; } .trajeto__evento[data-de="5"] { --trajeto-de: 5%; } .trajeto__evento[data-de="10"] { --trajeto-de: 10%; } .trajeto__evento[data-de="15"] { --trajeto-de: 15%; } .trajeto__evento[data-de="20"] { --trajeto-de: 20%; } .trajeto__evento[data-de="25"] { --trajeto-de: 25%; } .trajeto__evento[data-de="30"] { --trajeto-de: 30%; } .trajeto__evento[data-de="35"] { --trajeto-de: 35%; } .trajeto__evento[data-de="40"] { --trajeto-de: 40%; } .trajeto__evento[data-de="45"] { --trajeto-de: 45%; } .trajeto__evento[data-de="50"] { --trajeto-de: 50%; } .trajeto__evento[data-de="55"] { --trajeto-de: 55%; } .trajeto__evento[data-de="60"] { --trajeto-de: 60%; } .trajeto__evento[data-de="65"] { --trajeto-de: 65%; } .trajeto__evento[data-de="70"] { --trajeto-de: 70%; } .trajeto__evento[data-de="75"] { --trajeto-de: 75%; } .trajeto__evento[data-de="80"] { --trajeto-de: 80%; } .trajeto__evento[data-de="85"] { --trajeto-de: 85%; } .trajeto__evento[data-de="90"] { --trajeto-de: 90%; } .trajeto__evento[data-de="95"] { --trajeto-de: 95%; }
+.trajeto__evento[data-largura="5"] { --trajeto-largura: 5%; } .trajeto__evento[data-largura="10"] { --trajeto-largura: 10%; } .trajeto__evento[data-largura="15"] { --trajeto-largura: 15%; } .trajeto__evento[data-largura="20"] { --trajeto-largura: 20%; } .trajeto__evento[data-largura="25"] { --trajeto-largura: 25%; } .trajeto__evento[data-largura="30"] { --trajeto-largura: 30%; } .trajeto__evento[data-largura="35"] { --trajeto-largura: 35%; } .trajeto__evento[data-largura="40"] { --trajeto-largura: 40%; } .trajeto__evento[data-largura="45"] { --trajeto-largura: 45%; } .trajeto__evento[data-largura="50"] { --trajeto-largura: 50%; } .trajeto__evento[data-largura="55"] { --trajeto-largura: 55%; } .trajeto__evento[data-largura="60"] { --trajeto-largura: 60%; } .trajeto__evento[data-largura="65"] { --trajeto-largura: 65%; } .trajeto__evento[data-largura="70"] { --trajeto-largura: 70%; } .trajeto__evento[data-largura="75"] { --trajeto-largura: 75%; } .trajeto__evento[data-largura="80"] { --trajeto-largura: 80%; } .trajeto__evento[data-largura="85"] { --trajeto-largura: 85%; } .trajeto__evento[data-largura="90"] { --trajeto-largura: 90%; } .trajeto__evento[data-largura="95"] { --trajeto-largura: 95%; } .trajeto__evento[data-largura="100"] { --trajeto-largura: 100%; }
+@keyframes trajeto-evento { from { scale: 0 1; opacity: 0; } }
+@keyframes trajeto-carro { 0%, 4% { left: 0; scale: 1 1; } 44%, 54% { left: 100%; scale: 1 1; } 54.1% { left: 100%; scale: -1 1; } 96%, 99.9% { left: 0; scale: -1 1; } 100% { left: 0; scale: 1 1; } }
+@media (prefers-reduced-motion: reduce) { .trajeto__carro { animation: none; left: 0; } .trajeto__evento { animation: none; } }
+@media (max-width: 1023.98px) { .mesa-evento__vivo:has(> .trajeto) { grid-template-columns: minmax(0, 1fr); } .trajeto { padding: 0; border: 0; } }
+.mesa-evento__erro { grid-column: 1 / -1; margin: 0; }
+.mesa-evento__seletor { position: relative; display: block; min-width: 0; }
+.mesa-evento__botao.seletor__botao { position: static; display: grid; gap: var(--esp-2); width: 100%; height: auto; padding: var(--esp-1); border: 0; border-radius: var(--raio-md); background: transparent; color: var(--cor-texto); translate: none; cursor: pointer; }
+.mesa-evento__botao.seletor__botao:is(:hover, [aria-expanded="true"]) { background: transparent; color: var(--cor-texto); }
+.mesa-evento__botao.seletor__botao:disabled { opacity: 1; cursor: default; }
+.mesa-evento.mesa-evento--compacta { padding: var(--esp-1) var(--esp-3); gap: var(--esp-2); }
+.mesa-evento--compacta .mesa-evento__botao.seletor__botao { padding: 0; }
+.mesa-evento--compacta .mesa-evento__folhas { padding-bottom: 0; }
+.mesa-evento--compacta .mesa-evento__vivo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-1); }
+.mesa-evento--compacta .mesa-evento__folha { width: 2.75rem; }
+.mesa-evento--compacta .mesa-evento__semana,
+.mesa-evento--compacta .mesa-evento__extremo { display: none; }
+.mesa-evento--compacta .mesa-evento__dia { padding-bottom: var(--esp-1); }
+.mesa-evento--compacta .mesa-evento__ate { min-width: var(--esp-8); margin-top: 0; }
+.mesa-evento--compacta .mesa-evento__duracao { padding-inline: var(--esp-1); font-size: var(--texto-2xs); }
+.mesa-evento--compacta .mesa-evento__frase { font-size: var(--texto-sm); text-wrap: pretty; }
+.mesa-evento--compacta .mesa-evento__fonte { font-size: var(--texto-2xs); }
+.mesa-evento--compacta .mesa-evento__fonte > .icone { display: none; }
+.mesa-evento--compacta .mesa-evento__trilho { display: none; }
+@media (prefers-reduced-motion: reduce) { .mesa-evento__pagina, .mesa-evento__pagina::after { transition: none; } }
+@media (max-width: 1023.98px) {
+  .mesa-evento { grid-template-columns: max-content minmax(0, 1fr); gap: var(--esp-3); }
+  .mesa-evento__vivo { grid-template-columns: minmax(0, 1fr); }
+  .mesa-evento__antecedencia { display: flex; align-items: baseline; gap: var(--esp-2); padding: 0; border: 0; }
+  .mesa-evento__trilho { display: none; }
+}
+@media (max-width: 599.98px) {
+  .mesa-evento { grid-template-columns: minmax(0, 1fr); padding: var(--esp-4); }
+  .mesa-evento__seletor { justify-self: center; }
+}
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
 /* Entrada discreta da importação; exceção solicitada ao padrão de ações da lista. */
 .importador-fita {
   position: fixed;

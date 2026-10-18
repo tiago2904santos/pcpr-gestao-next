@@ -1,19 +1,43 @@
+{% comment %}
+Uma solicitação na lista, na linha operacional de Viagens (oficios/_registro.html): placa do
+pedido; tipo · município com a situação e no máximo um alerta (em cima da hora, senão o tempo
+do evento); período, local, solicitante e unidade móvel; à direita os servidores pedidos; a
+ação do momento (Despachar, Corrigir, Continuar) e o ⋮ com abrir, duplicar e pedir coffee.
+{% endcomment %}
 {% with s=l.s %}
-<li class="registro{% if s.status == 'cancelada' or s.status == 'nao_atendida' %} registro--inativo{% endif %}">
-  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Pedido</span><span class="placa__numero">#{{ s.pk }}</span></span>
+<li class="registro registro-operacional{% if s.status == 'cancelada' or s.status == 'nao_atendida' %} registro--inativo{% elif s.status == 'rascunho' %} registro--rascunho{% endif %}">
+  <div class="placa" aria-hidden="true">{% with pk_texto=s.pk|stringformat:"s" %}{% with numero="#"|add:pk_texto %}{% include "componentes/identidade_documental.html" with rotulo="Pedido" numero=numero compacta=True only %}{% endwith %}{% endwith %}</div>
   <div class="registro__corpo">
     <div class="registro__titulo">
-      <a class="registro__link" href="{% url 'eventos:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{% if s.tipo_evento %}{{ s.tipo_evento.nome }}{% else %}Evento{% endif %}{% if s.municipio %} · {{ s.municipio.nome }}{% endif %}</a>
-      <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %} selo--sem-ponto">{{ s.get_status_display }}</span>
-      {% if l.selo %}<span class="selo selo--{{ l.selo.tom }} selo--sem-ponto">{{ l.selo.texto }}</span>{% endif %}
-      {% if l.em_cima %}<span class="selo selo--aviso selo--sem-ponto">{% icone "alert-triangle" classe="icone--sm" %}{{ l.em_cima }}</span>{% endif %}
+      <a class="registro__link" href="{% url 'eventos:solicitacao' s.pk %}"><span class="sr-only">Solicitação #{{ s.pk }} · </span><span class="registro__link-texto">{% if s.tipo_evento %}{{ s.tipo_evento.nome }}{% else %}Evento{% endif %}{% if s.municipio %} · {{ s.municipio.nome }}{% endif %}</span></a>
+      <span class="registro__selos">
+        <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %} selo--sem-ponto">{{ s.get_status_display }}</span>
+        {% if l.em_cima %}<span class="selo selo--aviso selo--sem-ponto" title="{{ l.em_cima }}">{% icone "alert-triangle" classe="icone--sm" %}Em cima da hora</span>
+        {% elif l.selo %}<span class="selo selo--{{ l.selo.tom }} selo--sem-ponto">{{ l.selo.texto }}</span>{% endif %}
+      </span>
     </div>
-    <div class="registro__meta">
-      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+    <div class="registro__agenda">
+      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item{% if ausente %} registro__meta-item--vazio{% endif %}" title="{{ rotulo }}: {{ texto }}">{% icone icone_fato classe="icone--sm" %}<span class="sr-only">{{ rotulo }}: </span><span class="registro__meta-texto">{{ texto }}</span></span>{% endfor %}
     </div>
   </div>
-  <div class="registro__acoes registro__acoes--fixas">
-    <a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacao' s.pk %}{% if s.status == 'aguardando_despacho' %}#despacho{% endif %}">{% if s.status == 'aguardando_despacho' and pode_despachar %}{% icone "stamp" %}Despachar{% elif s.status == 'devolvida' and s.criado_por_id == request.user.pk %}{% icone "pencil" %}Corrigir{% elif s.status == 'rascunho' %}{% icone "pencil" %}Continuar{% else %}{% icone "eye" %}Ver{% endif %}<span class="sr-only"> {{ s }}</span></a>
+  <div class="registro-operacional__conferencia">
+    {% if s.quantidade_servidores %}<span class="registro__meta-item" title="Servidores pedidos">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">{{ s.quantidade_servidores }}</span><span class="registro__meta-detalhe">{% if s.quantidade_servidores == 1 %}servidor{% else %}servidores{% endif %}</span></span></span>
+    {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">Sem equipe</span></span>{% endif %}
+  </div>
+  <div class="registro__acoes">
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações da solicitação #{{ s.pk }}">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel menu__painel--descrito" role="menu" hidden>
+        <p class="menu__folha-titulo" aria-hidden="true">Pedido #{{ s.pk }}{% if s.tipo_evento %} · {{ s.tipo_evento.nome }}{% endif %}</p>
+        {% if s.status == 'aguardando_despacho' and pode_despachar %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}#despacho">{% icone "stamp" %}Despachar<span class="menu__item-descricao">deferir, devolver ou não atender</span></a>
+        {% elif s.status == 'devolvida' and s.criado_por_id == request.user.pk %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "pencil" %}Corrigir e reenviar</a>
+        {% elif s.status == 'rascunho' %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "pencil" %}Continuar o rascunho</a>
+        {% else %}<a class="menu__item" role="menuitem" href="{% url 'eventos:solicitacao' s.pk %}">{% icone "file-text" %}Abrir a solicitação</a>{% endif %}
+        {% if l.concluir %}<button type="submit" form="concluir-{{ s.pk }}" class="menu__item" role="menuitem">{% icone "check-circle-2" %}Marcar como atendida<span class="menu__item-descricao">o evento já aconteceu</span></button>{% endif %}
+        <button type="submit" form="duplicar-{{ s.pk }}" class="menu__item" role="menuitem">{% icone "copy" %}Duplicar<span class="menu__item-descricao">novo rascunho, sem as datas</span></button>
+        {% if l.coffee %}<div class="menu__separador" role="separator"></div><a class="menu__item" role="menuitem" href="{{ l.coffee }}">{% icone "receipt" %}Pedir coffee break<span class="menu__item-descricao">a OS já preenchida com o evento</span></a>{% endif %}
+      </div>
+    </pc-menu>
   </div>
 </li>
 {% endwith %}

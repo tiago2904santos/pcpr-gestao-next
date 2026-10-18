@@ -51,9 +51,14 @@ def relatorio_contrato(request: HttpRequest, pk: int) -> HttpResponse:
         resposta["Content-Disposition"] = f'attachment; filename="{_nome(contrato)}.pdf"'
         resposta["Cache-Control"] = "private, no-store"
         return resposta
+    resumo = (f"{r.contrato.fornecedor.razao_social}"
+              + (f" · vigente até {r.fim:%d/%m/%Y}" if r.fim else "")
+              + f" · {r.total_os} OS não cancelada{'s' if r.total_os != 1 else ''}, "
+              f"{r.total_quantidade} unidades.")
     return render(request, "coffee/relatorio.html", {
-        "r": r, "migalhas": _migalhas(("Lotes", reverse("coffee:lotes")),
-                                      (f"Relatório do contrato {contrato.numero}", "")),
+        "r": r, "resumo_relatorio": resumo,
+        "migalhas": _migalhas(("Lotes", reverse("coffee:lotes")),
+                              (f"Relatório do contrato {contrato.numero}", "")),
     })
 
 

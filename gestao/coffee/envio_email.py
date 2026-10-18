@@ -1,0 +1,280 @@
+"""E-mail ao fornecedor (paridade com o envio da OS e da OB da referência): a tela abre já
+preenchida — para (o e-mail do fornecedor), cópia (a ASCOM, da configuração), assunto e
+texto da configuração com os campos trocados pelos dados da OS — e tudo se edita antes de
+enviar. Sai pelo servidor de e-mail configurado (`MAILERS`; sem SMTP, só no console/log),
+com o PDF anexo, e cada envio fica no histórico.
+
+- OS: só sem pendência (nº, local, quem recebe) e não cancelada; marca "OS enviada em".
+- OB: com o PDF e a data da ordem bancária; se o próximo marco é o envio à empresa, grava a
+  data de hoje (em todas as OS do pagamento conjunto) e o pagamento se conclui.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
+
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.mail import EmailMessage
+from django.core.validators import validate_email
+from django.db import transaction
+from django.utils import timezone
+
+from . import conjunto, documentos, financeiro, policies, vias
+from . import dominio_pedido as regras
+from .models import ConfiguracaoOficio, Movimento, Solicitacao
+from .pedidos import PedidoInvalido
+
+QUAIS = {"os": "Ordem de serviço", "ob": "Ordem bancária", "link": "Link do fornecedor"}
+ASSUNTO_LINK = "Envio da nota fiscal e das certidões — Ordem de Serviço {numero}"
+TEXTO_LINK = ("Prezados,\n\nPara a Ordem de Serviço {numero} ({evento}), envie o PDF da nota "
+              "fiscal e das certidões pelo link abaixo, sem precisar de senha:\n\n{link}\n\n"
+              "O link vale até {validade}.\n\nAtenciosamente,\nASCOM/PCPR")
+CAMPOS = ("numero", "evento", "data", "horario", "local", "responsavel", "quantidade",
+          "fornecedor", "nota", "ordem_bancaria", "data_ordem_bancaria")
+A_COMBINAR = "a combinar"
+MAX_PARA, MAX_COPIA = 3, 5  # o fornecedor e a ASCOM: não é lista de distribuição
+MAX_POR_HORA = 20  # envios por pessoa
+MSG_SEM_EMAIL = "Informe o e-mail do fornecedor."
+MSG_DESTINOS = (f"Até {MAX_PARA} endereços em \"Para\" e {MAX_COPIA} em \"Cópia\": o e-mail é "
+                "para o fornecedor, com a ASCOM em cópia.")
+MSG_MUITOS = "Muitos e-mails enviados na última hora. Tente de novo mais tarde."
+MSG_URL_PUBLICA = ("O endereço público do sistema (URL_PUBLICA) não está configurado com https: "
+                   "o link não pode ser enviado. Fale com a administração do sistema.")
+MSG_SEM_ASSUNTO = "Informe o assunto do e-mail."
+MSG_FALHA = ("O e-mail não foi enviado: o servidor de e-mail recusou ou não respondeu ({erro}). "
+             "Tente de novo.")
+_R_SEPARADOR = re.compile(r"[,;\s]+")
+_R_CAMPO = re.compile(r"\{([a-z_]+)\}")
+
+
+@dataclass
+class Rascunho:
+    qual: str
+    para: str
+    copia: str
+    assunto: str
+    texto: str
+    anexo: str
+    problemas: list[str] = field(default_factory=list)
+    enviado_em: datetime | date | None = None
+    sem_email_fornecedor: bool = False
+
+
+# ---------------------------------------------------------------- regras puras
+def enderecos(texto: str) -> list[str]:
+    """"a@x, b@y; a@x" → [a@x, b@y] (sem repetir, na ordem); inválido levanta ValueError."""
+    saida: list[str] = []
+    for item in _R_SEPARADOR.split(texto or ""):
+        item = item.strip()
+        if not item:
+            continue
+        try:
+            validate_email(item)
+        except ValidationError:
+            raise ValueError(f"E-mail inválido: {item}") from None
+        if item.lower() not in (x.lower() for x in saida):
+            saida.append(item)
+    return saida
+
+
+def preencher(modelo: str, valores: dict[str, str]) -> str:
+    """Troca {campo} pelo valor; campo desconhecido fica como está."""
+    return _R_CAMPO.sub(lambda m: valores.get(m.group(1), m.group(0)), modelo or "")
+
+
+def _juntar(itens: list[str]) -> str:
+    itens = [i for i in dict.fromkeys(itens) if i]
+    if len(itens) < 2:
+        return "".join(itens)
+    return f"{', '.join(itens[:-1])} e {itens[-1]}"
+
+
+# ---------------------------------------------------------------- dados da OS
+def valores(s: Solicitacao) -> dict[str, str]:
+    grupo = conjunto.membros(s) if conjunto.em_grupo(s) else [s]
+    return {
+        "numero": s.numero or f"#{s.pk}",
+        "evento": s.descricao,
+        "data": f"{s.data_evento:%d/%m/%Y}" if s.data_evento else A_COMBINAR,
+        "horario": f"{s.horario:%H:%M}" if s.horario else A_COMBINAR,
+        "local": " — ".join(p for p in (s.local_entrega, s.endereco_completo) if p)
+                 or A_COMBINAR,
+        "responsavel": s.responsavel or A_COMBINAR,
+        "quantidade": str(s.quantidade),
+        "fornecedor": str(s.lote.contrato.fornecedor),
+        "nota": _juntar([x.nota_fiscal for x in grupo]) or "—",
+        "ordem_bancaria": s.ob_numero or "—",
+        "data_ordem_bancaria": (f"{s.ordem_bancaria_em:%d/%m/%Y}" if s.ordem_bancaria_em
+                                else "—"),
+    }
+
+
+def problemas(s: Solicitacao, qual: str) -> list[str]:
+    if s.cancelada:
+        return ["A solicitação está cancelada."]
+    if qual == "os":
+        return documentos.pendencias("os", s)
+    if qual == "link":
+        from . import link_fornecedor
+        return [] if link_fornecedor.disponivel(s) else [link_fornecedor.MSG_INDISPONIVEL]
+    faltas = []
+    if not s.ob_pdf:
+        faltas.append("Anexe o PDF da ordem bancária (seção dos PDFs).")
+    if not s.ordem_bancaria_em:
+        faltas.append("Registre a data da ordem bancária.")
+    return faltas
+
+
+def _nome_anexo(s: Solicitacao, qual: str) -> str:
+    if qual == "link":
+        return ""
+    if qual == "os":
+        return documentos.nome_do_arquivo("os", s)
+    return f"Ordem bancaria {s.ob_numero or s.numero or s.pk}.pdf"
+
+
+def _ultimo_envio(s: Solicitacao, qual: str) -> datetime | date | None:
+    if qual == "os":
+        return s.os_enviada_em
+    if qual == "link":
+        link = s.links_fornecedor.filter(revogado_em__isnull=True).first()
+        return link.criado_em if link else None
+    m = (s.movimentos.filter(acao=Movimento.Acao.EMAIL, texto__startswith=QUAIS["ob"])
+         .order_by("-em").first())
+    return m.em if m else None
+
+
+# Onde o e-mail "no console" basta (nada sai da máquina e todos sabem disso).
+AMBIENTES_SEM_SMTP = frozenset({"lab", "dev", "test", "preview"})
+MSG_SEM_SMTP = ("O envio de e-mail não está configurado neste ambiente (falta o servidor "
+                "SMTP): nada foi enviado. Fale com a administração do sistema.")
+
+
+def configurado() -> bool:
+    """Há servidor de e-mail de verdade, ou o ambiente aceita o console."""
+    from django.conf import settings
+
+    from gestao.plataforma import ambiente
+    backend = settings.MAILERS.get("default", {}).get("BACKEND", "")
+    return "console" not in backend or ambiente.atual() in AMBIENTES_SEM_SMTP
+
+
+def url_publica_segura() -> bool:
+    """O link do fornecedor só sai com endereço https (em lab/dev/test/preview, qualquer)."""
+    from django.conf import settings
+
+    from gestao.plataforma import ambiente
+    return (ambiente.atual() in AMBIENTES_SEM_SMTP
+            or str(settings.URL_PUBLICA).lower().startswith("https://"))
+
+
+def rascunho(s: Solicitacao, qual: str) -> Rascunho:
+    cfg = ConfiguracaoOficio.atual()
+    v = valores(s)
+    fornecedor = s.lote.contrato.fornecedor
+    para = fornecedor.email or ""
+    try:
+        copia = [x for x in enderecos(cfg.emails_ascom)
+                 if x.lower() not in (para.lower(),)]
+    except ValueError:
+        copia = []
+    assunto, texto = {"os": (cfg.assunto_email_os, cfg.texto_email_os),
+                      "ob": (cfg.assunto_email_ob, cfg.texto_email_ob),
+                      "link": (ASSUNTO_LINK, TEXTO_LINK)}[qual]
+    faltas = (problemas(s, qual) + ([] if configurado() else [MSG_SEM_SMTP])
+              + ([MSG_URL_PUBLICA] if qual == "link" and not url_publica_segura() else []))
+    return Rascunho(qual=qual, para=para, copia=", ".join(copia),
+                    assunto=" ".join(preencher(assunto, v).split()),
+                    texto=preencher(texto, v), anexo=_nome_anexo(s, qual),
+                    problemas=faltas, enviado_em=_ultimo_envio(s, qual),
+                    sem_email_fornecedor=not para)
+
+
+# ---------------------------------------------------------------- envio
+def _anexo(usuario, s: Solicitacao, qual: str) -> tuple[str, bytes]:
+    if qual == "os":
+        arq = vias.obter(usuario, s, "os")
+        return arq.nome, arq.conteudo
+    with s.ob_pdf.open("rb") as f:
+        return _nome_anexo(s, qual), f.read()
+
+
+def enviar(usuario, pk: int, qual: str, *, para: str, copia: str, assunto: str,
+           texto: str, hoje: date | None = None) -> Solicitacao:
+    """Envia agora (síncrono: o erro do servidor volta na tela) e registra no histórico."""
+    if not policies.pode_acessar(usuario):
+        raise PermissionDenied
+    if qual not in QUAIS:
+        raise PedidoInvalido("Envio desconhecido.")
+    if not configurado():
+        raise PedidoInvalido(MSG_SEM_SMTP)
+    try:
+        destinos = enderecos(para)
+        copias = [x for x in enderecos(copia) if x.lower() not in {d.lower() for d in destinos}]
+    except ValueError as exc:
+        raise PedidoInvalido(str(exc)) from None
+    if not destinos:
+        raise PedidoInvalido(MSG_SEM_EMAIL)
+    if len(destinos) > MAX_PARA or len(copias) > MAX_COPIA:
+        raise PedidoInvalido(MSG_DESTINOS)
+    if qual == "link" and not url_publica_segura():
+        raise PedidoInvalido(MSG_URL_PUBLICA)
+    desde = timezone.now() - timedelta(hours=1)
+    if Movimento.objects.filter(acao=Movimento.Acao.EMAIL, usuario=usuario, em__gte=desde,
+                                texto__contains="por e-mail em").count() >= MAX_POR_HORA:
+        raise PedidoInvalido(MSG_MUITOS)
+    assunto = " ".join((assunto or "").split())[:200]
+    if not assunto:
+        raise PedidoInvalido(MSG_SEM_ASSUNTO)
+    hoje = hoje or timezone.localdate()
+    with transaction.atomic():
+        s = Solicitacao.objects.select_for_update().select_related(
+            "lote__contrato__fornecedor").get(pk=pk)
+        faltas = problemas(s, qual)
+        if faltas:
+            raise PedidoInvalido(" ".join(faltas))
+        if qual == "link":
+            from . import link_fornecedor
+            link, token = link_fornecedor.criar(usuario, s, ", ".join(destinos))
+            endereco = link_fornecedor.url_publica(token)
+            validade = f"{timezone.localtime(link.expira_em):%d/%m/%Y}"
+            texto = preencher(texto or "", {"link": endereco, "validade": validade})
+            if endereco not in texto:
+                texto = f"{texto.rstrip()}\n\n{endereco}"
+            nome, conteudo = "", b""
+        else:
+            nome, conteudo = _anexo(usuario, s, qual)
+        # As respostas vão para a ASCOM da configuração (nunca para um endereço digitado).
+        try:
+            ascom = enderecos(ConfiguracaoOficio.atual().emails_ascom)
+        except ValueError:
+            ascom = []
+        msg = EmailMessage(subject=assunto, body=texto or "", to=destinos, cc=copias,
+                           reply_to=ascom[:1] or None)
+        if conteudo:
+            msg.attach(nome, conteudo, "application/pdf")
+        try:
+            msg.send(fail_silently=False)
+        except OSError as exc:  # SMTPException é OSError
+            raise PedidoInvalido(MSG_FALHA.format(erro=exc.__class__.__name__)) from None
+        agora = timezone.localtime()
+        registro = (f"{QUAIS[qual]} enviada por e-mail em {agora:%d/%m/%Y} às {agora:%H:%M} "
+                    f"para {', '.join(destinos)}"
+                    + (f" (cópia: {', '.join(copias)})" if copias else "")
+                    + f". Assunto: {assunto}."
+                    + (f" Anexo: {nome}." if nome else " O link vale 30 dias."))
+        grupo = conjunto.membros(s) if qual == "ob" and conjunto.em_grupo(s) else [s]
+        for x in grupo:
+            Movimento.objects.create(solicitacao=x, acao=Movimento.Acao.EMAIL, texto=registro,
+                                     usuario=usuario)
+        if qual == "os":
+            s.os_enviada_em = agora
+            s.save(update_fields=["os_enviada_em", "atualizado_em"])
+        elif qual == "ob":
+            marco = regras.proximo_marco(s.valores_dos_marcos, s.cancelada)
+            if marco and marco[0] == "envio_empresa_em" and not s.bloqueada:
+                s = financeiro.registrar_marco(usuario, s.pk, f"{hoje:%d/%m/%Y}",
+                                               "Ordem bancária enviada por e-mail.", hoje=hoje)
+    return s

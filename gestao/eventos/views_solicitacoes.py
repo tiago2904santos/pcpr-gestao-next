@@ -14,7 +14,6 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import F
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -23,8 +22,20 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.fontes import atividades_e_servicos
 from gestao.cadastros.models import Municipio
+from gestao.integracoes.eprotocolo import servico as eprotocolo
+from gestao.integracoes.eprotocolo.erros import ErroEprotocolo
 
-from . import conflitos, dominio, ganchos, pedir_coffee, policies, queries, solicitacoes
+from . import (
+    conflitos,
+    dominio,
+    ganchos,
+    pedir_coffee,
+    policies,
+    preenchimento,
+    queries,
+    solicitacoes,
+    sugestoes,
+)
 from .forms import FORM_ID, FormularioSolicitacao, estrutura_do_post, quantidade
 from .models import AnexoSolicitacao, Equipe, Solicitacao, TextoDespacho, TipoEvento
 
@@ -56,26 +67,61 @@ def lista(request: HttpRequest) -> HttpResponse:
     sem_fila = queries.filtrar(request.user, f, hoje, com_fila=False)
     filas = [(c, r, queries.aplicar_fila(sem_fila, c, request.user, hoje).count())
              for c, r in queries.filas_visiveis(request.user)]
-    qs = queries.filtrar(request.user, f, hoje)
-    # A fila do despacho na ordem do "Registrar e abrir a próxima": o evento mais próximo.
-    qs = (qs.order_by(F("data_inicio_evento").asc(nulls_last=True), "pk") if f.fila == "despacho"
-          else qs.order_by("-data_solicitacao", "-criado_em"))
+    ordem = queries.ordem_de(request.GET.get("ordem"), f.fila)
+    qs = queries.ordenar(queries.filtrar(request.user, f, hoje), ordem)
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = _querystring(request, "pagina")
+    linhas = [queries.linha(s, hoje) for s in pagina.object_list]
+    for linha in linhas:  # o "Pedir coffee break" do ⋮ (vazio sem o módulo)
+        linha.coffee = pedir_coffee.url(request.user, linha.s)
+        # "Marcar como atendida" no ⋮ (referência): deferida, do responsável, evento já feito.
+        fim = linha.s.data_fim_evento or linha.s.data_inicio_evento
+        linha.concluir = (policies.pode_concluir(request.user, linha.s)
+                          and not dominio.pode_concluir(linha.s.status, fim, hoje))
+    municipios = Municipio.objects.filter(
+        pk__in=policies.solicitacoes_visiveis(request.user).values("municipio_id")
+    ).order_by("nome")
+    tipos = TipoEvento.objects.order_by("nome")
+    url_exportar = reverse("eventos:exportar") + (f"?{base}" if base else "")
     return render(request, "eventos/solicitacoes/lista.html", {
-        "page_obj": pagina, "linhas": [queries.linha(s, hoje) for s in pagina.object_list],
+        "page_obj": pagina, "linhas": linhas,
         "filtros": f, "filas": filas, "qs_sem_fila": _querystring(request, "fila", "pagina"),
         "querystring_base": f"{base}&" if base else "",
-        "municipios": Municipio.objects.filter(
-            pk__in=policies.solicitacoes_visiveis(request.user).values("municipio_id")
-        ).order_by("nome"),
-        "tipos": TipoEvento.objects.order_by("nome"),
-        "url_exportar": reverse("eventos:exportar") + (f"?{base}" if base else ""),
+        "municipios": municipios, "tipos": tipos, "ordem": ordem,
+        "ordens": [(c, r) for c, (r, _campos) in queries.ORDENS.items()],
+        "fichas": _fichas(request, f, municipios, tipos),
+        "url_limpar_tudo": request.path + "?" + _querystring(
+            request, "pagina", "inicio", "fim", "municipio", "tipo"),
+        "url_exportar": url_exportar,
         "url_exportar_xlsx": (reverse("eventos:exportar")
                               + f"?{base}{'&' if base else ''}formato=xlsx"),
+        "mais": [{"url": (reverse("eventos:exportar")
+                          + f"?{base}{'&' if base else ''}formato=xlsx"),
+                  "icone": "table", "titulo": "Exportar planilha",
+                  "descricao": "as solicitações deste recorte, em XLSX"},
+                 {"url": url_exportar, "icone": "download", "titulo": "Exportar CSV",
+                  "descricao": "o mesmo recorte, separado por ponto e vírgula"}],
         "pode_despachar": policies.pode_despachar(request.user),
         "migalhas": [("Início", reverse("painel:inicio")), ("Solicitações de evento", "")],
     })
+
+
+def _fichas(request: HttpRequest, f, municipios, tipos) -> list[dict]:
+    """Os filtros da gaveta que valem agora, cada um com o link que tira só ele."""
+    def sem(*campos: str) -> str:
+        return request.path + "?" + _querystring(request, "pagina", *campos)
+
+    fichas = []
+    if f.inicio or f.fim:
+        de, ate = (f"{d:%d/%m/%Y}" if d else "" for d in (f.inicio, f.fim))
+        rotulo = (f"Eventos de {de} a {ate}" if de and ate
+                  else f"Eventos a partir de {de}" if de else f"Eventos até {ate}")
+        fichas.append({"rotulo": rotulo, "url": sem("inicio", "fim")})
+    if f.municipio and (m := next((m for m in municipios if m.pk == f.municipio), None)):
+        fichas.append({"rotulo": f"{m.nome}/{m.uf}", "url": sem("municipio")})
+    if f.tipo and (t := next((t for t in tipos if t.pk == f.tipo), None)):
+        fichas.append({"rotulo": t.nome, "url": sem("tipo")})
+    return fichas
 
 
 COLUNAS = ("Nº", "Status", "Data da solicitação", "Início do evento", "Fim do evento",
@@ -142,10 +188,11 @@ def exportar(request: HttpRequest) -> HttpResponse:
     if not policies.pode_criar(request.user):
         raise PermissionDenied
     hoje = timezone.localdate()
-    qs = (queries.filtrar(request.user, queries.ler_filtros(request.GET), hoje)
-          .select_related("motorista", "decidido_por")
-          .prefetch_related("servicos__servico", "equipes__equipe")
-          .order_by("-data_solicitacao", "-criado_em"))
+    f = queries.ler_filtros(request.GET)
+    # A planilha sai na ordem que a tela mostra (referência: a ordem da fila).
+    qs = queries.ordenar(queries.filtrar(request.user, f, hoje),
+                         queries.ordem_de(request.GET.get("ordem"), f.fila)).select_related(
+        "motorista", "decidido_por").prefetch_related("servicos__servico", "equipes__equipe")
     linhas = (_linha_exportada(s) for s in qs)
     if request.GET.get("formato") == "xlsx":
         resposta = HttpResponse(_planilha(linhas), content_type=(
@@ -174,33 +221,51 @@ def _celula(valor):
 # ---------------------------------------------------------------- viagem (E4)
 def _viagem(request: HttpRequest, s: Solicitacao) -> dict:
     integracao = ganchos.viagem()
-    info = integracao.resumo(request.user, s) if integracao else None
+    # O resumo da viagem (unidades, sugerida, documentos) só interessa depois do deferimento
+    # ou quando já houve viagem; antes disso, poupa as consultas.
+    precisa = (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
+               or s.viagens_geradas.exists())
+    info = integracao.resumo(request.user, s) if integracao and precisa else None
     mostrar = bool(info) and (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
                               or bool(info and info["viagens"]))
-    return {"viagem_info": info, "mostrar_viagem": mostrar}
+    # Antes de virar viagem: as da mesma cidade com datas encostadas (uma viagem só).
+    vizinhos = (queries.vizinhos(request.user, s)
+                if s.status not in dominio.FINAIS and not (info and info["viagens"]) else [])
+    return {"viagem_info": info, "mostrar_viagem": mostrar or bool(vizinhos),
+            "vizinhos": vizinhos}
 
 
 @require_POST
 def gerar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
-    s = _visivel(request, pk)
+    """Da DG ou de quem opera Viagens. Este pode não enxergar a solicitação (como na
+    referência): gera do mesmo jeito e volta para a viagem criada, não para a folha."""
     integracao = ganchos.viagem()
     if integracao is None:
+        raise Http404
+    s = get_object_or_404(Solicitacao, pk=pk)
+    ve = policies.pode_ver(request.user, s)
+    if not ve and not integracao.pode_gerar(request.user):
         raise Http404
     texto = request.POST.get("unidade") or ""
     unidade = int(texto) if re.fullmatch(r"[0-9]{1,9}", texto) else None
     try:
         viagem = integracao.gerar(request.user, s, unidade)
     except ValueError as exc:
-        messages.error(request, str(exc))
+        messages.error(request, f"Não foi possível gerar a viagem: {exc}")
+        if not ve:
+            return redirect(integracao.endereco(None))
     else:
         messages.success(request, f"Viagem #{viagem.pk} gerada; a equipe de viagens da "
                                   "unidade foi avisada.")
+        if not ve:
+            return redirect(integracao.endereco(viagem))
     return redirect(reverse("eventos:solicitacao", args=[pk]) + "#viagem")
 
 
 # ---------------------------------------------------------------- folha
 def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None, *,
-              reabrir: bool = False, erros_estrutura: list[str] | None = None) -> dict:
+              reabrir: bool = False, erros_estrutura: list[str] | None = None,
+              leitura: preenchimento.Sugestoes | None = None) -> dict:
     hoje = timezone.localdate()
     # O que a DG escolheu antes de um erro no despacho volta uma vez só, nesta tela.
     despacho_escolhido = request.session.pop("despacho_escolhido", "")
@@ -219,7 +284,13 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     elif s is None and (tipo := form.initial.get("_tipo_modelo")) is not None:
         escolhidos = {x.pk: "" for x in tipo.servicos_sugeridos.all()}
         equipes_atuais = {x.equipe_id: x.quantidade for x in tipo.equipes_padrao.all()}
+<<<<<<< HEAD
     servicos = atividades_e_servicos(incluir=escolhidos)
+=======
+    elif s is None and leitura is not None:
+        escolhidos = dict.fromkeys(leitura.servicos, "")
+    servicos = Servico.objects.filter(ativo=True) | Servico.objects.filter(pk__in=escolhidos)
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
     equipes = Equipe.objects.filter(ativo=True) | Equipe.objects.filter(pk__in=equipes_atuais)
     ctx = {
         "form": form, "form_id": FORM_ID, "s": s, "editavel": editavel, "reabrir": reabrir,
@@ -228,17 +299,15 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "equipes": [(x, x.pk in equipes_atuais, equipes_atuais.get(x.pk))
                     for x in equipes.distinct().order_by("nome")],
         "erros_estrutura": erros_estrutura or [],
-        "solicitantes": list(policies.solicitacoes_visiveis(request.user)
-                             .exclude(solicitante_nome="").order_by("solicitante_nome")
-                             .values_list("solicitante_nome", flat=True).distinct()[:300]),
-        "tipos_com_modelo": TipoEvento.objects.filter(ativo=True).order_by("nome"),
     }
     if s is None:
+        ctx["leitura"] = leitura
         ctx["migalhas"] = _migalhas(("Nova solicitação", ""))
         return ctx
     ctx.update({
         "pedir_coffee": pedir_coffee.url(request.user, s),
         "titulo": queries.titulo(s), "etapas": dominio.etapas(s.status),
+        "periodo": queries.periodo(s),
         "selo": dominio.selo_de_tempo(s.data_inicio_evento, s.data_fim_evento, s.status, hoje),
         "em_cima": dominio.em_cima_da_hora(s.data_solicitacao, s.data_inicio_evento),
         "erros_envio": (dominio.erros_do_envio(s.status, solicitacoes.dados_do_envio(s))
@@ -253,17 +322,23 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "pode_transferir": policies.pode_transferir(request.user, s),
         "pode_excluir": policies.pode_excluir(request.user, s),
         "pode_anexos": policies.pode_mexer_nos_anexos(request.user, s),
+        # A faixa da devolução diz quando e quem devolveu (referência: motivo, data e quem).
+        "devolucao": (s.movimentos.filter(acao="devolucao").select_related("usuario")
+                      .order_by("-em").first() if s.status == "devolvida" else None),
         "decisoes": dominio.DECISOES, "textos_despacho": TextoDespacho.objects.filter(ativo=True),
         "despacho_escolhido": despacho_escolhido, "despacho_observacao": despacho_observacao,
-        "fila": (queries.aplicar_fila(policies.solicitacoes_visiveis(request.user), "despacho",
-                                      request.user, hoje).count()
-                 if policies.pode_despachar(request.user) else 0),
+        **_posicao_na_fila(request, s),
         "usuarios": get_user_model().objects.filter(is_active=True).exclude(
             pk=s.criado_por_id).order_by("nome") if policies.pode_transferir(request.user, s)
         else [],
         "historico": queries.historico(s),
-        # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido.
-        "avisos_agenda": conflitos.avisos_da_solicitacao(s),
+        "consulta_protocolo": request.session.pop(_chave_protocolo(s.pk), None),
+        # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido — só
+        # enquanto o evento não passou nem a solicitação se encerrou.
+        "avisos_agenda": (conflitos.avisos_da_solicitacao(s)
+                          if s.status not in dominio.FINAIS
+                          and (s.data_fim_evento or s.data_inicio_evento or hoje) >= hoje
+                          else []),
         **_viagem(request, s),
         "migalhas": _migalhas((str(s), "")),
     })
@@ -272,6 +347,86 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
 def _erro(form, exc: dominio.RegraViolada) -> None:
     form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
+
+
+def _chave_protocolo(pk: int) -> str:
+    return f"eventos_protocolo_{pk}"
+
+
+@require_POST
+def consultar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Consultar andamento": a última movimentação do protocolo no eProtocolo (simulada sem
+    credencial). Só lê; o resultado volta uma vez na folha."""
+    s = _visivel(request, pk)
+    voltar = reverse("eventos:solicitacao", args=[pk]) + "#andamento-protocolo"
+    if not s.protocolo:
+        messages.error(request, "Informe e salve o número do protocolo antes de consultar.")
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#dados")
+    from django.core.cache import cache
+    chave = f"eventos-protocolo:{s.protocolo}"
+    if cache.get(chave):  # uma consulta por protocolo por minuto (a API externa é lenta)
+        messages.info(request, "O protocolo acabou de ser consultado: espere um minuto.")
+        return redirect(voltar)
+    cache.set(chave, True, 60)
+    try:
+        situacao = eprotocolo.consultar(s.protocolo)
+    except ErroEprotocolo as exc:
+        messages.error(request, f"Não deu para consultar o protocolo agora: {exc}")
+        return redirect(voltar)
+    ultima = situacao.ultima
+    request.session[_chave_protocolo(pk)] = {
+        "numero": s.protocolo, "situacao": situacao.situacao, "local": situacao.local_atual,
+        "ultima": ultima.descricao if ultima else "",
+        "em": f"{ultima.em:%d/%m/%Y %H:%M}" if ultima and ultima.em else "",
+        "simulada": not eprotocolo.origem_vale_como_oficial(situacao.origem),
+        "consultado": f"{timezone.localtime():%d/%m/%Y %H:%M}"}
+    return redirect(voltar)
+
+
+@require_POST
+def preencher(request: HttpRequest) -> HttpResponse:
+    """"Preencher com um e-mail" (texto colado ou .eml): a solicitação nova volta com as
+    sugestões, o que foi lido, os avisos e as que já vieram do mesmo remetente. Nada grava."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    texto = (request.POST.get("email") or "")[:preenchimento.LIMITE_TEXTO]
+    arquivo = request.FILES.get("arquivo")
+    if arquivo is not None:
+        if (arquivo.size or 0) > preenchimento.LIMITE_ARQUIVO or not (
+                arquivo.name or "").lower().endswith(".eml"):
+            messages.error(request, preenchimento.MSG_ARQUIVO)
+            return redirect("eventos:nova")
+        try:
+            texto = preenchimento.texto_do_eml(arquivo.read(preenchimento.LIMITE_ARQUIVO + 1))
+        except ValueError:
+            messages.error(request, preenchimento.MSG_ARQUIVO)
+            return redirect("eventos:nova")
+    leitura = preenchimento.sugerir(request.user, texto, timezone.localdate())
+    inicial = {"data_solicitacao": timezone.localdate(), **leitura.iniciais}
+    form = FormularioSolicitacao(initial=inicial)
+    return render(request, "eventos/solicitacoes/folha.html",
+                  _contexto(request, form, None, leitura=leitura))
+
+
+@require_GET
+def sugestao_do_tipo(request: HttpRequest) -> JsonResponse:
+    """O que o tipo escolhido sugere (serviços, equipes, quem pede), para o "Aplicar"."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    pk = request.GET.get("tipo") or ""
+    tipo = TipoEvento.objects.filter(pk=pk).first() if pk.isdigit() else None
+    if tipo is None:
+        raise Http404
+    return JsonResponse(sugestoes.do_tipo(request.user, tipo).como_dict())
+
+
+@require_GET
+def solicitantes_anteriores(request: HttpRequest) -> JsonResponse:
+    """Autocompletar "Quem pede" (pc-combobox): cargo, contato e órgão do último pedido."""
+    if not policies.pode_criar(request.user):
+        raise PermissionDenied
+    return JsonResponse({"resultados": sugestoes.solicitantes(
+        request.user, (request.GET.get("q") or "")[:100])})
 
 
 @require_http_methods(["GET", "POST"])
@@ -389,14 +544,32 @@ def enviar(request: HttpRequest, pk: int) -> HttpResponse:
                  "Solicitação #{s.pk} enviada com sucesso.")
 
 
-def _quantidades(request: HttpRequest) -> dict[int, int]:
-    saida = {}
+def _quantidades(request: HttpRequest, s: Solicitacao) -> tuple[dict[int, int], list[str]]:
+    """Os servidores por equipe que a DG ajustou, e o erro de cada valor inválido (vazio,
+    zero, letra) — como no legado, nada é ignorado em silêncio."""
+    nomes = {e.equipe_id: e.equipe.nome for e in s.equipes.select_related("equipe")}
+    saida, erros = {}, []
     for chave in request.POST:
         if chave.startswith("quantidade_dg_") and re.fullmatch(r"[0-9]{1,9}", chave[14:]):
+            equipe = int(chave[14:])
+            if equipe not in nomes:
+                continue
             valor = quantidade(request.POST.get(chave))
-            if valor is not None:
-                saida[int(chave[14:])] = valor
-    return saida
+            if valor is None:
+                erros.append(f"Informe uma quantidade válida de servidores para "
+                             f"{nomes[equipe]}.")
+            else:
+                saida[equipe] = valor
+    return saida, erros
+
+
+def _posicao_na_fila(request: HttpRequest, s: Solicitacao) -> dict:
+    """"3 de 7 na fila" para a DG: a posição desta na fila de despacho."""
+    if not policies.pode_despachar(request.user):
+        return {"fila": 0, "posicao_fila": 0}
+    ordem = solicitacoes.ordem_da_fila(request.user)
+    return {"fila": len(ordem),
+            "posicao_fila": ordem.index(s.pk) + 1 if s.pk in ordem else 0}
 
 
 @require_POST
@@ -404,9 +577,17 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     if not policies.pode_despachar(request.user):
         raise PermissionDenied
     s = _visivel(request, pk)
+    quantidades, erros_quantidade = _quantidades(request, s)
+    devolver = (request.POST.get("decisao") or "") == "devolver"
+    if erros_quantidade and not devolver:
+        for erro in erros_quantidade:
+            messages.error(request, erro)
+        request.session["despacho_escolhido"] = request.POST.get("decisao") or ""
+        request.session["despacho_observacao"] = (request.POST.get("observacao") or "")[:2000]
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#despacho")
     if request.POST.get("acao_despacho") == "salvar_ajustes":
         try:
-            mudancas = solicitacoes.ajustar_servidores(request.user, s.pk, _quantidades(request))
+            mudancas = solicitacoes.ajustar_servidores(request.user, s.pk, quantidades)
         except dominio.RegraViolada as exc:
             messages.error(request, str(exc))
         else:
@@ -415,9 +596,10 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
                              else "Nenhuma alteração nas quantidades.")
         return redirect(reverse("eventos:solicitacao", args=[pk]) + "#despacho")
     decisao = request.POST.get("decisao") or ""
+    ordem = solicitacoes.ordem_da_fila(request.user)  # a de antes da decisão
     try:
         feita = solicitacoes.despachar(request.user, s.pk, decisao,
-                                       request.POST.get("observacao") or "", _quantidades(request))
+                                       request.POST.get("observacao") or "", quantidades)
     except dominio.RegraViolada as exc:
         messages.error(request, str(exc))
         request.session["despacho_escolhido"] = decisao
@@ -426,7 +608,7 @@ def despachar(request: HttpRequest, pk: int) -> HttpResponse:
     messages.success(request, f"Solicitação #{feita.pk} enviada para correção." if decisao ==
                      "devolver" else f"Decisão registrada para a solicitação #{feita.pk}.")
     if request.POST.get("seguir") == "proxima":
-        proxima = solicitacoes.proxima_da_fila(request.user, depois_de=feita.pk)
+        proxima = solicitacoes.proxima_da_fila(request.user, depois_de=feita.pk, ordem=ordem)
         if proxima is None:
             messages.info(request, "Não há mais solicitações aguardando despacho.")
             return redirect(reverse("eventos:solicitacoes") + "?fila=despacho")
@@ -453,9 +635,19 @@ def transferir(request: HttpRequest, pk: int) -> HttpResponse:
     pk_novo = request.POST.get("responsavel") or ""
     novo = (get_user_model().objects.filter(pk=pk_novo).first()
             if re.fullmatch(r"[0-9]{1,9}", pk_novo) else None)
-    return _acao(request, pk, lambda s: solicitacoes.transferir(
-        request.user, s.pk, novo, request.POST.get("motivo_transferencia") or ""),
-        "Solicitação #{s.pk} transferida para {r.criado_por.nome}.", "#responsavel")
+    s = _visivel(request, pk)
+    try:
+        feita = solicitacoes.transferir(request.user, s.pk, novo,
+                                        request.POST.get("motivo_transferencia") or "")
+    except dominio.RegraViolada as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("eventos:solicitacao", args=[pk]) + "#responsavel")
+    messages.success(request, f"Solicitação #{feita.pk} transferida para "
+                              f"{feita.criado_por.nome}.")
+    # Quem passou adiante e não vê as de outros volta à lista (a folha daria 404).
+    if not policies.pode_ver(request.user, feita):
+        return redirect("eventos:solicitacoes")
+    return redirect(reverse("eventos:solicitacao", args=[pk]) + "#responsavel")
 
 
 @require_POST

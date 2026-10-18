@@ -1,0 +1,242 @@
+{
+  "VI-L01": {
+    "rota": "/viagens/oficios/",
+    "status": 200,
+    "consultas": 18,
+    "ms_mediana": 213.9
+  },
+  "VI-L02": {
+    "rota": "/viagens/prestacoes/",
+    "status": 200,
+    "consultas": 122,
+    "ms_mediana": 547.4
+  },
+  "VI-D01": {
+    "rota": "/viagens/oficios/247/editar/",
+    "status": 200,
+    "consultas": 20,
+    "ms_mediana": 165.1
+  },
+  "VI-D02": {
+    "rota": "/viagens/oficios/1/resumo/",
+    "status": 200,
+    "consultas": 15,
+    "ms_mediana": 53.3
+  },
+  "VI-P01": {
+    "rota": "/viagens/",
+    "status": 200,
+    "consultas": 20,
+    "ms_mediana": 145.2
+  },
+  "VI-C01": {
+    "rota": "/cadastros/servidores/",
+    "status": 200,
+    "consultas": 18,
+    "ms_mediana": 64.4
+  },
+  "EV-P01": {
+    "rota": "/eventos/",
+    "status": 200,
+    "consultas": 14,
+    "ms_mediana": 72.1
+  },
+  "EV-L01": {
+    "rota": "/eventos/solicitacoes/",
+    "status": 200,
+    "consultas": 20,
+    "ms_mediana": 73.5
+  },
+  "EV-L02": {
+    "rota": "/eventos/solicitacoes/?fila=despacho",
+    "status": 200,
+    "consultas": 20,
+    "ms_mediana": 52.3
+  },
+  "EV-L03": {
+    "rota": "/eventos/solicitacoes/?q=zzzz-nada",
+    "status": 200,
+    "consultas": 19,
+    "ms_mediana": 48.3
+  },
+  "EV-N01": {
+    "rota": "/eventos/solicitacoes/nova/",
+    "status": 200,
+    "consultas": 14,
+    "ms_mediana": 51.3
+  },
+  "EV-D01": {
+    "rota": "/eventos/solicitacoes/1/",
+    "status": 200,
+    "consultas": 30,
+    "ms_mediana": 97.6
+  },
+  "EV-D02": {
+    "rota": "/eventos/solicitacoes/7/",
+    "status": 200,
+    "consultas": 30,
+    "ms_mediana": 86.6
+  },
+  "EV-D03": {
+    "rota": "/eventos/solicitacoes/9/",
+    "status": 200,
+    "consultas": 30,
+    "ms_mediana": 88.0
+  },
+  "EV-D04": {
+    "rota": "/eventos/solicitacoes/14/",
+    "status": 200,
+    "consultas": 36,
+    "ms_mediana": 101.4
+  },
+  "EV-D05": {
+    "rota": "/eventos/solicitacoes/16/",
+    "status": 200,
+    "consultas": 30,
+    "ms_mediana": 81.8
+  },
+  "EV-D06": {
+    "rota": "/eventos/solicitacoes/7/?reabrir=1",
+    "status": 200,
+    "consultas": 30,
+    "ms_mediana": 100.9
+  },
+  "EV-C01": {
+    "rota": "/eventos/cadastros/",
+    "status": 200,
+    "consultas": 20,
+    "ms_mediana": 28.2
+  },
+  "EV-C02": {
+    "rota": "/eventos/cadastros/tipos-evento/",
+    "status": 200,
+    "consultas": 14,
+    "ms_mediana": 34.9
+  },
+  "EV-C03": {
+    "rota": "/eventos/cadastros/tipos-evento/1/modelo/",
+    "status": 200,
+    "consultas": 14,
+    "ms_mediana": 26.3
+  },
+  "CB-P01": {
+    "rota": "/coffee/painel/",
+    "status": 200,
+    "consultas": 19,
+    "ms_mediana": 68.6
+  },
+  "CB-L01": {
+    "rota": "/coffee/",
+    "status": 200,
+    "consultas": 13,
+    "ms_mediana": 75.7
+  },
+  "CB-L02": {
+    "rota": "/coffee/?situacao=aguardando_nota",
+    "status": 200,
+    "consultas": 13,
+    "ms_mediana": 48.4
+  },
+  "CB-L03": {
+    "rota": "/coffee/?q=zzzz-nada",
+    "status": 200,
+    "consultas": 12,
+    "ms_mediana": 32.3
+  },
+  "CB-N01": {
+    "rota": "/coffee/nova/",
+    "status": 200,
+    "consultas": 10,
+    "ms_mediana": 34.6
+  },
+  "CB-D01": {
+    "rota": "/coffee/solicitacoes/1/",
+    "status": 200,
+    "consultas": 23,
+    "ms_mediana": 83.4
+  },
+  "CB-D02": {
+    "rota": "/coffee/solicitacoes/6/",
+    "status": 200,
+    "consultas": 21,
+    "ms_mediana": 64.4
+  },
+  "CB-D03": {
+    "rota": "/coffee/solicitacoes/9/",
+    "status": 200,
+    "consultas": 21,
+    "ms_mediana": 72.1
+  },
+  "CB-D04": {
+    "rota": "/coffee/solicitacoes/12/",
+    "status": 200,
+    "consultas": 21,
+    "ms_mediana": 64.2
+  },
+  "CB-D05": {
+    "rota": "/coffee/solicitacoes/5/protocolo/",
+    "status": 200,
+    "consultas": 15,
+    "ms_mediana": 48.8
+  },
+  "CB-D06": {
+    "rota": "/coffee/solicitacoes/1/email/os/",
+    "status": 200,
+    "consultas": 12,
+    "ms_mediana": 34.9
+  },
+  "CB-L04": {
+    "rota": "/coffee/lotes/",
+    "status": 200,
+    "consultas": 16,
+    "ms_mediana": 47.7
+  },
+  "CB-D07": {
+    "rota": "/coffee/lotes/2/",
+    "status": 200,
+    "consultas": 15,
+    "ms_mediana": 57.8
+  },
+  "CB-D08": {
+    "rota": "/coffee/lotes/contrato/1/relatorio/",
+    "status": 200,
+    "consultas": 14,
+    "ms_mediana": 43.4
+  },
+  "CB-L05": {
+    "rota": "/coffee/certidoes/",
+    "status": 200,
+    "consultas": 10,
+    "ms_mediana": 34.7
+  },
+  "CB-C01": {
+    "rota": "/coffee/cadastros/fornecedores/",
+    "status": 200,
+    "consultas": 15,
+    "ms_mediana": 45.4
+  },
+  "CB-C02": {
+    "rota": "/coffee/cadastros/contratos/",
+    "status": 200,
+    "consultas": 16,
+    "ms_mediana": 55.9
+  },
+  "CB-C03": {
+    "rota": "/coffee/cadastros/lotes/",
+    "status": 200,
+    "consultas": 16,
+    "ms_mediana": 63.4
+  },
+  "CB-C04": {
+    "rota": "/coffee/cadastros/oficio/",
+    "status": 200,
+    "consultas": 13,
+    "ms_mediana": 33.9
+  },
+  "CB-C05": {
+    "rota": "/coffee/lotes/abrir-exercicio/",
+    "status": 200,
+    "consultas": 18,
+    "ms_mediana": 45.3
+  }
+}

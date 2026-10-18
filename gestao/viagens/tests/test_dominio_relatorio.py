@@ -66,5 +66,22 @@ def test_sugerir_conclusao_e_medidas():
     sem_nada = r.sugerir("conclusao", r.Contexto(), {})
     assert sem_nada.startswith("A viagem, foi") is False and sem_nada.startswith("A viagem foi")
     with pytest.raises(ValueError):
-        r.sugerir("motivo", ctx, {})
+        r.sugerir("outro", ctx, {})
+
+
+def test_sugerir_descricao_objetivo_e_informacoes():
+    ctx = r.Contexto(evento="PCPR na Comunidade", motivo="Apoio ao evento PCPR na Comunidade",
+                     destino="Londrina/PR", periodo="07/10 a 09/10/2026",
+                     atividades=("Palestra", "Atendimento"))
+    assert r.sugerir("motivo", ctx, {}) == (
+        "Apoio ao evento PCPR na Comunidade. A viagem ocorreu em Londrina/PR, no período de "
+        "07/10 a 09/10/2026.")
+    assert r.sugerir("atividade", ctx, {}) == (
+        "Representar a Polícia Civil do Paraná no evento “PCPR na Comunidade”, em "
+        "Londrina/PR, realizando as atividades previstas no plano de trabalho: Palestra e "
+        "Atendimento.")
+    assert r.sugerir("info_complementares", ctx, {}).startswith("Não há informações")
+    trocou = r.Contexto(ajustes="Motorista trocado de A para B")
+    assert r.sugerir("info_complementares", trocou, {}) == "Motorista trocado de A para B."
+    assert r.sugerir("motivo", r.Contexto(), {}).startswith("Viagem a serviço")
     assert r.listar(["a", "b", "c", "d", "e", "f"]) == "a, b, c, d e outras 2"

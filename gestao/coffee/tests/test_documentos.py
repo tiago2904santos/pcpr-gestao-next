@@ -113,10 +113,12 @@ def test_telas_dos_documentos(os_):
     u, s = os_
     c = Client()
     c.force_login(u)
-    html = c.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
-    assert "Documentos" in html and "Falta informação" in html
+    html = c.get(reverse("coffee:ordem_servico", args=[s.pk])).content.decode()
+    assert "Ordem de serviço" in html and "Falta informação" in html
+    html = c.get(reverse("coffee:oficio", args=[s.pk])).content.decode()
+    assert "Certifico e ofício" in html and "Certifico digital" in html
     r = c.get(reverse("coffee:documento", args=[s.pk, "os"]))
-    assert r.status_code == 302 and r["Location"].endswith("#documentos")
+    assert r.status_code == 302 and r["Location"].endswith("/os/#ordem-servico")
     r = c.get(reverse("coffee:documento", args=[s.pk, "certificado"]), {"baixar": "1"})
     assert r.status_code == 200 and r["Content-Type"] == "application/pdf"
     assert "attachment" in r["Content-Disposition"]

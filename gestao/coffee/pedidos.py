@@ -127,7 +127,12 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
     if novo and email_impressao:
         s.email_impressao = email_impressao
     s.lote = lote
-    s.numero = _numero(s, dados.get("numero", ""), (dados["data_solicitacao"] or hoje).year)
+    # A tela mostra só a sequência ("5"): na edição, o ano é o do número que a OS já tem
+    # ("5/2025" não vira "5/2026" porque a data da solicitação é de outro ano).
+    ano = (dados["data_solicitacao"] or hoje).year
+    if not novo and (atual := regras.sequencia(s.numero)):
+        ano = atual[0]
+    s.numero = _numero(s, dados.get("numero", ""), ano)
     sal = queries.saldo(lote, exceto=s.pk)
     if s.quantidade_efetiva > sal.restante:
         raise PedidoInvalido(regras.MSG_SALDO.format(restante=sal.restante, total=sal.total),
@@ -145,9 +150,9 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
             if not em_branco or tentativa == 2:
                 raise PedidoInvalido(
                     f"A OS {s.numero} acabou de ser usada. A próxima livre é "
-                    f"{queries.proximo_numero(dados['data_solicitacao'].year)}.",
+                    f"{queries.proximo_numero(ano)}.",
                     "numero") from None
-            s.numero = queries.proximo_numero(dados["data_solicitacao"].year)
+            s.numero = queries.proximo_numero(ano)
     if novo:
         de_onde = f" Duplicada da solicitação {duplicada_de}." if duplicada_de else ""
         if origem is not None:

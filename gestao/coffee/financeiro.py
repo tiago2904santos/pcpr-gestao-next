@@ -67,6 +67,29 @@ def _numero_oficio(s: Solicitacao, digitado: str, ano: int) -> str:
     return numero
 
 
+def _protocolo_do_oficio(s: Solicitacao, antes: dict[str, Any], novo: dict[str, Any]) -> None:
+    """Como na referência: com a nota, o "PCPR protocolo n.º" no formato do eProtocolo vira o
+    protocolo de pagamento — quando este está em branco ou o do ofício acabou de mudar (e o
+    de pagamento não foi mexido). O número interno da PCPR ("2026.050880.000") não conta; no
+    pagamento conjunto, só quando todas as OS têm a nota."""
+    from . import conjunto
+    if not novo["nota_fiscal"] or not novo["protocolo_pcpr"]:
+        return
+    try:
+        protocolo = regras.formatar_protocolo(novo["protocolo_pcpr"])
+    except ValueError:
+        return
+    vazio = not novo["protocolo_pagamento"]
+    mudou = (novo["protocolo_pcpr"] != antes["protocolo_pcpr"]
+             and novo["protocolo_pagamento"] == antes["protocolo_pagamento"])
+    if not (vazio or mudou) or novo["protocolo_pagamento"] == protocolo:
+        return
+    if conjunto.em_grupo(s) and any(not x.nota_fiscal for x in conjunto.membros(s)
+                                    if x.pk != s.pk):
+        return
+    novo["protocolo_pagamento"] = protocolo
+
+
 @transaction.atomic
 def salvar_financeiro(usuario, pk: int, dados: dict[str, Any], *, versao: str | None = None,
                       hoje: date | None = None) -> Solicitacao:
@@ -86,6 +109,7 @@ def salvar_financeiro(usuario, pk: int, dados: dict[str, Any], *, versao: str | 
         raise PedidoInvalido(str(exc), "protocolo_pagamento") from None
     if antes["protocolo_pagamento"] and not novo["nota_fiscal"]:
         raise PedidoInvalido(regras.MSG_NOTA_OBRIGATORIA, "nota_fiscal")
+    _protocolo_do_oficio(s, antes, novo)
     erros = regras.erros_dos_marcos(novo["nota_fiscal"], novo["protocolo_pagamento"],
                                     novo["atesto_em"], novo["ordem_bancaria_em"],
                                     novo["envio_empresa_em"])

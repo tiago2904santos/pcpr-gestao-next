@@ -9,6 +9,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -19,6 +20,7 @@ from gestao.cadastros.models import Viatura
 from gestao.cadastros.validacoes import formatar_cpf
 
 from . import diario, policies, realizado, views_prestacao
+from .dominio.diario import comparar_rodado
 from .dominio.diario import km as dominio_km
 from .models import DiarioBordo, PrestacaoContas
 from .views import _migalhas
@@ -48,11 +50,18 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     p = _prestacao(request, pk)
     finalizada = diario.equipe_finalizada(p)
     editavel = diario.pode_editar(request.user, p, finalizada)
+    if editavel and request.GET.get("cadastros") == "1":
+        # Os "+" de servidor e viatura: o formulário só vem quando o diálogo abre.
+        from gestao.cadastros.forms import formularios_de_cadastro_rapido
+        return render(request, "componentes/dialogos_cadastro.html",
+                      formularios_de_cadastro_rapido())
     d = (diario.obter(p) if editavel
          else DiarioBordo.objects.filter(prestacao=p).select_related("prestacao__oficio")
          .first())  # consulta, diário ainda não aberto: mostra sem criar nada
-    lista = diario.linhas(d) if d else []
-    conf = diario.conferencia(d, lista) if d else None
+    # Motorista de outro ofício: os trechos e os km são os do diário daquele ofício.
+    de_la = diario.origem(d) if d else None
+    lista = diario.linhas(de_la or d) if d else []
+    conf = diario.conferencia(de_la or d, lista) if d else None
     oficio = p.oficio
     mot_oficio, via_oficio = diario.motorista_do_oficio(oficio), diario.viatura_do_oficio(oficio)
     nome, cpf = diario.motorista(d) if d else mot_oficio
@@ -60,13 +69,19 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     def km(valor):
         return dominio_km(valor) if valor is not None else ""
 
-    linhas = [{"l": linha, "rota": diario.rota(linha), "prevista": diario.prevista(linha),
-               "origem": diario.rota(linha).split(" → ")[0],
-               "destino": diario.rota(linha).split(" → ")[-1],
-               "rodado": conf.rodados[i] if conf else None,
-               "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
-               "fonte": diario.fonte(linha)}
-              for i, linha in enumerate(lista)]
+    def item(i, linha):
+        prevista, rodado = diario.prevista(linha), conf.rodados[i] if conf else None
+        situacao, diferenca = comparar_rodado(rodado, prevista)
+        return {"l": linha, "rota": diario.rota(linha), "prevista": prevista,
+                "origem": diario.rota(linha).split(" → ")[0],
+                "destino": diario.rota(linha).split(" → ")[-1],
+                "rodado": km(rodado), "situacao": situacao,
+                "diferenca": (f"{'+' if diferenca > 0 else '−'}{dominio_km(abs(diferenca))}"
+                              if diferenca else ""),
+                "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
+                "fonte": diario.fonte(linha)}
+
+    linhas = [item(i, linha) for i, linha in enumerate(lista)]
     preenchidas = sum(1 for linha in lista
                       if linha.km_inicial is not None and linha.km_final is not None)
     realizados = realizado.trechos(p)
@@ -79,14 +94,18 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         "diaria_realizada": moeda(nova) if nova is not None else "",
         "p": p, "oficio": oficio, "d": d, "linhas": linhas, "conf": conf,
         "editavel": editavel, "equipe_finalizada": finalizada,
+        "de_la": de_la, "editavel_km": editavel and de_la is None,
+        "protocolo_de_la": (diario.protocolo_formatado(de_la.prestacao.oficio.protocolo)
+                            if de_la else ""),
+        **(_contexto_da_escolha(d) if editavel and d is not None else {}),
         "preenchidas": preenchidas, "completo": bool(lista) and preenchidas == len(lista),
         "faltam": len(lista) - preenchidas,
         "motorista": {"nome": nome, "cpf": formatar_cpf(cpf)}, "viatura": v,
         "motorista_oficio": mot_oficio[0], "viatura_oficio": via_oficio,
         "alteracoes": (diario.alteracoes(d, do_oficio=mot_oficio, viatura_oficio=via_oficio)
                        if d else []),
-        "equipe": [vj.servidor for vj in oficio.viajantes.select_related("servidor")
-                   .order_by("ordem")],
+        "equipe": [vj.servidor for vj in oficio.viajantes.select_related(
+            "servidor__cargo", "servidor__unidade").order_by("ordem")],
         "viaturas": Viatura.objects.filter(ativo=True).order_by("modelo", "placa"),
         "tipos_viatura": Viatura.Tipo.choices,
         **views_prestacao.contexto_folha(request, p, "diario"),
@@ -94,6 +113,20 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                               (f"Ofício {oficio.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),
                               ("Diário de bordo", ""))})
+
+
+def _contexto_da_escolha(d: DiarioBordo) -> dict:
+    """O que a troca de motorista e viatura usa: a busca de ofícios (a mesma do termo) e a
+    escolha de viatura do ofício, com o "+" que cadastra sem sair da folha."""
+    from gestao.cadastros.models import Servidor
+
+    from .forms import ViaturaDoDiarioForm
+    equipe = d.prestacao.oficio.viajantes.values("servidor_id")
+    outros = (Servidor.objects.filter(Q(ativo=True) | Q(pk=d.motorista_servidor_id))
+              .exclude(pk__in=equipe).select_related("cargo", "unidade").order_by("nome"))
+    return {"fonte_oficios": reverse("viagens:buscar_oficios"),
+            "outros_servidores": outros,
+            "form_viatura_diario": ViaturaDoDiarioForm(diario=d)}
 
 
 @require_POST
@@ -127,14 +160,15 @@ def _inteiro(texto: str | None) -> int | None:
     return int(texto) if texto and texto.isdigit() else None
 
 
-def _trocar_recursos(request: HttpRequest, d: DiarioBordo) -> None:
+def _trocar_recursos(request: HttpRequest, d: DiarioBordo) -> DiarioBordo:
     g = request.POST.get
-    diario.trocar_motorista_e_viatura(
+    return diario.trocar_motorista_e_viatura(
         request.user, d.pk, motorista_modo=g("motorista_modo", ""),
         motorista_servidor_id=_inteiro(g("motorista_servidor")),
         motorista_nome=g("motorista_nome", ""), motorista_cpf=g("motorista_cpf", ""),
         motorista_oficio=g("motorista_oficio", ""),
         motorista_protocolo=g("motorista_protocolo", ""),
+        oficio_do_motorista_id=_inteiro(g("oficio_do_motorista")),
         viatura_modo=g("viatura_modo", ""), viatura_id=_inteiro(g("viatura")),
         viatura_modelo=g("viatura_modelo", ""), viatura_placa=g("viatura_placa", ""),
         viatura_tipo=g("viatura_tipo", ""), viatura_combustivel=g("viatura_combustivel", ""))
@@ -145,12 +179,15 @@ def autosave_motorista(request: HttpRequest, pk: int) -> JsonResponse:
     """Motorista e transporte gravando sozinhos (contrato do autosave.js); o que falta para
     a escolha valer (ex.: "Da equipe" sem o servidor) volta como mensagem, sem gravar."""
     p = _prestacao(request, pk)
+    d = diario.obter(p)
+    antes = d.oficio_do_motorista_id if d.motorista_modo == DiarioBordo.Motorista.OUTRO else None
     try:
-        _trocar_recursos(request, diario.obter(p))
+        d = _trocar_recursos(request, d)
     except (diario.DiarioInvalido, PermissionDenied) as exc:
         return JsonResponse({"salvo": False, "mensagem": str(exc)})
+    # Ligar ou trocar o ofício do motorista troca o diário inteiro (trechos e documento).
     return JsonResponse({"salvo": True, "em": f"{timezone.localtime():%H:%M}", "campos": {},
-                         "recarregar": False})
+                         "recarregar": d.oficio_do_motorista_id != antes})
 
 
 @require_POST

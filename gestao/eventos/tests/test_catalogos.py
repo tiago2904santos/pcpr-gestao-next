@@ -95,3 +95,27 @@ def test_modelo_do_tipo():
     catalogos.excluir(admin, "orgaos", orgao.pk)
     tipo.refresh_from_db()
     assert tipo.orgao_padrao is None
+
+
+def test_catalogo_na_forma_de_viagens_paginacao_e_janela():
+    """EV-F02b/EV-P08: a paginação aparece (antes, o bloco não existia na base), as abas
+    trazem a contagem e novo/editar abrem a janela — com erro, ela volta aberta."""
+    from gestao.eventos import views
+
+    admin = _usuario("admin", "ADMINISTRADOR")
+    c = Client()
+    c.force_login(admin)
+    for i in range(views.POR_PAGINA + 3):
+        Servico.objects.create(nome=f"Serviço {i:02d}")
+    url = reverse("eventos:servicos")
+    html = c.get(url).content.decode()
+    assert 'id="paginacao-barra"' in html and "pagina=2" in html
+    assert 'class="registro registro--catalogo' in html and "aba__contagem" in html
+    assert "data-abrir-ao-carregar" not in html
+    s = Servico.objects.get(nome="Serviço 00")
+    editar = c.get(url, {"editar": s.pk}).content.decode()
+    assert "data-abrir-ao-carregar" in editar and "Editar “Serviço 00”" in editar
+    r = c.post(url, {"pk": s.pk, "nome": ""})
+    assert r.status_code == 422 and "data-abrir-ao-carregar" in r.content.decode()
+    c.post(url, {"pk": s.pk, "acao": "ativo"})
+    assert "Serviço 00" in c.get(url, {"aba": "inativos"}).content.decode()

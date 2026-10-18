@@ -9,17 +9,13 @@ por tipo com a situação (faltando, vencida, vencendo em até 15 dias, vigente)
 portal emissor (a emissão é manual — os portais têm CAPTCHA) e o anexo, que confere o tipo,
 o CNPJ e lê a validade do PDF.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <div class="pagina-cabecalho__texto">
-    <p class="rotulo-caixa-alta">Coffee Break</p>
-    <h1 class="pagina-cabecalho__titulo">Certidões</h1>
-    <p class="pagina-cabecalho__descricao">As cinco certidões de cada fornecedor com lote ativo: emita no portal com o CNPJ à mão e anexe o PDF — o sistema confere o tipo, o CNPJ e lê a validade.</p>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break" titulo="Certidões dos fornecedores" complemento="As cinco certidões de cada fornecedor com lote ativo: emita no portal com o CNPJ à mão e anexe o PDF — o sistema confere o tipo, o CNPJ e lê a validade." %}
+<div class="pilha-lg mt-4">
 {% for f, linhas in quadros %}
-<section class="cartao mt-4" id="fornecedor-{{ f.pk }}" aria-labelledby="t-f-{{ f.pk }}">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-f-{{ f.pk }}">{{ f.razao_social }}</h2><span class="texto-secundario texto-sm">CNPJ {{ f.cnpj_formatado|default:"não cadastrado" }}</span></div>
+<section class="colecao-operacional pilha-sm" id="fornecedor-{{ f.pk }}" aria-labelledby="t-f-{{ f.pk }}">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-f-{{ f.pk }}">{% icone "building-2" classe="icone--sm" %} {{ f.razao_social }}</h2><span class="texto-secundario texto-sm">CNPJ {{ f.cnpj_formatado|default:"não cadastrado" }}</span></div>
   <ul class="registros" aria-labelledby="t-f-{{ f.pk }}">
     {% for l in linhas %}
     <li class="registro">
@@ -43,6 +39,7 @@ o CNPJ e lê a validade do PDF.
 {% empty %}
 {% include "componentes/vazio.html" with icone="shield-check" titulo="Nenhum fornecedor com lote ativo" texto="As certidões aparecem para os fornecedores dos lotes vigentes." %}
 {% endfor %}
+</div>
 
 {% if anexar_f %}
 <dialog id="dialogo-certidao" class="dialogo dialogo--cadastro" aria-labelledby="dialogo-certidao-titulo" data-abrir-ao-carregar>

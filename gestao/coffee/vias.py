@@ -1,5 +1,6 @@
 """Vias dos documentos do Coffee Break (CB4; paridade com `coffee_break/vias.py`): o que sai
-fica guardado; a assinada vale no lugar do gerado. Mensagens da referência."""
+fica guardado; a assinada vale no lugar do gerado. O ofício é do pagamento: as vias dele
+moram na OS principal do pagamento conjunto (`dono`). Mensagens da referência."""
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils import timezone
 
-from . import documentos, policies
+from . import conjunto, documentos, policies
 from .forms import MSG_PDF, conferir_pdf
 from .models import Movimento, Solicitacao, Via
 from .pedidos import PedidoInvalido
@@ -29,8 +30,13 @@ class Arquivo:
     assinada: bool
 
 
+def dono(s: Solicitacao, tipo: str) -> Solicitacao:
+    """A OS que guarda as vias do documento: a principal, no caso do ofício."""
+    return conjunto.principal_de(s) if tipo == "oficio" else s
+
+
 def assinada_vigente(s: Solicitacao, tipo: str) -> Via | None:
-    return (s.vias.filter(tipo=tipo, assinada=True, removida_em__isnull=True)
+    return (dono(s, tipo).vias.filter(tipo=tipo, assinada=True, removida_em__isnull=True)
             .order_by("-emitida_em", "-pk").first())
 
 
@@ -51,9 +57,10 @@ def obter(usuario, s: Solicitacao, tipo: str) -> Arquivo:
     resumo = documentos.sha256(folha.encode())
     if tipo not in documentos.ASSINAVEIS:  # o certificado é espelho do momento: não se guarda
         return Arquivo(conteudo, nome, False)
-    ultima = s.vias.filter(tipo=tipo, assinada=False).order_by("-emitida_em", "-pk").first()
+    guarda = dono(s, tipo)
+    ultima = guarda.vias.filter(tipo=tipo, assinada=False).order_by("-emitida_em", "-pk").first()
     if ultima is None or ultima.sha256 != resumo:
-        Via.objects.create(solicitacao=s, tipo=tipo, nome=nome, sha256=resumo,
+        Via.objects.create(solicitacao=guarda, tipo=tipo, nome=nome, sha256=resumo,
                            emitida_por=usuario, arquivo=ContentFile(conteudo, name=nome))
     return Arquivo(conteudo, nome, False)
 
@@ -75,7 +82,7 @@ def anexar_assinada(usuario, pk: int, tipo: str, arquivo) -> Via:
         raise PedidoInvalido(" ".join(exc.messages) or MSG_PDF) from None
     conteudo = arquivo.read()
     nome = documentos.nome_do_arquivo(tipo, s).replace(".pdf", " (assinado).pdf")
-    via = Via.objects.create(solicitacao=s, tipo=tipo, nome=nome, assinada=True,
+    via = Via.objects.create(solicitacao=dono(s, tipo), tipo=tipo, nome=nome, assinada=True,
                              sha256=documentos.sha256(conteudo), emitida_por=usuario,
                              arquivo=ContentFile(conteudo, name=nome))
     Movimento.objects.create(solicitacao=s, acao=Movimento.Acao.DOCUMENTO, usuario=usuario,

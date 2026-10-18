@@ -113,18 +113,37 @@ def contexto_da_viagem(prestacao: PrestacaoContas) -> dominio.Contexto:
             if linha.realizado is not None:
                 realizados.append(f"{linha.atividade.nome}: {linha.realizado}")
     return dominio.Contexto(evento=dominio.espacos(viagem.titulo if viagem else ""),
-                            motivo=dominio.espacos(oficio.motivo), destino=destino,
+                            # Sem o ponto final: o motivo entra no meio das frases sugeridas.
+                            motivo=dominio.espacos(oficio.motivo).rstrip("."),
+                            destino=destino,
                             periodo=periodo, atividades=tuple(atividades),
-                            realizados=tuple(realizados))
+                            realizados=tuple(realizados),
+                            ajustes=texto_dos_ajustes(prestacao))
+
+
+# Onde a viagem já tem o texto (a descrição da viagem, os resultados do plano), ele vale
+# mais que a regra; nos demais campos, a regra local (dominio.sugerir).
+CAMPOS_COM_DADOS = ("atividade", "conclusao")
 
 
 def sugerir(prestacao: PrestacaoContas, campo: str, rascunho: dict[str, str]) -> str:
-    """Conclusão ou medidas montadas por regra local (nunca grava). `rascunho` é o que está
+    """O "Sugerir texto" de qualquer campo do relato (nunca grava). `rascunho` é o que está
     na tela agora; sem ele, vale o gravado."""
+    return sugestoes_de_texto(prestacao, rascunho, (campo,))[campo]
+
+
+def sugestoes_de_texto(prestacao: PrestacaoContas, rascunho: dict[str, str] | None = None,
+                       campos: tuple[str, ...] = dominio.CAMPOS_TEXTO) -> dict[str, str]:
+    """A sugestão de cada campo — a que o "Sugerir texto" põe no campo e a que a folha
+    mostra no fundo do campo vazio —, com o contexto da viagem montado uma vez só."""
     rt = RelatorioTecnico.objects.filter(prestacao=prestacao).first()
     textos = {c: (getattr(rt, c) if rt else "") for c in dominio.CAMPOS_TEXTO}
-    textos.update({c: v for c, v in rascunho.items() if c in textos and v is not None})
-    return dominio.sugerir(campo, contexto_da_viagem(prestacao), textos)
+    textos.update({c: v for c, v in (rascunho or {}).items()
+                   if c in textos and v is not None})
+    dados = sugestoes(prestacao) if any(c in CAMPOS_COM_DADOS for c in campos) else {}
+    ctx = contexto_da_viagem(prestacao)
+    return {c: (dados[c] if c in CAMPOS_COM_DADOS and dados.get(c)
+                else dominio.sugerir(c, ctx, textos)) for c in campos}
 
 
 def para_copiar(prestacao: PrestacaoContas, limite: int = 10) -> list[dict]:

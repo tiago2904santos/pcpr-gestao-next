@@ -30,6 +30,8 @@ def texto_do_pdf(arquivo, paginas: int = 3) -> str:
         return "\n".join((p.extract_text() or "") for p in leitor.pages[:paginas])
     except (PdfReadError, ValueError, KeyError, TypeError):
         return ""
+    except Exception:  # PDF malformado de outro jeito (limite do pypdf, recursão…): sem texto
+        return ""
     finally:
         arquivo.seek(posicao)
 

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}Cadastros de Eventos Sociais{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+<<<<<<< HEAD
 {% comment %}Índice dos catálogos de Eventos Sociais (paridade com o índice de cadastros da referência): um cartão por catálogo, com o total e os inativos.{% endcomment %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Eventos Sociais" titulo="Cadastros de Eventos Sociais" complemento="Tipos e modelos de solicitação, atividades e serviços compartilhados, equipes, órgãos, unidades móveis e textos do despacho." %}
@@ -24,4 +25,10 @@
   </section>
   {% endfor %}
 </div>
+=======
+{% comment %}Índice dos catálogos de Eventos Sociais, no desenho do índice de Cadastros: faixa grafite e a lista de catálogos (componentes/lista_catalogo.html), com o total e os inativos de cada um.{% endcomment %}
+{% block conteudo %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais" titulo="Cadastros" complemento="Tipos de evento (com o modelo da solicitação), serviços, equipes, órgãos, unidades móveis e os textos do despacho." %}
+{% include "componentes/lista_catalogo.html" with identificador="t-catalogos" titulo="Catálogos das solicitações" itens=cartoes only %}
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
 {% endblock %}

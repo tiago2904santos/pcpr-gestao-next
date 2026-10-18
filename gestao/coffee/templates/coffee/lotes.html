@@ -1,48 +1,119 @@
 {% extends "arquetipos/lista.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% block titulo %}Lotes · Coffee Break{% endblock %}
-{% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break</p>{% endblock %}
-{% block titulo_lista %}Lotes{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Quanto cada lote contratado já consumiu e quanto resta: o pedido cai no lote que atende o município do evento.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_gerir %}{% if proximo_exercicio %}<a class="botao" href="{% url 'coffee:virada' %}">{% icone "calendar-days" %}Abrir exercício {{ proximo_exercicio }}</a>{% endif %}<a class="botao" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}Cadastro de lotes</a>{% endif %}{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break" titulo="Lotes e saldo" complemento="Quanto cada lote contratado já consumiu e quanto resta: o pedido cai no lote que atende o município do evento." %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% comment %}
-Paridade com a lista de lotes da referência: "Lote N · FORNECEDOR", vigente/encerrado, selo
-de consumo (verde < 70%, âmbar ≥ 70%, vermelho ≥ 90%), exercício, contrato, "R de T
-unidades" e os municípios.
+Lotes no padrão das listas de Viagens (paridade com a lista de lotes da referência): a faixa
+no topo, a situação do lote em abas com a contagem, busca, exercício e ordem (gaveta), um registro operacional por lote — placa do lote,
+"Lote N · fornecedor", vigente/encerrado, contrato vencido, contrato, vigência e municípios;
+à direita o saldo ("R de T unidades") com o selo de consumo (verde < 70%, âmbar ≥ 70%,
+vermelho ≥ 90%) e o ⋮ (solicitações do lote, relatório do contrato) —; e a barra fixa com a
+contagem, abrir o exercício seguinte e o cadastro de lotes.
 {% endcomment %}
-{% block abas_filtro %}
-<nav class="abas" aria-label="Situação do lote">
-  {% for chave, rotulo in situacoes %}<a class="aba" href="?situacao={{ chave }}"{% if chave == situacao %} aria-current="page"{% endif %}>{{ rotulo }}</a>{% endfor %}
+{% block abas_filtro %}{% endblock %}
+{% block filtros %}
+<div class="filtro-conjunto">
+<nav class="abas abas--conteudo" id="abas-filtro" aria-label="Situação do lote">
+  {% for chave, rotulo, n in situacoes %}<a class="aba{% if not n %} aba--vazia{% endif %}" href="?situacao={{ chave }}{% if qs_sem_situacao %}&amp;{{ qs_sem_situacao }}{% endif %}"{% if chave == situacao %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
 </nav>
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'coffee:lotes' %}"
+      hx-get="{% url 'coffee:lotes' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro, #barra-lotes, #conta-filtros" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-lotes, change from:#filtros-mais">
+  <input type="hidden" name="situacao" value="{{ situacao }}">
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-lotes">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-lotes" type="search" name="q" value="{{ q }}" placeholder="Nº do lote, contrato, fornecedor, empenho ou município…" data-dica-curta="Lote, contrato, fornecedor…|Lote ou fornecedor…" autocomplete="off"></div>
+  </div>
+  <div class="filtros__lado">
+    <details class="filtros__mais" id="filtros-mais">
+      <summary class="filtros__mais-resumo" aria-controls="filtros-avancados">
+        {% icone "sliders-horizontal" classe="icone--sm" %}<span>Filtros</span>
+        <span id="conta-filtros">{% if ativos_filtro %}<span class="filtros__mais-conta">{{ ativos_filtro }}</span>{% endif %}</span>
+        {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+      </summary>
+      <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
+        <div class="filtros__gaveta-cabecalho"><h2 class="filtros__gaveta-titulo">Filtros e ordem</h2></div>
+        <div class="campo filtros__campo--ordem">
+          <label class="campo__rotulo" for="ordem-lotes">Ordenar por</label>
+          <pc-select class="seletor"><select class="selecao" id="ordem-lotes" name="ordem">
+            {% for chave, rotulo in ordens %}<option value="{{ chave }}"{% if chave == ordem %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+          </select></pc-select>
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="filtro-exercicio">Exercício</label>
+          <pc-select class="seletor"><select class="selecao" id="filtro-exercicio" name="exercicio"><option value="">Todos</option>{% for e in exercicios %}<option value="{{ e }}"{% if e == exercicio %} selected{% endif %}>{{ e }}</option>{% endfor %}</select></pc-select>
+        </div>
+        <div class="filtros__gaveta-rodape">
+          {% if ativos_filtro %}<a class="botao botao--texto" href="?situacao={{ situacao }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}">{% icone "x" %}Limpar filtros</a>{% endif %}
+          <button type="button" class="botao" data-fechar-filtros hidden>Fechar</button>
+        </div>
+      </div>
+    </details>
+    <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
+  </div>
+</form>
+</div>
 {% endblock %}
 {% block resultados %}
-<div class="lista-cabecalho">
-  <h2 class="peso-semi texto-lg" id="titulo-resultados">Lotes</h2>
-  <span class="lista-cabecalho__total" role="status">{{ linhas|length|pluralizar:"lote,lotes" }}</span>
-</div>
+<div id="resultados">
+<h2 class="sr-only" id="titulo-resultados">{% if q %}Resultados para “{{ q }}”{% else %}Lotes{% endif %}</h2>
 {% if linhas %}
-<ul class="registros" aria-labelledby="titulo-resultados">
+<ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
   {% for l in linhas %}{% with lote=l.lote %}
-  <li class="registro{% if not lote.ativo %} registro--inativo{% endif %}">
-    <span class="registro__icone" aria-hidden="true">{% icone "layers" %}</span>
+  <li class="registro registro-operacional{% if not lote.ativo %} registro--inativo{% endif %}">
+    <div class="placa" aria-hidden="true">{% with n=lote.numero|stringformat:"s" %}{% include "componentes/identidade_documental.html" with rotulo="Lote" numero=n complemento=lote.exercicio compacta=True only %}{% endwith %}</div>
     <div class="registro__corpo">
       <div class="registro__titulo">
-        <a class="registro__link" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">{{ lote }} · {{ lote.contrato.fornecedor }}</a>
-        <span class="selo selo--{% if lote.ativo %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{% if lote.ativo %}Vigente{% else %}Encerrado{% endif %}</span>
-        <span class="selo selo--{{ l.saldo.tom }} selo--sem-ponto">{{ l.saldo.percentual }}% consumido</span>
-        {% if l.vencido %}<span class="selo selo--perigo selo--sem-ponto">Contrato vencido</span>{% endif %}
+        <a class="registro__link" href="{% url 'coffee:lote' lote.pk %}"><span class="registro__link-texto">{{ lote }} · {{ lote.contrato.fornecedor }}</span></a>
+        <span class="registro__selos">
+          <span class="selo selo--{% if lote.ativo %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{% if lote.ativo %}Vigente{% else %}Encerrado{% endif %}</span>
+          {% if l.vencido %}<span class="selo selo--perigo selo--sem-ponto">Contrato vencido</span>{% endif %}
+        </span>
       </div>
-      <div class="registro__meta">
-        <span class="registro__meta-item"><span class="sr-only">Saldo: </span>{% icone "layers" classe="icone--sm" %}{{ l.saldo.restante }} de {{ l.saldo.total }} unidades</span>
-        <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Contrato {{ lote.contrato.numero }}</span>
-        {% if l.fim %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if l.vencido %}Vencido em{% else %}Vigente até{% endif %} {{ l.fim|date:"d/m/Y" }}</span>{% endif %}
-        <span class="registro__meta-item"><span class="sr-only">Municípios: </span>{% icone "map-pin" classe="icone--sm" %}{% for m in lote.municipios.all|slice:":5" %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Nenhum município</span>{% endfor %}{% if lote.municipios.all|length > 5 %} e mais {{ lote.municipios.all|length|add:"-5" }}{% endif %}</span>
+      <div class="registro__agenda">
+        <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Contrato {{ lote.contrato.numero }}</span></span>
+        {% if l.fim %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.vencido %}Vencido em{% else %}Vigente até{% endif %} {{ l.fim|date:"d/m/Y" }}</span></span>{% endif %}
+        <span class="registro__meta-item{% if not lote.municipios.all %} registro__meta-item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}<span class="sr-only">Municípios: </span><span class="registro__meta-texto">{% for m in lote.municipios.all|slice:":5" %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}Nenhum município{% endfor %}{% if lote.municipios.all|length > 5 %} e mais {{ lote.municipios.all|length|add:"-5" }}{% endif %}</span></span>
       </div>
     </div>
-    <div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:relatorio_contrato' lote.contrato_id %}">{% icone "file-search" %}Relatório<span class="sr-only"> do contrato {{ lote.contrato.numero }}</span></a></div>
+    <div class="registro-operacional__conferencia">
+      <span class="registro__meta-item" title="Saldo do lote">{% icone "layers" classe="icone--sm" %}<span class="registro__meta-texto"><span class="registro__valor">{{ l.saldo.restante }}</span><span class="registro__meta-detalhe">de {{ l.saldo.total }} unidades</span></span></span>
+      <span class="selo selo--{{ l.saldo.tom }} selo--sem-ponto">{{ l.saldo.percentual }}% consumido</span>
+    </div>
+    <div class="registro__acoes">
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ lote }}">{% icone "ellipsis-vertical" %}</button>
+        <div class="menu__painel menu__painel--descrito" role="menu" hidden>
+          <p class="menu__folha-titulo" aria-hidden="true">{{ lote }} · {{ lote.contrato.fornecedor }}</p>
+          <a class="menu__item" role="menuitem" href="{% url 'coffee:lote' lote.pk %}">{% icone "layers" %}Abrir o lote<span class="menu__item-descricao">saldo, municípios, orientações e OS</span></a>
+          <a class="menu__item" role="menuitem" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">{% icone "list" %}Solicitações do lote<span class="menu__item-descricao">as OS que consumiram este saldo</span></a>
+          <a class="menu__item" role="menuitem" href="{% url 'coffee:relatorio_contrato' lote.contrato_id %}">{% icone "file-search" %}Relatório do contrato<span class="menu__item-descricao">consumo e gasto do contrato {{ lote.contrato.numero }}</span></a>
+        </div>
+      </pc-menu>
+    </div>
   </li>
   {% endwith %}{% endfor %}
 </ul>
+{% elif q or exercicio %}
+{% include "componentes/vazio.html" with icone="search" titulo="Nenhum lote neste recorte" texto="Ajuste a busca, o exercício ou troque de aba." limpar_url=request.path %}
 {% else %}
 {% include "componentes/vazio.html" with icone="layers" titulo="Nenhum lote nesta situação" texto="Os lotes são cadastrados pelo administrador do módulo." %}
 {% endif %}
+</div>
+{% endblock %}
+{% block depois_lista %}
+<div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
+  <div class="barra-acoes__conteudo" id="barra-lotes">
+    <p class="barra-acoes__status" role="status">{% if page_obj.paginator.num_pages > 1 %}Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }} lotes{% else %}{{ page_obj.paginator.count|pluralizar:"lote,lotes" }}{% endif %}</p>
+    {% include "componentes/paginacao.html" with na_barra=True %}
+  </div>
+  {% if pode_gerir %}
+  {% if proximo_exercicio %}<a class="botao" href="{% url 'coffee:virada' %}">{% icone "calendar-days" %}<span>Abrir exercício {{ proximo_exercicio }}</span></a>{% endif %}
+  <a class="botao botao--primario" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}<span>Cadastro<span class="barra-acoes__extra"> de lotes</span></span></a>
+  {% endif %}
+</div>
 {% endblock %}

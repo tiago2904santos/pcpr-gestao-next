@@ -7,6 +7,10 @@
  *
  * O campo recebe `input` ao ser preenchido, então o autosave e o aviso de "alterações não
  * salvas" reagem como se a pessoa tivesse digitado.
+ *
+ * Com `data-somar` (observação do despacho de Eventos, como na referência), cada texto
+ * escolhido entra numa linha nova no fim do campo — sem repetir o que já está lá — e a
+ * escolha volta a "Escrever do zero" para somar o próximo.
  */
 
 import { confirmar, fecharDialogo } from "./dialogo.js";
@@ -16,14 +20,9 @@ function avisar(mensagem, nivel = "sucesso") {
   document.body.dispatchEvent(new CustomEvent("toast", { detail: { mensagem, nivel } }));
 }
 
-/** @param {HTMLElement} raiz */
-function ligar(raiz) {
-  if (raiz.dataset.pronto) return;
-  raiz.dataset.pronto = "1";
-  const alvo = /** @type {HTMLTextAreaElement | null} */ (
-    document.getElementById(raiz.dataset.alvo || ""));
-  const escolha = /** @type {HTMLSelectElement | null} */ (raiz.querySelector("select"));
-  if (!alvo || !escolha) return;
+/** Escolher um texto pronto preenche o campo (perguntando antes de trocar texto escrito).
+ * @param {HTMLTextAreaElement} alvo @param {HTMLSelectElement} escolha */
+function ligarEscolha(alvo, escolha) {
   /** Textos de todas as opções: o campo com um deles, sem ajuste, é texto pronto intacto. */
   const prontos = () => new Set(Array.from(escolha.options)
     .map((o) => (o.dataset.texto || "").trim()).filter(Boolean));
@@ -59,11 +58,43 @@ function ligar(raiz) {
     alvo.dispatchEvent(new Event("input", { bubbles: true }));
     alvo.focus();
   });
+}
 
+/** Somar: o texto escolhido vai para o fim do campo, numa linha nova (sem repetir).
+ * @param {HTMLTextAreaElement} alvo @param {HTMLSelectElement} escolha */
+function ligarSoma(alvo, escolha) {
+  escolha.addEventListener("change", () => {
+    const texto = (escolha.selectedOptions[0]?.dataset.texto || "").trim();
+    if (!texto) return;
+    const atual = alvo.value.trim();
+    if (!atual.includes(texto)) {
+      alvo.value = atual ? `${atual}\n${texto}` : texto;
+      alvo.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    escolha.value = "";
+    escolha.dispatchEvent(new Event("change", { bubbles: true }));
+    alvo.focus();
+  });
+}
+
+/** @param {HTMLElement} raiz */
+function ligar(raiz) {
+  if (raiz.dataset.pronto) return;
+  raiz.dataset.pronto = "1";
+  const alvo = /** @type {HTMLTextAreaElement | null} */ (
+    document.getElementById(raiz.dataset.alvo || ""));
+  if (!alvo) return;
+  // Sem nenhum texto pronto cadastrado a escolha nem aparece; o "Guardar texto" continua.
+  const escolha = /** @type {HTMLSelectElement | null} */ (raiz.querySelector("select"));
+  if (escolha && "somar" in raiz.dataset) ligarSoma(alvo, escolha);
+  else if (escolha) ligarEscolha(alvo, escolha);
   const guardar = /** @type {HTMLButtonElement | null} */ (raiz.querySelector("[data-guardar-texto]"));
   const janela = /** @type {HTMLDialogElement | null} */ (document.getElementById("dialogo-guardar-texto"));
   if (!guardar || !janela) return;
-  guardar.hidden = false;
+  // Só há o que guardar quando o campo tem texto: vazio, o botão nem aparece.
+  const mostrarGuardar = () => { guardar.hidden = !alvo.value.trim(); };
+  mostrarGuardar();
+  alvo.addEventListener("input", mostrarGuardar);
   guardar.addEventListener("click", () => {
     const texto = alvo.value.trim();
     if (!texto) {

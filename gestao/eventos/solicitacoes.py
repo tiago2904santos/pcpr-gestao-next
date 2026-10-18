@@ -110,17 +110,24 @@ def _estrutura(s: Solicitacao, e: Estrutura | None) -> None:
 
 def _recalcular(s: Solicitacao) -> None:
     total = sum(q or 0 for q in s.equipes.values_list("quantidade_servidores", flat=True))
-    Solicitacao.objects.filter(pk=s.pk).update(quantidade_servidores=total)
-    s.quantidade_servidores = total
+    # A versão (atualizado_em) muda junto: quem estiver com a folha aberta é avisado.
+    agora = timezone.now()
+    Solicitacao.objects.filter(pk=s.pk).update(quantidade_servidores=total, atualizado_em=agora)
+    s.quantidade_servidores, s.atualizado_em = total, agora
+
+
+def _carregado(s: Solicitacao, relacao: str) -> bool:
+    """A folha já trouxe a relação (prefetch): usar sem nova consulta."""
+    return relacao in getattr(s, "_prefetched_objects_cache", {})
 
 
 def dados_do_envio(s: Solicitacao) -> dominio.DadosDoEnvio:
     return dominio.DadosDoEnvio(
         preenchidos={campo: bool(getattr(s, f"{campo}_id", None) or getattr(s, campo, None))
                      for campo, _r in dominio.CAMPOS_DO_ENVIO},
-        servicos=s.servicos.count(),
-        equipes={e.equipe.nome: e.quantidade_servidores
-                 for e in s.equipes.select_related("equipe")},
+        servicos=len(s.servicos.all()) if _carregado(s, "servicos") else s.servicos.count(),
+        equipes={e.equipe.nome: e.quantidade_servidores for e in (
+            s.equipes.all() if _carregado(s, "equipes") else s.equipes.select_related("equipe"))},
         tipo_operacao=s.tipo_operacao, unidade_movel=s.unidade_movel,
         unidade_movel_designada=bool(s.unidade_movel_designada_id))
 
@@ -250,7 +257,7 @@ def despachar(usuario, pk: int, decisao: str, observacao: str = "",
     if not policies.pode_ver(usuario, s):
         raise PermissionDenied
     novo = dominio.conferir_despacho(s.status, decisao, observacao or "")
-    if quantidades:
+    if quantidades and decisao != "devolver":  # devolvida volta ao autor como estava
         mudancas = _ajustes(s, quantidades)
         if mudancas:
             _mover(s, usuario, Movimento.Acao.AJUSTE_DG, s.status, "; ".join(mudancas))
@@ -274,14 +281,27 @@ def despachar(usuario, pk: int, decisao: str, observacao: str = "",
     return s
 
 
-def proxima_da_fila(usuario, depois_de: int | None = None) -> Solicitacao | None:
-    """A próxima aguardando despacho: o evento mais próximo primeiro (sem data, no fim)."""
+def ordem_da_fila(usuario) -> list[int]:
+    """A fila de despacho em ordem: o evento mais próximo primeiro (sem data, no fim)."""
     from django.db.models import F
-    qs = (policies.solicitacoes_visiveis(usuario).filter(status=dominio.AGUARDANDO)
-          .order_by(F("data_inicio_evento").asc(nulls_last=True), "pk"))
-    if depois_de:
-        qs = qs.exclude(pk=depois_de)
-    return qs.first()
+    return list(policies.solicitacoes_visiveis(usuario).filter(status=dominio.AGUARDANDO)
+                .order_by(F("data_inicio_evento").asc(nulls_last=True), "pk")
+                .values_list("pk", flat=True))
+
+
+def proxima_da_fila(usuario, depois_de: int | None = None,
+                    ordem: list[int] | None = None) -> Solicitacao | None:
+    """A próxima ainda aguardando despacho depois de `depois_de`, na ordem que a fila tinha
+    antes da decisão (`ordem`); passada a última, volta às de antes dela."""
+    pendentes = ordem_da_fila(usuario)
+    ordem = ordem if ordem is not None else pendentes
+    if depois_de in ordem:
+        i = ordem.index(depois_de)
+        ordem = ordem[i + 1:] + ordem[:i]
+    restantes = set(pendentes)
+    pk = next((pk for pk in ordem if pk in restantes and pk != depois_de),
+              next((pk for pk in pendentes if pk != depois_de), None))
+    return Solicitacao.objects.filter(pk=pk).first() if pk else None
 
 
 # ---------------------------------------------------------------- viagem (E4)
@@ -331,9 +351,10 @@ def cancelar(usuario, pk: int, motivo: str) -> Solicitacao:
         raise PermissionDenied
     dominio.conferir_cancelamento(s.status, motivo or "")
     anterior = s.status
+    # Só a situação muda: a decisão da DG (um "Atender" já dado) fica como estava — é ela que
+    # entra na exportação e nas decisões do painel (como no legado).
     s.status = Solicitacao.Status.CANCELADA
-    s.decisao_dg = Solicitacao.Decisao.CANCELADO
-    s.save(update_fields=["status", "decisao_dg", "atualizado_em"])
+    s.save(update_fields=["status", "atualizado_em"])
     _mover(s, usuario, Movimento.Acao.CANCELAMENTO, anterior, motivo)
     _avisar([*_dg(), s.criado_por], f"Solicitação #{s.pk}: evento cancelado", motivo, s,
             usuario)

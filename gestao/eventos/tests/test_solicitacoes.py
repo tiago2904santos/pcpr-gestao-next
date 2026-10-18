@@ -102,6 +102,17 @@ def test_rascunho_pela_tela_e_autosave(ana, curitiba):
     r = c.post(reverse("eventos:autosave", args=[s.pk]), {
         "versao": "123", "data_solicitacao": f"{hoje:%d/%m/%Y}", "tipo_operacao": "diaria"})
     assert r.json()["salvo"] is False and "outra pessoa" in r.json()["mensagem"]
+    s.refresh_from_db()
+    r = c.post(reverse("eventos:autosave", args=[s.pk]), {
+        "versao": versao_de(s), "data_solicitacao": f"{hoje:%d/%m/%Y}",
+        "solicitante_nome": "Escola Z", "tipo_operacao": "diaria", "municipio": "Curitiba/PR",
+        "local_evento": "Ginásio", f"servico_{cin.pk}": "1", f"equipe_{alfa.pk}": "1",
+        f"quantidade_equipe_{alfa.pk}": "4"})
+    assert r.json()["salvo"] is True
+    from gestao.eventos import queries
+    mudancas = [m for e in queries.historico(s) for m in e.mudancas]
+    assert ("Solicitante", "Escola X", "Escola Z") in mudancas
+    assert ("Local do evento", "", "Ginásio") in mudancas
 
 
 def test_envio_exige_o_necessario_e_avisa_a_dg(ana, dg, django_capture_on_commit_callbacks):
@@ -134,6 +145,27 @@ def test_visibilidade(ana, dg):
     assert c.get(reverse("eventos:solicitacao", args=[s.pk])).status_code == 200
 
 
+def test_fila_de_despacho_segue_a_ordem_e_volta_ao_comeco(ana, dg):
+    hoje = timezone.localdate()
+    a, b, c = (solicitacoes.criar(ana, _completa(data_inicio_evento=hoje + timedelta(days=d),
+                                                 data_fim_evento=hoje + timedelta(days=d)),
+                                  _estrutura()) for d in (5, 10, 15))
+    for s in (a, b, c):
+        solicitacoes.enviar(ana, s.pk)
+    ordem = solicitacoes.ordem_da_fila(dg)
+    assert ordem == [a.pk, b.pk, c.pk]
+    cli = Client()
+    cli.force_login(dg)
+    assert "2 de 3 na fila" in cli.get(reverse("eventos:solicitacao", args=[b.pk])).content.decode()
+    solicitacoes.despachar(dg, b.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=b.pk, ordem=ordem) == c
+    ordem = solicitacoes.ordem_da_fila(dg)
+    solicitacoes.despachar(dg, c.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=c.pk, ordem=ordem) == a  # volta
+    solicitacoes.despachar(dg, a.pk, "atender")
+    assert solicitacoes.proxima_da_fila(dg, depois_de=a.pk) is None
+
+
 def test_despacho_devolucao_reenvio_e_proxima(ana, dg, django_capture_on_commit_callbacks):
     s = solicitacoes.criar(ana, _completa(), _estrutura())
     solicitacoes.enviar(ana, s.pk)
@@ -153,7 +185,8 @@ def test_despacho_devolucao_reenvio_e_proxima(ana, dg, django_capture_on_commit_
             f"quantidade_dg_{alfa.pk}": "5"})
     assert r.status_code == 302
     s.refresh_from_db()
-    assert s.status == "devolvida" and s.quantidade_servidores == 5
+    # Devolver não aplica as quantidades da DG (como na referência; EV-F35).
+    assert s.status == "devolvida" and s.quantidade_servidores == 3
     assert Notificacao.objects.filter(usuario=ana, titulo__contains="enviada para correção")
     solicitacoes.enviar(ana, s.pk)
     outra = solicitacoes.criar(ana, _completa(), _estrutura())
@@ -235,7 +268,7 @@ def test_lista_filas_busca_e_exportacao(ana, dg):
     html = c.get(reverse("eventos:solicitacoes"), {"q": "azul"}).content.decode()
     assert "Colégio Azul" in html and "Igreja Verde" not in html
     html = c.get(reverse("eventos:solicitacoes"), {"q": f"#{b.pk}"}).content.decode()
-    assert f"Pedido</span><span class=\"placa__numero\">#{b.pk}" in html
+    assert f'<span class="placa__numero">#{b.pk}</span>' in html
     c.force_login(ana)
     html = c.get(reverse("eventos:solicitacoes"), {"fila": "rascunhos"}).content.decode()
     assert f"#{a.pk}" in html and "Aguardando despacho <span" not in html  # fila só da DG

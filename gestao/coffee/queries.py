@@ -6,7 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 
-from django.db.models import Count, Q, QuerySet, Sum
+from django.db.models import Count, F, Q, QuerySet, Sum
+from django.db.models.expressions import OrderBy
 from django.db.models.functions import Coalesce
 
 from . import dominio_pedido
@@ -128,6 +129,23 @@ def proximo_oficio(ano: int) -> str:
     usados = [s for n in Solicitacao.objects.filter(numero_oficio__endswith=f"/{ano}")
               .values_list("numero_oficio", flat=True) if (s := dominio_pedido.sequencia(n))]
     return f"{max((seq for _a, seq in usados), default=0) + 1}/{ano}"
+
+
+# "Ordenar por" (referência: `ORDENACOES_SOLICITACOES`): chave → (rótulo, campos). O número
+# ("5/2026") é texto: a ordem por ele vem da data da solicitação, que acompanha a sequência.
+ORDENS: dict[str, tuple[str, tuple[str | OrderBy, ...]]] = {
+    "-data": ("Solicitação mais recente", ("-data_solicitacao", "-pk")),
+    "data": ("Solicitação mais antiga", ("data_solicitacao", "pk")),
+    "evento": ("Evento mais próximo", (F("data_evento").asc(nulls_last=True), "pk")),
+    "-evento": ("Evento mais distante", (F("data_evento").desc(nulls_last=True), "-pk")),
+    "lote": ("Lote", ("lote__exercicio", "lote__numero", "-data_solicitacao")),
+    "descricao": ("Descrição (A–Z)", ("descricao", "-data_solicitacao")),
+    "-quantidade": ("Maior quantidade", ("-quantidade", "-data_solicitacao")),
+}
+
+
+def ordem_de(texto: str | None) -> str:
+    return texto if texto in ORDENS else "-data"
 
 
 def filtrar(qs: QuerySet[Solicitacao], *, q: str = "", lote: int | None = None,

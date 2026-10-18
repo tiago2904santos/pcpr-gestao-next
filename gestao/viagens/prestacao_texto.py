@@ -3,7 +3,9 @@ bordo (um por equipe) e o relatório técnico (um por servidor), como o document
 do termo — a folha em HTML, o PDF/DOCX e o texto editado por região, com versões.
 
 A prestação emite vários documentos: `chave` diz qual — ``diario`` ou ``rt-<pk do servidor
-na prestação>``. Os dados vêm de diario.dados_do_documento e relatorio.dados_do_documento;
+na prestação>``. O RT é igual para todos: a edição do texto de qualquer RT vale para todos
+(guardada com a chave ``rt``; ver chave_de_edicao) — muda só o servidor e a diária. Os
+dados vêm de diario.dados_do_documento e relatorio.dados_do_documento;
 as regras de versão são as de edicao_texto.py; cada versão é uma EdicaoPrestacao.
 """
 
@@ -18,10 +20,12 @@ from .models import DiarioBordo, EdicaoPrestacao, PrestacaoContas, PrestacaoServ
 from .prestacao import PrestacaoInvalida, ativos
 
 CHAVE_DIARIO = "diario"
+# O RT é igual para toda a equipe: a edição do texto é uma só (não uma por servidor).
+CHAVE_EDICAO_RT = "rt"
 TEMPLATES = {"diario": "viagens/documentos/diario_bordo.html",
              "rt": "viagens/documentos/relatorio_tecnico.html"}
 ROTULOS = {"diario": {"corpo": "Diário de bordo"},
-           "rt": {"corpo": "Relatório", "assinatura": "Assinatura"}}
+           "rt": {"relato": "Relato"}}
 
 
 class ConflitoDeEdicao(PrestacaoInvalida):
@@ -133,13 +137,19 @@ def regioes_do_modelo(dados: dict) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------- versões do texto
+def chave_de_edicao(chave: str) -> str:
+    """Onde o texto editado se guarda: o RT de qualquer servidor grava e lê a mesma edição
+    (o relato vale para a equipe toda); o diário, a dele."""
+    return CHAVE_EDICAO_RT if tipo_da_chave(chave) == "rt" else chave
+
+
 def _versoes(prestacao: PrestacaoContas, chave: str):
-    return EdicaoPrestacao.objects.filter(prestacao=prestacao, chave=chave)
+    return EdicaoPrestacao.objects.filter(prestacao=prestacao, chave=chave_de_edicao(chave))
 
 
 def _criar(prestacao: PrestacaoContas, chave: str):
-    return lambda **campos: EdicaoPrestacao.objects.create(prestacao=prestacao, chave=chave,
-                                                           **campos)
+    return lambda **campos: EdicaoPrestacao.objects.create(
+        prestacao=prestacao, chave=chave_de_edicao(chave), **campos)
 
 
 def edicao_vigente(prestacao: PrestacaoContas, chave: str):

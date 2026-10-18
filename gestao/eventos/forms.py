@@ -27,6 +27,8 @@ FORM_ID = "form-solicitacao"
 MSG_VERSAO = ("Esta solicitação foi alterada por outra pessoa depois que você abriu a tela. "
               "Recarregue a página antes de salvar.")
 
+MSG_CEP = "Informe o CEP com 8 dígitos (00000-000)."
+
 
 def _attrs(**extra: Any) -> dict[str, Any]:
     return {"class": "entrada", **extra}
@@ -69,8 +71,7 @@ class FormularioSolicitacao(forms.ModelForm):
             "tipo_evento": Selecao(), "orgao_responsavel": Selecao(),
             "unidade_movel_designada": Selecao(),
             "tipo_operacao": Selecao(),
-            "solicitante_nome": forms.TextInput(attrs=_attrs(autocomplete="off",
-                                                             list="solicitantes")),
+            "solicitante_nome": forms.TextInput(attrs=_attrs(autocomplete="off")),
             "solicitante_cargo_unidade": forms.TextInput(attrs=_attrs(autocomplete="off")),
             "contato": forms.TextInput(attrs=_attrs(autocomplete="off",
                                                     placeholder="Telefone ou e-mail")),
@@ -106,9 +107,17 @@ class FormularioSolicitacao(forms.ModelForm):
             campo.queryset = _ativos(modelo, atual)
             campo.empty_label = vazio
         motorista = cast(forms.ModelChoiceField, self.fields["motorista"])
+<<<<<<< HEAD
         motorista.queryset = fonte_local.consultar(
             "servidor", incluir=[inst.motorista_id] if inst.motorista_id else ()).order_by(
                 "nome", "pk")
+=======
+        # Como na referência: quem tem cargo de motorista ou dirige alguma viatura.
+        motorista.queryset = Servidor.objects.filter(
+            Q(ativo=True, cargo__nome__icontains="motorista")
+            | Q(ativo=True, viaturas_que_dirige__isnull=False)
+            | Q(pk=inst.motorista_id or 0)).distinct().order_by("nome")
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
         motorista.empty_label = "Sem motorista definido"
         parametros = f"?solicitacao={inst.pk}&q=" if inst.pk else "?q="
         motorista.widget = SelecaoRemota(
@@ -117,6 +126,15 @@ class FormularioSolicitacao(forms.ModelForm):
         motorista.widget.choices = motorista.choices
         for campo_form in self.fields.values():
             campo_form.widget.attrs.setdefault("form", FORM_ID)
+
+    def clean_cep(self) -> str:
+        texto = (self.cleaned_data.get("cep") or "").strip()
+        if not texto:
+            return ""
+        cep = re.sub(r"[\s.-]", "", texto)
+        if not re.fullmatch(r"[0-9]{8}", cep):
+            raise forms.ValidationError(MSG_CEP)
+        return f"{cep[:5]}-{cep[5:]}"
 
     def clean(self) -> dict[str, Any]:
         dados = super().clean() or {}

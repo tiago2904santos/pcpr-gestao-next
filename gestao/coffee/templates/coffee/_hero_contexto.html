@@ -1,0 +1,13 @@
+{# Metadados da faixa: quando, onde, quantos, o lote, a entrega e o valor. #}
+{% if s %}
+<p class="registro-hero__metadados" id="frase-coffee">
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{% if s.data_evento %}{{ s.data_evento|date:"d/m/Y" }}{% if s.horario %} às {{ s.horario|time:"H:i" }}{% endif %}{% else %}Sem data do evento{% endif %}</span>
+  <span class="registro-hero__metadado">{% icone "map-pin" classe="icone--sm" %}{{ s.municipio.nome }}/{{ s.municipio.uf }}</span>
+  <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ s.quantidade }} pessoas</span>
+  <span class="registro-hero__metadado">{% icone "layers" classe="icone--sm" %}{{ s.lote }} · {{ s.lote.contrato.fornecedor }}</span>
+  {% if entregas %}{% with ultima=entregas.0 %}<a class="registro-hero__metadado" href="#entregas">{% if ultima.ocorrencia %}{% icone "alert-triangle" classe="icone--sm" %}Com ocorrência{% else %}{% icone "check-circle-2" classe="icone--sm" %}Entregue{% endif %}{% if ultima.avaliacao %} · {{ ultima.avaliacao }}/5{% endif %}</a>{% endwith %}{% endif %}
+  {% if s.valor is not None %}<span class="registro-hero__metadado">{% icone "banknote" classe="icone--sm" %}{{ s.valor|moeda }}</span>{% endif %}
+</p>
+{% else %}
+<p class="registro-hero__complemento">O pedido vira a ordem de serviço ao fornecedor do lote que atende o município. Informe o evento; local e responsável podem vir depois.</p>
+{% endif %}

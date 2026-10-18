@@ -8,18 +8,10 @@ fluxo (cada OS com o botão do que se faz ao chegar; 5 por grupo, o resto sob "M
 mais"); as solicitações recentes; e, ao lado, os alertas de saldo e de vigência, as
 certidões a renovar e os lotes ativos.
 {% endcomment %}
+{% block classe_layout_painel %}pilha-lg{% endblock %}
+{% block classe_contexto_painel %}pilha{% endblock %}
 {% block cabecalho_painel %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "receipt" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Coffee Break</h1>
-    <p class="pagina-cabecalho__descricao">Saldo dos lotes contratados, as ordens de serviço e o que falta para cada pagamento sair.</p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="{% url 'coffee:solicitacoes' %}">{% icone "list" %}Ver solicitações</a>
-    <a class="botao botao--primario" href="{% url 'coffee:nova' %}">{% icone "plus" %}Nova solicitação</a>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break" titulo="Coffee Break" complemento="Saldo dos lotes contratados, as ordens de serviço e o que falta para cada pagamento sair." %}
 {% endblock %}
 {% block indicadores %}
   <a class="indicador" href="{% url 'coffee:lotes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "layers" classe="icone--sm" %}Saldo restante</span><span class="indicador__valor">{{ ind.restante }}</span><span class="indicador__nota">{% if ind.lotes_ativos %}de {{ ind.capacidade }} contratadas · {{ ind.lotes_ativos|pluralizar:"lote ativo,lotes ativos" }}{% else %}Sem lotes ativos{% endif %}</span></a>
@@ -28,32 +20,30 @@ certidões a renovar e os lotes ativos.
   <a class="indicador" href="{% url 'coffee:solicitacoes' %}?de={{ ind.ano }}-01-01&amp;ate={{ ind.ano }}-12-31"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Gasto em {{ ind.ano }}</span><span class="indicador__valor">{{ ind.gasto|moeda }}</span><span class="indicador__nota">{{ ind.pago|moeda }} com ordem bancária</span></a>
 {% endblock %}
 {% block principal %}
-<section class="cartao" aria-labelledby="t-fazer">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-fazer">O que fazer hoje</h2></div>
+<section class="colecao-operacional pilha" aria-labelledby="t-fazer">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-fazer">O que fazer hoje</h2></div>
   {% if p.grupos %}
-  <div class="cartao__corpo pilha-lg">
     {% for g in p.grupos %}
-    <div class="pilha">
+    <div class="pilha-sm">
       <h3 class="peso-semi">{{ g.titulo }} <span class="selo selo--neutro selo--sem-ponto">{{ g.itens|length }}</span></h3>
       <p class="texto-secundario texto-sm">{{ g.ajuda }}</p>
-      <ul class="registros">{% for item in g.primeiros %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
+      <ul class="registros registros--operacionais">{% for item in g.primeiros %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
       {% if g.demais %}
       <details>
         <summary class="botao botao--sm botao--sutil">{% icone "chevron-down" %}Mostrar mais {{ g.demais|length }}<span class="sr-only"> — {{ g.titulo }}</span></summary>
-        <ul class="registros mt-2">{% for item in g.demais %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
+        <ul class="registros registros--operacionais mt-2">{% for item in g.demais %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
       </details>
       {% endif %}
     </div>
     {% endfor %}
-  </div>
   {% else %}
-  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Tudo em dia" texto=msg_nada %}
+  {% include "componentes/vazio.html" with compacto=True icone="check-circle-2" titulo="Tudo em dia" texto=msg_nada %}
   {% endif %}
 </section>
-<section class="cartao" aria-labelledby="t-recentes">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Solicitações recentes</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacoes' %}">Ver todas</a></div></div>
-  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "coffee/_registro.html" %}{% endfor %}</ul>
-  {% else %}{% url 'coffee:nova' as url_nova %}{% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma solicitação registrada ainda" texto="Registre o primeiro pedido de coffee break: o lote vem do município." acao_url=url_nova acao_rotulo="Nova solicitação" %}{% endif %}
+<section class="colecao-operacional pilha-sm" aria-labelledby="t-recentes">
+  <div class="linha linha--entre"><h2 class="cartao__titulo" id="t-recentes">Solicitações recentes</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacoes' %}">Ver todas</a></div></div>
+  {% if recentes %}<ul class="registros registros--operacionais">{% for l in recentes %}{% include "coffee/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% url 'coffee:nova' as url_nova %}{% include "componentes/vazio.html" with compacto=True icone="receipt" titulo="Nenhuma solicitação registrada ainda" texto="Registre o primeiro pedido de coffee break: o lote vem do município." acao_url=url_nova acao_rotulo="Nova solicitação" %}{% endif %}
 </section>
 {% endblock %}
 {% block rotulo_lateral %}Alertas e lotes{% endblock %}

@@ -120,14 +120,21 @@ def test_painel_numeros_alertas_e_grupos(base):
     Solicitacao.objects.filter(pk=hoje_.pk).update(data_evento=hoje)
     item = next(i for g in painel.o_que_fazer(hoje) if g.chave == "entregas" for i in g.itens
                 if i[0].pk == hoje_.pk)
-    assert item[2:] == ("Registrar a entrega", "entregas")
+    assert item[2:4] == ("Registrar a entrega", "entregas")
+    assert item[4].endswith(f"/solicitacoes/{hoje_.pk}/os/#entregas")  # a folha da OS
     assert p.certidoes and len(p.certidoes[0][1]) == 5  # nenhuma certidão cadastrada
     grupos = {g.chave: g for g in p.grupos}
     assert list(grupos) == ["entregas", "sem_nota", "ob_nao_enviada"]
     # desde o fim do evento, posterior ao histórico
     assert grupos["sem_nota"].itens[0][1] == dias_parada
     entrega = grupos["entregas"].itens[0]
-    assert entrega[2:] == ("Abrir a OS", "entrega")  # evento futuro: conferir local e quem recebe
+    # Evento futuro com a OS ainda não enviada: o botão leva ao e-mail (CB-F93, referência);
+    # depois do envio, "Abrir a OS" para conferir o local e quem recebe.
+    assert entrega[2:4] == ("Enviar a OS", "") and entrega[4].endswith("/email/os/")
+    Solicitacao.objects.filter(pk=entrega[0].pk).update(os_enviada_em=timezone.now())
+    enviada = next(i for g in painel.o_que_fazer(hoje) if g.chave == "entregas"
+                   for i in g.itens if i[0].pk == entrega[0].pk)
+    assert enviada[2:4] == ("Abrir a OS", "entrega") and enviada[4].endswith("/os/#entrega")
     assert grupos["ob_nao_enviada"].itens[0][2] == "Informar o envio da OB"
     assert p.pedem_acao == 3 and p.vigencia[0][2] == "aviso"
 
@@ -143,7 +150,7 @@ def test_tela_do_painel_e_navegacao(base):
     s = _os(u, mun, hoje, data_evento=hoje - timedelta(days=1))
     html = cli.get(reverse("coffee:painel")).content.decode()
     assert "Eventos realizados sem nota fiscal" in html and "Anexar a nota" in html
-    assert f'{reverse("coffee:solicitacao", args=[s.pk])}#pdfs' in html
+    assert f'{reverse("coffee:oficio", args=[s.pk])}#pdf-nota' in html  # a folha do ofício
     outro = Usuario.objects.create_user("beto", "beto@teste.invalid", None, nome="Beto")
     cli.force_login(outro)
     assert cli.get(reverse("coffee:painel")).status_code == 403
@@ -180,7 +187,7 @@ def test_folha_registra_entrega_e_guarda_o_rascunho(base):
     baixado = cli.get(reverse("coffee:arquivo_entrega", args=[e.pk]))
     assert baixado.status_code == 200 and baixado["Content-Type"] == "image/png"
     futura = _os(u, mun, hoje, data_evento=hoje + timedelta(days=5))
-    html = cli.get(reverse("coffee:solicitacao", args=[futura.pk])).content.decode()
+    html = cli.get(reverse("coffee:ordem_servico", args=[futura.pk])).content.decode()
     assert "o registro abre no dia do evento" in html and url not in html
 
 
@@ -201,14 +208,17 @@ def test_entrega_impede_excluir_e_anexo_recusado_aparece_no_campo(base):
 
 
 def test_rodape_padrao_da_folha(base):
-    """Rodapé igual em toda folha (pedido do usuário, 06/10): Finalizar grava e volta à lista;
-    Ações tem Duplicar, Cancelar e Excluir (este só antes do financeiro)."""
+    """Rodapé igual em toda folha (pedido do usuário, 06/10): na folha da OS, Finalizar grava
+    e volta à página central; Ações tem Duplicar, Cancelar e Excluir (este só antes do
+    financeiro) — na folha da OS e na página central."""
     u, mun, hoje, _f = base
     s = _os(u, mun, hoje, data_evento=hoje + timedelta(days=3))
     cli = Client()
     cli.force_login(u)
-    html = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
+    html = cli.get(reverse("coffee:ordem_servico", args=[s.pk])).content.decode()
     assert "Finalizar" in html and "Duplicar OS" in html and "Cancelar OS" in html
+    central = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
+    assert "Duplicar OS" in central and "Excluir OS" in central and "Abrir a OS" in central
     assert "Excluir OS" in html and 'id="duplicar-coffee"' in html
     Solicitacao.objects.filter(pk=s.pk).update(nota_fiscal="1")
     html = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()

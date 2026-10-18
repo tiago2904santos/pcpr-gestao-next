@@ -1,0 +1,25 @@
+{% comment %}Próximo marco, reativar, reabrir e encerrar a correção (página central).{% endcomment %}
+    {% if proximo_marco %}
+    <form method="post" action="{% url 'coffee:andamento' s.pk %}" class="pilha" novalidate>
+      {% csrf_token %}
+      <div class="campos-folha">
+        <div class="campo">
+          <label class="campo__rotulo" for="andamento-valor">{{ proximo_marco.1 }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+          {% if proximo_marco.2 == "data" %}<pc-data class="seletor"><input class="entrada" type="text" id="andamento-valor" name="valor" value="{% now 'd/m/Y' %}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" required><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+          {% else %}<input class="entrada" type="text" id="andamento-valor" name="valor" autocomplete="off" maxlength="60" required{% if proximo_marco.0 == "protocolo_pagamento" %} inputmode="numeric" placeholder="00.000.000-0" data-mascara="protocolo"{% endif %}>{% endif %}
+        </div>
+        <div class="campo"><label class="campo__rotulo" for="andamento-anotacao">Anotação</label><input class="entrada" type="text" id="andamento-anotacao" name="anotacao" maxlength="500" autocomplete="off"></div>
+      </div>
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "activity" %}Registrar andamento</button></div>
+    </form>
+    {% endif %}
+    {% if s.cancelada or pode_reabrir or pode_encerrar %}<div class="linha">
+      {% if s.cancelada %}
+        <form method="post" action="{% url 'coffee:reativar' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "undo-2" %}Reativar</button></form>
+      {% endif %}
+      {% if pode_reabrir %}
+        <button type="button" class="botao" data-pedir-motivo="{% url 'coffee:reabrir' s.pk %}" data-motivo-titulo="Reabrir {{ s }} para correção?" data-motivo-rotulo="Motivo da correção" data-motivo-acao="Reabrir para correção" data-motivo-ajuda="Fica no histórico; cada campo que mudar também.">{% icone "pencil" %}Reabrir para correção</button>
+      {% elif pode_encerrar %}
+        <form method="post" action="{% url 'coffee:encerrar_correcao' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "lock" %}Encerrar correção</button></form>
+      {% endif %}
+    </div>{% endif %}

@@ -16,9 +16,13 @@ from . import auditoria
 log = logging.getLogger(__name__)
 
 
-def _ip(request: HttpRequest) -> str | None:
-    # Atrás de proxy reverso confiável, o Nginx sobrescreve X-Real-IP.
+def ip_do_cliente(request: HttpRequest) -> str | None:
+    """O IP de quem pediu. Atrás do proxy reverso confiável, o Nginx/Caddy sobrescreve
+    X-Real-IP (REMOTE_ADDR ali é o do proxy)."""
     return request.META.get("HTTP_X_REAL_IP") or request.META.get("REMOTE_ADDR")
+
+
+_ip = ip_do_cliente
 
 
 class ContextoAuditoriaMiddleware:

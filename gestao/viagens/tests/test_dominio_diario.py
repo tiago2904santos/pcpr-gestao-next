@@ -47,3 +47,13 @@ def test_preenchido():
     assert not d.preenchido([])
     assert not d.preenchido([d.Linha("x", 1, None, None)])
     assert d.preenchido([d.Linha("x", 1, 2, None)])
+
+
+def test_comparar_rodado_com_a_distancia_prevista():
+    assert d.comparar_rodado(None, 420) == ("vazio", None)
+    assert d.comparar_rodado(-5, 420) == ("invalido", None)
+    assert d.comparar_rodado(300, 0) == ("sem_previsao", None)
+    assert d.comparar_rodado(420, 420) == ("conforme", 0)
+    assert d.comparar_rodado(500, 420) == ("conforme", 80)  # tolerância de 84 km
+    assert d.comparar_rodado(510, 420) == ("fora", 90)
+    assert d.comparar_rodado(320, 420) == ("fora", -100)

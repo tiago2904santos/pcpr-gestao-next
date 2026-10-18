@@ -38,7 +38,7 @@ from . import (
 )
 from . import viagem as viagem_mod
 from .forms import FormularioTermo
-from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho, Viajante
+from .models import DiarioBordo, EdicaoTermo, Oficio, TermoAutorizacao, Trecho, Viajante
 from .views import POR_PAGINA, _migalhas
 from .views_editor import (
     moldura_da_folha,
@@ -606,7 +606,8 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
 
     `excluir` (os já escolhidos) sai da lista e restringe o resto aos que se juntam a eles:
     mesma viagem ou mesmo roteiro (vinculos.compativeis). Com `irmaos`, sem busca: todos os
-    que se juntam aos escolhidos (a tela pergunta se devem entrar também)."""
+    que se juntam aos escolhidos (a tela pergunta se devem entrar também). O diário de bordo
+    (motorista de outro ofício) pede `com_prestacao` e `exceto` (o próprio ofício)."""
     from .vinculos import compativeis, resumo
     if not request.user.has_perm("viagens.view_oficio"):
         raise PermissionDenied
@@ -617,6 +618,10 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
     escolhidos = list(Oficio.objects.filter(pk__in=excluir).only("pk", "roteiro_id", "viagem_id"))
     if excluir:
         qs = compativeis(qs.exclude(pk__in=excluir), escolhidos)
+    if request.GET.get("com_prestacao"):
+        qs = qs.filter(prestacao__isnull=False)
+    if (exceto := request.GET.get("exceto") or "").isascii() and exceto.isdecimal():
+        qs = qs.exclude(pk=int(exceto))
     if request.GET.get("irmaos"):
         # Os da mesma ação que ainda faltam (a tela pergunta se entram também): sem busca.
         roteiros = {o.roteiro_id for o in escolhidos} - {None}
@@ -629,6 +634,10 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
             for o in irmaos]})
     filtro = Q(trechos__destino__nome__unaccent__icontains=busca) | Q(
         viajantes__servidor__nome__unaccent__icontains=busca)
+    if request.GET.get("com_prestacao"):  # o diário de bordo busca também pelo motorista
+        filtro |= (Q(motorista_externo_nome__unaccent__icontains=busca)
+                   | Q(motorista_externo_servidor__nome__unaccent__icontains=busca)
+                   | Q(prestacao__diario__motorista_servidor__nome__unaccent__icontains=busca))
     if (digitos := somente_digitos(busca)):
         if "/" in busca and all(p.isascii() and p.isdecimal() for p in busca.split("/", 1)):
             numero, ano = busca.split("/", 1)
@@ -638,7 +647,36 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
     ofs = (qs.filter(filtro).distinct().select_related("sede")
            .prefetch_related(Prefetch("trechos", queryset=Trecho.objects
                                       .select_related("destino").order_by("ordem")))
-           .order_by("-ano", "-numero")[:30])
+           .order_by("-ano", "-numero"))
+    if request.GET.get("com_prestacao"):
+        # O diário de bordo procura o ofício pelo motorista: quem dirigiu vem na linha.
+        ofs = ofs.select_related("motorista_externo_servidor",
+                                 "prestacao__diario__motorista_servidor").prefetch_related(
+            Prefetch("viajantes", queryset=Viajante.objects.filter(motorista=True)
+                     .select_related("servidor"), to_attr="motoristas"))
+        return JsonResponse({"resultados": [
+            {"id": str(o.pk), "titulo": f"Ofício {o.numero_formatado}",
+             "meta": " · ".join(p for p in (_quem_dirigiu(o), resumo(o)) if p)}
+            for o in ofs[:30]]})
     return JsonResponse({"resultados": [
         {"id": str(o.pk), "titulo": f"Ofício {o.numero_formatado}", "meta": resumo(o)}
-        for o in ofs]})
+        for o in ofs[:30]]})
+
+
+def _quem_dirigiu(oficio: Oficio) -> str:
+    """"Motorista Fulano": o do diário de bordo, se foi trocado lá; senão o do ofício (com
+    o que buscar_oficios já carregou, sem consulta por ofício)."""
+    d = getattr(getattr(oficio, "prestacao", None), "diario", None)
+    nome = ""
+    if d is not None and d.motorista_modo == DiarioBordo.Motorista.SERVIDOR:
+        nome = d.motorista_servidor.nome if d.motorista_servidor else ""
+    elif d is not None and d.motorista_modo == DiarioBordo.Motorista.OUTRO:
+        nome = d.motorista_nome
+    elif oficio.motorista_externo == Oficio.MotoristaExterno.SERVIDOR:
+        s = oficio.motorista_externo_servidor
+        nome = s.nome if s else ""
+    elif oficio.motorista_externo == Oficio.MotoristaExterno.MANUAL:
+        nome = oficio.motorista_externo_nome.strip()
+    else:
+        nome = next((v.servidor.nome for v in getattr(oficio, "motoristas", [])), "")
+    return f"Motorista {nome}" if nome else "Sem motorista"

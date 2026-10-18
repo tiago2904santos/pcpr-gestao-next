@@ -8,19 +8,9 @@ que justifica um aditivo, um reforço de empenho ou as quantidades da próxima l
 Conta as OS não canceladas no mês do evento (ou do pedido, sem data de evento). O mesmo
 conteúdo sai em PDF (coffee/pdf/relatorio.html) e em planilha.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "file-search" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <p class="rotulo-caixa-alta">Coffee Break</p>
-    <h1 class="pagina-cabecalho__titulo">Relatório do contrato {{ r.contrato.numero }}</h1>
-    <p class="pagina-cabecalho__descricao">{{ r.contrato.fornecedor.razao_social }}{% if r.fim %} · vigente até {{ r.fim|date:"d/m/Y" }}{% endif %} · {{ r.total_os|pluralizar:"OS,OS" }} não cancelada{{ r.total_os|pluralize }}, {{ r.total_quantidade }} unidades.</p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="?formato=csv">{% icone "table" %}Planilha (CSV)</a>
-    <a class="botao botao--primario" href="?formato=pdf">{% icone "download" %}Baixar PDF</a>
-  </div>
-</header>
+{% with numero_contrato=r.contrato.numero|stringformat:"s" %}{% with titulo_relatorio="Relatório do contrato "|add:numero_contrato %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Lotes" titulo=titulo_relatorio complemento=resumo_relatorio acoes_template="coffee/_relatorio_hero_acoes.html" %}{% endwith %}{% endwith %}
 
 <section aria-label="Saldo e projeção" class="grade grade--kpi">
   <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "layers" classe="icone--sm" %}Saldo restante</span><span class="indicador__valor">{{ r.restante }}</span><span class="indicador__nota">{% if r.capacidade %}de {{ r.capacidade }} nos lotes vigentes{% else %}Sem lote vigente{% endif %}</span></div>

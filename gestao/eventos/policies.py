@@ -97,4 +97,6 @@ def pode_excluir(usuario, s) -> bool:
 
 
 def pode_mexer_nos_anexos(usuario, s) -> bool:
-    return (pode_editar_dados(usuario, s) or pode_reabrir(usuario, s)) and not s.finalizada
+    """Só o autor, no rascunho ou na devolvida (como no legado): depois do envio, os
+    documentos mudariam durante ou depois do despacho sem passar de novo pela DG."""
+    return pode_editar_dados(usuario, s) and not s.finalizada

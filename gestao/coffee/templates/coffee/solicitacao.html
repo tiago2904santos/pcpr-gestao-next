@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ s }} · {{ s.descricao|truncatechars:40 }} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+A página central do coffee break, como a da viagem: reúne tudo e leva a cada folha. 1 o pedido
+(o que chegou: evento, data, município, lote, pessoas, entrega); 2 as etapas na ordem em que o
+processo anda (a trilha da viagem — viagens.css): a ordem de serviço, a nota com o certifico e o
+ofício e o protocolo de pagamento, cada uma com os documentos que já tem e o botão da folha;
+3 o andamento (o próximo marco) e 4 o histórico. Rodapé: Voltar, a próxima etapa e Ações.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% include "coffee/_hero_folha.html" with contexto_hero="Coffee break" %}
+{% include "coffee/_alertas_folha.html" %}
+<div class="documento documento--preparacao">
+  <section class="secao secao--ok" id="pedido" aria-labelledby="t-pedido">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-pedido"><span class="secao__numero">1</span>Pedido</h2>
+      {% if not s.bloqueada %}<div class="secao__estado"><a class="botao botao--sm" href="{% url 'coffee:ordem_servico' s.pk %}#evento">{% icone "pencil" %}Editar o pedido</a></div>{% endif %}
+      <p class="secao__nota">O que chegou à ASCOM: o evento, quando, onde e para quantas pessoas. O município define o lote e o fornecedor.</p>
+    </div>
+    <dl class="metadados grade grade--2">
+      <div class="metadado"><dt>Evento</dt><dd>{{ s.descricao }}</dd></div>
+      <div class="metadado"><dt>Data e horário</dt><dd>{% if s.data_evento %}{{ s.data_evento|date:"d/m/Y" }}{% if s.horario %} às {{ s.horario|time:"H:i" }}{% endif %}{% else %}<span class="vazio-inline">Sem data do evento</span>{% endif %}</dd></div>
+      <div class="metadado"><dt>Município e lote</dt><dd>{{ s.municipio.nome }} · {{ s.lote }} · {{ s.lote.contrato.fornecedor }}</dd></div>
+      <div class="metadado"><dt>Pessoas</dt><dd>{{ s.quantidade }}{% if s.quantidade_faturada and s.quantidade_faturada != s.quantidade %} <span class="texto-secundario texto-sm">({{ s.quantidade_faturada }} faturadas)</span>{% endif %}{% if s.valor %} · {{ s.valor|moeda }}{% endif %}</dd></div>
+      <div class="metadado"><dt>Entrega</dt><dd>{% if s.local_entrega or s.endereco_completo %}{{ s.local_entrega }}{% if s.local_entrega and s.endereco_completo %} — {% endif %}{{ s.endereco_completo }}{% else %}<span class="vazio-inline">Local a informar</span>{% endif %}</dd></div>
+      <div class="metadado"><dt>Quem recebe</dt><dd>{% if s.responsavel %}{{ s.responsavel }}{% else %}<span class="vazio-inline">A informar</span>{% endif %}</dd></div>
+    </dl>
+  </section>
+
+  <section class="secao viagem-documentos" id="etapas" aria-labelledby="t-etapas">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-etapas"><span class="secao__numero">2</span>Etapas do coffee break</h2>
+      <div class="secao__estado"><span class="selo {% if passos_feitos == passos|length %}selo--sucesso{% else %}selo--neutro{% endif %} selo--sem-ponto">{{ passos_feitos }} de {{ passos|length }} etapas</span></div>
+      <p class="secao__nota">Na ordem em que o processo anda: o pedido vira a OS; com a nota vêm o certifico e o ofício; tudo isso, os contratos e as certidões vão para o protocolo de pagamento.</p>
+    </div>
+    <ol class="viagem-trilha" aria-label="Etapas do coffee break">
+      {% for passo in passos %}
+      <li class="viagem-passo{% if passo.feito %} viagem-passo--ok{% endif %}" aria-labelledby="t-passo-{{ passo.chave }}">
+        <span class="viagem-passo__marca" aria-hidden="true">{% if passo.feito %}{% icone "check" classe="icone--sm" %}{% else %}{{ passo.numero }}{% endif %}</span>
+        <div class="viagem-passo__corpo">
+          <div class="viagem-passo__cabecalho">
+            <div class="viagem-passo__rotulo">
+              <h3 class="viagem-passo__titulo" id="t-passo-{{ passo.chave }}">{{ passo.titulo }}{% if passo.itens %} <span class="viagem-passo__conta">{{ passo.itens|length }}</span>{% endif %}</h3>
+              <p class="viagem-passo__descricao">{{ passo.descricao }}</p>
+            </div>
+            <div class="viagem-passo__acoes"><a class="botao botao--sm{% if proximo_passo.chave == passo.chave %} botao--primario{% endif %}" href="{{ passo.url }}">{{ passo.abrir }}{% icone "arrow-right" classe="icone--sm" %}</a></div>
+          </div>
+          {% if passo.itens %}
+          <ul class="viagem-lista" aria-labelledby="t-passo-{{ passo.chave }}">
+            {% for item in passo.itens %}<li class="viagem-lista__item">
+              {% if item.url %}<a class="viagem-lista__link" href="{{ item.url }}">{% else %}<a class="viagem-lista__link" href="{{ passo.url }}">{% endif %}
+                <span class="viagem-lista__linha"><span class="viagem-lista__nome">{{ item.titulo }}</span><span class="selo selo--{{ item.chip.1 }} selo--sem-ponto">{{ item.chip.0 }}</span></span>
+                {% if item.sub %}<span class="viagem-lista__sub">{{ item.sub }}</span>{% endif %}
+                <span class="viagem-lista__ver" aria-hidden="true">{% if item.url %}{% icone "eye" classe="icone--sm" %}Ver{% else %}{% icone "arrow-right" classe="icone--sm" %}Abrir{% endif %}</span>
+              </a>
+            </li>{% endfor %}
+          </ul>
+          {% else %}
+          <p class="viagem-lista__vazio">{% icone passo.icone classe="icone--sm" %}{{ passo.vazio }}</p>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="secao" id="situacao" aria-labelledby="t-situacao">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">3</span>Andamento</h2><p class="secao__nota">Registra só o próximo marco, sem abrir a folha; cancelar devolve a quantidade ao saldo do lote (em Ações).</p></div>
+    {% include "coffee/_andamento.html" %}
+    {% if not proximo_marco and not s.cancelada and not pode_reabrir and not pode_encerrar %}<p class="vazio-inline">{% icone "check" classe="icone--sm" %}{% if s.concluida %}Pagamento concluído.{% else %}Nada a registrar por aqui agora.{% endif %}</p>{% endif %}
+  </section>
+
+  <section class="secao" id="historico" aria-labelledby="t-hist">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-hist"><span class="secao__numero">4</span>Histórico</h2>
+      <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+    </div>
+    {% include "componentes/historico_folha.html" with rotulo="Eventos da solicitação" vazio="Sem eventos registrados." primeiros=":8" resto="8:" limite=8 %}
+  </section>
+</div>
+{% include "componentes/dialogo_motivo.html" %}
+
+<div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "check" classe="icone--sm" %}<span>{% if s.bloqueada %}Só consulta.{% elif proximo_passo %}Próxima etapa: {{ proximo_passo.titulo|lower }}.{% else %}Todas as etapas feitas.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
+    {% if proximo_passo %}<a class="botao botao--primario" href="{{ proximo_passo.url }}">{% icone "arrow-right" %}{{ proximo_passo.abrir }}</a>{% endif %}
+    {% if not s.cancelada and not s.concluida %}{% url 'coffee:cancelar' s.pk as cancelar_url %}{% else %}{% firstof "" as cancelar_url %}{% endif %}
+    {% if not s.financeiro_iniciado %}{% firstof "excluir-coffee" as excluir_form %}{% else %}{% firstof "" as excluir_form %}{% endif %}
+    {% include "componentes/rodape_documento.html" with nome="OS" duplicar_form="duplicar-coffee" cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico; a quantidade volta ao saldo do lote." excluir_form=excluir_form %}
+  </div>
+</div>
+<form id="duplicar-coffee" method="get" action="{% url 'coffee:nova' %}" hidden><input type="hidden" name="duplicar" value="{{ s.pk }}"></form>
+{% if not s.financeiro_iniciado %}<form id="excluir-coffee" method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" hidden data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+{% endblock %}

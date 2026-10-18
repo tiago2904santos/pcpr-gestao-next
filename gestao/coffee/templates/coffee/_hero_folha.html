@@ -1,0 +1,5 @@
+{% comment %}A faixa do coffee break com as etapas do pagamento. `contexto_hero`: a etapa.{% endcomment %}
+{% include "componentes/registro_hero.html" with pagina=True contexto=contexto_hero|default:"Coffee break" rotulo="OS" numero=s.numero|default:"—" titulo=s.descricao|truncatechars:120 situacao_template="coffee/_hero_situacao.html" complemento_template="coffee/_hero_contexto.html" %}
+<ol class="etapas-progresso mb-4" aria-label="Etapas do pagamento">
+  {% for titulo, estado in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ estado }}"{% if estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ titulo }}</span>{% if estado == "concluido" %}<span class="sr-only"> (concluída)</span>{% endif %}</li>{% endfor %}
+</ol>

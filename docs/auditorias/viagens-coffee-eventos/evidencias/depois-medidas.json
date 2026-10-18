@@ -1,0 +1,1032 @@
+{
+  "VI-L01": {
+    "rota": "/viagens/oficios/",
+    "descricao": "Ofícios — lista",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "VI-L02": {
+    "rota": "/viagens/prestacoes/",
+    "descricao": "Prestação de contas — lista",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "VI-D01": {
+    "rota": "/viagens/oficios/247/editar/",
+    "descricao": "Ofício — folha (rascunho, edição)",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "VI-D02": {
+    "rota": "/viagens/oficios/1/resumo/",
+    "descricao": "Ofício — resumo",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": [
+          {
+            "id": "document-title",
+            "impacto": "serious",
+            "alvos": [
+              "html"
+            ]
+          },
+          {
+            "id": "html-has-lang",
+            "impacto": "serious",
+            "alvos": [
+              "html"
+            ]
+          }
+        ]
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": [
+          {
+            "id": "document-title",
+            "impacto": "serious",
+            "alvos": [
+              "html"
+            ]
+          },
+          {
+            "id": "html-has-lang",
+            "impacto": "serious",
+            "alvos": [
+              "html"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "VI-P01": {
+    "rota": "/viagens/",
+    "descricao": "Viagens — painel",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "VI-C01": {
+    "rota": "/cadastros/servidores/",
+    "descricao": "Cadastros — servidores",
+    "referencia": "",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-P01": {
+    "rota": "/eventos/",
+    "descricao": "Eventos — painel",
+    "referencia": "VI-P01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-L01": {
+    "rota": "/eventos/solicitacoes/",
+    "descricao": "Solicitações — lista",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-L02": {
+    "rota": "/eventos/solicitacoes/?fila=despacho",
+    "descricao": "Solicitações — fila de despacho",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-L03": {
+    "rota": "/eventos/solicitacoes/?q=zzzz-nada",
+    "descricao": "Solicitações — busca vazia",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-N01": {
+    "rota": "/eventos/solicitacoes/nova/",
+    "descricao": "Solicitação — nova",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D01": {
+    "rota": "/eventos/solicitacoes/1/",
+    "descricao": "Solicitação — rascunho (edição)",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D02": {
+    "rota": "/eventos/solicitacoes/7/",
+    "descricao": "Solicitação — aguardando despacho",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D03": {
+    "rota": "/eventos/solicitacoes/9/",
+    "descricao": "Solicitação — devolvida",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D04": {
+    "rota": "/eventos/solicitacoes/14/",
+    "descricao": "Solicitação — deferida",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D05": {
+    "rota": "/eventos/solicitacoes/16/",
+    "descricao": "Solicitação — atendida",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-D06": {
+    "rota": "/eventos/solicitacoes/7/?reabrir=1",
+    "descricao": "Solicitação — alterar após envio",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-C01": {
+    "rota": "/eventos/cadastros/",
+    "descricao": "Cadastros de eventos — índice",
+    "referencia": "VI-C01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-C02": {
+    "rota": "/eventos/cadastros/tipos-evento/",
+    "descricao": "Catálogo — tipos de evento",
+    "referencia": "VI-C01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "EV-C03": {
+    "rota": "/eventos/cadastros/tipos-evento/1/modelo/",
+    "descricao": "Modelo do tipo de evento",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-P01": {
+    "rota": "/coffee/painel/",
+    "descricao": "Coffee — painel",
+    "referencia": "VI-P01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-L01": {
+    "rota": "/coffee/",
+    "descricao": "Solicitações — lista",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-L02": {
+    "rota": "/coffee/?situacao=aguardando_nota",
+    "descricao": "Solicitações — aguardando nota",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-L03": {
+    "rota": "/coffee/?q=zzzz-nada",
+    "descricao": "Solicitações — busca sem resultado",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-N01": {
+    "rota": "/coffee/nova/",
+    "descricao": "OS — nova",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D01": {
+    "rota": "/coffee/solicitacoes/1/",
+    "descricao": "OS — aguardando nota (edição)",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D02": {
+    "rota": "/coffee/solicitacoes/6/",
+    "descricao": "OS — aguardando atesto (dados travados)",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D03": {
+    "rota": "/coffee/solicitacoes/9/",
+    "descricao": "OS — concluída (só consulta)",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D04": {
+    "rota": "/coffee/solicitacoes/12/",
+    "descricao": "OS — cancelada",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D05": {
+    "rota": "/coffee/solicitacoes/5/protocolo/",
+    "descricao": "OS — protocolo de pagamento",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D06": {
+    "rota": "/coffee/solicitacoes/1/email/os/",
+    "descricao": "OS — e-mail ao fornecedor",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-L04": {
+    "rota": "/coffee/lotes/",
+    "descricao": "Lotes — lista",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D07": {
+    "rota": "/coffee/lotes/2/",
+    "descricao": "Lote — detalhe",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-D08": {
+    "rota": "/coffee/lotes/contrato/1/relatorio/",
+    "descricao": "Relatório do contrato",
+    "referencia": "VI-D02",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-L05": {
+    "rota": "/coffee/certidoes/",
+    "descricao": "Certidões — quadro",
+    "referencia": "VI-L01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-C01": {
+    "rota": "/coffee/cadastros/fornecedores/",
+    "descricao": "Cadastros — fornecedores",
+    "referencia": "VI-C01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-C02": {
+    "rota": "/coffee/cadastros/contratos/",
+    "descricao": "Cadastros — contratos",
+    "referencia": "VI-C01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-C03": {
+    "rota": "/coffee/cadastros/lotes/",
+    "descricao": "Cadastros — lotes",
+    "referencia": "VI-C01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-C04": {
+    "rota": "/coffee/cadastros/oficio/",
+    "descricao": "Cadastros — ofício e protocolo",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  },
+  "CB-C05": {
+    "rota": "/coffee/lotes/abrir-exercicio/",
+    "descricao": "Abrir o exercício seguinte",
+    "referencia": "VI-D01",
+    "larguras": {
+      "360": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "768": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      },
+      "1440": {
+        "status": 200,
+        "rolagem_horizontal": 0,
+        "erros_console": [],
+        "axe": []
+      }
+    }
+  }
+}

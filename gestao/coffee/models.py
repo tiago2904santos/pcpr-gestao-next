@@ -212,7 +212,16 @@ class ConfiguracaoOficio(Carimbos):
 
 
 # A solicitação mora em models_pedido.py; importada aqui para o Django registrar os modelos.
-from .models_pedido import Certidao, Entrega, Movimento, Solicitacao, Via  # noqa: E402
+from .models_pedido import (  # noqa: E402
+    Certidao,
+    Entrega,
+    EnvioFornecedor,
+    LinkFornecedor,
+    Movimento,
+    Solicitacao,
+    Via,
+)
 
-__all__ = ["Carimbos", "Certidao", "ConfiguracaoOficio", "Contrato", "Entrega", "Fornecedor",
-           "Lote", "Movimento", "Solicitacao", "TermoAditivo", "Via"]
+__all__ = ["Carimbos", "Certidao", "ConfiguracaoOficio", "Contrato", "Entrega",
+           "EnvioFornecedor", "Fornecedor", "LinkFornecedor", "Lote", "Movimento", "Solicitacao",
+           "TermoAditivo", "Via"]

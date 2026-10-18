@@ -5,24 +5,30 @@ relatório técnico, despacho, resposta padrão). Uso:
 - `campo`: escolha com SelecaoDeTexto (cada opção traz o texto em data-texto);
 - `alvo`: id da área de texto que recebe o texto;
 - `tipo`: tipo do texto pronto (ModeloTexto.Tipo) — usado ao guardar um novo;
-- `pode_gerir`: mostra "Guardar como texto pronto" e o atalho para a lista.
+- `pode_gerir`: mostra "Guardar como texto pronto" e o atalho para a lista;
+- `opcoes` (em vez de `campo`): (pk, nome, texto) já prontos;
+- sem nenhum texto pronto (opções vazias ou queryset do `campo` vazio), a escolha não aparece;
+- `sugerir_url` + `sugerir_form`: "Sugerir texto" na mesma peça das ações (sugerir.js).
 Sem JavaScript, a escolha vai com o formulário e preenche o campo se ele estiver vazio.
 {% endcomment %}
 <div class="texto-pronto" data-texto-pronto data-alvo="{{ alvo }}" data-tipo="{{ tipo }}">
+  {% comment %}A escolha só aparece com algum texto pronto cadastrado; sem nenhum, ficam
+  só as ações (sugerir, guardar o primeiro, gerenciar).{% endcomment %}
   {% if opcoes %}
     <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="{{ alvo }}-pronto">{{ rotulo }}</label>
       <pc-select class="seletor"><select class="selecao" id="{{ alvo }}-pronto"><option value="">Escrever do zero</option>{% for pk, nome, texto in opcoes %}<option value="{{ pk }}" data-texto="{{ texto }}">{{ nome }}</option>{% endfor %}</select></pc-select>
     </div>
-  {% else %}
+  {% elif campo and campo.field.queryset.exists %}
   {% include "componentes/campo.html" with campo=campo classe="campo--lg texto-pronto__escolha" %}
   {% endif %}
-  {% if pode_gerir %}
+  {% if pode_gerir or sugerir_url %}
     <div class="texto-pronto__acoes">
-      <button type="button" class="botao botao--sm botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" classe="icone--sm" %}Guardar texto</button>
+      {% if sugerir_url %}<button type="button" class="botao botao--sm botao--sutil" data-sugerir="{{ sugerir_url }}" data-alvo="{{ alvo }}" data-form="{{ sugerir_form }}">{% icone "text-quote" classe="icone--sm" %}Sugerir texto<span class="sr-only"> para {{ rotulo_campo|lower }}</span></button>{% endif %}
+      {% if pode_gerir %}<button type="button" class="botao botao--sm botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" classe="icone--sm" %}Guardar texto</button>
       {% comment %}Mesma aba, levando de onde veio: a tela de textos prontos mostra no
       rodapé um "Voltar para …" que devolve a esta folha (ver componentes/voltar_tarefa.html).
       A folha salva sozinha, então nada do que já foi digitado se perde.{% endcomment %}
-      <a class="botao botao--sm botao--icone botao--sutil" data-dica="Gerenciar textos prontos" aria-label="Gerenciar textos prontos" href="{% url 'cadastros:textos' %}?tipo={{ tipo }}&amp;de={{ request.get_full_path|urlencode }}{% if voltar_rotulo %}&amp;de_rotulo={{ voltar_rotulo|urlencode }}{% endif %}">{% icone "settings" classe="icone--sm" %}</a>
+      <a class="botao botao--sm botao--icone botao--sutil" data-dica="Gerenciar textos prontos" aria-label="Gerenciar textos prontos" href="{% url 'cadastros:textos' %}?tipo={{ tipo }}&amp;de={{ request.get_full_path|urlencode }}{% if voltar_rotulo %}&amp;de_rotulo={{ voltar_rotulo|urlencode }}{% endif %}">{% icone "settings" classe="icone--sm" %}</a>{% endif %}
     </div>
   {% endif %}
 </div>

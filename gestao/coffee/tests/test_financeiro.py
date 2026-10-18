@@ -135,7 +135,8 @@ def test_telas_do_fluxo(os_):
     c = Client()
     c.force_login(u)
     html = c.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
-    assert "Nota fiscal e ofício" in html and "Registrar andamento" in html
+    # A página central: as etapas (OS, nota/certifico/ofício, protocolo) e o andamento.
+    assert "Nota, certifico e ofício" in html and "Registrar andamento" in html
     assert 'aria-current="step"' in html
     from gestao.coffee.forms_pedido import versao_de
     r = c.post(reverse("coffee:financeiro", args=[s.pk]), {

@@ -8,14 +8,20 @@
 Configuração do ofício ao GAF, do protocolo e dos e-mails ao fornecedor (registro único, como
 na referência: não se cria nem se exclui, só se edita). Nasce com valores neutros.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
+<<<<<<< HEAD
 {% include "componentes/registro_hero.html" with pagina=True contexto="Coffee Break · Cadastros" titulo="Ofício e protocolo" complemento="Dados usados nos ofícios ao GAF, nos protocolos de pagamento e nos e-mails ao fornecedor. Os campos entre chaves nos e-mails recebem os dados da ordem de serviço." %}
 <nav class="abas" aria-label="Cadastros do Coffee Break">
+=======
+{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Cadastros" titulo="Ofício e protocolo" complemento="O que o ofício ao GAF, o protocolo de pagamento e os e-mails ao fornecedor usam. Nos e-mails, os campos entre chaves são trocados pelos dados da ordem de serviço." %}
+<nav class="abas abas--conteudo mt-4" aria-label="Cadastros do Coffee Break">
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
   {% for chave, titulo, icone_aba, n in tabelas %}<a class="aba" href="{% url 'coffee:cadastros' chave %}">{{ titulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
   <a class="aba" href="{% url 'coffee:configuracao' %}" aria-current="page">Ofício e protocolo</a>
 </nav>
 {% if form.non_field_errors %}<div class="alerta alerta--perigo mt-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-<form method="post" class="documento documento--cartoes mt-4" novalidate>
+<form method="post" class="documento documento--preparacao mt-4" novalidate>
   {% csrf_token %}
   {{ form.versao }}
   <section class="secao" aria-labelledby="t-oficio">
@@ -45,6 +51,9 @@ na referência: não se cria nem se exclui, só se edita). Nasce com valores neu
       {% include "componentes/campo.html" with campo=form.texto_email_ob classe="campo--cresce" %}
     </div>
   </section>
-  <div class="linha"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button></div>
+  <div class="barra-acoes barra-acoes--rodape barra-acoes--preparacao barra-acoes--confirmacao">
+    <p class="barra-acoes__status">Vale para os próximos documentos e e-mails; os já emitidos não mudam.</p>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button>
+  </div>
 </form>
 {% endblock %}

@@ -1,12 +1,13 @@
-"""Filtro de log que tira segredos de URL das mensagens (o token do feed ICS da agenda
-aparece no caminho: "Not Found: /agenda/ics/<token>.ics", orçamento SQL excedido…)."""
+"""Filtro de log que tira segredos de URL das mensagens (o token do feed ICS da agenda e o do
+link do fornecedor do Coffee Break aparecem no caminho: "Not Found: /agenda/ics/<token>.ics",
+"Unprocessable Content: /fornecedor/<token>/", orçamento SQL excedido…)."""
 
 from __future__ import annotations
 
 import logging
 import re
 
-PADRAO = re.compile(r"(/agenda/ics/)[^/\s'\"?]+")
+PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/)[^/\s'\"?]+")
 
 
 def _mascarar(valor):
