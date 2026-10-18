@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T14:27:29.000Z",
-  "createdAt": "2026-10-18T14:22:34.241Z",
+  "updatedAt": "2026-10-18T14:55:30.000Z",
+  "createdAt": "2026-10-18T14:50:25.100Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -233,7 +233,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))) ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao#sha256:whatsapp-status:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
+              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length >= 16 && ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))) ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao#sha256:whatsapp-status:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
             }
           ]
         },
@@ -323,7 +323,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))) ? 'entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)) : 'entrega#sha256:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)).hash('sha256') }}"
+              "value": "={{ ('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))).length >= 16 && ('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))) ? 'entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)) : 'entrega#sha256:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)).hash('sha256') }}"
             }
           ]
         },
@@ -608,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "fb6d4cc5-3b84-4000-a502-4583eeb0cf18",
+  "versionId": "0b7f4382-08e7-4e53-ae92-b66bedc07360",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -616,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T14:22:34.243Z",
-      "createdAt": "2026-10-18T14:22:34.243Z",
+      "updatedAt": "2026-10-18T14:50:25.104Z",
+      "createdAt": "2026-10-18T14:50:25.104Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "jrnmoTWd9cqmTcaJ",
+      "projectId": "Uwv3h6JLl3pj4sya",
       "project": {
-        "updatedAt": "2026-10-18T14:22:25.944Z",
-        "createdAt": "2026-10-18T14:22:25.944Z",
-        "id": "jrnmoTWd9cqmTcaJ",
+        "updatedAt": "2026-10-18T14:50:11.212Z",
+        "createdAt": "2026-10-18T14:50:11.212Z",
+        "id": "Uwv3h6JLl3pj4sya",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "8842a687-0fae-48df-ac19-f0b87e6e6555"
+        "creatorId": "9c332fcf-6fd4-4318-9aed-e9ac25e3c562"
       }
     }
   ],

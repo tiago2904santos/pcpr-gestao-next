@@ -126,7 +126,7 @@ Arquivos:
 
 ## Resultados da suíte principal
 
-**Rodada final: 18/10/2026, 11:06–11:13 (horário de Brasília) — T1–T20, todos passaram, saída
+**Rodada final: 18/10/2026, 11:42–11:49 (horário de Brasília) — T1–T20, todos passaram, saída
 0** (é a registrada em `resultados/resultados.json`, campos `inicio`/`fim`; export de W1–W5 com
 `"active": false`, sem segredo no relatório, contêiner removido e portas livres no fim). Inclui
 as verificações seguintes do Codex: chaves de exceção e de recebimento limitadas a 200 e só
@@ -152,7 +152,8 @@ carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaix
 | 18/10 03:17–03:33 | T11, T20 + 18/18, saída 0 | 3ª verificação: W4 com chave de exceção por classe de recusa e exceção `fila_parada` (T19f, T19g) |
 | 18/10, manhã (rodadas intermediárias) | T1–T20 passaram (uma rodada intermediária teve T15 e outra T19(g) falhando por tempo, com a máquina carregada por outra bateria; ambos passaram isolados e na rodada seguinte) | chaves ≤ 200 e só ASCII (`#sha256`), corpo estável do órfão, inteiros grandes no validador |
 | 18/10 10:28–10:34 | T1–T20, saída 0 | W4: 4xx estável no download é definitivo (T19 e2/e3); contrato com a regra ASCII da chave |
-| **18/10 11:06–11:13** | **T1–T20, saída 0** (`resultados.json`) | corpo da exceção `fila_parada` sem o prazo configurável (mesma chave → mesmo corpo depois de reconfigurar) |
+| 18/10 11:06–11:13 | T1–T20, saída 0 | corpo da exceção `fila_parada` sem o prazo configurável (mesma chave → mesmo corpo depois de reconfigurar) |
+| **18/10 11:42–11:49** | **T1–T20, saída 0** (`resultados.json`) | chave bruta só de 16 a 200 caracteres: id de 1 caractere vai para a forma com hash (T19l) |
 
 **T13 nesta rodada:** a 1ª varredura, logo depois dos cenários, achou **21** ocorrências do
 telefone sintético (`destino`) em execuções de webhook do W4 com status `running` (marcadas como
@@ -487,7 +488,7 @@ principal **03:17–03:33** e suíte WA-3 **03:33–03:44**, saída 0 nas duas.
 Frente WA-3 do [plano de implantação](../plano-implantacao.md), executada em 17/10/2026
 (rodada de 23:21–23:27), refeita com a revisão do PR #23 em 18/10/2026 (00:52–00:57) e com a
 segunda verificação (02:02–02:13), com a terceira (03:33–03:44) e com as verificações
-seguintes do Codex (**rodada final 11:22–11:27, TW0–TW16 passaram**, a registrada em
+seguintes do Codex (**rodada final 11:49–11:55, TW0–TW16 passaram**, a registrada em
 `resultados/resultados-whatsapp.json`, saída 0). A política oficial
 proíbe órgãos policiais na WhatsApp Business Platform ([viabilidade](../whatsapp-viabilidade.md),
 seção 1): o objetivo foi deixar a integração **pronta e comprovada contra um simulador**, exportada

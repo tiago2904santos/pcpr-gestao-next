@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T14:27:29.000Z",
-  "createdAt": "2026-10-18T14:22:34.237Z",
+  "updatedAt": "2026-10-18T14:55:30.000Z",
+  "createdAt": "2026-10-18T14:50:25.093Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -600,7 +600,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length >= 16 && ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },
@@ -693,7 +693,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:whatsapp-sha256:' + (String($json.wamid))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-sha256:' + (String($json.wamid))) ? 'excecao:whatsapp-sha256:' + (String($json.wamid)) : 'excecao#sha256:whatsapp-sha256:' + (String($json.wamid)).hash('sha256') }}"
+              "value": "={{ ('excecao:whatsapp-sha256:' + (String($json.wamid))).length >= 16 && ('excecao:whatsapp-sha256:' + (String($json.wamid))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-sha256:' + (String($json.wamid))) ? 'excecao:whatsapp-sha256:' + (String($json.wamid)) : 'excecao#sha256:whatsapp-sha256:' + (String($json.wamid)).hash('sha256') }}"
             }
           ]
         },
@@ -733,7 +733,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length >= 16 && ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },
@@ -1263,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "ca683a93-4b5f-43f7-b1e1-817bde16e9c4",
+  "versionId": "3bd2665e-b41f-4a54-8f98-68d943268022",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1271,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T14:22:34.239Z",
-      "createdAt": "2026-10-18T14:22:34.239Z",
+      "updatedAt": "2026-10-18T14:50:25.097Z",
+      "createdAt": "2026-10-18T14:50:25.097Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "jrnmoTWd9cqmTcaJ",
+      "projectId": "Uwv3h6JLl3pj4sya",
       "project": {
-        "updatedAt": "2026-10-18T14:22:25.944Z",
-        "createdAt": "2026-10-18T14:22:25.944Z",
-        "id": "jrnmoTWd9cqmTcaJ",
+        "updatedAt": "2026-10-18T14:50:11.212Z",
+        "createdAt": "2026-10-18T14:50:11.212Z",
+        "id": "Uwv3h6JLl3pj4sya",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "8842a687-0fae-48df-ac19-f0b87e6e6555"
+        "creatorId": "9c332fcf-6fd4-4318-9aed-e9ac25e3c562"
       }
     }
   ],

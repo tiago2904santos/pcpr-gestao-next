@@ -1,5 +1,5 @@
 {
-  "inicio": "2026-10-18T11:06:53-03:00",
+  "inicio": "2026-10-18T11:42:23-03:00",
   "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
   "python": "3.13.15",
   "cenarios": [
@@ -55,7 +55,7 @@
         "resultados_registrados": 1,
         "reservas": 1,
         "estado_final": "enviada",
-        "provedor_mensagem_id": "sim-d6ed3f2269e6451baefc",
+        "provedor_mensagem_id": "sim-7cd6eccdced54c7c9731",
         "envelopes_validados_contra_schema": {
           "quantos": 2,
           "tipos": [
@@ -100,7 +100,7 @@
         "chave_idempotencia_reserva": "reserva:2:v1:exec4"
       },
       "passou": true,
-      "segundos": 4.1
+      "segundos": 3.8
     },
     {
       "id": "T2",
@@ -141,7 +141,7 @@
         }
       },
       "passou": true,
-      "segundos": 12.4
+      "segundos": 12.2
     },
     {
       "id": "T3",
@@ -167,7 +167,7 @@
         }
       },
       "passou": true,
-      "segundos": 5.1
+      "segundos": 7.5
     },
     {
       "id": "T4",
@@ -305,7 +305,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.3
+      "segundos": 17.6
     },
     {
       "id": "T8",
@@ -334,7 +334,7 @@
         "posts_recebimentos": 2,
         "recebimentos": 1,
         "segunda_chamada_replay": true,
-        "chave": "receb:email:msg.sim.T9.a84b5d1b:0",
+        "chave": "receb:email:msg.sim.T9.c2f27888:0",
         "sha256_conferido": true,
         "tamanho_bytes": 634,
         "estado": "aceito_para_processamento"
@@ -347,7 +347,7 @@
       "nome": "reinício do n8n no meio → nada duplicado, reconciliação completa",
       "evidencia": {
         "lease_s": 15,
-        "tempo_para_voltar_s": 22.1,
+        "tempo_para_voltar_s": 21.8,
         "reentrega_evento_A_pos_reinicio": 202,
         "reconciliacao": {
           "devidas": 2
@@ -414,10 +414,10 @@
           }
         },
         "duplicados_no_canal": 0,
-        "segundos_entre_queda_e_volta": 31.4
+        "segundos_entre_queda_e_volta": 31.3
       },
       "passou": true,
-      "segundos": 33.8
+      "segundos": 33.5
     },
     {
       "id": "T12",
@@ -428,7 +428,7 @@
             "fluxo": "n8n:PCPR · Entregar comunicação",
             "motivo": "outro",
             "detalhe": "The service was not able to process your request (nó: Consultar estado)",
-            "execucao_orquestrador": "77"
+            "execucao_orquestrador": "78"
           }
         ],
         "envio_apos_normalizar": 1,
@@ -437,7 +437,7 @@
         }
       },
       "passou": true,
-      "segundos": 4.7
+      "segundos": 5.0
     },
     {
       "id": "T14",
@@ -469,7 +469,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.1
+      "segundos": 17.4
     },
     {
       "id": "T15",
@@ -502,11 +502,11 @@
           "entregas_do_canal": [
             200
           ],
-          "ms_da_1a_entrega": 371.6,
+          "ms_da_1a_entrega": 347.4,
           "prazo_ms": 20000,
           "chaves": [
-            "receb:email:msg.sim.T16.8975bb7c:0",
-            "receb:email:msg.sim.T16.8975bb7c:1"
+            "receb:email:msg.sim.T16.f261f3ab:0",
+            "receb:email:msg.sim.T16.f261f3ab:1"
           ],
           "recebimentos": [
             {
@@ -551,7 +551,7 @@
         }
       },
       "passou": true,
-      "segundos": 1.0
+      "segundos": 0.9
     },
     {
       "id": "T17",
@@ -807,7 +807,7 @@
         }
       },
       "passou": true,
-      "segundos": 7.7
+      "segundos": 8.3
     },
     {
       "id": "T13",
@@ -816,18 +816,18 @@
         "logo_apos_os_cenarios": {
           "ocorrencias": {
             "link_km": 0,
-            "destino": 37,
+            "destino": 38,
             "token_reserva": 0
           },
           "onde": {
             "pcprRecebimento1|running|webhook": {
               "link_km": 0,
-              "destino": 37,
+              "destino": 38,
               "token_reserva": 0
             }
           }
         },
-        "segundos_ate_zerar": 21.7,
+        "segundos_ate_zerar": 22.4,
         "tabelas_de_execucao_no_fim": {
           "execution_data": 4,
           "execution_metadata": 0,
@@ -842,92 +842,139 @@
         }
       },
       "passou": true,
-      "segundos": 21.7
+      "segundos": 22.4
     }
   ],
   "metricas": {
     "memoria_repouso_antes_mib": {
-      "min": 385.6,
-      "mediana": 385.8,
-      "max": 386.2,
+      "min": 395.8,
+      "mediana": 395.9,
+      "max": 396.4,
       "espera_s": 45
     },
     "latencia_evento_envio": {
-      "sequencial_20": {
-        "evento_ate_envio_ms": {
-          "p50": 233.4,
-          "p95": 292.0,
-          "min": 207.5,
-          "max": 305.8,
-          "media": 239.5
-        },
-        "evento_ate_resposta_202_ms": {
-          "p50": 73.0,
-          "p95": 93.1
-        },
-        "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 188.0,
-          "p95": 246.8
-        }
-      },
-      "rajada_20_simultaneos": {
-        "evento_ate_envio_ms": {
-          "p50": 4046.1,
-          "p95": 5071.8,
-          "min": 2083.3,
-          "max": 5216.0,
-          "media": 3954.8
-        },
-        "evento_ate_resposta_202_ms": {
-          "p50": 1032.7,
-          "p95": 1684.6
-        },
-        "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 3713.5,
-          "p95": 4954.8
-        }
-      },
-      "definicao": "t0 = POST do evento ao n8n (emissor do PCPR); fim = canal simulado registra o envio. Mesmo relógio (mesma máquina)."
+      "erro": "Falha('2 evento(s) sem envio em 60 s: [{\\'comunicacao_id\\': 139, \\'entrega_do_evento\\': {\\'modo\\': \\'normal\\', \\'em\\': 1792334839.648299, \\'status\\': 202, \\'erro\\': None, \\'resposta\\': \\'{\"aceito\":true,\"evento_id\":\"16ea0444-f490-45d0-b9a7-3de6a02ed4ce\"}\\', \\'ms\\': 449.7}, \\'estado\\': \\'falhou\\', \\'chamadas_pcpr\\': [{\\'ts\\': 1792334841.5736387, \\'metodo\\': \\'POST\\', \\'rota\\': \\'/comunicacoes/139/reservar\\', \\'chave\\': \\'reserva:139:v1:exec193\\', \\'correlacao\\': \\'viagem:138\\', \\'comunicacao_id\\': 139, \\'status\\': 200}, {\\'ts\\': 1792334851.7118921, \\'metodo\\': \\'POST\\', \\'rota\\': \\'/comunicacoes/139/resultado\\', \\'chave\\': \\'resultado:139:rsvSIMORp2-nDcHP9YTSbEJkRqTkor\\', \\'correlacao\\': \\'viagem:138\\', \\'comunicacao_id\\': 139, \\'resultado\\': \\'resultado_desconhecido\\', \\'status\\': 200}], \\'excecoes\\': [{\\'id\\': 168, \\'chave\\': \\'excecao:com139:rsvSIMORp2-nDcHP9YTSbEJkRqTkor\\', \\'origem\\': \\'n8n\\', \\'fluxo\\': \\'km-vespera\\', \\'correlacao_id\\': \\'viagem:138\\', \\'motivo\\': \\'resultado_desconhecido\\', \\'detalhe\\': \\'comunicacao 139: 1ª tentativa: ambiguo (rede: timeout of 10000ms exceeded)\\', \\'execucao_orquestrador\\': \\'193\\', \\'recurso\\': {\\'tipo\\': \\'comunicacao\\', \\'id\\': 139}, \\'aberta_em\\': \\'2026-10-18T14:47:31.734274+00:00\\', \\'situacao\\': \\'aberta\\'}, {\\'id\\': 169, \\'chave\\': \\'excecao:com155:rsvSIMpmQxKDrhIQp3NLgKRpymnuWT\\', \\'origem\\': \\'n8n\\', \\'fluxo\\': \\'km-vespera\\', \\'correlacao_id\\': \\'viagem:154\\', \\'motivo\\': \\'resultado_desconhecido\\', \\'detalhe\\': \\'comunicacao 155: 1ª tentativa: ambiguo (rede: timeout of 10000ms exceeded)\\', \\'execucao_orquestrador\\': \\'202\\', \\'recurso\\': {\\'tipo\\': \\'comunicacao\\', \\'id\\': 155}, \\'aberta_em\\': \\'2026-10-18T14:47:32.969327+00:00\\', \\'situacao\\': \\'aberta\\'}]}, {\\'comunicacao_id\\': 155, \\'entrega_do_evento\\': {\\'modo\\': \\'normal\\', \\'em\\': 1792334839.660166, \\'status\\': 202, \\'erro\\': None, \\'resposta\\': \\'{\"aceito\":true,\"evento_id\":\"cc684844-28e0-440a-a70b-a79ed6858b4a\"}\\', \\'ms\\': 812.1}, \\'estado\\': \\'falhou\\', \\'chamadas_pcpr\\': [{\\'ts\\': 1792334842.7735195, \\'metodo\\': \\'POST\\', \\'rota\\': \\'/comunicacoes/155/reservar\\', \\'chave\\': \\'reserva:155:v1:exec202\\', \\'correlacao\\': \\'viagem:154\\', \\'comunicacao_id\\': 155, \\'status\\': 200}, {\\'ts\\': 1792334852.9533885, \\'metodo\\': \\'POST\\', \\'rota\\': \\'/comunicacoes/155/resultado\\', \\'chave\\': \\'resultado:155:rsvSIMpmQxKDrhIQp3NLgKRpymnuWT\\', \\'correlacao\\': \\'viagem:154\\', \\'comunicacao_id\\': 155, \\'resultado\\': \\'resultado_desconhecido\\', \\'status\\': 200}], \\'excecoes\\': [{\\'id\\': 168, \\'chave\\': \\'excecao:com139:rsvSIMORp2-nDcHP9YTSbEJkRqTkor\\', \\'origem\\': \\'n8n\\', \\'fluxo\\': \\'km-vespera\\', \\'correlacao_id\\': \\'viagem:138\\', \\'motivo\\': \\'resultado_desconhecido\\', \\'detalhe\\': \\'comunicacao 139: 1ª tentativa: ambiguo (rede: timeout of 10000ms exceeded)\\', \\'execucao_orquestrador\\': \\'193\\', \\'recurso\\': {\\'tipo\\': \\'comunicacao\\', \\'id\\': 139}, \\'aberta_em\\': \\'2026-10-18T14:47:31.734274+00:00\\', \\'situacao\\': \\'aberta\\'}, {\\'id\\': 169, \\'chave\\",
+      "log_n8n": [
+        " - N8N_RUNNERS_MODE -> Internal task runner mode is deprecated and will be removed in a future version. For isolation and scaling, run the task runner launcher as a separate process, set this variable to `external` and share `N8N_RUNNERS_AUTH_TOKEN` with the launcher. See https://docs.n8n.io/deploy/host-n8n/configure-n8n/set-up-task-runners",
+        " - N8N_SSRF_PROTECTION_ENABLED -> The built-in blocked IP ranges will expand in a future version to include the shared address space (100.64.0.0/10) and IPv6 transition ranges. To keep the current list, set N8N_SSRF_BLOCKED_IP_RANGES to the literal ranges instead of the `default` keyword, which always expands to the running version's built-in list.",
+        " - N8N_RUNNERS_TASK_TIMEOUT -> The default for this variable will be reduced from 300 (5 minutes) to 60 (1 minute) in a future version. Set it explicitly to keep your current task timeout.",
+        " - N8N_COMPRESSION_NODE_MAX_DECOMPRESSED_SIZE_BYTES -> The default for this variable will be reduced from 2 GiB to 256 MiB in a future version. Set it explicitly to keep your current limit.",
+        " - N8N_COMPRESSION_NODE_MAX_ZIP_ENTRIES -> The default for this variable will be reduced from 5000 to 1000 in a future version. Set it explicitly to keep your current limit.",
+        "",
+        "Automatic license renewal is disabled. The license will not renew automatically, and access to licensed features may be lost!",
+        "[license SDK] Skipping renewal on init: renewOnInit is disabled in config",
+        "[license SDK] Skipping renewal on init: autoRenewEnabled is disabled in config",
+        "[license SDK] Skipping renewal on init: license cert is not initialized",
+        "[runner:js] (node:19) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.",
+        "(Use `node --trace-warnings ...` to show where the warning was created)",
+        "Registered runner \"JS Task Runner\" (_ZzS35VdpBd0DZ1pJL2Uk) ",
+        "Instance registered",
+        "Discovered 4 cluster checks",
+        "Sandbox: enabled=false provider=n8n-sandbox (from env)",
+        "Currently active workflows:",
+        "   - PCPR · Entrada de eventos (ID: pcprEntradaEvt01)",
+        "   - PCPR · Entregar comunicação (ID: pcprEntregaCom01)",
+        "   - PCPR · Reconciliação (ID: pcprReconcilia01)",
+        "   - PCPR · Recebimento de arquivo (ID: pcprRecebimento1)",
+        "   - PCPR · Erros (ID: pcprErros0000001)",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "[Recovery] Logs available, amended execution",
+        "Found unfinished executions: 55, 56, 57, 58, 59, 60, 61, 62",
+        "This could be due to a crash of an active workflow or a restart of n8n",
+        "Version: 2.43.7",
+        "Building workflow dependency index...",
+        "Finished building workflow dependency index. Processed 0 draft workflows, 0 published workflows.",
+        "",
+        "Editor is now accessible via:",
+        "http://localhost:5678",
+        "The service was not able to process your request",
+        "500 - \"{\\\"codigo\\\":\\\"integracao_indisponivel\\\",\\\"mensagem\\\":\\\"falha simulada\\\"}\"",
+        "AxiosError: Request failed with status code 500",
+        "    at settle (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:2530:12)",
+        "    at RedirectableRequest.handleResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:4731:9)",
+        "    at RedirectableRequest.emit (node:events:526:24)",
+        "    at RedirectableRequest._processResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:424:10)",
+        "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
+        "    at ClientRequest.wrapper (node:events:639:12)",
+        "    at ClientRequest.emit (node:events:514:20)",
+        "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
+        "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
+        "    at Socket.socketOnData (node:_http_client:808:22)",
+        "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
+        "    at processTicksAndRejections (node:internal/process/task_queues:104:5)",
+        "    at invokeAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/axios/invoke.ts:15:10)",
+        "    at executeLegacyRequest (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/legacy-request.ts:84:6)",
+        "    at Object.requestLegacy (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/outbound-http.ts:215:13)",
+        "    at proxyRequestToAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/legacy-request-adapter.ts:28:9)",
+        "    at Object.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/factory.ts:167:11)",
+        "",
+        "The service was not able to process your request",
+        "500 - \"{\\\"codigo\\\":\\\"integracao_indisponivel\\\",\\\"mensagem\\\":\\\"falha simulada\\\"}\"",
+        "AxiosError: Request failed with status code 500",
+        "    at settle (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:2530:12)",
+        "    at RedirectableRequest.handleResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:4731:9)",
+        "    at RedirectableRequest.emit (node:events:526:24)",
+        "    at RedirectableRequest._processResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:424:10)",
+        "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
+        "    at ClientRequest.wrapper (node:events:639:12)",
+        "    at ClientRequest.emit (node:events:514:20)",
+        "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
+        "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
+        "    at Socket.socketOnData (node:_http_client:808:22)",
+        "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
+        "    at processTicksAndRejections (node:internal/process/task_queues:104:5)",
+        "    at invokeAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/axios/invoke.ts:15:10)",
+        "    at executeLegacyRequest (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/legacy-request.ts:84:6)",
+        "    at Object.requestLegacy (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/@n8n+backend-network@file++++home+runner+_work+n8n+n8n+packages+@n8n+backend-network/node_modules/@n8n/backend-network/src/http/outbound-http.ts:215:13)",
+        "    at proxyRequestToAxios (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/legacy-request-adapter.ts:28:9)",
+        "    at Object.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file++++home+runner+_work+n8n+n8n+packages+core/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helpers/factory.ts:167:11)",
+        ""
+      ]
     },
     "memoria_durante_testes_mib": {
-      "max": 842.3,
-      "mediana": 473.5,
-      "amostras": 81,
+      "max": 756.9,
+      "mediana": 488.1,
+      "amostras": 106,
       "max_por_fase": {
-        "T1": 421.2,
-        "T2": 454.1,
-        "T3": 453.8,
-        "T4": 453.1,
-        "T5": 466.8,
-        "T6": 484.8,
-        "T7": 487.6,
-        "T8": 476.3,
-        "T9": 473.5,
-        "T10": 722.4,
-        "T12": 678.1,
-        "T14": 675.6,
-        "T15": 417.3,
-        "T16": 424.2,
-        "T17": 441.8,
-        "T19": 493.1,
-        "T13": 502.2,
-        "latencia (20 sequenciais + rajada de 20)": 842.3
+        "T1": 428.9,
+        "T2": 460.9,
+        "T3": 467.8,
+        "T4": 462.3,
+        "T5": 481.8,
+        "T6": 481.1,
+        "T7": 495.2,
+        "T8": 483.2,
+        "T9": 490.9,
+        "T10": 725.2,
+        "T12": 677.9,
+        "T14": 677.4,
+        "T15": 422.9,
+        "T17": 437.9,
+        "T19": 495.8,
+        "T13": 496.4,
+        "latencia (20 sequenciais + rajada de 20)": 756.9
       }
     },
     "memoria_repouso_depois_mib": {
-      "min": 695.7,
-      "mediana": 695.8,
-      "max": 696.1,
+      "min": 502.0,
+      "mediana": 502.4,
+      "max": 502.7,
       "espera_s": 45
     },
     "banco_n8n_bytes": {
-      "database.sqlite": 4608000,
+      "database.sqlite": 4669440,
       "database.sqlite-shm": 32768,
       "database.sqlite-wal": 4148872
     }
   },
   "preparacao": {
-    "segundos": 53.5,
+    "segundos": 44.9,
     "saida_cli": [
       "Note: Changes will not take effect if n8n is running.",
       "Please restart n8n for changes to take effect if n8n is currently running.",
@@ -943,7 +990,7 @@
       "pcprErros0000001"
     ]
   },
-  "primeira_subida_s": 14.6,
+  "primeira_subida_s": 12.3,
   "config_efetiva": {
     "diagnostics": false,
     "versionNotifications": false,
@@ -979,7 +1026,7 @@
     "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
     "    at ClientRequest.wrapper (node:events:639:12)",
     "    at ClientRequest.emit (node:events:514:20)",
-    "    at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
     "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
     "    at Socket.socketOnData (node:_http_client:808:22)",
     "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
@@ -1000,7 +1047,7 @@
     "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
     "    at ClientRequest.wrapper (node:events:639:12)",
     "    at ClientRequest.emit (node:events:514:20)",
-    "    at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
     "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
     "    at Socket.socketOnData (node:_http_client:808:22)",
     "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
@@ -1068,6 +1115,6 @@
     "conteiner_existe": false,
     "portas_ainda_abertas": []
   },
-  "fim": "2026-10-18T11:13:28-03:00",
+  "fim": "2026-10-18T11:49:48-03:00",
   "segredos_no_relatorio": []
 }

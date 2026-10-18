@@ -163,12 +163,13 @@ def _cond(expr: str, cid: str) -> dict:
 
 def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str:
     """Expressão n8n da chave do recebimento — a mesma regra de `comum.chave_recebimento`:
-    `receb:<canal>:<id>:<anexo>` se couber em 200 e for só ASCII imprimível (`[ -~]`, que mede
+    `receb:<canal>:<id>:<anexo>` se tiver de 16 a 200 e for só ASCII imprimível (`[ -~]`, que mede
     igual em JS e em Python); senão, `receb#sha256:<canal>:<hex>:<anexo>`."""
     c, m, i = f"String({canal_js})", f"String({mensagem_js})", f"String({indice_js})"
     bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
     return (
-        f"={{{{ {bruta}.length <= 200 && /^[ -~]*$/.test({bruta}) ? {bruta} : "
+        f"={{{{ {bruta}.length >= 16 && {bruta}.length <= 200 && /^[ -~]*$/.test({bruta}) "
+        f"? {bruta} : "
         f"'receb#sha256:' + {c} + ':' + {m}.hash('sha256') + ':' + {i} }}}}"
     )
 
@@ -186,7 +187,8 @@ def chave_limitada(prefixo: str, logica_js: str) -> str:
     cabeca, _, resto = prefixo.partition(":")
     com_hash = f"{cabeca}#sha256:{resto}"
     return (
-        f"={{{{ ('{prefixo}' + {v}).length <= 200 && /^[ -~]*$/.test('{prefixo}' + {v}) "
+        f"={{{{ ('{prefixo}' + {v}).length >= 16 && ('{prefixo}' + {v}).length <= 200 "
+        f"&& /^[ -~]*$/.test('{prefixo}' + {v}) "
         f"? '{prefixo}' + {v} : "
         f"'{com_hash}' + {v}.hash('sha256') }}}}"
     )

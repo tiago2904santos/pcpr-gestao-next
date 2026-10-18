@@ -19,9 +19,12 @@ from typing import Any
 LIMITE_CHAVE = 200  # Idempotency-Key: 16 a 200 caracteres (contrato)
 
 
+MINIMO_CHAVE = 16  # Idempotency-Key: 16 a 200 caracteres (contrato)
+
+
 def bruta_cabe(chave: str) -> bool:
-    """A chave bruta serve: até 200 e só ASCII imprimível (0x20–0x7E, o `[ -~]` do JS)."""
-    return len(chave) <= LIMITE_CHAVE and chave.isascii() and chave.isprintable()
+    """A chave bruta serve: de 16 a 200 e só ASCII imprimível (0x20–0x7E, o `[ -~]` do JS)."""
+    return MINIMO_CHAVE <= len(chave) <= LIMITE_CHAVE and chave.isascii() and chave.isprintable()
 
 
 def chave_recebimento(canal: str, mensagem_id: str, anexo_indice: int | str) -> str:

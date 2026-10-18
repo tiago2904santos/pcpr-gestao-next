@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T14:13:15.000Z",
-  "createdAt": "2026-10-18T14:07:19.431Z",
+  "updatedAt": "2026-10-18T14:49:30.000Z",
+  "createdAt": "2026-10-18T14:42:43.850Z",
   "id": "pcprRecebimento1",
   "name": "PCPR · Recebimento de arquivo",
   "description": null,
@@ -233,7 +233,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice)).length <= 200 && /^[ -~]*$/.test(('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice))) ? ('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice)) : 'receb#sha256:' + String($json.canal) + ':' + String($json.mensagem_id).hash('sha256') + ':' + String($json.anexo_indice) }}"
+              "value": "={{ ('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice)).length >= 16 && ('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice)).length <= 200 && /^[ -~]*$/.test(('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice))) ? ('receb:' + String($json.canal) + ':' + String($json.mensagem_id) + ':' + String($json.anexo_indice)) : 'receb#sha256:' + String($json.canal) + ':' + String($json.mensagem_id).hash('sha256') + ':' + String($json.anexo_indice) }}"
             }
           ]
         },
@@ -354,7 +354,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice)).length <= 200 && /^[ -~]*$/.test(('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice))) ? ('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice)) : 'receb#sha256:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id).hash('sha256') + ':' + String($('Anexo atual').first().json.anexo_indice) }}"
+              "value": "={{ ('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice)).length >= 16 && ('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice)).length <= 200 && /^[ -~]*$/.test(('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice))) ? ('receb:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id) + ':' + String($('Anexo atual').first().json.anexo_indice)) : 'receb#sha256:' + String($('Anexo atual').first().json.canal) + ':' + String($('Anexo atual').first().json.mensagem_id).hash('sha256') + ':' + String($('Anexo atual').first().json.anexo_indice) }}"
             }
           ]
         },
@@ -503,7 +503,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:recebimento-canais:' + (String($json.chave_excecao))).length <= 200 && /^[ -~]*$/.test('excecao:recebimento-canais:' + (String($json.chave_excecao))) ? 'excecao:recebimento-canais:' + (String($json.chave_excecao)) : 'excecao#sha256:recebimento-canais:' + (String($json.chave_excecao)).hash('sha256') }}"
+              "value": "={{ ('excecao:recebimento-canais:' + (String($json.chave_excecao))).length >= 16 && ('excecao:recebimento-canais:' + (String($json.chave_excecao))).length <= 200 && /^[ -~]*$/.test('excecao:recebimento-canais:' + (String($json.chave_excecao))) ? 'excecao:recebimento-canais:' + (String($json.chave_excecao)) : 'excecao#sha256:recebimento-canais:' + (String($json.chave_excecao)).hash('sha256') }}"
             }
           ]
         },
@@ -698,7 +698,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'))).length <= 200 && /^[ -~]*$/.test('excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'))) ? 'excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada')) : 'excecao#sha256:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada')).hash('sha256') }}"
+              "value": "={{ ('excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'))).length >= 16 && ('excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'))).length <= 200 && /^[ -~]*$/.test('excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'))) ? 'excecao:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada')) : 'excecao#sha256:recebimento-canais:' + (String('receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada')).hash('sha256') }}"
             }
           ]
         },
@@ -1090,7 +1090,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "81302d91-e7f3-431b-aca3-634fb2f1ddaa",
+  "versionId": "748f2be8-4a2e-4802-8417-7650ab64ece1",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1098,21 +1098,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T14:07:19.434Z",
-      "createdAt": "2026-10-18T14:07:19.434Z",
+      "updatedAt": "2026-10-18T14:42:43.853Z",
+      "createdAt": "2026-10-18T14:42:43.853Z",
       "role": "workflow:owner",
       "workflowId": "pcprRecebimento1",
-      "projectId": "ew1R5nPjKUs8KICd",
+      "projectId": "Eera4ccdLPh4nxic",
       "project": {
-        "updatedAt": "2026-10-18T14:07:04.149Z",
-        "createdAt": "2026-10-18T14:07:04.149Z",
-        "id": "ew1R5nPjKUs8KICd",
+        "updatedAt": "2026-10-18T14:42:34.395Z",
+        "createdAt": "2026-10-18T14:42:34.395Z",
+        "id": "Eera4ccdLPh4nxic",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "564d2ad0-5db0-47ee-aa3f-bf8dd4d6317b"
+        "creatorId": "3aaecbf4-434b-44b1-acd2-3f27e33330c0"
       }
     }
   ],

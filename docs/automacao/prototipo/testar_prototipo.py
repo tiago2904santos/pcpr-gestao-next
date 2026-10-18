@@ -1491,6 +1491,13 @@ def t19() -> dict:
     checar(chave_recebimento("email", mid, 0).startswith("receb#sha256:"), "(k) chave bruta")
     checar(rk["entregas"] == [200] and xk["posts"] == [202], f"(k) {rk['entregas']} {xk}")
     checar(len(xk["recebimentos"]) == 1, f"(k) recebimentos {xk['recebimentos']}")
+    # (l) id de 1 caractere: receb:email:x:0 teria 15 (< 16 do contrato) → forma com hash; entra
+    resetar()
+    mid = "x"
+    rl = receber(mid)
+    xl = da_msg(est(), mid)
+    checar(chave_recebimento("email", mid, 0).startswith("receb#sha256:"), "(l) chave curta crua")
+    checar(rl["entregas"] == [200] and xl["posts"] == [202], f"(l) {rl['entregas']} {xl}")
     saida["i_j_ids_muito_longos"] = {
         "i_id_290_sem_arquivo": {
             "chave_do_recebimento": len(chave_i),
