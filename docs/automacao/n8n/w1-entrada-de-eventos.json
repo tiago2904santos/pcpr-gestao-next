@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:51:58.000Z",
-  "createdAt": "2026-10-18T03:46:18.079Z",
+  "updatedAt": "2026-10-18T14:49:30.000Z",
+  "createdAt": "2026-10-18T14:42:43.827Z",
   "id": "pcprEntradaEvt01",
   "name": "PCPR · Entrada de eventos",
   "description": null,
@@ -485,7 +485,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "e0458b76-4b90-4f7d-9722-3cff7596c6e5",
+  "versionId": "05a1238f-0cca-4ad9-93bf-d0da741c956a",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -493,21 +493,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:46:18.083Z",
-      "createdAt": "2026-10-18T03:46:18.083Z",
+      "updatedAt": "2026-10-18T14:42:43.834Z",
+      "createdAt": "2026-10-18T14:42:43.834Z",
       "role": "workflow:owner",
       "workflowId": "pcprEntradaEvt01",
-      "projectId": "Ivrpx1fsWEVS1XJN",
+      "projectId": "Eera4ccdLPh4nxic",
       "project": {
-        "updatedAt": "2026-10-18T03:46:09.768Z",
-        "createdAt": "2026-10-18T03:46:09.768Z",
-        "id": "Ivrpx1fsWEVS1XJN",
+        "updatedAt": "2026-10-18T14:42:34.395Z",
+        "createdAt": "2026-10-18T14:42:34.395Z",
+        "id": "Eera4ccdLPh4nxic",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "e728cecd-6a3b-4aeb-a8df-5c31a79cdd38"
+        "creatorId": "3aaecbf4-434b-44b1-acd2-3f27e33330c0"
       }
     }
   ],

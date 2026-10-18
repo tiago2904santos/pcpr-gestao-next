@@ -347,7 +347,7 @@ paths:
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
-        description: "`Idempotency-Key`: `entrega:<comunicacao>:<provedor_mensagem_id>:<status>`."
+        description: "`Idempotency-Key`: `entrega:<comunicacao>:<provedor_mensagem_id>:<status>` quando essa forma tem de 16 a 200 caracteres e é toda ASCII imprimível; senão (o `provedor_mensagem_id` aceita até 300), `entrega#sha256:<hex do SHA-256 (UTF-8) de <comunicacao>:<provedor_mensagem_id>:<status>>` — o `#` no 1º segmento impede colisão com a forma bruta."
         content:
           application/json:
             schema:
@@ -376,7 +376,13 @@ paths:
         sistema já tem (OCR, identificação, distribuição, revisão), em nome do servidor vinculado ao
         contato. Contato não verificado → quarentena para conferência humana, nada é aplicado.
 
-        `Idempotency-Key` = `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1). Repetir a
+        `Idempotency-Key` = `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1) **só quando
+        essa forma tem de 16 a 200 caracteres e é toda ASCII imprimível** (0x20–0x7E). Em qualquer
+        outro caso — id muito curto (a chave ficaria abaixo de 16), id longo (o id do canal aceita
+        até 300) ou com qualquer caractere fora do ASCII imprimível — a chave é `receb#sha256:<canal>:<hex do SHA-256 (UTF-8) do
+        mensagem_id_canal>:<anexo_indice>`. O `#` no 1º segmento impede que um id curto reproduza a
+        forma com hash; a regra ASCII faz o tamanho medir igual em qualquer linguagem e mantém o
+        cabeçalho em ASCII. Repetir a
         mesma chave devolve o mesmo `Recebimento` sem efeito; **mesma chave com SHA-256 diferente →
         409 `conflito_de_versao`** (o canal mudou o anexo; vira exceção), em vez do 422 genérico. Mesmo
         SHA-256 no mesmo destino com outra chave = `duplicado`. O PCPR recalcula o SHA-256 e recusa com

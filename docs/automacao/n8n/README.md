@@ -11,15 +11,24 @@ protótipo (`docs/automacao/prototipo/`). Todos têm `"active": false`. Só roda
 **simuladores locais** (PCPR, canal fictício e Graph API do WhatsApp, dados sintéticos): a API de
 automação do PCPR ainda não existe, então nada aqui foi testado contra o sistema real.
 
-- W1, W3, W4 e W5: exportados pela suíte principal (`testar_prototipo.py`, 18/10/2026 00:52,
-  rodada com T11 + 17 cenários passando).
-- W2, W6, W7 e W8: exportados pela suíte do WhatsApp oficial (`testar_whatsapp.py`, 18/10/2026
-  00:57, TW0–TW15 passando). O W2 tem o desvio por canal (WhatsApp → W6). W6–W8 são a
+- W1, W3, W4 e W5: exportados pela suíte principal (`testar_prototipo.py`, rodada de
+  **18/10/2026 11:42–11:49** (−03:00), T1–T20 passando — é a rodada registrada em
+  `prototipo/resultados/resultados.json`, campos `inicio`/`fim`).
+- W2, W6, W7 e W8: exportados pela suíte do WhatsApp oficial (`testar_whatsapp.py`, rodada de
+  **18/10/2026 11:49–11:55** (−03:00), TW0–TW16 passando — a de
+  `prototipo/resultados/resultados-whatsapp.json`). O W2 tem o desvio por canal (WhatsApp → W6). W6–W8 são a
   frente **WA-3 — prontos e DESLIGADOS** (seção própria no fim): não publicar nem cadastrar
   credencial real antes do portão de ativação.
 - Revisão do PR #23 (18/10/2026): W2, W4, W6, W7 e W8 mudaram de comportamento em retentativa e
   confirmação — ver "Retentativa e confirmação" abaixo e a
   [seção da revisão no README do protótipo](../prototipo/README.md#revisão-do-pr-23-codex--o-que-mudou).
+  Na segunda verificação mudaram de novo W4 (desfecho final por anexo; recusa permanente vira
+  exceção, não reentrega), W5 (não guarda execuções), W6 (5xx genérico da Graph API não é
+  temporário), W7 e W8 (status órfão antigo vira exceção; corpo estável sob chave estável) —
+  [segunda verificação](../prototipo/README.md#segunda-verificação--o-que-mudou). Na terceira,
+  só o W4: chave da exceção por classe de recusa e exceção `fila_parada` para falha transitória
+  persistente (mensagem com mais de 4 h) —
+  [terceira verificação](../prototipo/README.md#terceira-verificação--o-que-mudou).
 
 > Fonte revisável: `docs/automacao/prototipo/construir_workflows.py` gera os JSON; o teste
 > importa, publica só no contêiner local, testa, despublica e exporta para cá. Para mudar um
@@ -32,11 +41,11 @@ automação do PCPR ainda não existe, então nada aqui foi testado contra o sis
 | `w1-entrada-de-eventos.json` | `pcprEntradaEvt01` | PCPR · Entrada de eventos | Webhook `POST /webhook/pcpr-eventos` (corpo bruto) | Verifica `X-PCPR-Assinatura` (HMAC-SHA256 sobre `t + "." + corpo_bruto`, segredo numa credencial *Crypto*), frescor ±5 min, ambiente e `X-PCPR-Evento-Id`; **401** se algo falhar; **202** logo em seguida; deduplica por `id` do evento entre execuções; roteia por `tipo`; `comunicacao.agendada` já devida (ou `imediato`) → chama o W2 |
 | `w2-entregar-comunicacao.json` | `pcprEntregaCom01` | PCPR · Entregar comunicação | Chamado por outro workflow (W1/W3) | `GET /estado` → se ligada, `POST /comunicacoes/{id}/reservar` (`Idempotency-Key: reserva:<id>:v<versao>:exec<execução>`, `X-PCPR-Versao-Esperada`) → 409/423 encerra sem enviar → envia ao canal em até 3 tentativas **controladas** (sem `retryOnFail`; repete só recusa comprovada, ver abaixo) → `POST …/resultado` → `POST /excecoes` só para falha definitiva ou resultado desconhecido (a falha temporária é do PCPR, que reagenda) |
 | `w3-reconciliacao.json` | `pcprReconcilia01` | PCPR · Reconciliação | Schedule a cada 15 min **e** webhook `POST /webhook/pcpr-reconciliar` (Header Auth; disparo manual/teste) | `GET /comunicacoes/devidas` → uma por vez (Loop Over Items) → W2. Responde `{"devidas": N}`. É também quem faz as rodadas seguintes de uma comunicação que o PCPR reagendou por falha temporária |
-| `w4-recebimento-de-arquivo.json` | `pcprRecebimento1` | PCPR · Recebimento de arquivo | Webhook `POST /webhook/canal-recebimento` (Header Auth do canal; responde pelo nó *Responder*, não ao receber) | Um item por anexo → baixa do canal → SHA-256 → `POST /recebimentos` multipart com `Idempotency-Key: receb:<canal>:<mensagem_id_canal>:<anexo_indice>` e `anexo_indice`/`total_anexos`/`nome_arquivo` → **200 só se o PCPR aceitou todos os anexos**; qualquer falha (download ou PCPR) → **503** para o canal reentregar; mensagem sem anexo → 422 |
-| `w5-erros.json` | `pcprErros0000001` | PCPR · Erros | Error Trigger (é o `errorWorkflow` de W1–W4 e W6–W8) | `POST /excecoes` (`motivo: outro`, nó e mensagem do erro, id da execução) |
+| `w4-recebimento-de-arquivo.json` | `pcprRecebimento1` | PCPR · Recebimento de arquivo | Webhook `POST /webhook/canal-recebimento` (Header Auth do canal; responde pelo nó *Responder*, não ao receber) | Um anexo por vez (*Loop Over Items*) → baixa do canal → SHA-256 → `POST /recebimentos` multipart com `Idempotency-Key: receb:<canal>:<mensagem_id_canal>:<anexo_indice>` e `anexo_indice`/`total_anexos`/`nome_arquivo`. Cada anexo termina num **desfecho**: aceito; registrado sem arquivo (`POST /recebimentos/sem-arquivo`: sem anexo, anunciado acima de 25 MiB, 413 do PCPR, download 404/410); **exceção** para recusa permanente do PCPR (409, 422, outro 4xx; chave `excecao:recebimento-canais:receb:<canal>:<mensagem>:<anexo>:<classe da recusa>:<motivo>`, corpo função só da chave); ou `reentregar` para falha transitória (rede, 5xx, 408, 423, 425, 429, 401/403). **200 só se todos os desfechos são finais**; algum `reentregar` → **503**, e se a mensagem chegou ao canal há mais de `cfg_fila_parada_s` (4 h) abre também uma exceção `fila_parada` (uma por mensagem) e continua 503 |
+| `w5-erros.json` | `pcprErros0000001` | PCPR · Erros | Error Trigger (é o `errorWorkflow` de W1–W4 e W6–W8) | `POST /excecoes` (`motivo: outro`, nó e mensagem do erro com sequências de token mascaradas, id da execução); **não guarda execuções** (`saveData…="none"`) |
 | `w6-enviar-por-whatsapp.json` | `pcprWhatsEnvio01` | PCPR · Enviar por WhatsApp (oficial) | Chamado pelo W2 quando o canal **da reserva** é `whatsapp` | **WA-3, desligado.** Modelo *utility* fora da janela de 24 h; documento por id de mídia dentro dela; registra resultado e exceção |
 | `w7-webhook-whatsapp.json` | `pcprWhatsWebhk01` | PCPR · Webhook WhatsApp | Webhook `GET` e `POST /webhook/whatsapp` | **WA-3, desligado; variante V1** (a recomendação é a V2). Verificação GET, HMAC `X-Hub-Signature-256`, mídia em 2 passos, `/recebimentos`; 503 quando o W8 adia um status |
-| `w8-status-whatsapp.json` | `pcprWhatsStatus1` | PCPR · Status WhatsApp | Chamado pelo W7 | **WA-3, desligado.** `delivered`/`read`/`failed` → `POST /comunicacoes/{id}/entrega`; status de mensagem ainda sem resultado registrado → **adiado** (o W7 responde 503 e a Meta reentrega) |
+| `w8-status-whatsapp.json` | `pcprWhatsStatus1` | PCPR · Status WhatsApp | Chamado pelo W7 | **WA-3, desligado.** `delivered`/`read`/`failed` → `POST /comunicacoes/{id}/entrega`; status de mensagem ainda sem resultado registrado → **adiado** (o W7 responde 503 e a Meta reentrega) enquanto tiver até 1 h; mais velho → exceção e 200 |
 
 Pontos de projeto que os testes confirmaram (detalhes e evidências no README do protótipo):
 
@@ -69,16 +78,24 @@ Pontos de projeto que os testes confirmaram (detalhes e evidências no README do
   **PCPR** marca `falhou` e abre **uma** exceção `limite_tentativas` (T7: 3 rodadas × 3
   tentativas, depois nada; T15: canal fora do ar e de volta → 1 envio). O n8n não abre exceção
   para falha temporária.
-- **Recebimento (W4): 2xx ao canal só depois de o PCPR aceitar** (antes era `onReceived`: o 200
-  saía antes do download e do `POST /recebimentos`, e uma falha perdia o arquivo). Sem
-  retentativa interna: a **reentrega do canal** é a retentativa; o que já foi aceito repete a mesma
-  `Idempotency-Key` (T16, T17). Cuidado do modo `responseNode` no 2.43.7: se a execução terminar
-  sem passar por um nó *Responder*, o n8n responde **200 vazio** (`webhook-helpers.js`) — por
-  isso todo caminho do W4 termina num *Responder*.
+- **Recebimento (W4): 2xx ao canal só depois de cada anexo ter desfecho final no PCPR** (antes
+  era `onReceived`: o 200 saía antes do download e do `POST /recebimentos`, e uma falha perdia o
+  arquivo). Sem retentativa interna para falha **transitória**: a **reentrega do canal** é a
+  retentativa; o que já foi aceito repete a mesma `Idempotency-Key` (T16, T17). Falha
+  **permanente** não é reentregue (2ª verificação): exceção humana com chave e corpo estáveis e
+  resposta final; 413 e anexo sem bytes vão a `/recebimentos/sem-arquivo` (T19). A chave inclui a
+  classe da recusa (operação, HTTP, código): se o motivo muda entre entregas (422 e depois 409),
+  abre outra exceção em vez de reusar a chave com outro corpo (T19f). Falha **transitória** que
+  persiste numa mensagem com mais de `cfg_fila_parada_s` (4 h) → exceção `fila_parada` e 503: a
+  pessoa é avisada e o canal continua reentregando (T19g, 3ª verificação). Cuidado do modo
+  `responseNode` no 2.43.7: se a execução terminar sem passar por um nó *Responder*, o n8n
+  responde **200 vazio** (`webhook-helpers.js`) — por isso todo caminho do W4, inclusive dentro
+  do laço, termina num desfecho e num *Responder*.
 - **Status (W7/W8): status que chega antes do `resultado` não é engolido.** Sem
   `biz_opaque_callback_data`, o W8 procura o wamid no PCPR; não achou → adia, e o W7 responde 503
   para a Meta reentregar (TW14). Com `biz_opaque_callback_data`, o PCPR já guarda a marca pelo
-  wamid e a aplica quando o resultado chegar.
+  wamid e a aplica quando o resultado chegar. Status órfão com mais de `cfg_adiar_max_s` (3600 s)
+  não é mais adiado: exceção e 200 (TW14c), em vez de 7 dias de reentrega do lote.
 
 ## Credenciais exigidas (criar ANTES de importar; os IDs precisam bater)
 
@@ -123,7 +140,8 @@ implantação, etapa 0).
 
 1. **Ajustar o que é por instância** (no gerador, ou depois na interface — não são segredos):
    - nós **Configuração** de W2, W3, W4 e W5: `cfg_pcpr` (ex.: `https://<host>/api/automacao/v1`)
-     e `cfg_canal`;
+     e `cfg_canal` (no W4 também `cfg_limite_bytes`, 25 MiB, e `cfg_fila_parada_s`, 14400 s; no W8
+     `cfg_adiar_max_s`, 3600 s);
    - W1 › **Preparar verificação**: `AMBIENTE_ESPERADO = 'producao'` (ou `treinamento`).
 2. **Credenciais**: `n8n import:credentials --input=/tmp/credenciais.json` e apagar o arquivo.
 3. **Workflows** (copie os 8 `.json` para uma pasta vazia dentro do contêiner; sem as
@@ -159,9 +177,11 @@ implantação, etapa 0).
 
 **Retenção de execuções (segurança).** O W2 recebe na reserva o destino e a mensagem com o
 link-credencial (KM, assinatura) e o token de reserva; o W4 recebe o arquivo e o remetente. Por
-isso W2 e W4 saem com `saveDataSuccessExecution`, `saveDataErrorExecution` = `"none"`,
+isso W2, W4 e W5 saem com `saveDataSuccessExecution`, `saveDataErrorExecution` = `"none"`,
 `saveManualExecutions=false` e `saveExecutionProgress=false` (W1 e W3 só guardam erros; o
-diagnóstico vai pelo W5, com metadados). Em produção, além disso: `EXECUTIONS_DATA_SAVE_ON_SUCCESS=none`,
+diagnóstico vai pelo W5, com metadados). O W5 entrou na lista na 2ª verificação: o Error Trigger
+recebe a mensagem de erro do fluxo que falhou, que pode citar o token de reserva (o T13 achou 2
+ocorrências numa execução do W5). Em produção, além disso: `EXECUTIONS_DATA_SAVE_ON_SUCCESS=none`,
 `EXECUTIONS_DATA_SAVE_ON_PROGRESS=false` e `EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=false`; e o PCPR
 mascara URLs, e-mails e tokens no `detalhe` de `/excecoes` antes de gravar (a mensagem de erro do
 nó pode conter a URL). O cenário **T13** do protótipo varre as tabelas de execução do n8n e exige
@@ -187,7 +207,7 @@ consultados em 17/10/2026). Em produção, banco **PostgreSQL** próprio (o prot
 1. **API de automação v1** (`api-automacao.v1.yaml`): `/estado`, `/comunicacoes/devidas`,
    `GET /comunicacoes?provedor_mensagem_id=` (W8; no contrato desde 18/10/2026),
    `/comunicacoes/{id}/reservar|resultado|entrega`, `/recebimentos` (com `anexo_indice`,
-   `total_anexos` e chave por anexo), `/recebimentos/{id}`,
+   `total_anexos` e chave por anexo), `/recebimentos/sem-arquivo`, `/recebimentos/{id}`,
    `/excecoes`, com token de serviço por integração (hash, escopos, rotação), `Idempotency-Key`
    obrigatório e persistido, 423 com a chave desligada, eco de `X-PCPR-Correlacao`.
 2. **Emissor de eventos** a partir da outbox (ADR 0005): envelope
@@ -224,7 +244,7 @@ Frente WA-3 do [plano de implantação](../plano-implantacao.md): a integração
 Business Platform (Cloud API)** construída e testada **só contra um simulador local da Graph
 API** (`docs/automacao/prototipo/simulador_graph.py`), nunca contra a Meta. A política oficial
 hoje proíbe órgãos policiais na plataforma ([whatsapp-viabilidade.md](../whatsapp-viabilidade.md),
-seção 1): **nada aqui pode ser ativado**. Evidência dos testes TW0–TW15 e medição de retenção:
+seção 1): **nada aqui pode ser ativado**. Evidência dos testes TW0–TW16 e medição de retenção:
 [README do protótipo](../prototipo/README.md#whatsapp-oficial-wa-3--pronto-e-desligado) e
 `docs/automacao/prototipo/resultados/resultados-whatsapp.json`.
 
@@ -243,10 +263,11 @@ o PCPR mandou em `mensagem.whatsapp` (forma pedida, `janela_aberta_ate`, modelo 
 - 131047 síncrono numa mensagem livre → troca **uma vez** por modelo (nós separados, sem ciclo no
   grafo); nunca repete o livre;
 - **sem retentativa automática do `POST /messages`** (a Cloud API não tem chave de idempotência:
-  repetir depois de tempo esgotado duplicaria); erro **estruturado** da Graph API que é
-  temporário (429, 5xx com `error.code`, limites de vazão) → `falha_temporaria` (o PCPR reagenda);
-  tempo esgotado, conexão caída ou resposta **sem** erro estruturado (ex.: 502 de um proxy depois
-  de a Meta aceitar; TW15) → `resultado_desconhecido` e exceção, nunca temporária;
+  repetir depois de tempo esgotado duplicaria); só **limite de taxa** (HTTP 429 ou códigos 4,
+  80007, 130429, 131048, 131056, aplicados antes do aceite) → `falha_temporaria` (o PCPR reagenda;
+  TW16b); 5xx com erro genérico (1, 2, 131000, 131016…; TW16a), tempo esgotado, conexão caída ou
+  resposta **sem** erro estruturado (ex.: 502 de um proxy depois de a Meta aceitar; TW15) →
+  `resultado_desconhecido` e exceção, nunca temporária;
 - envia `biz_opaque_callback_data: "com:<id>"` (volta nos status) e registra
   `POST /comunicacoes/{id}/resultado` com o **wamid** como `provedor_mensagem_id`.
 
@@ -276,7 +297,9 @@ status chegam no mesmo `GET|POST /webhook/whatsapp`:
 `biz_opaque_callback_data` ou, sem ele, pelo mapeamento wamid → comunicação do PCPR
 (`GET /comunicacoes?provedor_mensagem_id=`, resposta só `{id, versao}`). Lista vazia = o
 `resultado` ainda não foi registrado (o status chegou antes): o item é **adiado** e o W7
-responde 503, em vez de descartar com 200 (TW14). `POST /comunicacoes/{id}/entrega` com
+responde 503, em vez de descartar com 200 (TW14) — enquanto o status tiver até 1 h
+(`cfg_adiar_max_s`); mais velho → `POST /excecoes` (`excecao:whatsapp-status:<wamid>:<status>`)
+e 200 (TW14c). `POST /comunicacoes/{id}/entrega` com
 `Idempotency-Key: entrega:<id>:<wamid>:<status>`; o PCPR nunca regride (lida não volta a
 entregue). `failed`/131047 numa mensagem livre → o **PCPR** agenda uma substituta por modelo.
 
