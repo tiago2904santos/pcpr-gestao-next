@@ -1,0 +1,33 @@
+{
+  "ligada": false,
+  "ambiente": "teste",
+  "fluxos": {
+    "km-vespera": false,
+    "km-lembretes": false,
+    "envio-documentos": false,
+    "saque-aviso": false,
+    "recebimento-canais": false,
+    "recebimento-aplicacao-automatica": false
+  },
+  "canais": {
+    "portal": "ligado",
+    "email": "desligado",
+    "whatsapp": "desligado"
+  },
+  "canais_entrada": {
+    "email": "desligado",
+    "whatsapp": "desligado"
+  },
+  "autorizacoes": {},
+  "integracoes": {
+    "eprotocolo": {
+      "ambiente": "simulado",
+      "consulta": false,
+      "mutacoes_permitidas": [],
+      "ultima_consulta_ok_em": null
+    },
+    "central_viagens": {
+      "disponivel": false
+    }
+  }
+}

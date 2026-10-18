@@ -1,5 +1,11 @@
 # 10.1 — Assistente de dúvidas dos servidores (viagens, documentos, prazos e prestação de contas)
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Fase 2 · desenho técnico · 17/10/2026 · **Status: desenho.** Nada deste fluxo existe no sistema novo
 além das peças marcadas **[existe]**. Base obrigatória: [arquitetura](../arquitetura.md),
 [evento de integração](../contratos/evento-integracao.schema.json),

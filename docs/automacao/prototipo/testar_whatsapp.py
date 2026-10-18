@@ -671,6 +671,41 @@ def tw12() -> dict:
     return saida
 
 
+def tw15() -> dict:
+    """C5/C6 no W6: a Graph API aceita a mensagem mas a resposta chega como 502 sem corpo da
+    Graph (proxy no meio) → resultado_desconhecido + exceção. Nunca falha_temporaria: o PCPR
+    reagendaria e o W6 reenviaria às cegas."""
+    resetar()
+    graph("/_sim/config", {"respostas_ambiguas": 1})
+    destino = telefone(GRUPOS["OUT"])
+    cid = com_wa(destino, tipo="link_km", forma="modelo")["comunicacao_id"]
+    esperar(lambda: com(est(), cid).get("rodadas"), 30, "W6 não registrou resultado")
+    assentar(2)
+    st, corpo = reconciliar()
+    checar(st == 200 and corpo.get("devidas") == 0, f"reconciliação: {st} {corpo}")
+    assentar(2)
+    e, g = est(), gst()
+    c = com(e, cid)
+    m = msgs(g, destino)
+    ex = [x for x in e["excecoes"] if (x.get("recurso") or {}).get("id") == cid]
+    checar(len(m) == 1 and m[0]["aceita"] and m[0].get("resposta_ambigua") == 502, f"graph: {m}")
+    checar(
+        [r["resultado"] for r in c["rodadas"]] == ["resultado_desconhecido"],
+        f"rodadas: {c['rodadas']}",
+    )
+    checar(c["estado"] == "falhou", f"estado {c['estado']} (temporária reagendaria e reenviaria)")
+    checar([x["motivo"] for x in ex] == ["resultado_desconhecido"], f"exceções: {ex}")
+    return {
+        "mensagens_na_graph_api": 1,
+        "resposta_vista_pelo_w6": "502 sem corpo da Graph API (a Meta tinha aceitado)",
+        "resultado": "resultado_desconhecido",
+        "estado": c["estado"],
+        "excecao": "resultado_desconhecido",
+        "reconciliacao_depois": corpo,
+        "reenvios": 0,
+    }
+
+
 # ===================================================================== cenários: recebimento
 
 
@@ -744,6 +779,103 @@ def tw5(variante: str) -> dict:
         checar(e["wa_vistos"].get(f"status:{wamid}:read") == 2, "read repetido não contado")
         checar(e["wa_vistos"].get(f"status:{wamid}:delivered") == 2, "reentrega não contada")
     return ev
+
+
+def tw14(variante: str) -> dict:
+    """C7 (W8): status que chega ANTES do /resultado (wamid ainda desconhecido no PCPR) não é
+    engolido com 200: a 1ª entrega recebe não-2xx; reentregue depois do registro → gravado. O
+    teste faz o papel do W6 (reserva e envio direto na Graph API simulada) para controlar a
+    ordem. (b) com biz_opaque_callback_data o PCPR guarda a marca pelo wamid já na 1ª entrega."""
+    resetar(variante)
+    api = {"Authorization": f"Bearer {SEGREDOS['token_api']}"}
+    bearer = {"Authorization": f"Bearer {SEGREDOS['wa_token']}"}
+
+    def enviar_como_w6(destino: str, cid: int, com_callback: bool) -> tuple[str, str]:
+        st, res = http(
+            "POST",
+            f"{API}/comunicacoes/{cid}/reservar",
+            {},
+            {**api, "Idempotency-Key": f"reserva:{cid}:v1:exectw14{cid}"},
+        )
+        checar(st == 200, f"reservar {cid}: {st} {res}")
+        corpo: dict[str, Any] = {
+            "messaging_product": "whatsapp",
+            "to": re.sub(r"\D", "", destino),
+            "type": "template",
+            "template": {
+                "name": "pcpr_km_vespera_v1",
+                "language": {"code": "pt_BR"},
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {"type": "text", "text": "Fulana"},
+                            {"type": "text", "text": f"https://pcpr.example.invalid/km/c{cid}"},
+                        ],
+                    }
+                ],
+            },
+        }
+        if com_callback:
+            corpo["biz_opaque_callback_data"] = f"com:{cid}"
+        st, g = http("POST", f"{GRAPH}/v21.0/{cw.NUMERO_ID_PADRAO}/messages", corpo, bearer)
+        checar(st == 200, f"graph: {st} {g}")
+        return res["reserva"]["token"], g["messages"][0]["id"]
+
+    def registrar_resultado(cid: int, token: str, wamid: str) -> None:
+        st, b = http(
+            "POST",
+            f"{API}/comunicacoes/{cid}/resultado",
+            {
+                "reserva_token": token,
+                "resultado": "enviada",
+                "provedor": "whatsapp_cloud",
+                "provedor_mensagem_id": wamid,
+            },
+            {**api, "Idempotency-Key": f"resultado:{cid}:{token}"},
+        )
+        checar(st == 200, f"resultado {cid}: {st} {b}")
+
+    # (a) sem biz_opaque_callback_data: o W8 só acha a comunicação pelo wamid
+    destino = telefone(GRUPOS["OUT"])
+    cid = com_wa(destino, tipo="link_km", entregar=False)["comunicacao_id"]
+    token, wamid = enviar_como_w6(destino, cid, com_callback=False)
+    s1 = graph("/_sim/status", {"wamid": wamid, "status": "delivered"})
+    st1 = s1["entregas"][0]["status"]
+    assentar(1)
+    e = est()
+    buscas = [x for x in chamadas(e, r"/comunicacoes") if x.get("encontrou") is False]
+    checar(st1 is not None and not 200 <= st1 < 300, f"1ª entrega deveria ser não-2xx: {st1}")
+    checar(buscas, "o W8 não consultou o PCPR pelo wamid")
+    checar(not chamadas(e, r"/comunicacoes/\d+/entrega", cid), "gravou entrega sem comunicação")
+    checar(wamid not in e["marcas"] and com(e, cid)["entrega"] is None, "status gravado cedo")
+    registrar_resultado(cid, token, wamid)
+    s2 = graph("/_sim/reentregar", {"entrega_id": s1["entrega_id"]})
+    st2 = s2["entregas"][0]["status"]
+    checar(st2 == 200, f"reentrega depois do resultado deveria ser 200: {st2}")
+    esperar(lambda: com(est(), cid)["entrega"] == "entregue", 15, "status não gravado")
+    # (b) com biz_opaque_callback_data: já gravado na 1ª entrega (marca guardada pelo wamid)
+    destino_b = telefone(GRUPOS["OUT"])
+    cid_b = com_wa(destino_b, tipo="link_km", entregar=False)["comunicacao_id"]
+    token_b, wamid_b = enviar_como_w6(destino_b, cid_b, com_callback=True)
+    sb = graph("/_sim/status", {"wamid": wamid_b, "status": "delivered"})
+    stb = sb["entregas"][0]["status"]
+    checar(stb == 200, f"(b) com callback deveria ser 200: {stb}")
+    checar(est()["marcas"].get(wamid_b, {}).get("entregue_em"), "(b) marca não guardada")
+    registrar_resultado(cid_b, token_b, wamid_b)
+    checar(com(est(), cid_b)["entrega"] == "entregue", "(b) marca não aplicada ao registrar")
+    return {
+        "a_sem_callback_data": {
+            "primeira_entrega": st1,
+            "consulta_pelo_wamid": "itens: [] (resultado ainda não registrado)",
+            "reentrega_depois_do_resultado": st2,
+            "entrega_final": "entregue",
+        },
+        "b_com_callback_data": {
+            "primeira_entrega": stb,
+            "entrega_apos_registrar_o_resultado": "entregue",
+        },
+    }
 
 
 def _antes(variante: str) -> dict:
@@ -1262,6 +1394,7 @@ CENARIOS: list[tuple[str, str, str, Callable[..., dict]]] = [
     ("TW4", "-", "dentro da janela: documento por id de mídia", tw4),
     ("TW11", "-", "canal bloqueado → 0 chamada à Graph API, aguardando envio manual (WA-1)", tw11),
     ("TW12", "-", "contato sem opt-in → não envia, exceção contato_nao_verificado", tw12),
+    ("TW15", "-", "W6: resposta ambígua (502 após aceitar) → resultado_desconhecido", tw15),
     ("VARRER", "apos_envio", "", varrer),
     ("TW5", "V1", "status fora de ordem e duplicado → lida, sem regressão", tw5),
     ("TW6", "V1", "assinatura inválida → 401, nada gravado", tw6),
@@ -1269,6 +1402,7 @@ CENARIOS: list[tuple[str, str, str, Callable[..., dict]]] = [
     ("TW8", "V1", "documento recebido → 1 recebimento, SHA-256, Bearer", tw8),
     ("TW9", "V1", "reentrega do mesmo webhook → 1 recebimento", tw9),
     ("TW10", "V1", "URL de mídia vencida → pede nova e conclui", tw10),
+    ("TW14", "V1", "status antes do resultado → não-2xx; reentrega após registro → gravado", tw14),
     ("VARRER", "apos_v1", "", varrer),
     ("TW5", "V2", "status fora de ordem e duplicado → lida, sem regressão", tw5),
     ("TW6", "V2", "assinatura inválida → 401, nada gravado", tw6),

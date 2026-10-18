@@ -1,0 +1,370 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 642 files, 3482 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (18 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (5 ignored imports)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de CadastrosKEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 325 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pdftotext is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: programa is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: sem is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: shell is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao\viagens\management\commands\semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+...FF.F................................................................. [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+........                                                                 [100%]
+================================== FAILURES ===================================
+__________________________ test_conversao_docx_real ___________________________
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+    def test_conversao_docx_real():
+        from docx import Document
+    
+        doc = Document()
+        doc.add_paragraph("DESPACHO")
+        doc.add_paragraph("Referente ao Ofício 120/2026. Encaminho para providências cabíveis.")
+        saida = io.BytesIO()
+        doc.save(saida)
+>       resultado, pdf, _ = analisar(saida.getvalue(), "despacho.docx")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_importacao.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dados = b'PK\x03\x04\x14\x00\x00\x00\x08\x00\xf9\x18Q]\xadR\xa5\x91\x95\x01\x00\x00\xca\x06\x00\x00\x13\x00\x00\x00[Content_Ty...\xbe\x84\x00\x00docProps/thumbnail.jpegPK\x05\x06\x00\x00\x00\x00\x11\x00\x11\x00a\x04\x00\x00\xb0\x8a\x00\x00\x00\x00'
+nome = 'despacho.docx'
+
+    def analisar(dados: bytes, nome: str) -> tuple[dict, bytes, list[bytes]]:
+        if not dados or len(dados) > MAX_BYTES:
+            raise LeituraInvalida("Envie um arquivo de até 25 MB.")
+        with tempfile.TemporaryDirectory(prefix="pcpr-importacao-") as tmp:
+            pasta = Path(tmp)
+            origem = pasta / ("entrada" + Path(nome).suffix.lower())
+            origem.write_bytes(dados)
+            try:
+                # Python e módulo internos, caminho temporário gerado aqui; sem shell.
+                subprocess.run(  # noqa: S603 # nosec B603
+                    [sys.executable, "-m", __name__, str(origem), str(pasta)],
+                    check=True,
+                    capture_output=True,
+                    timeout=240,
+                    env={
+                        **{
+                            k: v
+                            for k, v in os.environ.items()
+                            if k in {"PATH", "SYSTEMROOT", "LANG", "LC_ALL", "FONTCONFIG_PATH"}
+                        },
+                        "HOME": str(pasta),
+                        "TMPDIR": str(pasta),
+                        "OMP_THREAD_LIMIT": "1",
+                        "SAL_USE_VCLPLUGIN": "svp",
+                    },
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise LeituraInvalida("A leitura demorou demais. Divida o arquivo e reenvie.") from exc
+            except subprocess.CalledProcessError as exc:
+                raise LeituraInvalida(
+                    "A leitura foi interrompida. Exporte um PDF menor e reenvie."
+                ) from exc
+            resultado = json.loads((pasta / "resultado.json").read_text(encoding="utf-8"))
+            if resultado.get("erro"):
+>               raise LeituraInvalida(resultado["erro"])
+E               gestao.viagens.documentos.importador.LeituraInvalida: O conversor não está disponível. Peça ao gestor para verificar o worker.
+
+gestao\viagens\documentos\importador.py:307: LeituraInvalida
+___________________________ test_ocr_real_de_imagem ___________________________
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+    def test_ocr_real_de_imagem():
+        from PIL import Image, ImageDraw, ImageFont
+    
+        imagem = Image.new("RGB", (1500, 1000), "white")
+        fonte = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 42)
+        ImageDraw.Draw(imagem).multiline_text(
+            (80, 80),
+            "DESPACHO\nReferente ao Ofício 120/2026\nEncaminho para providências administrativas.",
+            font=fonte,
+            fill="black",
+            spacing=35,
+        )
+        buffer = io.BytesIO()
+        imagem.save(buffer, format="PNG")
+>       resultado, pdf, _ = analisar(buffer.getvalue(), "digitalizado.png")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_importacao.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dados = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x05\xdc\x00\x00\x03\xe8\x08\x02\x00\x00\x00Kl\xab\xb2\x00\x00j\x19IDATx\...x00\x00\x08@(\x03\x00\x00\x00\x10\x80P\x06\x00\x00\x00 V\xf1\xfe?\xaeo;\x18\xb5\x15x\xf4\x00\x00\x00\x00IEND\xaeB`\x82'
+nome = 'digitalizado.png'
+
+    def analisar(dados: bytes, nome: str) -> tuple[dict, bytes, list[bytes]]:
+        if not dados or len(dados) > MAX_BYTES:
+            raise LeituraInvalida("Envie um arquivo de até 25 MB.")
+        with tempfile.TemporaryDirectory(prefix="pcpr-importacao-") as tmp:
+            pasta = Path(tmp)
+            origem = pasta / ("entrada" + Path(nome).suffix.lower())
+            origem.write_bytes(dados)
+            try:
+                # Python e módulo internos, caminho temporário gerado aqui; sem shell.
+                subprocess.run(  # noqa: S603 # nosec B603
+                    [sys.executable, "-m", __name__, str(origem), str(pasta)],
+                    check=True,
+                    capture_output=True,
+                    timeout=240,
+                    env={
+                        **{
+                            k: v
+                            for k, v in os.environ.items()
+                            if k in {"PATH", "SYSTEMROOT", "LANG", "LC_ALL", "FONTCONFIG_PATH"}
+                        },
+                        "HOME": str(pasta),
+                        "TMPDIR": str(pasta),
+                        "OMP_THREAD_LIMIT": "1",
+                        "SAL_USE_VCLPLUGIN": "svp",
+                    },
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise LeituraInvalida("A leitura demorou demais. Divida o arquivo e reenvie.") from exc
+            except subprocess.CalledProcessError as exc:
+                raise LeituraInvalida(
+                    "A leitura foi interrompida. Exporte um PDF menor e reenvie."
+                ) from exc
+            resultado = json.loads((pasta / "resultado.json").read_text(encoding="utf-8"))
+            if resultado.get("erro"):
+>               raise LeituraInvalida(resultado["erro"])
+E               gestao.viagens.documentos.importador.LeituraInvalida: O conversor não está disponível. Peça ao gestor para verificar o worker.
+
+gestao\viagens\documentos\importador.py:307: LeituraInvalida
+______________ test_ocr_de_corpo_digitalizado_com_rodape_textual ______________
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+    def test_ocr_de_corpo_digitalizado_com_rodape_textual():
+        from PIL import Image, ImageDraw, ImageFont
+        from weasyprint import HTML
+    
+        imagem = Image.new("RGB", (1500, 1000), "white")
+        fonte = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 42)
+        ImageDraw.Draw(imagem).multiline_text(
+            (80, 80),
+            "DESPACHO\nReferente ao Ofício 120/2026\nEncaminho para providências.",
+            font=fonte,
+            fill="black",
+            spacing=35,
+        )
+        buffer = io.BytesIO()
+        imagem.save(buffer, format="PNG")
+        corpo = base64.b64encode(buffer.getvalue()).decode()
+        dados = HTML(
+            string=f'<img style="width:100%" src="data:image/png;base64,{corpo}">'
+            "<p>Documento recebido pelo sistema eletrônico. Verificação da assinatura "
+            "disponível no sistema. Este rodapé é texto, mas o corpo é digitalizado.</p>"
+        ).write_pdf()
+>       resultado, _, _ = analisar(dados, "processo-digitalizado.pdf")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_importacao.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dados = b'%PDF-1.7\n%\xf0\x9f\x96\xa4\n5 0 obj\n<</Filter /FlateDecode/Length 387>>\nstream\nx\xda\xadT\xc9j\x031\x0c\xbd\xfb+...10\xc1\x0e"8\x18\xf9\xaf@$8\x19\xcbO\x01\xd5U\xf310\x00\x00\x18M\x06\x9c\nendstream\nendobj\nstartxref\n31502\n%%EOF\n'
+nome = 'processo-digitalizado.pdf'
+
+    def analisar(dados: bytes, nome: str) -> tuple[dict, bytes, list[bytes]]:
+        if not dados or len(dados) > MAX_BYTES:
+            raise LeituraInvalida("Envie um arquivo de até 25 MB.")
+        with tempfile.TemporaryDirectory(prefix="pcpr-importacao-") as tmp:
+            pasta = Path(tmp)
+            origem = pasta / ("entrada" + Path(nome).suffix.lower())
+            origem.write_bytes(dados)
+            try:
+                # Python e módulo internos, caminho temporário gerado aqui; sem shell.
+                subprocess.run(  # noqa: S603 # nosec B603
+                    [sys.executable, "-m", __name__, str(origem), str(pasta)],
+                    check=True,
+                    capture_output=True,
+                    timeout=240,
+                    env={
+                        **{
+                            k: v
+                            for k, v in os.environ.items()
+                            if k in {"PATH", "SYSTEMROOT", "LANG", "LC_ALL", "FONTCONFIG_PATH"}
+                        },
+                        "HOME": str(pasta),
+                        "TMPDIR": str(pasta),
+                        "OMP_THREAD_LIMIT": "1",
+                        "SAL_USE_VCLPLUGIN": "svp",
+                    },
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise LeituraInvalida("A leitura demorou demais. Divida o arquivo e reenvie.") from exc
+            except subprocess.CalledProcessError as exc:
+                raise LeituraInvalida(
+                    "A leitura foi interrompida. Exporte um PDF menor e reenvie."
+                ) from exc
+            resultado = json.loads((pasta / "resultado.json").read_text(encoding="utf-8"))
+            if resultado.get("erro"):
+>               raise LeituraInvalida(resultado["erro"])
+E               gestao.viagens.documentos.importador.LeituraInvalida: O conversor não está disponível. Peça ao gestor para verificar o worker.
+
+gestao\viagens\documentos\importador.py:307: LeituraInvalida
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 03:07:57,861 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+============================== warnings summary ===============================
+gestao/viagens/tests/test_assinados.py::TestOrdem::test_via_prevalece_e_dados_mudados
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pypdf\_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+gestao/viagens/tests/test_listas_atencao.py::test_listas_aceitam_o_recorte_de_atencao[vazios-viagens:termos]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py:129: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'gestao.viagens.models.TermoAutorizacao'> QuerySet.
+    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+
+gestao/viagens/tests/test_listas_atencao.py::test_listas_aceitam_o_recorte_de_atencao[vazios-viagens:viagens]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_viagem.py:113: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'gestao.viagens.models.Viagem'> QuerySet.
+    pagina = Paginator(ordenado, POR_PAGINA).get_page(request.GET.get("pagina"))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_importacao.py::test_conversao_docx_real - ge...
+FAILED gestao/viagens/tests/test_importacao.py::test_ocr_real_de_imagem - ges...
+FAILED gestao/viagens/tests/test_importacao.py::test_ocr_de_corpo_digitalizado_com_rodape_textual
+3 failed, 2813 passed, 7 warnings in 4142.40s (1:09:02)

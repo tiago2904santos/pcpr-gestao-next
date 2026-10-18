@@ -1,5 +1,21 @@
 # Matriz de oportunidades de automação — PCPR
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
+## Reclassificação do piloto independente (18/10/2026)
+
+As contagens e a matriz abaixo preservam o levantamento institucional de 17/10. Para o piloto:
+AUT-10 passa de inadequada/5 para integração externa/3; AUT-174 passa de ativação bloqueada/5
+para integração principal externa/3; AUT-173 passa de consulta policial/4 para onboarding normal/3;
+AUT-172 permanece desenvolvimento no sistema/2, como contingência. AUT-10 e AUT-174 descrevem
+canal e entrega da mesma frente, não dois projetos independentes. AUT-11 continua fora do plano.
+Os 174 IDs são preservados; os totais históricos abaixo não são o recálculo desse novo recorte.
+Nenhum envio do piloto depende de SMTP institucional. Consulte o plano revisado para a ordem.
+
 Fase 2 · 17/10/2026. Consolidação das sete leituras do código, revisada à mão. Base:
 [arquitetura](arquitetura.md), [contratos](contratos/), fluxos em [`fluxos/`](fluxos/), fichas em
 [`fichas/`](fichas/), [viabilidade do WhatsApp](whatsapp-viabilidade.md),

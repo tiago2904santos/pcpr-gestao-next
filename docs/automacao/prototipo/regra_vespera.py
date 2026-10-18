@@ -94,14 +94,17 @@ def planejar(viagem: ViagemRef, atual: ComunicacaoRef | None, agora: datetime) -
     # Só o que ainda não saiu pode ser cancelado. "enviando" já está com o canal: segue e o
     # resultado é conferido (uma mensagem nova corrige, se for o caso).
     pendente = atual is not None and atual.estado == "agendada"
+    # Fato antigo (versão menor que a da comunicação atual) é ignorado ANTES de tudo, inclusive
+    # do cancelamento: um "viagem cancelada" atrasado não pode cancelar a comunicação calculada
+    # depois dele (revisão do PR #23, apontamento C4).
+    if atual is not None and viagem.versao < atual.versao_viagem:
+        return Plano(ignorado="versao_antiga")
     if viagem.cancelada:
         if atual is not None and pendente:
             return Plano(cancelar_id=atual.id, motivo_cancelamento="viagem_cancelada")
         return Plano(ignorado="nada_pendente")
     if atual is None:
         return Plano(criar=calcular_envio(viagem.inicio, agora))
-    if viagem.versao < atual.versao_viagem:
-        return Plano(ignorado="versao_antiga")
     if viagem.versao == atual.versao_viagem:
         return Plano(ignorado="mesma_versao")
     nova = calcular_envio(viagem.inicio, agora)

@@ -17,7 +17,7 @@ Uso:
 
 Fica sempre FORA do <form> que o chamou — formulário dentro de formulário não é HTML válido.
 {% endcomment %}
-<dialog id="{{ id }}" class="dialogo" data-cadastro-rapido data-destino="{{ destino }}"{% if valor %} data-valor="{{ valor }}"{% endif %} aria-labelledby="{{ id }}-titulo">
+<dialog id="{{ id }}" class="dialogo dialogo--cadastro" data-cadastro-rapido data-destino="{{ destino }}"{% if valor %} data-valor="{{ valor }}"{% endif %} aria-labelledby="{{ id }}-titulo">
   <form method="post" action="{% url 'cadastros:salvar_catalogo' slug %}" novalidate>
     {% csrf_token %}
     <div class="dialogo__cabecalho">

@@ -4,6 +4,12 @@ info:
   version: 1.0.0-rascunho.3
   summary: CONTRATO NOVO — desenhado em 17/10/2026, ainda não implementado no sistema.
   description: |
+    Revisão de escopo em 18/10/2026 (ADR 0046 e docs/product/automacao-whatsapp-testes.md):
+    WhatsApp Cloud API é o canal principal do sistema de testes independente, sem uso oficial
+    policial e sem operação com policiais. Começa desligado; LAB dedicado pode ligar após
+    onboarding, contato verificado, opt-in, lista de testadores e ensaio ponta a ponta.
+    PREVIEW/DEMO público permanece simulado. A revisão não implementa nem ativa a API real.
+
     Fachada estreita pela qual o orquestrador (n8n) e o assistente de IA falam com o PCPR, conforme
     ADR 0020: nada grava direto no banco; toda escrita passa pelos `services.py`, com as mesmas
     `policies.py`, outbox e auditoria das telas. O PCPR é dono do estado; o n8n transporta.
@@ -60,8 +66,9 @@ info:
       token, revogar em massa os `LinkAcesso` emitidos no período, trocar o segredo HMAC dos eventos.
     - Canais: `/estado.canais` diz se cada canal de saída está `ligado`, `desligado` ou `bloqueado`.
       `bloqueado` ≠ `desligado`: só muda por configuração versionada acompanhada de ADR que registre a
-      elegibilidade; é o valor do `whatsapp` em **todos os ambientes reais** (política oficial do
-      WhatsApp Business proíbe autoridades policiais — `../whatsapp-viabilidade.md`). Reservar uma
+      elegibilidade. No piloto independente, `whatsapp` começa `desligado` e pode ser ligado
+      no LAB dedicado após o aceite; bloqueio policial só pertence ao cenário institucional
+      histórico — `../whatsapp-viabilidade.md`. Reservar uma
       comunicação ou receber um arquivo por canal `bloqueado` → 409 `canal_bloqueado`.
 
     ## Ambientes
@@ -132,6 +139,50 @@ paths:
                 producao:
                   externalValue: exemplos/estado-automacao.json
         "401": { $ref: "#/components/responses/NaoAutenticado" }
+  /comunicacoes:
+    get:
+      tags: [comunicacoes]
+      summary: "[novo] Acha a comunicação pelo id da mensagem no provedor (status de entrega sem referência própria)"
+      description: |
+        Status de entrega que chega do provedor só com o id da mensagem (no WhatsApp, sem
+        `biz_opaque_callback_data`): o n8n descobre a comunicação para chamar
+        `POST /comunicacoes/{id}/entrega`. Resposta mínima — id e versão, sem destino, conteúdo nem
+        dado pessoal. Lista vazia = nenhum resultado com esse `provedor_mensagem_id` foi registrado
+        **ainda** (o status pode chegar antes do `POST …/resultado`): o n8n responde não-2xx ao
+        provedor para ele reentregar o status depois, em vez de descartá-lo.
+      operationId: buscarComunicacaoPorMensagemDoProvedor
+      x-origem: "protótipo WA-3 (W8; apontamento C10 da revisão do PR #23)"
+      x-escopos: [comunicacoes:ler]
+      x-desligamento: aceita
+      parameters:
+        - name: provedor_mensagem_id
+          in: query
+          required: true
+          description: "Id devolvido pelo canal no envio e registrado em `resultado` (ex.: wamid)."
+          schema: { type: string, minLength: 1, maxLength: 300 }
+      responses:
+        "200":
+          description: Zero ou uma comunicação
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [itens]
+                properties:
+                  itens:
+                    type: array
+                    maxItems: 1
+                    items:
+                      type: object
+                      additionalProperties: false
+                      required: [id, versao]
+                      properties:
+                        id: { type: integer, minimum: 1 }
+                        versao: { type: integer, minimum: 1 }
+        "401": { $ref: "#/components/responses/NaoAutenticado" }
+        "403": { $ref: "#/components/responses/Negado" }
+        "422": { $ref: "#/components/responses/EntradaInvalida" }
   /comunicacoes/devidas:
     get:
       tags: [comunicacoes]
@@ -350,7 +401,7 @@ paths:
               required: [arquivo, canal, mensagem_id_canal, anexo_indice, total_anexos, remetente, recebido_em, sha256]
               properties:
                 arquivo: { type: string, format: binary, description: "até 25 MiB (limite da importação)" }
-                canal: { type: string, enum: [email, whatsapp], description: "`whatsapp` hoje responde 409 `canal_bloqueado`" }
+                canal: { type: string, enum: [email, whatsapp], description: "canal bloqueado responde 409; piloto WhatsApp inicia desligado e depende do aceite no LAB" }
                 mensagem_id_canal: { type: string, maxLength: 300, description: "Message-ID do e-mail" }
                 anexo_indice: { type: integer, minimum: 0, description: "[novo] posição do anexo na mensagem; parte da chave — x-origem: 10-6 E1" }
                 total_anexos: { type: integer, minimum: 1, description: "[novo] permite consolidar uma resposta por mensagem — x-origem: 10-6 E1" }
@@ -860,8 +911,10 @@ components:
           type: object
           description: |
             Canais de saída. `bloqueado` só muda por configuração versionada + ADR (não pela tela) e é o
-            valor do `whatsapp` em todos os ambientes reais. Reserva por canal `bloqueado` → 409
-            `canal_bloqueado`. Fora de produção o `email` é simulado (sem SMTP real).
+            estado de impedimento efetivamente identificado. No piloto independente, WhatsApp
+            inicia desligado; LAB dedicado pode ligar após o aceite da ADR 0046. Reserva por canal
+            bloqueado → 409 canal_bloqueado. PREVIEW/DEMO público é sempre simulado e sem credenciais
+            reais. Fora de produção o email é simulado (sem SMTP real).
           additionalProperties: false
           properties:
             portal: { type: string, enum: [ligado, desligado] }
@@ -937,7 +990,7 @@ components:
         tipo: { $ref: "#/components/schemas/TipoComunicacao" }
         versao: { type: integer }
         correlacao_id: { type: string }
-        canal: { type: string, enum: [email, whatsapp], description: "`whatsapp` hoje nunca sai (canal bloqueado)" }
+        canal: { type: string, enum: [email, whatsapp], description: "WhatsApp é principal no piloto; envio depende do canal ligado e do aceite no LAB" }
         destino: { type: string, description: "endereço verificado; nunca vem no evento, só aqui" }
         alvo: { $ref: "#/components/schemas/Alvo" }
         marco: { type: [string, "null"] }

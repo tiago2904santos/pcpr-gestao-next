@@ -266,6 +266,9 @@ def dados_do_dominio(plano: PlanoTrabalho) -> dominio.DadosPlano:
         tem_deslocamento=bool(plano.saida_em and plano.chegada_em),
         tem_atividades=bool(plano.atividades.all()) or any(
             e.atividades.all() for e in plano.eventos.all()),
+        atividades_sem_meta=[a.nome for a in plano.atividades.all() if not a.meta.strip()]
+        + [a.nome for evento in plano.eventos.all()
+           for a in evento.atividades.all() if not a.meta.strip()],
         eventos_extras=[dominio.EventoExtra(
             i + 2, bool(e.destinos.all()), bool(e.data_inicio),
             tem_efetivo=dominio.efetivo_total(linhas_do_efetivo_do_evento(e)) > 0,

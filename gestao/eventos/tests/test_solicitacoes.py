@@ -74,14 +74,14 @@ def _completa(**extra) -> dict:
 
 def _estrutura(qtd: int | None = 3) -> solicitacoes.Estrutura:
     return solicitacoes.Estrutura(
-        servicos={Servico.objects.get(nome="Emissão de CIN").pk: ""},
+        servicos={Servico.objects.get(codigo="CIN").pk: ""},
         equipes={Equipe.objects.get(nome="Alfa").pk: qtd})
 
 
 def test_rascunho_pela_tela_e_autosave(ana, curitiba):
     c = Client()
     c.force_login(ana)
-    cin = Servico.objects.get(nome="Emissão de CIN")
+    cin = Servico.objects.get(codigo="CIN")
     alfa = Equipe.objects.get(nome="Alfa")
     hoje = timezone.localdate()
     r = c.post(reverse("eventos:nova"), {

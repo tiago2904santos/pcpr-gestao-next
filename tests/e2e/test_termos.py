@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import date, timedelta
 
 import pytest
 from playwright.sync_api import expect
@@ -31,17 +32,25 @@ def test_termo_a_partir_do_oficio(logado, dados_e2e):
     expect(pg.locator("[data-editores] [data-pagina]")).to_have_count(len(servidores) + 1 + bool(termo.oficio.viatura_id))
     expect(pg.locator("[data-oficio-do-termo]")).to_contain_text(termo.oficio.numero_formatado)
     expect(pg.locator("#frase-termo")).to_contain_text(termo.oficio.numero_formatado)
-    # O primeiro documento aparece como vai sair; o evento editado grava sozinho e a
-    # prévia se refaz.
+    # O primeiro documento aparece como vai sair; o calendário vigente do evento
+    # grava sozinho e a prévia se refaz.
     pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
     primeiro = pg.locator("[data-editores] pc-editor-documento").first
     folha = primeiro.frame_locator('iframe[data-quadro="texto"]')
     expect(folha.locator("body")).to_contain_text("TERMO DE AUTORIZAÇÃO")
-    pg.get_by_role("textbox", name="Evento").fill("Feira Fictícia")
+    calendario = pg.locator(".mesa-evento pc-data[data-periodo] button.seletor__botao")
+    calendario.click()
+    foco = date.fromisoformat(pg.locator(".calendario td[tabindex='0']").get_attribute("data-data"))
+    nova_data = foco + timedelta(days=1)
+    dia_focado = pg.locator(".calendario td[tabindex='0']")
+    dia_focado.press("ArrowRight")
+    dia_focado.press("Enter")
+    dia_focado.press("Enter")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
-    expect(folha.locator("body")).to_contain_text("Feira Fictícia")
     termo.refresh_from_db()
-    assert termo.evento == "Feira Fictícia"
+    assert termo.data_inicio == termo.data_fim == nova_data
+    pg.locator("#previa").scroll_into_view_if_needed()
+    expect(folha.locator("body")).to_contain_text(termos.periodo_por_extenso(nova_data, nova_data))
     resposta = pg.request.get(f"/viagens/termos/{termo.pk}/documento/generico.pdf")
     assert resposta.ok and resposta.body().startswith(b"%PDF")
     pg.goto("/viagens/termos/")

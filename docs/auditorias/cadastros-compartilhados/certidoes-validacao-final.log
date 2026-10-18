@@ -1,0 +1,25 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from ini)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 6 items
+
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade PASSED [ 16%]
+gestao/coffee/tests/test_certidoes.py::test_imagem_vale_a_data_informada_e_quadro PASSED [ 33%]
+gestao/coffee/tests/test_certidoes.py::test_telas_das_certidoes PASSED   [ 50%]
+gestao/coffee/tests/test_certidoes.py::test_erro_do_anexo_fica_no_modal_e_preserva_validade PASSED [ 66%]
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[360] PASSED [ 83%]
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[1440] PASSED [100%]
+
+============================== warnings summary ===============================
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\docs\auditorias\cadastros-compartilhados\certidoes-validacao-final.xml -
+======================== 6 passed, 1 warning in 50.69s ========================

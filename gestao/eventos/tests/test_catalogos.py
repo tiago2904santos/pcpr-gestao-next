@@ -26,7 +26,7 @@ def _usuario(login: str, *papeis: str) -> Usuario:
 
 def test_carga_inicial():
     assert TipoEvento.objects.filter(nome="PCPR na Comunidade").exists()
-    assert Servico.objects.filter(nome="Emissão de CIN").exists()
+    assert Servico.objects.filter(codigo="CIN").exists()
     assert OrgaoResponsavel.objects.count() >= 3 and Equipe.objects.count() >= 3
 
 
@@ -75,7 +75,7 @@ def test_modelo_do_tipo():
     c.force_login(admin)
     tipo = TipoEvento.objects.get(nome="Palestra")
     orgao = OrgaoResponsavel.objects.first()
-    servico = Servico.objects.get(nome="Emissão de CIN")
+    servico = Servico.objects.get(codigo="CIN")
     alfa = Equipe.objects.get(nome="Alfa")
     url = reverse("eventos:modelo_do_tipo", args=[tipo.pk])
     r = c.post(url, {"solicitante": "Escola", "cargo": "Direção", "orgao": orgao.pk,

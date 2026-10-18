@@ -347,7 +347,9 @@ def _cadastro(request: HttpRequest, tipo: str) -> HttpResponse:
     if request.method == "POST":
         acao = request.POST.get("acao")
         pk = request.POST.get("pk")
-        pk_int = int(pk) if pk and pk.isdigit() else None
+        if pk and (not pk.isascii() or not pk.isdecimal() or len(pk) > 18):
+            raise Http404("Cadastro não encontrado.")
+        pk_int = int(pk) if pk else None
         try:
             if acao == "excluir" and pk_int:
                 nome = services.excluir_cadastro(request.user, tipo, pk_int)
@@ -356,18 +358,25 @@ def _cadastro(request: HttpRequest, tipo: str) -> HttpResponse:
                 registro = services.salvar_cadastro(request.user, tipo,
                                                     request.POST.get("nome", ""), pk_int)
                 messages.success(request, f"“{registro.nome}” salvo.")
-            return redirect(meta["url"])
+            return redirect(request.get_full_path())
         except modelo.DoesNotExist as exc:
             raise Http404 from exc
         except services.AtendimentoInvalido as exc:
             erro, valor, editando = str(exc), request.POST.get("nome", ""), pk_int
-    registros = list(modelo.objects.order_by("nome"))
-    usos = services.usos_por_registro(tipo)
+    q = " ".join((request.GET.get("q") or "").split())[:100]
+    consulta = modelo.objects.order_by("nome", "pk")
+    if q:
+        consulta = consulta.filter(nome__unaccent__icontains=q)
+    pagina = Paginator(consulta, POR_PAGINA).get_page(request.GET.get("pagina"))
+    registros = list(pagina.object_list)
+    usos = services.usos_por_registro(tipo, [r.pk for r in registros])
     for r in registros:
         r.usos = usos.get(r.pk, 0)
     return render(request, "arquetipos/cadastro_nomes.html", {
         "tipo": tipo, "meta": meta, "registros": registros, "erro": erro, "valor": valor,
         "editando": editando, "outros": [(t, m) for t, m in CADASTROS.items() if t != tipo],
+        "q": q, "page_obj": pagina,
+        "querystring_base": f"{urlencode({'q': q})}&" if q else "",
         "migalhas": _migalhas((meta["titulo"], "")),
     })
 

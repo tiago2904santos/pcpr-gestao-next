@@ -82,7 +82,7 @@ def _catalogos() -> tuple[list[TextoDespacho], list[UnidadeMovel]]:
         tipo.orgao_padrao = OrgaoResponsavel.objects.filter(nome="Delegacia-Geral").first()
         tipo.save()
         tipo.servicos_sugeridos.set(Servico.objects.filter(
-            nome__in=("Emissão de CIN", "Atendimento social")))
+            nome__in=("Confecção da Carteira de Identidade Nacional (CIN)", "Atendimento social")))
         TipoEventoEquipe.objects.filter(tipo_evento=tipo).delete()
         for equipe in Equipe.objects.filter(nome__in=("Alfa", "Bravo")):
             TipoEventoEquipe.objects.create(tipo_evento=tipo, equipe=equipe, quantidade=3)

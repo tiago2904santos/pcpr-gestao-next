@@ -1,0 +1,14 @@
+...................F                                                     [100%]
+================================== FAILURES ===================================
+_ test_seletor_nao_renderiza_catalogo_inteiro_e_preserva_atual_fora_da_primeira_pagina _
+gestao\cadastros\tests\test_dados_unidade.py:154: in test_seletor_nao_renderiza_catalogo_inteiro_e_preserva_atual_fora_da_primeira_pagina
+    form = FormularioConfiguracao.de(ConfiguracaoInstitucional(
+gestao\cadastros\forms.py:487: in de
+    inicial = {c: getattr(config, c) for c in CAMPOS_CONFIGURACAO
+                  ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py:273: in __get__
+    raise self.RelatedObjectDoesNotExist(
+E   gestao.cadastros.models.ConfiguracaoInstitucional.sede.RelatedObjectDoesNotExist: ConfiguracaoInstitucional has no sede.
+=========================== short test summary info ===========================
+FAILED gestao/cadastros/tests/test_dados_unidade.py::test_seletor_nao_renderiza_catalogo_inteiro_e_preserva_atual_fora_da_primeira_pagina
+1 failed, 19 passed in 126.05s (0:02:06)

@@ -6,7 +6,7 @@ Variáveis: `form` (FormularioServidor). Opcionais, só a tela de cadastro usa: 
 `abrir_dialogo`, `querystring_base`. Os cadastros rápidos de cargo e unidade que o "+"
 abre precisam estar na mesma página.
 {% endcomment %}
-<dialog id="dialogo-servidor" class="dialogo dialogo--largo" aria-labelledby="dialogo-servidor-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}{% if cadastro_rapido %} data-cadastro-rapido{% if envio_url %} data-envio-url="{{ envio_url }}" data-alvo="{{ alvo }}"{% endif %}{% if multiescolha %} data-multiescolha="{{ multiescolha }}"{% endif %}{% endif %}>
+<dialog id="dialogo-servidor" class="dialogo dialogo--cadastro dialogo--largo" aria-labelledby="dialogo-servidor-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}{% if cadastro_rapido %} data-cadastro-rapido{% if envio_url %} data-envio-url="{{ envio_url }}" data-alvo="{{ alvo }}"{% endif %}{% if multiescolha %} data-multiescolha="{{ multiescolha }}"{% endif %}{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_servidor' %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
@@ -27,8 +27,8 @@ abre precisam estar na mesma página.
       fieldset e estouraria a janela para o lado.
       {% endcomment %}
       <fieldset class="grupo-campos" aria-label="Dados do servidor">
-        {# Nome e cargo dividem a linha ao meio; o cargo leva ao lado o atalho de cadastro. #}
-        <div class="grade grade--2">
+        {# Nome e cargo têm uma linha inteira, inclusive com o atalho e erros visíveis. #}
+        <div class="pilha">
           {% include "componentes/campo.html" with campo=form.nome %}
           {% include "componentes/campo.html" with campo=form.cargo acao_dialogo="dialogo-cargo" acao_rotulo="Cadastrar cargo" %}
         </div>

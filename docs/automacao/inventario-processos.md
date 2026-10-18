@@ -1,5 +1,11 @@
 # Inventário de processos — automação com n8n e IA (Fase 2)
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Levantamento de **17/10/2026**. Descreve o que existe hoje, processo a processo, no sistema novo e nas
 duas referências em produção. Não propõe desenho: a base técnica está em [arquitetura.md](arquitetura.md)
 e nos [contratos](contratos/); os desenhos detalhados estão nos [fluxos](fluxos/); a ordem de entrega

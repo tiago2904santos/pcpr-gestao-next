@@ -886,6 +886,7 @@ def certidoes(request: HttpRequest) -> HttpResponse:
         "quadros": [(f, certs.quadro(f, hoje)) for f in fornecedores],
         "anexar_f": anexar_f, "anexar_t": anexar_t,
         "anexar_rotulo": ROTULOS.get(anexar_t, ""),
+        "validade_informada": (request.GET.get("validade") or "")[:10],
         "migalhas": _migalhas(("Certidões", "")),
     })
 
@@ -905,7 +906,10 @@ def anexar_certidao(request: HttpRequest) -> HttpResponse:
                          _data(request.POST.get("validade")))
     except pedidos.PedidoInvalido as exc:
         messages.error(request, str(exc))
-        return redirect(reverse("coffee:certidoes") + f"?anexar={fid}:{tipo}")
+        voltar = reverse("coffee:certidoes") + f"?anexar={fid}:{tipo}"
+        if validade := (request.POST.get("validade") or "")[:10]:
+            voltar += "&" + urlencode({"validade": validade})
+        return redirect(voltar)
     texto, aviso = certs.mensagem(c)
     (messages.warning if aviso else messages.success)(request, texto)
     return redirect(reverse("coffee:certidoes") + f"#fornecedor-{fid}")

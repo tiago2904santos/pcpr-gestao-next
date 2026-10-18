@@ -95,7 +95,7 @@ escrito quando o campo nasce vazio — um por tipo.
 </div>
 {% endif %}
 {% if pode_gerir %}
-<dialog id="dialogo-texto" class="dialogo" aria-labelledby="dialogo-texto-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+<dialog id="dialogo-texto" class="dialogo dialogo--cadastro" aria-labelledby="dialogo-texto-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_texto' %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}

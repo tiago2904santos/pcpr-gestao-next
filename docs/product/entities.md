@@ -1,5 +1,13 @@
 # Entidades
 
+Atualização de 17/10/2026: o inventário atual de cadastros e consumidores está em
+[`../auditorias/cadastros-compartilhados/inventario.md`](../auditorias/cadastros-compartilhados/inventario.md).
+`AtividadePlano` é o catálogo canônico **Atividades e serviços**; `eventos.Servico` é um proxy
+de compatibilidade/permissões. O mapa legado e o nome registrado nos usos preservam a migração
+e o histórico. `VinculoFonteCadastro` prepara identidade externa e responsabilidade por campos.
+Dados da unidade e substituições já têm manutenção em tela. As marcações históricas de
+“planejado” abaixo descrevem a fase inicial; não representam o inventário atual completo.
+
 Legenda: **✓** existe no código novo · **~** existe parcialmente/de outra forma · **—** planejado.
 
 ## Modelo do piloto (novo)

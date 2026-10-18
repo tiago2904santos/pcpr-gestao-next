@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T02:26:50.000Z",
-  "createdAt": "2026-10-18T02:22:07.862Z",
+  "updatedAt": "2026-10-18T03:57:26.000Z",
+  "createdAt": "2026-10-18T03:52:34.191Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -123,7 +123,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Sem biz_opaque_callback_data: o PCPR resolve pelo mapeamento wamid → comunicação.\nconst ev = $('Mapear status').item.json;\nconst achado = ($json.itens || [])[0];\nreturn { json: { ...ev, comunicacao_id: achado ? achado.id : null } };"
+        "jsCode": "// Sem biz_opaque_callback_data: o PCPR resolve pelo mapeamento wamid → comunicação\n// (GET /comunicacoes?provedor_mensagem_id=, operação do contrato; resposta só {id, versao}).\nconst ev = $('Mapear status').item.json;\nconst achado = ($json.itens || [])[0];\nreturn { json: { ...ev, comunicacao_id: achado ? achado.id : null } };"
       },
       "id": "30ee28ca-9231-5e8a-85b1-52aee751aabf",
       "name": "Usar id encontrado",
@@ -132,6 +132,20 @@
       "position": [
         1100,
         420
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "id": "7131101d-79c0-53c8-aac0-691dd47283a1",
+      "name": "Juntar ids",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1320,
+        300
       ]
     },
     {
@@ -145,8 +159,8 @@
           },
           "conditions": [
             {
-              "id": "a8e0e9b6-35e0-5be8-bb98-5b0e34ab6bab",
-              "leftValue": "={{ $json.comunicacao_id !== null }}",
+              "id": "f1ff9957-3ced-535e-a6d3-ed7d58873ad9",
+              "leftValue": "={{ $json.comunicacao_id === null }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -159,24 +173,38 @@
         },
         "options": {}
       },
-      "id": "ec29d409-f991-556d-8aa3-26043290cc1b",
-      "name": "Achou?",
+      "id": "9ae15f24-39e7-5430-b460-f974869b3e4c",
+      "name": "Adiar? (resultado ainda não registrado)",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1320,
-        420
+        1540,
+        300
       ]
     },
     {
-      "parameters": {},
-      "id": "f6920070-11c4-515a-b7c2-665ff84d692d",
-      "name": "Wamid desconhecido (ignorado)",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "803dca0c-214a-5bb1-9cf4-a702800009a9",
+              "name": "adiar",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "94bd76f8-749b-5e77-a374-47f09caeff11",
+      "name": "Marcar adiado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        1540,
-        520
+        1760,
+        420
       ]
     },
     {
@@ -206,8 +234,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
-        300
+        1760,
+        200
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -218,6 +246,58 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2bb1357e-faba-5d0f-9421-4b4d62c5da45",
+              "name": "adiar",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "23c47006-93d5-5e3e-934c-1a2e286abdba",
+      "name": "Marcar registrado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "id": "3207f3b5-6501-534e-bd13-8a8472e9bcb3",
+      "name": "Juntar resultado",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// O W7 decide a resposta à Meta com isto: algum status adiado → não-2xx (a Meta reentrega).\nconst itens = $input.all();\nconst adiados = itens.filter((i) => i.json.adiar === true).length;\nreturn [{ json: { adiar: adiados > 0, adiados, registrados: itens.length - adiados } }];"
+      },
+      "id": "87d388dc-0766-5823-931d-1a8eda2ecd32",
+      "name": "Resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        300
+      ]
     }
   ],
   "connections": {
@@ -265,11 +345,33 @@
         ]
       ]
     },
-    "Usar id encontrado": {
+    "Juntar ids": {
       "main": [
         [
           {
-            "node": "Achou?",
+            "node": "Adiar? (resultado ainda não registrado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar entrega": {
+      "main": [
+        [
+          {
+            "node": "Marcar registrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar resultado": {
+      "main": [
+        [
+          {
+            "node": "Resumo",
             "type": "main",
             "index": 0
           }
@@ -280,7 +382,7 @@
       "main": [
         [
           {
-            "node": "Registrar entrega",
+            "node": "Juntar ids",
             "type": "main",
             "index": 0
           }
@@ -294,20 +396,53 @@
         ]
       ]
     },
-    "Achou?": {
+    "Usar id encontrado": {
       "main": [
         [
           {
-            "node": "Registrar entrega",
+            "node": "Juntar ids",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Adiar? (resultado ainda não registrado)": {
+      "main": [
+        [
+          {
+            "node": "Marcar adiado",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Wamid desconhecido (ignorado)",
+            "node": "Registrar entrega",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar registrado": {
+      "main": [
+        [
+          {
+            "node": "Juntar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar adiado": {
+      "main": [
+        [
+          {
+            "node": "Juntar resultado",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
@@ -328,7 +463,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "46f3894a-165d-4083-8302-b98cfae8eaab",
+  "versionId": "920f1bca-ae90-4628-96e8-82b37036b163",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -336,21 +471,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T02:22:07.865Z",
-      "createdAt": "2026-10-18T02:22:07.865Z",
+      "updatedAt": "2026-10-18T03:52:34.193Z",
+      "createdAt": "2026-10-18T03:52:34.193Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "HhFOQ8OqUraQKQ1M",
+      "projectId": "KDapCLFoTUNmEURa",
       "project": {
-        "updatedAt": "2026-10-18T02:21:55.864Z",
-        "createdAt": "2026-10-18T02:21:55.864Z",
-        "id": "HhFOQ8OqUraQKQ1M",
+        "updatedAt": "2026-10-18T03:52:26.631Z",
+        "createdAt": "2026-10-18T03:52:26.631Z",
+        "id": "KDapCLFoTUNmEURa",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "c8000cae-c045-4496-81bd-c50027e66050"
+        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
       }
     }
   ],

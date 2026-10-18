@@ -44,7 +44,8 @@ def _cenario(*papeis: str):
              "orgao_responsavel": OrgaoResponsavel.objects.get_or_create(nome="Delegacia-Geral")[0],
              "local_evento": "Ginásio (e2e)", "tipo_operacao": "diaria"}
     estrutura = solicitacoes.Estrutura(
-        servicos={Servico.objects.get_or_create(nome="Emissão de CIN")[0].pk: ""},
+        servicos={Servico.objects.get_or_create(codigo="CIN", defaults={
+            "nome": "Confecção da Carteira de Identidade Nacional (CIN)"})[0].pk: ""},
         equipes={Equipe.objects.get_or_create(nome="Alfa")[0].pk: 3})
     return u, solicitacoes.criar(u, dados, estrutura)
 
@@ -149,4 +150,49 @@ def test_pedir_coffee_break_a_partir_do_evento(logado, dados_e2e):
     assert (ordem.origem_tipo, ordem.origem_id) == ("evento", s.pk)
     pg.goto(f"/coffee/solicitacoes/{ordem.pk}/")
     expect(pg.get_by_role("link", name=f"Solicitação de evento #{s.pk}")).to_be_visible()
+    assert not pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_motorista_por_busca_canonica_preserva_formulario_e_persistencia(logado, dados_e2e):
+    from pathlib import Path
+
+    from gestao.cadastros.models import Cargo, Servidor, Unidade
+    from gestao.eventos.forms import FORM_ID
+
+    _u, s = _cenario()
+    s.unidade_movel = True
+    s.save()
+    cargo = Cargo.objects.create(nome="Condutor do cenário remoto")
+    unidade = Unidade.objects.create(nome="Unidade do motorista remoto", sigla="REMOTO")
+    Servidor.objects.bulk_create([
+        Servidor(nome=f"AAA Motorista de volume {i:03d}") for i in range(20)])
+    motorista = Servidor.objects.create(nome="Z Motorista remoto de Eventos", cargo=cargo,
+                                        unidade=unidade)
+    pg = logado
+    pg.goto(f"/eventos/solicitacoes/{s.pk}/")
+    entrada = pg.locator("#id_motorista-busca")
+    expect(entrada).to_have_attribute("form", FORM_ID)
+    expect(pg.locator("#id_motorista")).to_have_attribute("form", FORM_ID)
+    expect(pg.locator("#id_motorista option")).to_have_count(1)
+    entrada.fill("Motorista remoto")
+    opcao = pg.get_by_role("option", name=re.compile("Z Motorista remoto de Eventos"))
+    expect(opcao).to_contain_text("Condutor do cenário remoto · REMOTO")
+    with pg.expect_response(lambda resposta: "/autosave/" in resposta.url
+                            and resposta.request.method == "POST") as resposta:
+        opcao.click()
+    assert resposta.value.json()["salvo"] is True
+    s.refresh_from_db()
+    assert s.motorista_id == motorista.pk and s.local_evento == "Ginásio (e2e)"
+    motorista.ativo = False
+    motorista.save()
+    pg.reload()
+    expect(pg.locator("#id_motorista")).to_have_value(str(motorista.pk))
+    expect(pg.locator("#id_motorista-busca")).to_have_value(
+        "Z Motorista remoto de Eventos — Condutor do cenário remoto · REMOTO")
+    destino = Path("docs/auditorias/cadastros-compartilhados/evidencias")
+    destino.mkdir(parents=True, exist_ok=True)
+    for largura in (360, 1440):
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.locator("#id_motorista-busca").scroll_into_view_if_needed()
+        pg.screenshot(path=str(destino / f"motorista-eventos-{largura}.png"))
     assert not pg.erros_console  # type: ignore[attr-defined]

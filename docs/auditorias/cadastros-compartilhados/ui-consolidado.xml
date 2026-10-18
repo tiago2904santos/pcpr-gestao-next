@@ -1,0 +1,2534 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="38" time="859.087" timestamp="2026-10-17T01:18:20.120194-03:00" hostname="SAMBOOK2-TIAGO"><testcase classname="tests.e2e.test_cadastros_missao" name="test_catalogo_unico_em_planos_e_eventos[360]" time="131.824"><failure message="AssertionError: Locator expected to contain text 'Atendimento compartilhado da missão 360 revisado'&#10;Actual value: &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação da banda institucional&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BANDA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação do trabalho do Núcleo de Operações com Cães (NOC)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            NOC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento Compartilhado da Missão 360 Revisado&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            ATENDIMENTO_COMPARTILHADO_DA_MISSA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento social&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_3&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atividades lúdicas e educativas para crianças&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            LUDICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Coleta de digitais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_2&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Confecção da Carteira de Identidade Nacional (CIN)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            CIN&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Emissão de Atestado de Antecedentes Criminais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            AAC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição da atividade de perícia papiloscópica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PAPILOSCOPIA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de material tático&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            TATICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de viaturas antigas e modernas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            VIATURAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Fotografia para documento&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_5&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Orientação jurídica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_4&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Palestras e orientações preventivas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PALESTRAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Registro de Boletins de Ocorrência&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Unidade móvel (ônibus ou caminhão)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            UNIDADE_MOVEL&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;   &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.registros&quot;)&#10;    8 × locator resolved to &lt;ul class=&quot;registros&quot; aria-labelledby=&quot;titulo-resultados&quot;&gt;…&lt;/ul&gt;&#10;      - unexpected value &quot;&#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação da banda institucional&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BANDA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação do trabalho do Núcleo de Operações com Cães (NOC)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            NOC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento Compartilhado da Missão 360 Revisado&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            ATENDIMENTO_COMPARTILHADO_DA_MISSA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento social&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_3&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atividades lúdicas e educativas para crianças&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            LUDICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Coleta de digitais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_2&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Confecção da Carteira de Identidade Nacional (CIN)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            CIN&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Emissão de Atestado de Antecedentes Criminais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            AAC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição da atividade de perícia papiloscópica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PAPILOSCOPIA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de material tático&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            TATICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de viaturas antigas e modernas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            VIATURAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Fotografia para documento&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_5&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Orientação jurídica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            EVENTO_4&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Palestras e orientações preventivas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PALESTRAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Registro de Boletins de Ocorrência&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Unidade móvel (ônibus ou caminhão)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            UNIDADE_MOVEL&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;  &quot;">pagina = &lt;Page url='http://localhost:60142/cadastros/atividades/?'&gt;
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': &lt;Usuario: Gestora de Viagens&gt;, 'consulta': &lt;Usuario: Usuário de Consulta&gt;, 'outra': &lt;Usuario: Operadora da DPC&gt;})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
+        from django.urls import reverse
+    
+        from gestao.cadastros.models import AtividadePlano
+        from gestao.eventos.models import Solicitacao
+        from gestao.viagens.models import PlanoTrabalho
+    
+        usuario = dados_e2e.usuarios["operador"]
+        usuario.is_superuser = True
+        usuario.save(update_fields=["is_superuser"])
+        pg = pagina
+        entrar(pg)
+        pg.set_viewport_size({"width": largura, "height": 900})
+        nome = f"Atendimento compartilhado da missão {largura}"
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.locator("#novo-nome").fill(nome)
+        pg.get_by_role("button", name="Incluir", exact=True).click()
+        item = AtividadePlano.objects.get(nome=nome)
+        quantidade = AtividadePlano.objects.count()
+        plano = PlanoTrabalho.objects.create(unidade=usuario.lotacao.unidade, ano=2026,
+                                              numero=9001, criado_por=usuario)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]))
+        atividade = pg.get_by_role("checkbox", name=nome, exact=True)
+        atividade.focus()
+        atividade.press("Space")
+        expect(atividade).to_be_checked()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert plano.atividades.get().pk == item.pk
+        pedido = Solicitacao.objects.create(criado_por=usuario, data_solicitacao=date(2026, 10, 17))
+        pg.goto(reverse("eventos:solicitacao", args=[pedido.pk]))
+        pg.get_by_label(nome, exact=True).check()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert pedido.servicos.get().servico_id == item.pk
+        pg.goto(f"/cadastros/atividades/?editar={item.pk}")
+        modal = pg.locator("#dialogo-cadastro")
+        revisado = nome + " revisado"
+        modal.locator('[name="nome"]').fill(revisado)
+        modal.locator('[name="meta"]').fill("Atender com informação clara.")
+        modal.get_by_role("button", name="Salvar alterações", exact=True).click()
+&gt;       expect(pg.locator(".registros")).to_contain_text(revisado)
+E       AssertionError: Locator expected to contain text 'Atendimento compartilhado da missão 360 revisado'
+E       Actual value: 
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação da banda institucional
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BANDA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação do trabalho do Núcleo de Operações com Cães (NOC)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   NOC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento Compartilhado da Missão 360 Revisado
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   ATENDIMENTO_COMPARTILHADO_DA_MISSA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento social
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_3
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atividades lúdicas e educativas para crianças
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   LUDICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Coleta de digitais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_2
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Confecção da Carteira de Identidade Nacional (CIN)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   CIN
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Emissão de Atestado de Antecedentes Criminais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   AAC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição da atividade de perícia papiloscópica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PAPILOSCOPIA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de material tático
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   TATICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de viaturas antigas e modernas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   VIATURAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Fotografia para documento
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_5
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Orientação jurídica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_4
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Palestras e orientações preventivas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PALESTRAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Registro de Boletins de Ocorrência
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Unidade móvel (ônibus ou caminhão)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   UNIDADE_MOVEL
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E          
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".registros")
+E           8 × locator resolved to &lt;ul class="registros" aria-labelledby="titulo-resultados"&gt;…&lt;/ul&gt;
+E             - unexpected value "
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação da banda institucional
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BANDA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação do trabalho do Núcleo de Operações com Cães (NOC)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   NOC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento Compartilhado da Missão 360 Revisado
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   ATENDIMENTO_COMPARTILHADO_DA_MISSA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento social
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_3
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atividades lúdicas e educativas para crianças
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   LUDICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Coleta de digitais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_2
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Confecção da Carteira de Identidade Nacional (CIN)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   CIN
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Emissão de Atestado de Antecedentes Criminais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   AAC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição da atividade de perícia papiloscópica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PAPILOSCOPIA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de material tático
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   TATICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de viaturas antigas e modernas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   VIATURAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Fotografia para documento
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_5
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Orientação jurídica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   EVENTO_4
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Palestras e orientações preventivas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PALESTRAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Registro de Boletins de Ocorrência
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Unidade móvel (ônibus ou caminhão)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   UNIDADE_MOVEL
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E         "
+
+tests\e2e\test_cadastros_missao.py:150: AssertionError</failure></testcase><testcase classname="tests.e2e.test_cadastros_missao" name="test_inventario_listas_e_modais[360]" time="162.302" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_catalogo_unico_em_planos_e_eventos[1440]" time="44.394"><failure message="AssertionError: Locator expected to contain text 'Atendimento compartilhado da missão 1440 revisado'&#10;Actual value: &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação da banda institucional&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BANDA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação do trabalho do Núcleo de Operações com Cães (NOC)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            NOC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento Compartilhado da Missão 1440 Revisado&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            ATENDIMENTO_COMPARTILHADO_DA_MISSA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atividades lúdicas e educativas para crianças&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            LUDICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Confecção da Carteira de Identidade Nacional (CIN)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            CIN&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Emissão de Atestado de Antecedentes Criminais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            AAC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição da atividade de perícia papiloscópica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PAPILOSCOPIA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de material tático&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            TATICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de viaturas antigas e modernas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            VIATURAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Palestras e orientações preventivas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PALESTRAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Registro de Boletins de Ocorrência&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Unidade móvel (ônibus ou caminhão)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            UNIDADE_MOVEL&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;   &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.registros&quot;)&#10;    8 × locator resolved to &lt;ul class=&quot;registros&quot; aria-labelledby=&quot;titulo-resultados&quot;&gt;…&lt;/ul&gt;&#10;      - unexpected value &quot;&#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação da banda institucional&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BANDA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Apresentação do trabalho do Núcleo de Operações com Cães (NOC)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            NOC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atendimento Compartilhado da Missão 1440 Revisado&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            ATENDIMENTO_COMPARTILHADO_DA_MISSA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Atividades lúdicas e educativas para crianças&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            LUDICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Confecção da Carteira de Identidade Nacional (CIN)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            CIN&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Emissão de Atestado de Antecedentes Criminais&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            AAC&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição da atividade de perícia papiloscópica&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PAPILOSCOPIA&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de material tático&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            TATICO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Exposição de viaturas antigas e modernas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            VIATURAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Palestras e orientações preventivas&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            PALESTRAS&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Registro de Boletins de Ocorrência&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            BO&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;      &#10;        &#10;        &#10;          &#10;            Unidade móvel (ônibus ou caminhão)&#10;            &#10;            &#10;          &#10;          &#10;            &#10;            UNIDADE_MOVEL&#10;            Ainda não usado&#10;          &#10;        &#10;        &#10;        &#10;          &#10;            &#10;            &#10;              &#10;                Editar&#10;                &#10;                Desativar&#10;              &#10;              &#10;                &#10;                Excluir&#10;              &#10;            &#10;          &#10;          &#10;            &#10;            &#10;          &#10;          &#10;            &#10;          &#10;        &#10;        &#10;      &#10;    &#10;  &quot;">pagina = &lt;Page url='http://localhost:60142/cadastros/atividades/?'&gt;
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': &lt;Usuario: Gestora de Viagens&gt;, 'consulta': &lt;Usuario: Usuário de Consulta&gt;, 'outra': &lt;Usuario: Operadora da DPC&gt;})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
+        from django.urls import reverse
+    
+        from gestao.cadastros.models import AtividadePlano
+        from gestao.eventos.models import Solicitacao
+        from gestao.viagens.models import PlanoTrabalho
+    
+        usuario = dados_e2e.usuarios["operador"]
+        usuario.is_superuser = True
+        usuario.save(update_fields=["is_superuser"])
+        pg = pagina
+        entrar(pg)
+        pg.set_viewport_size({"width": largura, "height": 900})
+        nome = f"Atendimento compartilhado da missão {largura}"
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.locator("#novo-nome").fill(nome)
+        pg.get_by_role("button", name="Incluir", exact=True).click()
+        item = AtividadePlano.objects.get(nome=nome)
+        quantidade = AtividadePlano.objects.count()
+        plano = PlanoTrabalho.objects.create(unidade=usuario.lotacao.unidade, ano=2026,
+                                              numero=9001, criado_por=usuario)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]))
+        atividade = pg.get_by_role("checkbox", name=nome, exact=True)
+        atividade.focus()
+        atividade.press("Space")
+        expect(atividade).to_be_checked()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert plano.atividades.get().pk == item.pk
+        pedido = Solicitacao.objects.create(criado_por=usuario, data_solicitacao=date(2026, 10, 17))
+        pg.goto(reverse("eventos:solicitacao", args=[pedido.pk]))
+        pg.get_by_label(nome, exact=True).check()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert pedido.servicos.get().servico_id == item.pk
+        pg.goto(f"/cadastros/atividades/?editar={item.pk}")
+        modal = pg.locator("#dialogo-cadastro")
+        revisado = nome + " revisado"
+        modal.locator('[name="nome"]').fill(revisado)
+        modal.locator('[name="meta"]').fill("Atender com informação clara.")
+        modal.get_by_role("button", name="Salvar alterações", exact=True).click()
+&gt;       expect(pg.locator(".registros")).to_contain_text(revisado)
+E       AssertionError: Locator expected to contain text 'Atendimento compartilhado da missão 1440 revisado'
+E       Actual value: 
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação da banda institucional
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BANDA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação do trabalho do Núcleo de Operações com Cães (NOC)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   NOC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento Compartilhado da Missão 1440 Revisado
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   ATENDIMENTO_COMPARTILHADO_DA_MISSA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atividades lúdicas e educativas para crianças
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   LUDICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Confecção da Carteira de Identidade Nacional (CIN)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   CIN
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Emissão de Atestado de Antecedentes Criminais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   AAC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição da atividade de perícia papiloscópica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PAPILOSCOPIA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de material tático
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   TATICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de viaturas antigas e modernas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   VIATURAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Palestras e orientações preventivas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PALESTRAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Registro de Boletins de Ocorrência
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Unidade móvel (ônibus ou caminhão)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   UNIDADE_MOVEL
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E          
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".registros")
+E           8 × locator resolved to &lt;ul class="registros" aria-labelledby="titulo-resultados"&gt;…&lt;/ul&gt;
+E             - unexpected value "
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação da banda institucional
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BANDA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Apresentação do trabalho do Núcleo de Operações com Cães (NOC)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   NOC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atendimento Compartilhado da Missão 1440 Revisado
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   ATENDIMENTO_COMPARTILHADO_DA_MISSA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Atividades lúdicas e educativas para crianças
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   LUDICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Confecção da Carteira de Identidade Nacional (CIN)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   CIN
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Emissão de Atestado de Antecedentes Criminais
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   AAC
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição da atividade de perícia papiloscópica
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PAPILOSCOPIA
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de material tático
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   TATICO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Exposição de viaturas antigas e modernas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   VIATURAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Palestras e orientações preventivas
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   PALESTRAS
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Registro de Boletins de Ocorrência
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   BO
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E             
+E               
+E               
+E                 
+E                   Unidade móvel (ônibus ou caminhão)
+E                   
+E                   
+E                 
+E                 
+E                   
+E                   UNIDADE_MOVEL
+E                   Ainda não usado
+E                 
+E               
+E               
+E               
+E                 
+E                   
+E                   
+E                     
+E                       Editar
+E                       
+E                       Desativar
+E                     
+E                     
+E                       
+E                       Excluir
+E                     
+E                   
+E                 
+E                 
+E                   
+E                   
+E                 
+E                 
+E                   
+E                 
+E               
+E               
+E             
+E           
+E         "
+
+tests\e2e\test_cadastros_missao.py:150: AssertionError</failure></testcase><testcase classname="tests.e2e.test_cadastros_missao" name="test_inventario_listas_e_modais[1440]" time="88.989" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_cadastro_rapido_incluir_outro_mantem_etapa" time="49.442" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_seis_catalogos_eventos_fluxos_completos[360]" time="52.290" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_cadastro_rapido_retorna_sem_empilhar_ou_perder_dados[360]" time="30.043" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_seis_catalogos_eventos_fluxos_completos[1440]" time="49.818" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_cadastro_rapido_retorna_sem_empilhar_ou_perder_dados[1440]" time="30.489" /><testcase classname="tests.e2e.test_usuarios_identidade" name="test_usuarios_dialogo_responsivo[360]" time="38.330" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_termo_aditivo_coffee_criacao_erro_edicao_cancelamento[360]" time="31.351" /><testcase classname="tests.e2e.test_usuarios_identidade" name="test_usuarios_dialogo_responsivo[768]" time="35.302" /><testcase classname="tests.e2e.test_cadastros_missao" name="test_termo_aditivo_coffee_criacao_erro_edicao_cancelamento[1440]" time="34.383" /><testcase classname="tests.e2e.test_usuarios_identidade" name="test_usuarios_dialogo_responsivo[1440]" time="43.163" /><testcase classname="tests.e2e.test_planos" name="test_plano_a_partir_do_oficio" time="50.363" /><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_fluxo_e_estados[360]" time="43.573" /><testcase classname="tests.e2e.test_termos" name="test_termo_a_partir_do_oficio" time="62.224"><failure message="playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.&#10;Call log:&#10;  - waiting for get_by_role(&quot;textbox&quot;, name=&quot;Evento&quot;)">logado = &lt;Page url='http://localhost:60142/viagens/termos/1/#t-documentos'&gt;
+dados_e2e = Cenario(ids={'oficio_emitido': 41, 'oficio_rascunho': 42, 'oficio_vazio': 43, 'oficio_cancelado': 44, 'oficio_outra_un...tor': &lt;Usuario: Gestora de Viagens&gt;, 'consulta': &lt;Usuario: Usuário de Consulta&gt;, 'outra': &lt;Usuario: Operadora da DPC&gt;})
+
+    def test_termo_a_partir_do_oficio(logado, dados_e2e):
+        pg = logado
+        oficio = dados_e2e.ids["oficio_emitido"]
+        pg.goto(f"/viagens/oficios/?resumo={oficio}")
+        janela = pg.get_by_role("dialog")
+        janela.get_by_role("button", name="Mais ações").click()
+        janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
+        janela.get_by_role("menuitem", name="Novo termo de autorização").press("Enter")
+        # Um clique: o termo nasce ligado ao ofício e abre direto nos documentos.
+        expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")
+        termo = TermoAutorizacao.objects.get()
+        expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
+        # Cada servidor e o genérico têm sua página no editor unificado vigente.
+        from gestao.viagens import termos
+    
+        servidores = termos.efetivo(termo).servidores
+        expect(pg.locator("[data-editores] [data-pagina]")).to_have_count(len(servidores) + 1 + bool(termo.oficio.viatura_id))
+        expect(pg.locator("[data-oficio-do-termo]")).to_contain_text(termo.oficio.numero_formatado)
+        expect(pg.locator("#frase-termo")).to_contain_text(termo.oficio.numero_formatado)
+        # O primeiro documento aparece como vai sair; o evento editado grava sozinho e a
+        # prévia se refaz.
+        pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
+        primeiro = pg.locator("[data-editores] pc-editor-documento").first
+        folha = primeiro.frame_locator('iframe[data-quadro="texto"]')
+        expect(folha.locator("body")).to_contain_text("TERMO DE AUTORIZAÇÃO")
+&gt;       pg.get_by_role("textbox", name="Evento").fill("Feira Fictícia")
+
+tests\e2e\test_termos.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15919: in fill
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:212: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:590: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_frame.py:602: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;playwright._impl._connection.Connection object at 0x000001CD41C70980&gt;
+cb = &lt;function Channel.send.&lt;locals&gt;.&lt;lambda&gt; at 0x000001CD48942FC0&gt;
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -&gt; Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+&gt;           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("textbox", name="Evento")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError</failure></testcase><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_fluxo_e_estados[768]" time="37.480" /><testcase classname="tests.e2e.test_usuarios" name="test_criar_usuario_e_primeiro_acesso" time="29.255" /><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_fluxo_e_estados[1440]" time="39.613" /><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_vazio_erro_e_leitura[1440]" time="36.634" /><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_vazio_erro_e_leitura[360]" time="36.656" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vigencia_campos_previa_e_foco[360]" time="32.929" /><testcase classname="tests.e2e.test_textos_identidade" name="test_textos_vazio_erro_e_leitura[768]" time="34.299" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vigencia_campos_previa_e_foco[768]" time="27.625" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vigencia_campos_previa_e_foco[1440]" time="23.424" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vazio_erro_e_consulta_sem_edicao[768]" time="30.230" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vazio_erro_e_consulta_sem_edicao[360]" time="29.989" /><testcase classname="tests.e2e.test_tabela_diarias_identidade" name="test_vazio_erro_e_consulta_sem_edicao[1440]" time="32.566" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_cargo_acompanha_escolha_e_limpeza_do_coordenador[360]" time="27.062" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_cargo_acompanha_escolha_e_limpeza_do_coordenador[1440]" time="31.927" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_cadastro_rapido_de_conjunto_preserva_plano" time="33.854" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_refino_etapas_atividades_e_coordenacao[360]" time="30.988" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_refino_etapas_atividades_e_coordenacao[1440]" time="28.971" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_preparacao_quantidade_calendario_e_conferencia[360]" time="32.938"><failure message="AssertionError: assert [{'id': 'targ... space', ...}] == []&#10;  &#10;  Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}&#10;  Use -v to get more diff">logado = &lt;Page url='http://localhost:60142/viagens/planos/5/'&gt;
+dados_e2e = Cenario(ids={'oficio_emitido': 86, 'oficio_rascunho': 87, 'oficio_vazio': 88, 'oficio_cancelado': 89, 'oficio_outra_un...tor': &lt;Usuario: Gestora de Viagens&gt;, 'consulta': &lt;Usuario: Usuário de Consulta&gt;, 'outra': &lt;Usuario: Operadora da DPC&gt;})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largura):
+        pg = logado
+        plano = _completo(dados_e2e)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        expect(pg.get_by_role("heading", level=1)).to_contain_text(str(plano))
+        expect(pg.locator(".registro-hero .identidade-documental__complemento")).to_have_text(
+            plano.sufixo)
+        expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")
+        escolhas_coordenacao = pg.locator('.campos--coordenacao pc-select .seletor__valor:visible')
+        expect(escolhas_coordenacao.first).to_be_visible()
+        assert escolhas_coordenacao.evaluate_all(
+            "els =&gt; els.every(e =&gt; e.scrollWidth &lt;= e.clientWidth)"
+        ), "A origem e o tratamento da coordenação devem ser legíveis sem truncamento"
+        assert pg.get_by_role("button", name="Programa", exact=True).bounding_box()["width"] &gt; 200
+        quantidade = pg.locator("#efetivo-quantidade-1")
+        # Área de toque válida e três dígitos (limite 999) legíveis, sem limiar arbitrário.
+        assert quantidade.bounding_box()["width"] &gt;= 24
+        assert quantidade.evaluate("""e =&gt; {
+            const s = getComputedStyle(e), c = document.createElement('canvas').getContext('2d');
+            c.font = s.font;
+            return c.measureText('999').width &lt;= e.clientWidth - parseFloat(s.paddingLeft)
+                - parseFloat(s.paddingRight);
+        }""")
+        quantidade.fill("3")
+        pg.locator("#efetivo-linhas").get_by_role("button", name="Aumentar a quantidade").click()
+        expect(quantidade).to_have_value("4")
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
+        plano.refresh_from_db()
+        assert plano.efetivo.get().quantidade == 4
+        calendario = pg.locator("pc-data[data-periodo] .seletor__botao")
+        calendario.focus()
+        calendario.press("Enter")
+        expect(calendario).to_have_attribute("aria-expanded", "true")
+        pg.keyboard.press("Escape")
+        expect(calendario).to_be_focused()
+        expect(pg.locator("#diarias .conferencia-serena--operacional")).to_contain_text("R$")
+        assert pg.locator(".barra-acoes").evaluate("e =&gt; getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
+        pg.evaluate("scrollTo(0,0)")
+        assert not pg.evaluate("document.documentElement.scrollWidth &gt; innerWidth")
+&gt;       assert rodar_axe(pg) == []
+E       AssertionError: assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_planos_preparacao_identidade.py:148: AssertionError</failure></testcase><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_preparacao_quantidade_calendario_e_conferencia[768]" time="32.274" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_preparacao_quantidade_calendario_e_conferencia[1440]" time="41.148" /><testcase classname="tests.e2e.test_planos_preparacao_identidade" name="test_evento_manual_diarias_menu_remocao_e_pdf" time="54.218" /></testsuite></testsuites>

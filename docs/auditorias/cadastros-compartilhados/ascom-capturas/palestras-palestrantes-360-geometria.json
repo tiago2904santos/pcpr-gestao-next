@@ -1,0 +1,40 @@
+{
+  "scrollY": 993,
+  "innerWidth": 360,
+  "innerHeight": 900,
+  "alvos": [
+    {
+      "seletor": ".campo--cresce.campo > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]",
+      "caixa": {
+        "x": 237.1875,
+        "y": -5.8515625,
+        "width": 28.796875,
+        "height": 28.796875,
+        "top": -5.8515625,
+        "right": 265.984375,
+        "bottom": 22.9453125,
+        "left": 237.1875
+      },
+      "estilo": {
+        "width": "28.7969px",
+        "height": "28.7969px",
+        "position": "absolute",
+        "zIndex": "3"
+      },
+      "pontos": [
+        {
+          "y": -3.8515625,
+          "elemento": null
+        },
+        {
+          "y": 8.546875,
+          "elemento": "<div class=\"cabecalho__acoes\">\n    <a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações\" data-dica=\"Notificações\">\n      <svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-bell\"></use></svg>\n      \n    </a>\n    <pc-menu class=\"menu\">\n      <button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Gestor da ASCOM\" aria-controls=\"menu-kcqm6xo\" aria-expanded=\"false\" id=\"menu-kcqm6xo-botao"
+        },
+        {
+          "y": 20.9453125,
+          "elemento": "<div class=\"cabecalho__acoes\">\n    <a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações\" data-dica=\"Notificações\">\n      <svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-bell\"></use></svg>\n      \n    </a>\n    <pc-menu class=\"menu\">\n      <button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Gestor da ASCOM\" aria-controls=\"menu-kcqm6xo\" aria-expanded=\"false\" id=\"menu-kcqm6xo-botao"
+        }
+      ]
+    }
+  ]
+}

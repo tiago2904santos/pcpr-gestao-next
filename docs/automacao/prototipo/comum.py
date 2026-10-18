@@ -88,6 +88,28 @@ def ler_multipart(content_type: str, corpo: bytes) -> tuple[dict[str, str], dict
     return campos, arquivos
 
 
+def montar_multipart(
+    campos: dict[str, str], arquivos: dict[str, tuple[str, str, bytes]]
+) -> tuple[bytes, str]:
+    """Corpo multipart/form-data mínimo (testes que falam direto com a API simulada)."""
+    fronteira = "----pcpr" + hashlib.sha256(repr(sorted(campos.items())).encode()).hexdigest()[:16]
+    partes = [
+        f'--{fronteira}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
+        for k, v in campos.items()
+    ]
+    for k, (nome, tipo, dados) in arquivos.items():
+        partes.append(
+            (
+                f'--{fronteira}\r\nContent-Disposition: form-data; name="{k}"; '
+                f'filename="{nome}"\r\nContent-Type: {tipo}\r\n\r\n'
+            ).encode()
+            + dados
+            + b"\r\n"
+        )
+    partes.append(f"--{fronteira}--\r\n".encode())
+    return b"".join(partes), f"multipart/form-data; boundary={fronteira}"
+
+
 # ---------------------------------------------------------------- HTTP
 
 

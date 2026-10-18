@@ -1,5 +1,11 @@
 # Arquitetura de automação — PCPR, n8n, IA e canais
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Desenho de 17/10/2026, construído sobre decisões já aceitas (ADR 0005 outbox, ADR 0019 integrações
 atrás de portas) e propostas (ADR 0020 ferramentas com política e aprovação). Marcação usada:
 **[existe]** código executando hoje no sistema novo · **[parcial]** · **[novo]** a desenvolver.

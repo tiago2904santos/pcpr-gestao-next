@@ -145,6 +145,9 @@ class EstadoGraph:
             self.corromper_proximos_downloads = 0
             self.modo_131047 = "sincrono"
             self.atraso_status_assincrono_s = 0.5
+            # próximas N mensagens ACEITAS respondem 502 sem corpo da Graph API (proxy no meio):
+            # o cliente não tem como saber que a Meta aceitou (resposta ambígua)
+            self.respostas_ambiguas = 0
 
     # ---------------------------------------------------------------- utilidades
     def novo_wamid(self, prefixo: str = "OUT") -> str:
@@ -535,6 +538,15 @@ class Manipulador(ManipuladorBase):
                 est.entregar(e["id"])
 
             threading.Thread(target=falhar_depois, daemon=True).start()
+        with est.trava:
+            ambigua = est.respostas_ambiguas > 0
+            if ambigua:
+                est.respostas_ambiguas -= 1
+                reg["resposta_ambigua"] = 502
+        if ambigua:
+            return self.responder(
+                502, b"<html><body>502 Bad Gateway (simulador)</body></html>", tipo="text/html"
+            )
         self.responder(
             200,
             {
@@ -655,6 +667,7 @@ class Manipulador(ManipuladorBase):
                     "corromper_proximos_downloads",
                     "modo_131047",
                     "atraso_status_assincrono_s",
+                    "respostas_ambiguas",
                 ):
                     if k in b:
                         setattr(est, k, b[k])

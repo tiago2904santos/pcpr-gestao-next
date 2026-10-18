@@ -1,0 +1,7 @@
+{# Seletor canônico de servidor com identificação, ajuda e erro associados. #}
+<div class="campo campo--lg{% if campo.errors %} campo--erro{% endif %}">
+  <label class="campo__rotulo" for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% endif %}</label>
+  {{ campo|campo_acessivel:campo.help_text }}
+  {% if campo.help_text %}<p class="campo__ajuda" id="{{ campo.auto_id }}-ajuda">{{ campo.help_text }}</p>{% endif %}
+  {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+</div>

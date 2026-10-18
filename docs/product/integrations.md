@@ -40,7 +40,7 @@ Tópicos existentes: `viagens.documento.gerar` (implementado) e `viagens.oficio.
 | OCR (tesseract local, opcional) | Páginas-imagem | Não implementado | Junto com leitura de e-mail/processo |
 | Leitura de NF / certidões | Nº da NF do PDF, validade da certidão | Não implementado | Com o Coffee Break |
 | iCalendar (ICS) | Feed por token da agenda | Não implementado | Com a Agenda |
-| WhatsApp | Links `wa.me` para respostas; webhook previsto mas desligado | Não implementado | Links simples; webhook a confirmar |
+| WhatsApp Business | Referências usam links manuais `wa.me` | Cloud API real ainda não implementada; protótipo com simulador | **Canal principal do sistema de testes independente**: Cloud API oficial em LAB, contatos autorizados com opt-in, portal de apoio e e-mail opcional — [regra de 18/10/2026](automacao-whatsapp-testes.md) |
 | Assistente LLM | Opcional e dormente na leitura de mensagens | Não implementado | A confirmar |
 | Migração de dados (ETL) | ETL idempotente do sistema antigo (origem/pk legado, dry-run, relatórios) | Não implementado | Necessário mapear: estados (GERADO/FINALIZADO → Emitido), custeio, lacunas de numeração, 15%/30% históricos, modelos com marcadores |
 
@@ -59,3 +59,10 @@ confirmar** (não há agendador no código atual).
   agente são somente leitura (ADR 0010).
 - Integrações com ambiente real devem ter trava de somente leitura/treinamento por padrão,
   como o eProtocolo já tinha na referência.
+
+## Piloto independente — WhatsApp principal (18/10/2026)
+
+A [regra de produto](automacao-whatsapp-testes.md) delimita o site de testes sem vínculo oficial
+policial. O canal Cloud API pode evoluir do simulador para LAB dedicado com contatos autorizados;
+PREVIEW/DEMO público continua sem envio externo. Esta regra não muda o acesso somente leitura
+às referências em produção. SMTP institucional e credenciais estaduais não bloqueiam o piloto.

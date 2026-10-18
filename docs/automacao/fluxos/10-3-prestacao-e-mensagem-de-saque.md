@@ -1,5 +1,11 @@
 # 10.3 — Prestação de contas e aviso de liberação de diárias ("mensagem de saque")
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 > Fase 2 da missão de automação: desenho técnico de 17/10/2026. Bases: [arquitetura](../arquitetura.md),
 > [envelope de evento](../contratos/evento-integracao.schema.json) e [API de automação](../contratos/api-automacao.v1.yaml).
 > Marcação: **[existe]** código executando hoje · **[parcial]** · **[novo]** a desenvolver.

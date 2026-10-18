@@ -1,5 +1,10 @@
 # Documentação de produto — PCPR Gestão de Eventos e Viagens
 
+> **Escopo de implantação esclarecido em 18/10/2026:** este site é um sistema de testes
+> independente, não é oficial da polícia e não vai operar com policiais. O domínio abaixo foi
+> estudado nas referências; isso não implica vínculo institucional do piloto. Para comunicação,
+> vale [WhatsApp Business como canal principal](automacao-whatsapp-testes.md).
+
 Esta pasta descreve **o que o produto faz** — usuários, módulos, fluxos, regras, documentos e
 integrações — para orientar a nova implementação (greenfield) do sistema de Gestão de Eventos
 Sociais / Central de Viagens da Polícia Civil do Paraná. É a primeira parada antes de codar
@@ -21,6 +26,7 @@ Sociais / Central de Viagens da Polícia Civil do Paraná. É a primeira parada 
 | [permissions.md](permissions.md) | Papéis, matriz de permissões, escopo por unidade, auditoria |
 | [entities.md](entities.md) | Entidades, campos-chave, relacionamentos e invariantes |
 | [documents.md](documents.md) | Documentos gerados, regras de conteúdo (assunto, justificativa, diárias), formato e numeração |
+| [automacao-whatsapp-testes.md](automacao-whatsapp-testes.md) | Escopo do sistema de testes independente e WhatsApp Business como canal principal (18/10/2026) |
 | [integrations.md](integrations.md) | Integrações externas (eProtocolo, IBGE, e-mail, rotas, assinatura) e abordagem planejada |
 | [legacy-lessons.md](legacy-lessons.md) | Problemas observados na referência, como o novo os trata e decisões pendentes |
 

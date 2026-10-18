@@ -56,7 +56,7 @@ def _deferida(dono, dg, *, equipe: str = "Alfa") -> Solicitacao:
         "orgao_responsavel": OrgaoResponsavel.objects.first(), "local_evento": "Ginásio",
         "descricao_complementar": "Emissão de CIN", "tipo_operacao": "diaria"},
         solicitacoes.Estrutura(
-            servicos={Servico.objects.get(nome="Emissão de CIN").pk: ""},
+            servicos={Servico.objects.get(codigo="CIN").pk: ""},
             equipes={Equipe.objects.get_or_create(nome=equipe)[0].pk: 3}))
     solicitacoes.enviar(dono, s.pk)
     return solicitacoes.despachar(dg, s.pk, "atender")

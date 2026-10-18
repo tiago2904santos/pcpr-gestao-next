@@ -1,0 +1,314 @@
+2026-10-17 01:17:37,252 WARNING django.request Not Found: /imprensa/cadastros/equipe/
+2026-10-17 01:17:37,345 WARNING django.request Not Found: /imprensa/cadastros/veiculos/
+2026-10-17 01:17:37,422 WARNING django.request Not Found: /publicacoes/cadastros/equipe/
+2026-10-17 01:17:37,492 WARNING django.request Not Found: /publicacoes/cadastros/unidades/
+2026-10-17 01:17:37,571 WARNING django.request Not Found: /palestras/cadastros/temas/
+2026-10-17 01:17:37,655 WARNING django.request Not Found: /palestras/cadastros/palestrantes/
+2026-10-17 01:17:37,740 WARNING django.request Not Found: /palestras/cadastros/respostas/
+2026-10-17 01:17:37,816 WARNING django.request Not Found: /imprensa/cadastros/equipe/
+2026-10-17 01:17:37,905 WARNING django.request Not Found: /imprensa/cadastros/veiculos/
+2026-10-17 01:17:37,984 WARNING django.request Not Found: /publicacoes/cadastros/equipe/
+2026-10-17 01:17:38,060 WARNING django.request Not Found: /publicacoes/cadastros/unidades/
+2026-10-17 01:17:38,139 WARNING django.request Not Found: /palestras/cadastros/temas/
+2026-10-17 01:17:38,213 WARNING django.request Not Found: /palestras/cadastros/palestrantes/
+2026-10-17 01:17:38,312 WARNING django.request Not Found: /palestras/cadastros/respostas/
+2026-10-17 01:17:38,392 WARNING django.request Not Found: /imprensa/cadastros/equipe/
+2026-10-17 01:17:38,462 WARNING django.request Not Found: /imprensa/cadastros/veiculos/
+2026-10-17 01:17:38,537 WARNING django.request Not Found: /publicacoes/cadastros/equipe/
+2026-10-17 01:17:38,607 WARNING django.request Not Found: /publicacoes/cadastros/unidades/
+2026-10-17 01:17:38,683 WARNING django.request Not Found: /palestras/cadastros/temas/
+2026-10-17 01:17:38,757 WARNING django.request Not Found: /palestras/cadastros/palestrantes/
+2026-10-17 01:17:38,825 WARNING django.request Not Found: /palestras/cadastros/respostas/
+2026-10-17 01:17:39,047 WARNING django.request Forbidden (Permission denied): /palestras/api/servidores/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 155, in buscar_servidores
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+.............................F{"cenario": "31 palestrantes / 120 servidores", "tempo_ms": 82.2, "consultas": 11, "consultas_servidor": 0, "html_bytes": 62696}
+2026-10-17 01:17:42,372 WARNING django.request Forbidden (Permission denied): /imprensa/cadastros/equipe/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 386, in equipe
+    return _cadastro(request, "equipe")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 343, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 31, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,398 WARNING django.request Forbidden (Permission denied): /imprensa/cadastros/equipe/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 386, in equipe
+    return _cadastro(request, "equipe")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 343, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 31, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,454 WARNING django.request Forbidden (Permission denied): /imprensa/cadastros/veiculos/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 391, in veiculos
+    return _cadastro(request, "veiculos")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 343, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 31, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,487 WARNING django.request Forbidden (Permission denied): /imprensa/cadastros/veiculos/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 391, in veiculos
+    return _cadastro(request, "veiculos")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 343, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\imprensa\views.py", line 31, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,544 WARNING django.request Forbidden (Permission denied): /publicacoes/cadastros/equipe/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 373, in equipe
+    return _cadastro(request, "equipe")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 331, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 30, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,569 WARNING django.request Forbidden (Permission denied): /publicacoes/cadastros/equipe/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 373, in equipe
+    return _cadastro(request, "equipe")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 331, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 30, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,629 WARNING django.request Forbidden (Permission denied): /publicacoes/cadastros/unidades/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 378, in unidades
+    return _cadastro(request, "unidades")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 331, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 30, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,664 WARNING django.request Forbidden (Permission denied): /publicacoes/cadastros/unidades/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 378, in unidades
+    return _cadastro(request, "unidades")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 331, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\publicacoes\views.py", line 30, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,744 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/temas/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 463, in temas
+    return _cadastro(request, "temas")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,780 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/temas/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 463, in temas
+    return _cadastro(request, "temas")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,856 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/palestrantes/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 458, in palestrantes
+    return _cadastro(request, "palestrantes")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,905 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/palestrantes/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 458, in palestrantes
+    return _cadastro(request, "palestrantes")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:42,980 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/respostas/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 468, in respostas
+    return _cadastro(request, "respostas")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:43,015 WARNING django.request Forbidden (Permission denied): /palestras/cadastros/respostas/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 468, in respostas
+    return _cadastro(request, "respostas")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 365, in _cadastro
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-17 01:17:43,786 WARNING django.request Forbidden (Permission denied): /palestras/pedidos/41/encaminhar-dg/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 325, in encaminhar_dg
+    _exigir(policies.pode_editar(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+...............                            [100%]
+================================== FAILURES ===================================
+_______ test_busca_servidores_palestras_limitada_sem_permissao_viagens ________
+tests\test_cadastros_ascom.py:114: in test_busca_servidores_palestras_limitada_sem_permissao_viagens
+    assert escolhido.nome in html
+E   assert 'Pessoa localizada fora da primeira página' in '<pc-combobox class="combobox" data-fonte="/palestras/api/servidores/?q=" data-placeholder="Nome, cargo ou unidade…">\...<p class="campo__ajuda">Ative o JavaScript para buscar outro registro. O vínculo atual será preservado.</p></noscript>'
+E    +  where 'Pessoa localizada fora da primeira página' = <Servidor: Pessoa localizada fora da primeira página>.nome
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 01:17:39,047 WARNING django.request Forbidden (Permission denied): /palestras/api/servidores/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 155, in buscar_servidores
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Forbidden (Permission denied): /palestras/api/servidores/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 155, in buscar_servidores
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\palestras\views.py", line 52, in _exigir
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+=========================== short test summary info ===========================
+FAILED tests/test_cadastros_ascom.py::test_busca_servidores_palestras_limitada_sem_permissao_viagens
+1 failed, 44 passed in 314.10s (0:05:14)

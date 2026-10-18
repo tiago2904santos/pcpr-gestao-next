@@ -1,0 +1,341 @@
+LAB Docker descartavel cadastros-lab-20261017
+Inicio UTC: 2026-10-17T06:21:55Z
+Python 3.13.16
+Python executable: /opt/venv/bin/python
+uv 0.8.17
+v20.19.2
+9.2.0
+LibreOffice 25.2.3.2 520(Build:2)
+
+pdftoppm version 25.03.0
+Copyright 2005-2025 The Poppler Developers - http://poppler.freedesktop.org
+Copyright 1996-2011, 2022 Glyph & Cog, LLC
+List of available languages in "/usr/share/tesseract-ocr/5/tessdata/" (3):
+eng
+osd
+por
+b5e897cbdb4f847b597b52f10cb5f32e6086f5f8559c5529ba63eb08eab8b85b  uv.lock
+81b0fc8b62877c3c122abc11a55592a132bb03e048e2db306f7141309eefd804  package-lock.json
+7303c6f5157e2bb8790ba4305daee9714a5de5b8dac6b25baa3c8a6bd2580d02  scripts/verificar.sh
+Workers xdist: 2; fonte PostgreSQL: cadastros-lab-20261017-pg, rede interna sem portas
+▶ ruff
+SIM105 Use `contextlib.suppress(OSError)` instead of `try`-`except`-`pass`
+   --> docs/automacao/prototipo/comum.py:157:13
+    |
+155 |               pass
+156 |           except Exception as exc:  # o simulador nunca derruba a conexão sem resposta
+157 | /             try:
+158 | |                 self.responder(500, {"codigo": "erro_interno", "mensagem": repr(exc)})
+159 | |             except OSError:
+160 | |                 pass
+    | |____________________^
+161 |
+162 |       def rotear(self, metodo: str) -> None:  # pragma: no cover - abstrato
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(OSError): ...`
+
+E501 Line too long (101 > 100)
+   --> docs/automacao/prototipo/construir_workflows.py:106:101
+    |
+104 |     """Condição booleana (IF/Switch v2 de condições)."""
+105 |     return {
+106 |         "options": {"caseSensitive": True, "leftValue": "", "typeValidation": "loose", "version": 2},
+    |                                                                                                     ^
+107 |         "conditions": [
+108 |             {
+    |
+
+F401 [*] `regra_vespera.calcular_envio` imported but unused
+  --> docs/automacao/prototipo/simulador_pcpr.py:47:60
+   |
+45 |     ler_multipart,
+46 | )
+47 | from regra_vespera import FUSO, ComunicacaoRef, ViagemRef, calcular_envio, planejar
+   |                                                            ^^^^^^^^^^^^^^
+48 |
+49 | PREFIXO = "/api/automacao/v1"
+   |
+help: Remove unused import: `regra_vespera.calcular_envio`
+   |
+46 | )
+   - from regra_vespera import FUSO, ComunicacaoRef, ViagemRef, calcular_envio, planejar
+47 + from regra_vespera import FUSO, ComunicacaoRef, ViagemRef, planejar
+48 |
+   |
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:405:101
+    |
+403 |             return self._controle(metodo, caminho)
+404 |         if not caminho.startswith(PREFIXO):
+405 |             return self.responder(404, {"codigo": "entrada_invalida", "mensagem": "rota inexistente"})
+    |                                                                                                     ^^
+406 |         rota = caminho[len(PREFIXO):] or "/"
+407 |         self._registro: dict[str, Any] = {
+    |
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:456:101
+    |
+454 |         if not 16 <= len(chave) <= 200:
+455 |             return self._resp(400, {"codigo": "entrada_invalida",
+456 |                                     "mensagem": "Idempotency-Key obrigatório (16 a 200 caracteres)."})
+    |                                                                                                     ^^
+457 |         corpo = self.corpo_bruto()
+458 |         impressao = self._impressao(metodo, rota, corpo)
+    |
+
+E501 Line too long (104 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:610:101
+    |
+608 |         r = c["reserva"]
+609 |         if not r or not hmac.compare_digest(r["token"], str(b["reserva_token"])):
+610 |             return 409, {"codigo": "conflito_de_versao", "mensagem": "Reserva de outra execução."}, True
+    |                                                                                                     ^^^^
+611 |         if c["estado"] != "enviando":
+612 |             return 409, {"codigo": "ja_processada", "estado_atual": c["estado"],
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:632:101
+    |
+630 |             return 404, {"codigo": "entrada_invalida", "mensagem": "mensagem desconhecida"}, False
+631 |         ordem = {None: 0, "entregue": 1, "lida": 2}
+632 |         if b.get("status") == "falhou" or ordem.get(b.get("status"), 0) > ordem.get(c["entrega"], 0):
+    |                                                                                                     ^
+633 |             c["entrega"] = b.get("status")  # nunca regride (lida não volta a entregue)
+634 |         return 200, {"id": c["id"], "entrega": c["entrega"]}, True
+    |
+
+E501 Line too long (107 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:639:101
+    |
+637 |         est = self.estado
+638 |         if len(corpo) > LIMITE_ARQUIVO + 64 * 1024:
+639 |             return 413, {"codigo": "entrada_invalida", "mensagem": "Acima de 25 MiB: use o portal."}, False
+    |                                                                                                     ^^^^^^^
+640 |         campos, arquivos = ler_multipart(self.headers.get("Content-Type", ""), corpo)
+641 |         faltando = [k for k in ("canal", "mensagem_id_canal", "remetente", "recebido_em", "sha256")
+    |
+
+E501 Line too long (103 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:645:101
+    |
+643 |         if "arquivo" not in arquivos or faltando:
+644 |             return 400, {"codigo": "entrada_invalida",
+645 |                          "mensagem": f"Campos obrigatórios ausentes: {faltando or ['arquivo']}"}, False
+    |                                                                                                     ^^^
+646 |         dados = arquivos["arquivo"]["dados"]
+647 |         sha = hashlib.sha256(dados).hexdigest()
+    |
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:654:101
+    |
+652 |             original = est.recebimentos[est.recebimento_por_sha[sha]]
+653 |             rid = next(_ids)
+654 |             est.recebimentos[rid] = {"id": rid, "estado": "duplicado", "duplicado_de": original["id"],
+    |                                                                                                     ^^
+655 |                                      "sha256": sha, "campos": campos}
+656 |             return 202, _publico_recebimento(est.recebimentos[rid]), True
+    |
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:677:101
+    |
+675 |     def _excecao(self) -> tuple[int, Any, bool]:
+676 |         b = self.corpo_dict()
+677 |         if not b.get("fluxo") or not b.get("correlacao_id") or b.get("motivo") not in MOTIVOS_EXCECAO:
+    |                                                                                                     ^^
+678 |             return 400, {"codigo": "entrada_invalida", "mensagem": "fluxo/correlacao_id/motivo"}, False
+679 |         ex, nova = self.estado._abrir_excecao(self.headers["Idempotency-Key"], b, origem="n8n")
+    |
+
+E501 Line too long (103 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:678:101
+    |
+676 |         b = self.corpo_dict()
+677 |         if not b.get("fluxo") or not b.get("correlacao_id") or b.get("motivo") not in MOTIVOS_EXCECAO:
+678 |             return 400, {"codigo": "entrada_invalida", "mensagem": "fluxo/correlacao_id/motivo"}, False
+    |                                                                                                     ^^^
+679 |         ex, nova = self.estado._abrir_excecao(self.headers["Idempotency-Key"], b, origem="n8n")
+680 |         self._registro["excecao_id"] = ex["id"]
+    |
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:737:101
+    |
+735 |                 return self.responder(200, {"nova_comunicacao_id": nova and nova["id"],
+736 |                                             "eventos": com_entrega(evs)})
+737 |             return self.responder(200, {"eventos": com_entrega(est.cancelar_viagem(int(m.group(1))))})
+    |                                                                                                     ^^
+738 |         if caminho == "/_sim/comunicacoes":
+739 |             enviar_em = datetime.fromisoformat(b["enviar_em"]) if b.get("enviar_em") else agora_utc()
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/automacao/prototipo/simulador_pcpr.py:739:101
+    |
+737 |             return self.responder(200, {"eventos": com_entrega(est.cancelar_viagem(int(m.group(1))))})
+738 |         if caminho == "/_sim/comunicacoes":
+739 |             enviar_em = datetime.fromisoformat(b["enviar_em"]) if b.get("enviar_em") else agora_utc()
+    |                                                                                                     ^
+740 |             c, evs = est.criar_comunicacao_avulsa(b.get("tipo", "documentos_para_assinatura"),
+741 |                                                   enviar_em)
+    |
+
+RUF100 [*] Unused `noqa` directive (unused: `E402`)
+  --> docs/automacao/prototipo/test_regra_vespera.py:15:30
+   |
+13 | sys.path.insert(0, str(Path(__file__).resolve().parent))
+14 |
+15 | from regra_vespera import (  # noqa: E402
+   |                              ^^^^^^^^^^^^
+16 |     AVISO_VIAGEM_JA_INICIADA,
+17 |     FUSO,
+   |
+help: Remove unused `noqa` directive
+   |
+14 |
+   - from regra_vespera import (  # noqa: E402
+15 + from regra_vespera import (
+16 |     AVISO_VIAGEM_JA_INICIADA,
+   |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `DTZ001`)
+  --> docs/automacao/prototipo/test_regra_vespera.py:89:88
+   |
+87 |     def test_datetime_sem_fuso_e_recusado(self) -> None:
+88 |         with self.assertRaises(ValueError):
+89 |             calcular_envio(datetime(2026, 11, 10, 8, 0), agora=sp(2026, 11, 1, 8, 0))  # noqa: DTZ001
+   |                                                                                        ^^^^^^^^^^^^^^
+90 |         with self.assertRaises(ValueError):
+91 |             calcular_envio(sp(2026, 11, 10, 8, 0), agora=datetime(2026, 11, 1, 8, 0))  # noqa: DTZ001
+   |
+help: Remove unused `noqa` directive
+   |
+88 |         with self.assertRaises(ValueError):
+   -             calcular_envio(datetime(2026, 11, 10, 8, 0), agora=sp(2026, 11, 1, 8, 0))  # noqa: DTZ001
+89 +             calcular_envio(datetime(2026, 11, 10, 8, 0), agora=sp(2026, 11, 1, 8, 0))
+90 |         with self.assertRaises(ValueError):
+   |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `DTZ001`)
+  --> docs/automacao/prototipo/test_regra_vespera.py:91:88
+   |
+89 |             calcular_envio(datetime(2026, 11, 10, 8, 0), agora=sp(2026, 11, 1, 8, 0))  # noqa: DTZ001
+90 |         with self.assertRaises(ValueError):
+91 |             calcular_envio(sp(2026, 11, 10, 8, 0), agora=datetime(2026, 11, 1, 8, 0))  # noqa: DTZ001
+   |                                                                                        ^^^^^^^^^^^^^^
+help: Remove unused `noqa` directive
+   |
+90 |         with self.assertRaises(ValueError):
+   -             calcular_envio(sp(2026, 11, 10, 8, 0), agora=datetime(2026, 11, 1, 8, 0))  # noqa: DTZ001
+91 +             calcular_envio(sp(2026, 11, 10, 8, 0), agora=datetime(2026, 11, 1, 8, 0))
+92 |
+   |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> docs/automacao/prototipo/testar_prototipo.py:210:5
+    |
+208 |       if "minimum" in esquema and isinstance(valor, int) and valor < esquema["minimum"]:
+209 |           erros.append(f"{caminho}: < {esquema['minimum']}")
+210 | /     if esquema.get("format") == "uuid" and isinstance(valor, str):
+211 | |         if not re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", valor):
+    | |____________________________________________________________________________________________________^
+212 |               erros.append(f"{caminho}: não é uuid")
+213 |       if esquema.get("format") == "date-time" and isinstance(valor, str):
+    |
+help: Combine `if` statements using `and`
+
+E501 Line too long (102 > 100)
+   --> docs/automacao/prototipo/testar_prototipo.py:398:101
+    |
+396 |     t = tentativas(c, cid)
+397 |     res = [x for x in chamadas(e, r"/comunicacoes/\d+/resultado", cid) if x["status"] == 200]
+398 |     checar([x["status"] for x in t] == [500, 200], f"tentativas no canal: {[x['status'] for x in t]}")
+    |                                                                                                     ^^
+399 |     checar(len(aceitas(c, cid)) == 1, "deveria haver 1 envio efetivo")
+400 |     checar(len(res) == 1 and res[0].get("resultado") == "enviada", f"resultados: {res}")
+    |
+
+RUF059 Unpacked variable `st` is never used
+   --> docs/automacao/prototipo/testar_prototipo.py:413:5
+    |
+411 |     assentar(5)
+412 |     n1 = len(tentativas(est_canal(), cid))
+413 |     st, corpo = reconciliar()
+    |     ^^
+414 |     assentar(5)
+415 |     e, c = est(), est_canal()
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+E501 Line too long (101 > 100)
+   --> docs/automacao/prototipo/testar_prototipo.py:488:101
+    |
+486 |     ids_b = [r["comunicacao_id"] for r in grupo_b]
+487 |     perdidos = [evento(r)["entrega"] for r in grupo_b]
+488 |     checar(all(p["status"] is None and p["erro"] for p in perdidos), f"B deveria falhar: {perdidos}")
+    |                                                                                                     ^
+489 |     canal("/_sim/modo", {"modo": "ok"})
+490 |     n8n_local.iniciar()
+    |
+
+RUF059 Unpacked variable `st2` is never used
+   --> docs/automacao/prototipo/testar_prototipo.py:498:5
+    |
+496 |     esperar(lambda: all(com(est(), cid)["estado"] in ("enviada", "falhou") for cid in ids_a),
+497 |             60, "reservas órfãs não foram resolvidas")
+498 |     st2, corpo2 = reconciliar()
+    |     ^^^
+499 |     assentar(4)
+500 |     e, c = est(), est_canal()
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `st` is never used
+   --> docs/automacao/prototipo/testar_prototipo.py:539:5
+    |
+537 |     checar(com(e, cid)["estado"] == "agendada", "deveria continuar agendada")
+538 |     sim("/_sim/automacao", {"falhar_estado": 0})
+539 |     st, corpo = reconciliar()
+    |     ^^
+540 |     esperar(lambda: len(aceitas(est_canal(), cid)) == 1, 20, "reconciliação não enviou")
+541 |     return {"excecoes_w5": [{k: x[k] for k in ("fluxo", "motivo", "detalhe",
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `corpo` is never used
+   --> docs/automacao/prototipo/testar_prototipo.py:539:9
+    |
+537 |     checar(com(e, cid)["estado"] == "agendada", "deveria continuar agendada")
+538 |     sim("/_sim/automacao", {"falhar_estado": 0})
+539 |     st, corpo = reconciliar()
+    |         ^^^^^
+540 |     esperar(lambda: len(aceitas(est_canal(), cid)) == 1, 20, "reconciliação não enviou")
+541 |     return {"excecoes_w5": [{k: x[k] for k in ("fluxo", "motivo", "detalhe",
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF021 [*] Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+   --> docs/automacao/prototipo/testar_prototipo.py:709:16
+    |
+707 |                        check=False)
+708 |     return [linha.strip() for linha in r.stdout.splitlines()
+709 |             if re.search(r":(8765|8766|5678)\s", linha) and "LISTEN" in linha.upper()
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+710 |             or re.search(r":(8765|8766|5678)\s.*ESCUTANDO", linha)]
+    |
+help: Parenthesize the `and` subexpression
+    |
+708 |     return [linha.strip() for linha in r.stdout.splitlines()
+    -             if re.search(r":(8765|8766|5678)\s", linha) and "LISTEN" in linha.upper()
+709 +             if (re.search(r":(8765|8766|5678)\s", linha) and "LISTEN" in linha.upper())
+710 |             or re.search(r":(8765|8766|5678)\s.*ESCUTANDO", linha)]
+    |
+
+Found 25 errors.
+[*] 5 fixable with the `--fix` option (5 hidden fixes can be enabled with the `--unsafe-fixes` option).
+VERIFICAR_EXIT=1
+Fim UTC: 2026-10-17T06:22:12Z

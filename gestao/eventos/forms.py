@@ -13,12 +13,14 @@ from typing import Any, cast
 
 from django import forms
 from django.db.models import Q
+from django.urls import reverse
 
-from gestao.cadastros.forms import CampoMunicipio
+from gestao.cadastros.fontes import atividades_e_servicos, fonte_local
+from gestao.cadastros.forms import CampoMunicipio, OpcaoServidor
 from gestao.cadastros.models import Servidor
-from gestao.plataforma.widgets import FORMATOS_DATA, EntradaData, Selecao
+from gestao.plataforma.widgets import FORMATOS_DATA, EntradaData, Selecao, SelecaoRemota
 
-from .models import Equipe, OrgaoResponsavel, Servico, Solicitacao, TipoEvento, UnidadeMovel
+from .models import Equipe, OrgaoResponsavel, Solicitacao, TipoEvento, UnidadeMovel
 from .solicitacoes import Estrutura
 
 FORM_ID = "form-solicitacao"
@@ -49,6 +51,8 @@ class FormularioSolicitacao(forms.ModelForm):
     data_fim_evento = forms.DateField(label="Fim do evento", required=False,
                                       input_formats=FORMATOS_DATA, widget=EntradaData())
     municipio = CampoMunicipio(label="Município", required=False)
+    motorista = OpcaoServidor(label="Motorista", queryset=Servidor.objects.none(),
+                              required=False, empty_label="Sem motorista definido")
 
     class Meta:
         model = Solicitacao
@@ -65,7 +69,7 @@ class FormularioSolicitacao(forms.ModelForm):
                   "descricao_complementar": "Descrição"}
         widgets = {
             "tipo_evento": Selecao(), "orgao_responsavel": Selecao(),
-            "unidade_movel_designada": Selecao(), "motorista": Selecao(),
+            "unidade_movel_designada": Selecao(),
             "tipo_operacao": Selecao(),
             "solicitante_nome": forms.TextInput(attrs=_attrs(autocomplete="off")),
             "solicitante_cargo_unidade": forms.TextInput(attrs=_attrs(autocomplete="off")),
@@ -103,12 +107,23 @@ class FormularioSolicitacao(forms.ModelForm):
             campo.queryset = _ativos(modelo, atual)
             campo.empty_label = vazio
         motorista = cast(forms.ModelChoiceField, self.fields["motorista"])
+<<<<<<< HEAD
+        motorista.queryset = fonte_local.consultar(
+            "servidor", incluir=[inst.motorista_id] if inst.motorista_id else ()).order_by(
+                "nome", "pk")
+=======
         # Como na referência: quem tem cargo de motorista ou dirige alguma viatura.
         motorista.queryset = Servidor.objects.filter(
             Q(ativo=True, cargo__nome__icontains="motorista")
             | Q(ativo=True, viaturas_que_dirige__isnull=False)
             | Q(pk=inst.motorista_id or 0)).distinct().order_by("nome")
+>>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
         motorista.empty_label = "Sem motorista definido"
+        parametros = f"?solicitacao={inst.pk}&q=" if inst.pk else "?q="
+        motorista.widget = SelecaoRemota(
+            fonte=reverse("eventos:buscar_motoristas") + parametros,
+            placeholder="Nome, cargo ou unidade…", attrs={"form": FORM_ID})
+        motorista.widget.choices = motorista.choices
         for campo_form in self.fields.values():
             campo_form.widget.attrs.setdefault("form", FORM_ID)
 
@@ -153,7 +168,7 @@ def estrutura_do_post(post, solicitacao=None) -> tuple[Estrutura, list[str]]:
         atuais_s = set(solicitacao.servicos.values_list("servico_id", flat=True))
         atuais_e = set(solicitacao.equipes.values_list("equipe_id", flat=True))
     servicos = {s.pk: (post.get(f"observacao_servico_{s.pk}") or "").strip()[:255]
-                for s in Servico.objects.filter(Q(ativo=True) | Q(pk__in=atuais_s))
+                for s in atividades_e_servicos(incluir=atuais_s)
                 if post.get(f"servico_{s.pk}")}
     equipes: dict[int, int | None] = {}
     for e in Equipe.objects.filter(Q(ativo=True) | Q(pk__in=atuais_e)):

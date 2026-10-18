@@ -56,7 +56,7 @@ faixa sem nenhuma vigência.
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
-<dialog id="dialogo-vigencia" class="dialogo" aria-labelledby="dialogo-vigencia-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+<dialog id="dialogo-vigencia" class="dialogo dialogo--cadastro" aria-labelledby="dialogo-vigencia-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_vigencia' %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}

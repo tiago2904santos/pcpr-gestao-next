@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T02:36:24.000Z",
-  "createdAt": "2026-10-18T02:31:50.279Z",
+  "updatedAt": "2026-10-18T03:57:26.000Z",
+  "createdAt": "2026-10-18T03:52:34.167Z",
   "id": "pcprEntregaCom01",
   "name": "PCPR · Entregar comunicação",
   "description": null,
@@ -474,18 +474,24 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.cfg_canal }}/canal/enviar",
+        "url": "={{ $('Contexto do envio').first().json.cfg_canal }}/canal/enviar",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ canal: $json.canal, destino: $json.destino, mensagem: $json.mensagem, idempotencia_canal: $json.idempotencia_canal, comunicacao_id: $json.comunicacao_id, correlacao_id: $json.correlacao_id }) }}",
+        "jsonBody": "={{ JSON.stringify({ canal: $('Contexto do envio').first().json.canal, destino: $('Contexto do envio').first().json.destino, mensagem: $('Contexto do envio').first().json.mensagem, idempotencia_canal: $('Contexto do envio').first().json.idempotencia_canal, comunicacao_id: $('Contexto do envio').first().json.comunicacao_id, correlacao_id: $('Contexto do envio').first().json.correlacao_id }) }}",
         "options": {
-          "timeout": 10000
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
         }
       },
-      "id": "5bdc9a43-1e04-5aa2-8069-38326edca0de",
-      "name": "Enviar ao canal",
+      "id": "713ce0a0-6eeb-560c-a20e-0ec13666dbad",
+      "name": "Enviar ao canal (1ª tentativa)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -498,10 +504,184 @@
           "name": "Canal · chave de envio"
         }
       },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 1000,
       "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tentativa 1 de 3 no canal (o retryOnFail nativo do n8n NÃO é usado aqui: ele repete\n// qualquer erro, inclusive tempo esgotado depois de o canal aceitar — duplicaria; C5/PR #23).\n// Só se repete o que PROVA que o canal NÃO aceitou: conexão recusada/DNS antes de enviar, ou\n// HTTP 429/503 com corpo de recusa (\"aceita\": false). Tempo esgotado, conexão derrubada no meio\n// (ECONNRESET/\"socket hang up\") e respostas ambíguas (500/502/504, 503 sem corpo de recusa) →\n// resultado_desconhecido + exceção, sem reenvio. Recusas esgotadas → falha_temporaria: o PCPR\n// reagenda com backoff e só abre exceção quando acabarem as rodadas (C6).\nconst TENTATIVA = 1;\nconst MAX = 3;\nconst anteriores = [];\nconst it = $input.first().json;\nlet sinal = 'ambiguo';\nlet descr = '';\nlet pid = '';\nlet sc = 0;\nif (it.error !== undefined) {  // saída de erro do nó HTTP: só falha de rede chega aqui\n  const e = it.error || {};\n  const texto = JSON.stringify(e) + ' ' + String(e.message || '');\n  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|refused the connection|DNS server returned/i.test(texto)) {\n    sinal = 'recusado';\n    descr = 'conexão recusada antes do envio';\n  } else {\n    descr = 'rede: ' + String(e.message || e.code || 'erro de rede').slice(0, 200);\n  }\n} else {  // resposta HTTP completa (neverError): o status é dado, não exceção\n  sc = Number(it.statusCode || 0);\n  const corpo = (it.body && typeof it.body === 'object') ? it.body : {};\n  if (sc >= 200 && sc < 300) {\n    sinal = 'aceito';\n    pid = String(corpo.provedor_mensagem_id || '');\n  } else if ((sc === 429 || sc === 503) && corpo.aceita === false) {\n    sinal = 'recusado';\n  } else if (sc >= 400 && sc < 500 && sc !== 408 && sc !== 429) {\n    sinal = 'rejeitado';\n  }\n  descr = 'HTTP ' + sc + (corpo.erro ? ' ' + String(corpo.erro).slice(0, 100) : '');\n}\nconst historico = [...anteriores, sinal + ' (' + descr + ')'];\nif (sinal === 'recusado' && TENTATIVA < MAX) {\n  await new Promise((r) => setTimeout(r, 1000));  // espera curta antes da próxima tentativa\n  return [{ json: { acao: 'retentar', historico } }];\n}\nconst saida = {\n  aceito: { resultado: 'enviada', motivo_excecao: '' },\n  recusado: { resultado: 'falha_temporaria', motivo_excecao: '' },\n  rejeitado: {\n    resultado: 'falha_definitiva',\n    motivo_excecao: (sc === 401 || sc === 403) ? 'canal_indisponivel' : 'outro',\n  },\n  ambiguo: { resultado: 'resultado_desconhecido', motivo_excecao: 'resultado_desconhecido' },\n}[sinal];\nconst resumo = historico.map((h, i) => (i + 1) + 'ª tentativa: ' + h).join('; ').slice(0, 500);\nreturn [{ json: { acao: 'registrar', ...saida, provedor_mensagem_id: pid,\n  erro: sinal === 'aceito' ? '' : resumo, historico } }];"
+      },
+      "id": "6d45618c-e338-5582-9fe6-f9ea789a4f10",
+      "name": "Classificar envio (1ª tentativa)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "986f6aff-f97c-50e5-86f2-ed33531f1fe0",
+              "leftValue": "={{ $json.acao === 'retentar' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0b6dfad9-1737-51d5-865e-838878ac3e92",
+      "name": "Retentar? (1ª tentativa)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Contexto do envio').first().json.cfg_canal }}/canal/enviar",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ canal: $('Contexto do envio').first().json.canal, destino: $('Contexto do envio').first().json.destino, mensagem: $('Contexto do envio').first().json.mensagem, idempotencia_canal: $('Contexto do envio').first().json.idempotencia_canal, comunicacao_id: $('Contexto do envio').first().json.comunicacao_id, correlacao_id: $('Contexto do envio').first().json.correlacao_id }) }}",
+        "options": {
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "01a10030-2830-50d6-9029-f8f0d656d2fc",
+      "name": "Enviar ao canal (2ª tentativa)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalApi0001",
+          "name": "Canal · chave de envio"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tentativa 2 de 3 no canal (o retryOnFail nativo do n8n NÃO é usado aqui: ele repete\n// qualquer erro, inclusive tempo esgotado depois de o canal aceitar — duplicaria; C5/PR #23).\n// Só se repete o que PROVA que o canal NÃO aceitou: conexão recusada/DNS antes de enviar, ou\n// HTTP 429/503 com corpo de recusa (\"aceita\": false). Tempo esgotado, conexão derrubada no meio\n// (ECONNRESET/\"socket hang up\") e respostas ambíguas (500/502/504, 503 sem corpo de recusa) →\n// resultado_desconhecido + exceção, sem reenvio. Recusas esgotadas → falha_temporaria: o PCPR\n// reagenda com backoff e só abre exceção quando acabarem as rodadas (C6).\nconst TENTATIVA = 2;\nconst MAX = 3;\nconst anteriores = ($('Classificar envio (1ª tentativa)').first().json.historico || []);\nconst it = $input.first().json;\nlet sinal = 'ambiguo';\nlet descr = '';\nlet pid = '';\nlet sc = 0;\nif (it.error !== undefined) {  // saída de erro do nó HTTP: só falha de rede chega aqui\n  const e = it.error || {};\n  const texto = JSON.stringify(e) + ' ' + String(e.message || '');\n  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|refused the connection|DNS server returned/i.test(texto)) {\n    sinal = 'recusado';\n    descr = 'conexão recusada antes do envio';\n  } else {\n    descr = 'rede: ' + String(e.message || e.code || 'erro de rede').slice(0, 200);\n  }\n} else {  // resposta HTTP completa (neverError): o status é dado, não exceção\n  sc = Number(it.statusCode || 0);\n  const corpo = (it.body && typeof it.body === 'object') ? it.body : {};\n  if (sc >= 200 && sc < 300) {\n    sinal = 'aceito';\n    pid = String(corpo.provedor_mensagem_id || '');\n  } else if ((sc === 429 || sc === 503) && corpo.aceita === false) {\n    sinal = 'recusado';\n  } else if (sc >= 400 && sc < 500 && sc !== 408 && sc !== 429) {\n    sinal = 'rejeitado';\n  }\n  descr = 'HTTP ' + sc + (corpo.erro ? ' ' + String(corpo.erro).slice(0, 100) : '');\n}\nconst historico = [...anteriores, sinal + ' (' + descr + ')'];\nif (sinal === 'recusado' && TENTATIVA < MAX) {\n  await new Promise((r) => setTimeout(r, 1000));  // espera curta antes da próxima tentativa\n  return [{ json: { acao: 'retentar', historico } }];\n}\nconst saida = {\n  aceito: { resultado: 'enviada', motivo_excecao: '' },\n  recusado: { resultado: 'falha_temporaria', motivo_excecao: '' },\n  rejeitado: {\n    resultado: 'falha_definitiva',\n    motivo_excecao: (sc === 401 || sc === 403) ? 'canal_indisponivel' : 'outro',\n  },\n  ambiguo: { resultado: 'resultado_desconhecido', motivo_excecao: 'resultado_desconhecido' },\n}[sinal];\nconst resumo = historico.map((h, i) => (i + 1) + 'ª tentativa: ' + h).join('; ').slice(0, 500);\nreturn [{ json: { acao: 'registrar', ...saida, provedor_mensagem_id: pid,\n  erro: sinal === 'aceito' ? '' : resumo, historico } }];"
+      },
+      "id": "919dc05e-2ff6-5728-a82b-382b48356f32",
+      "name": "Classificar envio (2ª tentativa)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5300bd8f-d475-5fa2-86a6-484f00602298",
+              "leftValue": "={{ $json.acao === 'retentar' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8a7a053a-4b18-52a6-af65-5181ed8ecf16",
+      "name": "Retentar? (2ª tentativa)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Contexto do envio').first().json.cfg_canal }}/canal/enviar",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ canal: $('Contexto do envio').first().json.canal, destino: $('Contexto do envio').first().json.destino, mensagem: $('Contexto do envio').first().json.mensagem, idempotencia_canal: $('Contexto do envio').first().json.idempotencia_canal, comunicacao_id: $('Contexto do envio').first().json.comunicacao_id, correlacao_id: $('Contexto do envio').first().json.correlacao_id }) }}",
+        "options": {
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "41c2569c-9627-52ee-a0a4-9e1444a24794",
+      "name": "Enviar ao canal (3ª tentativa)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprCanalApi0001",
+          "name": "Canal · chave de envio"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tentativa 3 de 3 no canal (o retryOnFail nativo do n8n NÃO é usado aqui: ele repete\n// qualquer erro, inclusive tempo esgotado depois de o canal aceitar — duplicaria; C5/PR #23).\n// Só se repete o que PROVA que o canal NÃO aceitou: conexão recusada/DNS antes de enviar, ou\n// HTTP 429/503 com corpo de recusa (\"aceita\": false). Tempo esgotado, conexão derrubada no meio\n// (ECONNRESET/\"socket hang up\") e respostas ambíguas (500/502/504, 503 sem corpo de recusa) →\n// resultado_desconhecido + exceção, sem reenvio. Recusas esgotadas → falha_temporaria: o PCPR\n// reagenda com backoff e só abre exceção quando acabarem as rodadas (C6).\nconst TENTATIVA = 3;\nconst MAX = 3;\nconst anteriores = ($('Classificar envio (2ª tentativa)').first().json.historico || []);\nconst it = $input.first().json;\nlet sinal = 'ambiguo';\nlet descr = '';\nlet pid = '';\nlet sc = 0;\nif (it.error !== undefined) {  // saída de erro do nó HTTP: só falha de rede chega aqui\n  const e = it.error || {};\n  const texto = JSON.stringify(e) + ' ' + String(e.message || '');\n  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|refused the connection|DNS server returned/i.test(texto)) {\n    sinal = 'recusado';\n    descr = 'conexão recusada antes do envio';\n  } else {\n    descr = 'rede: ' + String(e.message || e.code || 'erro de rede').slice(0, 200);\n  }\n} else {  // resposta HTTP completa (neverError): o status é dado, não exceção\n  sc = Number(it.statusCode || 0);\n  const corpo = (it.body && typeof it.body === 'object') ? it.body : {};\n  if (sc >= 200 && sc < 300) {\n    sinal = 'aceito';\n    pid = String(corpo.provedor_mensagem_id || '');\n  } else if ((sc === 429 || sc === 503) && corpo.aceita === false) {\n    sinal = 'recusado';\n  } else if (sc >= 400 && sc < 500 && sc !== 408 && sc !== 429) {\n    sinal = 'rejeitado';\n  }\n  descr = 'HTTP ' + sc + (corpo.erro ? ' ' + String(corpo.erro).slice(0, 100) : '');\n}\nconst historico = [...anteriores, sinal + ' (' + descr + ')'];\nif (sinal === 'recusado' && TENTATIVA < MAX) {\n  await new Promise((r) => setTimeout(r, 1000));  // espera curta antes da próxima tentativa\n  return [{ json: { acao: 'retentar', historico } }];\n}\nconst saida = {\n  aceito: { resultado: 'enviada', motivo_excecao: '' },\n  recusado: { resultado: 'falha_temporaria', motivo_excecao: '' },\n  rejeitado: {\n    resultado: 'falha_definitiva',\n    motivo_excecao: (sc === 401 || sc === 403) ? 'canal_indisponivel' : 'outro',\n  },\n  ambiguo: { resultado: 'resultado_desconhecido', motivo_excecao: 'resultado_desconhecido' },\n}[sinal];\nconst resumo = historico.map((h, i) => (i + 1) + 'ª tentativa: ' + h).join('; ').slice(0, 500);\nreturn [{ json: { acao: 'registrar', ...saida, provedor_mensagem_id: pid,\n  erro: sinal === 'aceito' ? '' : resumo, historico } }];"
+      },
+      "id": "72660856-77c3-5b8e-b37f-2a47d4a9099c",
+      "name": "Classificar envio (3ª tentativa)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        100
+      ]
     },
     {
       "parameters": {
@@ -509,21 +689,27 @@
         "assignments": {
           "assignments": [
             {
-              "id": "aec4f899-1325-5710-8f88-6d2606a25cd8",
+              "id": "e674b78f-44fd-50c6-8d48-76ede72d7ec8",
               "name": "resultado",
-              "value": "enviada",
+              "value": "={{ $json.resultado }}",
               "type": "string"
             },
             {
-              "id": "c719902b-9df1-5ab8-9403-8cfef155ac21",
+              "id": "6b4253d1-a4df-58fd-96c8-811830fca65c",
               "name": "provedor_mensagem_id",
-              "value": "={{ $json.provedor_mensagem_id }}",
+              "value": "={{ $json.provedor_mensagem_id || '' }}",
               "type": "string"
             },
             {
-              "id": "ae2929b9-00e8-556f-8ed0-3982c401cdb0",
+              "id": "b0ff634a-8d69-5ec6-8170-d42d75c06926",
               "name": "erro",
-              "value": "",
+              "value": "={{ $json.erro || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "92255f92-b547-5431-93c8-99e0cf91a6a1",
+              "name": "motivo_excecao",
+              "value": "={{ $json.motivo_excecao || '' }}",
               "type": "string"
             }
           ]
@@ -531,26 +717,13 @@
         "includeOtherFields": false,
         "options": {}
       },
-      "id": "71b5dcae-363e-52ff-944d-df7d06967657",
-      "name": "Resultado: enviada",
+      "id": "6bdb920e-665f-52f5-a574-897e82a615ce",
+      "name": "Resultado do envio",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1760,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Esgotadas as tentativas no canal: HTTP 4xx/5xx ou conexão recusada = o canal NÃO aceitou\n// (falha definitiva). Tempo esgotado/conexão caída no meio = não se sabe se saiu\n// (resultado desconhecido → exceção; nunca reenviar às cegas).\nconst e = $input.first().json.error || $input.first().json || {};\nconst texto = JSON.stringify(e);\nconst http = Number(e.httpCode || e.status || 0) ||\n  Number(((/\\b([45]\\d\\d)\\b/.exec(String(e.message || ''))) || [])[1] || 0);\nconst recusada = /ECONNREFUSED|ENOTFOUND|EAI_AGAIN/.test(texto);\nconst naoChegou = http >= 400 || recusada;\nreturn [{ json: {\n  resultado: naoChegou ? 'falha_definitiva' : 'resultado_desconhecido',\n  motivo_excecao: naoChegou ? 'limite_tentativas' : 'resultado_desconhecido',\n  erro: (String(e.message || 'erro desconhecido') + (http ? ` (HTTP ${http})` : '')).slice(0, 500),\n  provedor_mensagem_id: '',\n} }];"
-      },
-      "id": "4724f728-9c23-5d3a-b1ab-1168434b121c",
-      "name": "Classificar falha",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1760,
-        200
+        3520,
+        300
       ]
     },
     {
@@ -584,8 +757,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1980,
-        100
+        3740,
+        300
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -608,8 +781,8 @@
           },
           "conditions": [
             {
-              "id": "e4ea015e-0218-57b1-9eb3-344f80af8c80",
-              "leftValue": "={{ $json.resultado !== 'enviada' }}",
+              "id": "5a7ef0ee-62e2-5366-9c19-7354fb15af4f",
+              "leftValue": "={{ Boolean($('Resultado do envio').first().json.motivo_excecao) }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -622,24 +795,24 @@
         },
         "options": {}
       },
-      "id": "7f96a0fe-c985-563a-b41f-f9ab2d7edc56",
-      "name": "Falhou?",
+      "id": "1067bac6-941b-5e07-963d-42c8f6a8ad81",
+      "name": "Abrir exceção?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2200,
-        100
+        3960,
+        300
       ]
     },
     {
       "parameters": {},
-      "id": "2eb438e1-abaf-5cca-bff1-44e1d143c923",
-      "name": "Fim: enviada",
+      "id": "69a6bd0b-8502-5eed-bd72-13582a57c7ee",
+      "name": "Fim: registrado",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2420,
-        0
+        4180,
+        200
       ]
     },
     {
@@ -659,7 +832,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ fluxo: $('Configuração').first().json.fluxo, correlacao_id: $('Contexto do envio').first().json.correlacao_id, motivo: $('Classificar falha').first().json.motivo_excecao, detalhe: 'comunicacao ' + $('Contexto do envio').first().json.comunicacao_id + ': ' + $('Classificar falha').first().json.erro, execucao_orquestrador: String($execution.id), recurso: { tipo: 'comunicacao', id: $('Contexto do envio').first().json.comunicacao_id } }) }}",
+        "jsonBody": "={{ JSON.stringify({ fluxo: $('Configuração').first().json.fluxo, correlacao_id: $('Contexto do envio').first().json.correlacao_id, motivo: $('Resultado do envio').first().json.motivo_excecao, detalhe: 'comunicacao ' + $('Contexto do envio').first().json.comunicacao_id + ': ' + $('Resultado do envio').first().json.erro, execucao_orquestrador: String($execution.id), recurso: { tipo: 'comunicacao', id: $('Contexto do envio').first().json.comunicacao_id } }) }}",
         "options": {
           "timeout": 10000
         }
@@ -669,8 +842,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2420,
-        200
+        4180,
+        400
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -684,6 +857,129 @@
     }
   ],
   "connections": {
+    "Enviar ao canal (1ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Classificar envio (1ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classificar envio (1ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar envio (1ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Retentar? (1ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retentar? (1ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Enviar ao canal (2ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resultado do envio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar ao canal (2ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Classificar envio (2ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classificar envio (2ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar envio (2ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Retentar? (2ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retentar? (2ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Enviar ao canal (3ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resultado do envio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar ao canal (3ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Classificar envio (3ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classificar envio (3ª tentativa)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar envio (3ª tentativa)": {
+      "main": [
+        [
+          {
+            "node": "Resultado do envio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Quando chamado por outro workflow": {
       "main": [
         [
@@ -739,18 +1035,7 @@
         ]
       ]
     },
-    "Resultado: enviada": {
-      "main": [
-        [
-          {
-            "node": "Registrar resultado",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Classificar falha": {
+    "Resultado do envio": {
       "main": [
         [
           {
@@ -765,7 +1050,7 @@
       "main": [
         [
           {
-            "node": "Falhou?",
+            "node": "Abrir exceção?",
             "type": "main",
             "index": 0
           }
@@ -844,32 +1129,14 @@
         ],
         [
           {
-            "node": "Enviar ao canal",
+            "node": "Enviar ao canal (1ª tentativa)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Enviar ao canal": {
-      "main": [
-        [
-          {
-            "node": "Resultado: enviada",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Classificar falha",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Falhou?": {
+    "Abrir exceção?": {
       "main": [
         [
           {
@@ -880,7 +1147,7 @@
         ],
         [
           {
-            "node": "Fim: enviada",
+            "node": "Fim: registrado",
             "type": "main",
             "index": 0
           }
@@ -903,7 +1170,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "b5f4bf6d-2328-4c72-a0c3-8930557db98b",
+  "versionId": "76ff7170-8ae1-46b1-9eb4-19c473d2717f",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -911,21 +1178,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T02:31:50.282Z",
-      "createdAt": "2026-10-18T02:31:50.282Z",
+      "updatedAt": "2026-10-18T03:52:34.169Z",
+      "createdAt": "2026-10-18T03:52:34.169Z",
       "role": "workflow:owner",
       "workflowId": "pcprEntregaCom01",
-      "projectId": "GLb7qKJjiCdX9SjK",
+      "projectId": "KDapCLFoTUNmEURa",
       "project": {
-        "updatedAt": "2026-10-18T02:31:42.047Z",
-        "createdAt": "2026-10-18T02:31:42.047Z",
-        "id": "GLb7qKJjiCdX9SjK",
+        "updatedAt": "2026-10-18T03:52:26.631Z",
+        "createdAt": "2026-10-18T03:52:26.631Z",
+        "id": "KDapCLFoTUNmEURa",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "3db6426f-06b9-466d-842f-0448ed7e9873"
+        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
       }
     }
   ],

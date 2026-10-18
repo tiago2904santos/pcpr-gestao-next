@@ -1,0 +1,454 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+________________ test_catalogo_unico_em_planos_e_eventos[360] _________________
+
+pagina = <Page url='http://localhost:54249/viagens/planos/1/?evento=novo'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
+        from django.urls import reverse
+    
+        from gestao.cadastros.models import AtividadePlano
+        from gestao.eventos.models import Solicitacao
+        from gestao.viagens.models import PlanoTrabalho
+    
+        usuario = dados_e2e.usuarios["operador"]
+        usuario.is_superuser = True
+        usuario.save(update_fields=["is_superuser"])
+        pg = pagina
+        entrar(pg)
+        pg.set_viewport_size({"width": largura, "height": 900})
+        nome = f"Atendimento compartilhado da missão {largura}"
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.locator("#novo-nome").fill(nome)
+        pg.get_by_role("button", name="Incluir", exact=True).click()
+        item = AtividadePlano.objects.get(nome=nome)
+        quantidade = AtividadePlano.objects.count()
+        plano = PlanoTrabalho.objects.create(unidade=usuario.lotacao.unidade, ano=2026,
+                                              numero=9001, criado_por=usuario)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]))
+        atividade = pg.get_by_role("checkbox", name=nome, exact=True)
+        atividade.focus()
+        atividade.press("Space")
+        expect(atividade).to_be_checked()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert plano.atividades.get().pk == item.pk
+        pedido = Solicitacao.objects.create(criado_por=usuario, data_solicitacao=date(2026, 10, 17))
+        pg.goto(reverse("eventos:solicitacao", args=[pedido.pk]))
+        pg.get_by_label(nome, exact=True).check()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert pedido.servicos.get().servico_id == item.pk
+        pg.goto(f"/cadastros/atividades/?editar={item.pk}")
+        modal = pg.locator("#dialogo-cadastro")
+        revisado = nome + " revisado"
+        modal.locator('[name="nome"]').fill(revisado)
+        modal.locator('[name="meta"]').fill("Atender com informação clara.")
+        modal.get_by_role("button", name="Salvar alterações", exact=True).click()
+        expect(pg.locator(".registros")).to_contain_text(revisado, ignore_case=True)
+        item.refresh_from_db()
+        revisado = item.nome
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.get_by_role("button", name=f"Inativar {revisado}", exact=True).click()
+        assert plano.atividades.get().pk == pedido.servicos.get().servico_id == item.pk
+        assert str(pedido.servicos.get()) == nome
+        assert AtividadePlano.objects.count() == quantidade
+        pg.goto(reverse("viagens:novo_plano"))
+        expect(pg.get_by_role("checkbox", name=revisado, exact=True)).to_have_count(0)
+        pg.goto(reverse("eventos:nova"))
+        expect(pg.get_by_label(revisado, exact=True)).to_have_count(0)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]) + "?evento=novo")
+        evento = pg.locator("#dialogo-evento")
+        expect(evento).to_be_visible()
+        estabilizar(pg)
+        pasta = DESTINO / "consumidores" / str(largura)
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / "plano-evento-modal.png"))
+        assert not evento.evaluate("e => e.scrollWidth > e.clientWidth + 1")
+        assert rodar_axe(pg) == []
+>       pg.get_by_role("button", name="Cadastrar horário", exact=True).click()
+
+tests\e2e\test_cadastros_missao.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000027245E034D0>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000027247C87060>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role("button", name="Cadastrar horário", exact=True) resolved to 2 elements:
+E               1) <button type="button" class="botao botao--icone" aria-label="Cadastrar horário" data-abrir-dialogo="dialogo-horario">…</button> aka get_by_role("region", name="Identificação").get_by_label("Cadastrar horário")
+E               2) <button type="button" class="botao botao--icone" aria-label="Cadastrar horário" data-abrir-dialogo="dialogo-horario">…</button> aka get_by_role("dialog", name="Novo evento").get_by_label("Cadastrar horário")
+E           
+E           Call log:
+E             - waiting for get_by_role("button", name="Cadastrar horário", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 01:35:52,303 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 30 consultas (limite 25)
+2026-10-17 01:35:54,710 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/autosave/: 37 consultas (limite 25)
+2026-10-17 01:35:54,972 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 32 consultas (limite 25)
+2026-10-17 01:35:55,750 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/autosave/: 36 consultas (limite 25)
+2026-10-17 01:35:57,631 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /eventos/solicitacoes/1/: 26 consultas (limite 25)
+2026-10-17 01:36:01,111 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 40 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/: 30 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/autosave/: 37 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/: 32 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/autosave/: 36 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /eventos/solicitacoes/1/: 26 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/: 40 consultas (limite 25)
+________________ test_catalogo_unico_em_planos_e_eventos[1440] ________________
+
+pagina = <Page url='http://localhost:54249/viagens/planos/2/?evento=novo'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
+        from django.urls import reverse
+    
+        from gestao.cadastros.models import AtividadePlano
+        from gestao.eventos.models import Solicitacao
+        from gestao.viagens.models import PlanoTrabalho
+    
+        usuario = dados_e2e.usuarios["operador"]
+        usuario.is_superuser = True
+        usuario.save(update_fields=["is_superuser"])
+        pg = pagina
+        entrar(pg)
+        pg.set_viewport_size({"width": largura, "height": 900})
+        nome = f"Atendimento compartilhado da missão {largura}"
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.locator("#novo-nome").fill(nome)
+        pg.get_by_role("button", name="Incluir", exact=True).click()
+        item = AtividadePlano.objects.get(nome=nome)
+        quantidade = AtividadePlano.objects.count()
+        plano = PlanoTrabalho.objects.create(unidade=usuario.lotacao.unidade, ano=2026,
+                                              numero=9001, criado_por=usuario)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]))
+        atividade = pg.get_by_role("checkbox", name=nome, exact=True)
+        atividade.focus()
+        atividade.press("Space")
+        expect(atividade).to_be_checked()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert plano.atividades.get().pk == item.pk
+        pedido = Solicitacao.objects.create(criado_por=usuario, data_solicitacao=date(2026, 10, 17))
+        pg.goto(reverse("eventos:solicitacao", args=[pedido.pk]))
+        pg.get_by_label(nome, exact=True).check()
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo", timeout=15000)
+        assert pedido.servicos.get().servico_id == item.pk
+        pg.goto(f"/cadastros/atividades/?editar={item.pk}")
+        modal = pg.locator("#dialogo-cadastro")
+        revisado = nome + " revisado"
+        modal.locator('[name="nome"]').fill(revisado)
+        modal.locator('[name="meta"]').fill("Atender com informação clara.")
+        modal.get_by_role("button", name="Salvar alterações", exact=True).click()
+        expect(pg.locator(".registros")).to_contain_text(revisado, ignore_case=True)
+        item.refresh_from_db()
+        revisado = item.nome
+        pg.goto("/eventos/cadastros/servicos/")
+        pg.get_by_role("button", name=f"Inativar {revisado}", exact=True).click()
+        assert plano.atividades.get().pk == pedido.servicos.get().servico_id == item.pk
+        assert str(pedido.servicos.get()) == nome
+        assert AtividadePlano.objects.count() == quantidade
+        pg.goto(reverse("viagens:novo_plano"))
+        expect(pg.get_by_role("checkbox", name=revisado, exact=True)).to_have_count(0)
+        pg.goto(reverse("eventos:nova"))
+        expect(pg.get_by_label(revisado, exact=True)).to_have_count(0)
+        pg.goto(reverse("viagens:editar_plano", args=[plano.pk]) + "?evento=novo")
+        evento = pg.locator("#dialogo-evento")
+        expect(evento).to_be_visible()
+        estabilizar(pg)
+        pasta = DESTINO / "consumidores" / str(largura)
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / "plano-evento-modal.png"))
+        assert not evento.evaluate("e => e.scrollWidth > e.clientWidth + 1")
+        assert rodar_axe(pg) == []
+>       pg.get_by_role("button", name="Cadastrar horário", exact=True).click()
+
+tests\e2e\test_cadastros_missao.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000027245E034D0>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000272467E8040>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role("button", name="Cadastrar horário", exact=True) resolved to 2 elements:
+E               1) <button type="button" class="botao botao--icone" aria-label="Cadastrar horário" data-abrir-dialogo="dialogo-horario">…</button> aka get_by_role("region", name="Identificação").get_by_label("Cadastrar horário")
+E               2) <button type="button" class="botao botao--icone" aria-label="Cadastrar horário" data-abrir-dialogo="dialogo-horario">…</button> aka get_by_role("dialog", name="Novo evento").get_by_label("Cadastrar horário")
+E           
+E           Call log:
+E             - waiting for get_by_role("button", name="Cadastrar horário", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 01:36:23,180 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 30 consultas (limite 25)
+2026-10-17 01:36:25,747 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/autosave/: 37 consultas (limite 25)
+2026-10-17 01:36:26,928 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 32 consultas (limite 25)
+2026-10-17 01:36:27,716 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/autosave/: 36 consultas (limite 25)
+[17/Oct/2026 01:36:28,625] - Broken pipe from ('127.0.0.1', 65470)
+2026-10-17 01:36:29,586 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /eventos/solicitacoes/2/: 26 consultas (limite 25)
+2026-10-17 01:36:34,352 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 40 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/: 30 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/autosave/: 37 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/: 32 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/autosave/: 36 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 65470)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /eventos/solicitacoes/2/: 26 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/: 40 consultas (limite 25)
+________________________ test_termo_a_partir_do_oficio ________________________
+
+logado = <Page url='http://localhost:54249/viagens/termos/1/#t-documentos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_termo_a_partir_do_oficio(logado, dados_e2e):
+        pg = logado
+        oficio = dados_e2e.ids["oficio_emitido"]
+        pg.goto(f"/viagens/oficios/?resumo={oficio}")
+        janela = pg.get_by_role("dialog")
+        janela.get_by_role("button", name="Mais ações").click()
+        janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
+        janela.get_by_role("menuitem", name="Novo termo de autorização").press("Enter")
+        # Um clique: o termo nasce ligado ao ofício e abre direto nos documentos.
+        expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")
+        termo = TermoAutorizacao.objects.get()
+        expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
+        # Cada servidor e o genérico têm sua página no editor unificado vigente.
+        from gestao.viagens import termos
+    
+        servidores = termos.efetivo(termo).servidores
+        expect(pg.locator("[data-editores] [data-pagina]")).to_have_count(len(servidores) + 1 + bool(termo.oficio.viatura_id))
+        expect(pg.locator("[data-oficio-do-termo]")).to_contain_text(termo.oficio.numero_formatado)
+        expect(pg.locator("#frase-termo")).to_contain_text(termo.oficio.numero_formatado)
+        # O primeiro documento aparece como vai sair; o calendário vigente do evento
+        # grava sozinho e a prévia se refaz.
+        pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
+        primeiro = pg.locator("[data-editores] pc-editor-documento").first
+        folha = primeiro.frame_locator('iframe[data-quadro="texto"]')
+        expect(folha.locator("body")).to_contain_text("TERMO DE AUTORIZAÇÃO")
+        calendario = pg.locator(".mesa-evento pc-data[data-periodo] button.seletor__botao")
+        calendario.click()
+        foco = date.fromisoformat(pg.locator(".calendario td[tabindex='0']").get_attribute("data-data"))
+        nova_data = foco.replace(day=2 if foco.day == 1 else 1)
+        dia = pg.locator(f".calendario td[data-data='{nova_data.isoformat()}']")
+        dia.click()
+>       dia.click()
+
+tests\e2e\test_termos.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000027245E034D0>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002724BC863E0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator(".calendario td[data-data='2026-11-01']")
+E               - locator resolved to <td tabindex="-1" aria-selected="true" data-data="2026-11-01" aria-label="1 de novembro de 2026, domingo">1</td>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - element is outside of the viewport
+E               - retrying click action
+E               - waiting 20ms
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - element is outside of the viewport
+E               - retrying click action
+E                 - waiting 100ms
+E               55 × waiting for element to be visible, enabled and stable
+E                  - element is visible, enabled and stable
+E                  - scrolling into view if needed
+E                  - done scrolling
+E                  - element is outside of the viewport
+E                - retrying click action
+E                  - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 01:36:58,428 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 46 consultas (limite 25)
+2026-10-17 01:37:02,402 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/autosave/: 67 consultas (limite 25)
+2026-10-17 01:37:03,148 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 46 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/: 46 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/autosave/: 67 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/: 46 consultas (limite 25)
+__________ test_preparacao_quantidade_calendario_e_conferencia[360] ___________
+
+logado = <Page url='http://localhost:54249/viagens/planos/3/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largura):
+        pg = logado
+        plano = _completo(dados_e2e)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        expect(pg.get_by_role("heading", level=1)).to_contain_text(str(plano))
+        expect(pg.locator(".registro-hero .identidade-documental__complemento")).to_have_text(
+            plano.sufixo)
+        expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")
+        escolhas_coordenacao = pg.locator('.campos--coordenacao pc-select .seletor__valor:visible')
+        expect(escolhas_coordenacao.first).to_be_visible()
+        assert escolhas_coordenacao.evaluate_all(
+            "els => els.every(e => e.scrollWidth <= e.clientWidth)"
+        ), "A origem e o tratamento da coordenação devem ser legíveis sem truncamento"
+        assert pg.get_by_role("button", name="Programa", exact=True).bounding_box()["width"] > 200
+        quantidade = pg.locator("#efetivo-quantidade-1")
+        # Área de toque válida e três dígitos (limite 999) legíveis, sem limiar arbitrário.
+        assert quantidade.bounding_box()["width"] >= 24
+        assert quantidade.evaluate("""e => {
+            const s = getComputedStyle(e), c = document.createElement('canvas').getContext('2d');
+            c.font = s.font;
+            return c.measureText('999').width <= e.clientWidth - parseFloat(s.paddingLeft)
+                - parseFloat(s.paddingRight);
+        }""")
+        quantidade.fill("3")
+        pg.locator("#efetivo-linhas").get_by_role("button", name="Aumentar a quantidade").click()
+        expect(quantidade).to_have_value("4")
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
+        plano.refresh_from_db()
+        assert plano.efetivo.get().quantidade == 4
+        calendario = pg.locator("pc-data[data-periodo] .seletor__botao")
+        calendario.focus()
+        calendario.press("Enter")
+        expect(calendario).to_have_attribute("aria-expanded", "true")
+        pg.keyboard.press("Escape")
+        expect(calendario).to_be_focused()
+        expect(pg.locator("#diarias .conferencia-serena--operacional")).to_contain_text("R$")
+        assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
+        pg.evaluate("scrollTo(0,0)")
+        assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        pasta = Path("artifacts/planos-preparacao-identidade")
+        pasta.mkdir(parents=True, exist_ok=True)
+        violacoes = rodar_axe(pg)
+        if violacoes:
+            geometria = pg.evaluate("""violacoes => ({scrollY, alvos: violacoes.flatMap(v =>
+                v.nodes.map(n => {const e = document.querySelector(n.target[0]);
+                    return {target: n.target, rect: e?.getBoundingClientRect().toJSON(),
+                        html: e?.outerHTML};}))})""", violacoes)
+            (pasta / f"axe-{largura}.json").write_text(
+                json.dumps({"violacoes": violacoes, "geometria": geometria}, ensure_ascii=False,
+                           indent=2), encoding="utf-8")
+            pg.screenshot(path=str(pasta / f"axe-{largura}.png"))
+>       assert violacoes == []
+E       AssertionError: assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_planos_preparacao_identidade.py:161: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-17 01:37:45,927 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+2026-10-17 01:37:48,513 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/autosave/: 44 consultas (limite 25)
+2026-10-17 01:37:48,724 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 37 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/3/autosave/: 44 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/3/: 37 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_cadastros_missao.py::test_catalogo_unico_em_planos_e_eventos[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_cadastros_missao.py::test_catalogo_unico_em_planos_e_eventos[360]
+FAILED tests/e2e/test_cadastros_missao.py::test_catalogo_unico_em_planos_e_eventos[1440]
+FAILED tests/e2e/test_termos.py::test_termo_a_partir_do_oficio - playwright._...
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_preparacao_quantidade_calendario_e_conferencia[360]
+4 failed, 1 warning in 237.18s (0:03:57)

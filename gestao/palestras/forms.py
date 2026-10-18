@@ -12,7 +12,8 @@ from typing import Any, cast
 from django import forms
 from django.urls import reverse
 
-from gestao.cadastros.forms import CampoMunicipio
+from gestao.cadastros.fontes import fonte_local
+from gestao.cadastros.forms import CampoMunicipio, OpcaoServidor
 from gestao.cadastros.models import Servidor
 from gestao.plataforma.widgets import (
     FORMATOS_DATA,
@@ -21,6 +22,7 @@ from gestao.plataforma.widgets import (
     EntradaHora,
     EscolhaMultiplaRemota,
     Selecao,
+    SelecaoRemota,
 )
 
 from . import dominio
@@ -155,6 +157,10 @@ class FormularioResposta(forms.Form):
 
 class FormularioPalestrante(forms.ModelForm):
     municipio = CampoMunicipio(label="Município", required=False)
+    servidor = OpcaoServidor(label="Servidor no cadastro", queryset=Servidor.objects.none(),
+                              required=False, empty_label="Sem vínculo",
+                              help_text="Ligar ao cadastro de servidores ajuda a Agenda a avisar "
+                                        "choque com viagens.")
 
     class Meta:
         model = Palestrante
@@ -168,8 +174,14 @@ class FormularioPalestrante(forms.ModelForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         servidor = cast(forms.ModelChoiceField, self.fields["servidor"])
-        servidor.queryset = Servidor.objects.filter(ativo=True).order_by("nome")
+        servidor.queryset = fonte_local.consultar(
+            "servidor", incluir=[self.instance.servidor_id] if self.instance.servidor_id else []
+        ).order_by("nome", "pk")
         servidor.empty_label = "Sem vínculo"
+        servidor.widget = SelecaoRemota(
+            fonte=reverse("palestras:buscar_servidores") + "?q=",
+            placeholder="Nome, cargo ou unidade…")
+        servidor.widget.choices = servidor.choices
         if self.instance.pk and self.instance.municipio_id and not self.is_bound:
             m = self.instance.municipio
             self.initial["municipio"] = f"{m.nome}/{m.uf}"

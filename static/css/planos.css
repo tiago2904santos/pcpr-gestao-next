@@ -52,6 +52,11 @@
 
 /* No celular, manter Voltar/Finalizar/Ações juntos e o estado em uma linha própria. */
 @media (max-width: 767px) {
+  /* Campos longos usam a linha; remover acompanha a quantidade, sem cobrir o cargo. */
+  .efetivo-plano .efetivo-plano__linha > .efetivo-plano__cargo { grid-column: 1 / -1; grid-row: 1; }
+  .efetivo-plano .efetivo-plano__unidade { grid-column: 1 / -1; grid-row: 2; }
+  .efetivo-plano .efetivo-plano__quantidade { grid-row: 3; }
+  .efetivo-plano .efetivo-plano__remover { grid-row: 3; }
   .pagina--plano .barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
   .pagina--plano .barra-acoes.barra-acoes--preparacao [data-status-salvamento] { grid-column: 1 / -1; order: 2; display: flex; flex-wrap: wrap; width: 100%; margin: 0; border-radius: var(--raio-md); }
   .pagina--plano .barra-acoes__acoes > .botao--texto { width: auto; min-width: 0; padding-inline: var(--esp-2); }

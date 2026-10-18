@@ -1,0 +1,800 @@
+{
+  "data_observacao": "2026-10-17",
+  "ambiente": "código local; execução somente LAB",
+  "contagens": {
+    "entidades_cadastrais_iniciais": 35,
+    "superficies_principais_manutencao": 32,
+    "catalogos_fixos_sistema": 2,
+    "familias_consumidoras": 13,
+    "entidades_revisadas": 35,
+    "entidades_alteradas": 34,
+    "superficies_principais_revisadas": 32,
+    "modais_comparados": 18,
+    "larguras_verificadas_px": [
+      360,
+      1440
+    ],
+    "entidades_validadas": 35,
+    "superficies_principais_validadas": 32,
+    "modais_validados": 18,
+    "familias_consumidoras_validadas": 13
+  },
+  "aviso": "Entidades, superfícies e famílias têm denominadores distintos. As ações e evidências por item estão registradas; execuções sobrepostas não são somadas como testes distintos.",
+  "cadastros": [
+    {
+      "id": "C01",
+      "titulo": "Unidades (`cadastros.Unidade`)",
+      "modelo_inicial": "cadastros.Unidade",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c01",
+      "levantamento": "- Fonte/campos: `cadastros/models.py`; sigla, nome e ativo; nome sem caixa único. Escopo institucional global.\n- Uso: lotação de contas e servidores, viaturas, emissora dos documentos/roteiros/viagens, efetivo dos planos; contexto da configuração institucional. Consulta/manutenção pelas permissões `cadastros.*_unidade` (operador/gestor; consulta somente leitura).\n- Superfície: `/cadastros/unidades/`, lista + modal `catalogo.html`; rápidos nos formulários de servidor, viatura e usuário e diálogos reutilizados em Viagens. Unidade selecionada pode permanecer inativa na edição.\n- Duplicações: `publicacoes.UnidadeResponsavel` é rótulo editorial, não lotação institucional; órgão de Eventos também não é unidade. Não unir por nome. Nome do cabeçalho é complemento documental, não duplicata descartável.\n- Histórico/ação: relações PROTECT nos objetos relevantes; manter ID e inativar quando em uso. Preparar origem externa e complemento local; rever largura de nomes/siglas e legibilidade dos seletores.",
+      "acoes_executadas": [
+        "nome e sigla em linhas próprias",
+        "fonte local e vínculo externo preparado",
+        "identidade e complementos institucionais preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C02",
+      "titulo": "Cargos (`cadastros.Cargo`)",
+      "modelo_inicial": "cadastros.Cargo",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c02",
+      "levantamento": "- Fonte: modelo local com nome, ativo, padrão. Global; `cadastros.*_cargo`.\n- Uso: Servidor; efetivo e coordenadores do Plano; nomes/cargos históricos em documentos e configurações.\n- Superfícies: `/cadastros/cargos/`, lista/modal; rápido no Servidor; rápidos de cargo dos coordenadores administrativo/operacional do Plano. Coordenadores guardam texto contextual (`data-valor=\"nome\"`), não FK.\n- Duplicações/histórico: cargo da pessoa difere de função na assinatura/fiscal e cargo textual consolidado. Manter esses complementos. Padrão afeta novos servidores, sem reescrever documentos.\n- Ação: conservar identidade, preparar vínculo externo; revisar alinhamento, nomes longos e seleção/retorno de foco.",
+      "acoes_executadas": [
+        "modal confortável e cadastro auxiliar com retorno de foco",
+        "fonte local e responsabilidade de campos preparada"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C03",
+      "titulo": "Combustíveis (`cadastros.Combustivel`)",
+      "modelo_inicial": "cadastros.Combustivel",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c03",
+      "levantamento": "- Fonte: nome, ativo, padrão local; global; `cadastros.*_combustivel`.\n- Uso: Viatura e transporte informado manualmente no Ofício. `/cadastros/combustiveis/`, lista/modal, rápido no diálogo Viatura.\n- Histórico: FK/documentos e uso atual são distintos; exclusão protegida em uso, inativação para próximos usos.\n- Ação: manter catálogo único, opções atuais na edição e padrão; revisar modal/rápido.",
+      "acoes_executadas": [
+        "modal e cadastro auxiliar refinados",
+        "padrão, inativação e proteção por uso preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C04",
+      "titulo": "Servidores (`cadastros.Servidor`)",
+      "modelo_inicial": "cadastros.Servidor",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c04",
+      "levantamento": "- Fonte: nome, CPF, RG, cargo, unidade, telefone, ativo; CPF normalizado e único quando informado. Escopo global vigente. Conta `Usuario` não é este cadastro.\n- Acesso: `cadastros.*_servidor`; leitura em buscas de Viagens também depende de policies de Viagens; Eventos consome nomes de motoristas em solicitações próprias sem abrir manutenção administrativa.\n- Superfícies: `/cadastros/servidores/`, lista paginada 25, abas/filtros e diálogo; `/cadastros/servidores/<pk>/dialogo/`; `/cadastros/api/servidores/` (15 resultados); `/viagens/api/servidores/`; rápido no Ofício/equipe, Termo, OS e lote da Viagem. Seletores em assinatura/substituição, planos/coordenadores, motoristas de Eventos, Palestrante e motoristas habituais da Viatura.\n- Duplicações: Palestrante já tem FK opcional ao servidor, além de contato/lotação contextual; integrantes ASCOM podem ser parceiros externos. Não fundir automaticamente por nome.\n- Histórico/ação: preservar PROTECT em documentos e instantâneos; manter ativo selecionado fora da página e inativo já vinculado. Custo concreto: selects inteiros em assinatura, Eventos/Palestrante; paginação da lista já existe. Preparar acesso canônico reutilizável e origem externa.",
+      "acoes_executadas": [
+        "nome e cargo em linhas próprias",
+        "modais auxiliares suspendem e retomam origem",
+        "fonte local e identidade externa preparada",
+        "busca limitada contextual em assinantes, palestrantes e motoristas de Eventos"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C05",
+      "titulo": "Viaturas (`cadastros.Viatura`)",
+      "modelo_inicial": "cadastros.Viatura",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c05",
+      "levantamento": "- Fonte: placa normalizada única, modelo, combustível, tipo, porte, unidade, motoristas M2M, ativo; global; `cadastros.*_viatura`.\n- Superfícies: `/cadastros/viaturas/`, lista 25 + modal; `/cadastros/viaturas/<pk>/dialogo/`; rápidos em Ofício, Termo, OS e lote; seleção de transporte nos fluxos de Viagens, diário de bordo/prestação.\n- Duplicações: `eventos.UnidadeMovel` é denominação de equipe/recurso designado, não necessariamente veículo com placa; `imprensa.Veiculo` é empresa jornalística. Não fundir.\n- Histórico/ação: manter IDs, motoristas e dados consolidados do documento; preparar vínculo externo. Lista já faz `select_related` e `prefetch_related`, seletores de todos os ativos ainda crescem com a frota.",
+      "acoes_executadas": [
+        "modal proporcional e ações acessíveis",
+        "busca de motoristas e vínculos preservados",
+        "fonte local e identidade externa preparada"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C06",
+      "titulo": "Municípios (`cadastros.Municipio`)",
+      "modelo_inicial": "cadastros.Municipio",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "revisado, preservado e validado pelos consumidores em LAB",
+      "evidencia_inicial": "inventario.md#c06",
+      "levantamento": "- Fonte oficial local CSV/IBGE e coordenadas; código IBGE único, nome/UF/latitude/longitude. Sem CRUD na UI.\n- Acesso/uso: `/cadastros/api/municipios/` (12 resultados, prefixo sem acentos, Paraná primeiro, filtro UF), `CampoMunicipio` reutilizado por sede, roteiros, documentos, Eventos, Coffee, Palestras e endereços.\n- Histórico: FKs PROTECT e textos de localidades nos instantâneos. Não recriar a cidade por variação de acento; identidade é IBGE.\n- Ação: preservar fonte oficial e contratos dos autocompletes; validar selecionado fora dos resultados. Tratar UF/região como atributos/filtros, não inventar modelos de região/estado ausentes.",
+      "acoes_executadas": [
+        "fonte oficial e identidade IBGE preservadas",
+        "consumidores de municípios exercitados sem nova tabela duplicada"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C07",
+      "titulo": "Tabela de diárias (`cadastros.TabelaDiaria`)",
+      "modelo_inicial": "cadastros.TabelaDiaria",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c07",
+      "levantamento": "- Fonte: faixa, vigência, valor 24h e norma; 15%/30% derivados; único faixa/vigência; global. Consulta operador/gestor, manutenção gestor.\n- Superfícies: `/cadastros/diarias/`, lista de vigências + modal; cálculo do Ofício/Roteiro/Prestação.\n- Histórico/ação: instantâneo do cálculo preserva valores passados. Lista inteira é proporcional ao pequeno catálogo de vigências; não alegar gargalo sem medida. Revisar modal, valores/percentuais e erro; impedir alteração dos cálculos consolidados.",
+      "acoes_executadas": [
+        "modal de vigência refinado",
+        "prévia e regras de valores preservadas"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C08",
+      "titulo": "Lotação (`cadastros.Lotacao`)",
+      "modelo_inicial": "cadastros.Lotacao",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c08",
+      "levantamento": "- Fonte: relação 1:1 Usuario → Unidade; não é lotação da pessoa Servidor. Escopo por vínculo.\n- Superfície/manutenção: embutida em `/cadastros/usuarios/`; `views_usuarios.salvar_usuario` altera conta e lotação em transação. Policies de Identidade administram a conta; usa unidade ativa ou atual.\n- Uso/histórico: define visibilidade/criação dos documentos; alterações não devem mover documentos antigos de unidade. Sem página própria.\n- Ação: preservar distinção conta/pessoa/vínculo e autorização; validar usuário sem lotação, unidade inativa e troca de unidade.",
+      "acoes_executadas": [
+        "vínculo incorporado ao formulário de usuário revisado",
+        "conta, servidor e lotação mantidos distintos"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C09",
+      "titulo": "Textos prontos (`cadastros.ModeloTexto`)",
+      "modelo_inicial": "cadastros.ModeloTexto",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c09",
+      "levantamento": "- Fonte: tipo, nome, texto, ordem, ativo, padrão/sistema; catálogo global. Tipos: motivo, justificativa, trecho do ofício e cinco campos RT.\n- Superfícies: `/cadastros/textos-prontos/` (três abas visíveis de Ofício); modal novo/editar; `dialogo_guardar_texto.html`; seletores no Ofício/Justificativa e relatórios técnicos da Prestação. RT tem pontos próprios de consumo que não aparecem nas três abas da tela central.\n- Acesso: `pode_gerir_textos`; padrão/sistema só gestor; sistema nunca excluído; padrão único/ativo por tipo.\n- Histórico/ação: inserir copia texto no documento; editar modelo não deve reescrever texto consolidado. Revisar texto longo/modal e cobertura dos tipos RT; lista atual sem paginação, medir proporcionalmente.",
+      "acoes_executadas": [
+        "modal de criação/edição refinado",
+        "tipos, padrão e conteúdo preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C10",
+      "titulo": "Dados da unidade (`cadastros.ConfiguracaoInstitucional`)",
+      "modelo_inicial": "cadastros.ConfiguracaoInstitucional",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c10",
+      "levantamento": "- Fonte: 1:1 Unidade; cabeçalho, sede, endereço/contatos, rodapé substitutivo, chefia, destinatário, prazo, Delegado-Geral, assinantes de Ofício/Justificativa/PT, coordenador e sufixo do Plano.\n- Escopo/acesso: por unidade; `pode_ver_configuracao`, `pode_alterar_configuracao`; própria lotação ou `ver_todas_unidades`. `unidades_configuraveis` restringe seletor e `_configuracao_pedida` rejeita ID fora do conjunto.\n- Superfície inicial `/cadastros/configuracao/`; página + seletor de unidade + assinantes + substituições. Menu inicial em Viagens/Cadastros; solicitação do usuário determina nova entrada imediatamente abaixo de Alterar senha, com compatibilidade da rota antiga.\n- Duplicações/histórico: mestre Unidade continua separado dos complementos; rodapé textual tem precedência explícita ao endereço montado. Coffee tem configuração de natureza contratual/GAF própria, não configurável por unidade hoje.\n- Ação: reorganizar navegação, título, grupos e contexto; buscar servidores remotamente, preservar inativos atuais e snapshots. Seleção de assinante não concede conta/permissão/assinatura digital.",
+      "acoes_executadas": [
+        "Dados da unidade no menu após Alterar senha",
+        "grupos institucionais e contexto explícito",
+        "busca contextual de assinantes e autorização de backend"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "unidade.md",
+        "unidade-consulta-e2e.log",
+        "unidade-evidencias.log"
+      ]
+    },
+    {
+      "id": "C11",
+      "titulo": "Substituições de assinantes (`cadastros.SubstituicaoAssinante`)",
+      "modelo_inicial": "cadastros.SubstituicaoAssinante",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c11",
+      "levantamento": "- Fonte: Configuração, Servidor, tipo documental (todos/ofício/justificativa/PT), início/fim, motivo e ativo. Por vínculo da unidade, sem login novo.\n- Superfície: lista e modal em C10; salvar e encerrar/reativar por endpoints sob `/cadastros/configuracao/substituicoes/`; seleção de servidor completa atualmente.\n- Acesso: serviço valida configuração da unidade e o ID da substituição; não basta esconder botão. Datas devem ser ordenadas; conflitos são regra do serviço.\n- Histórico/ação: `quem_assina` resolve pela data do documento; emissão guarda dados. Validar IDs de outra unidade, períodos sobrepostos e encerramento sem alterar PDFs antigos; ampliar conforto do modal.",
+      "acoes_executadas": [
+        "modal de substituição e calendário revisados",
+        "busca limitada mantém vínculo atual",
+        "períodos e escopo da unidade protegidos"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "unidade.md",
+        "unidade-consulta-e2e.log",
+        "unidade-evidencias.log"
+      ]
+    },
+    {
+      "id": "C12",
+      "titulo": "Tipos de viagem (`cadastros.TipoViagem`)",
+      "modelo_inicial": "cadastros.TipoViagem",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c12",
+      "levantamento": "- Fonte: nome, motivo, tipo OS, ativo; global; `cadastros.*_tipoviagem`.\n- Superfícies: `/cadastros/tipos-de-viagem/`, lista/modal; Viagem com múltiplos tipos; criação contextual de OS usa código tipo OS fixo.\n- Histórico/ação: preservar códigos e textos copiados; tipo não se confunde com TipoEvento. Refinar motivo longo e seleção múltipla.",
+      "acoes_executadas": [
+        "modal refinado sem alterar modelos e funções de OS"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C13",
+      "titulo": "Programas solicitantes (`cadastros.ProgramaSolicitante`)",
+      "modelo_inicial": "cadastros.ProgramaSolicitante",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c13",
+      "levantamento": "- Fonte: nome/ativo; global; `cadastros.*_programasolicitante`.\n- Superfícies: `/cadastros/programas/`, lista/modal; Plano e eventos de plano (seletor de programas).\n- Histórico/ação: contexto de quem pede a ação não equivale automaticamente a OrgaoResponsavel. Preservar IDs, nomes/textos consolidados, registros inativos selecionados e largura de nome longo.",
+      "acoes_executadas": [
+        "modal refinado e rótulos contextuais preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C14",
+      "titulo": "Horários de atendimento (`cadastros.HorarioAtendimento`)",
+      "modelo_inicial": "cadastros.HorarioAtendimento",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c14",
+      "levantamento": "- Fonte: nome textual da faixa e ativo; global; `cadastros.*_horarioatendimento`.\n- Superfícies: `/cadastros/horarios/`, lista/modal; rápido `dialogo_horario.html` no modal do evento do Plano.\n- Histórico: Plano guarda texto da faixa, não ID; rápido retorna `nome`, não PK. Ação: preservar esta semântica, dados do formulário de origem e foco; revisar campos/validação do período.",
+      "acoes_executadas": [
+        "modal refinado e cadastro auxiliar do evento preserva origem"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C15",
+      "titulo": "Atividades do plano (`cadastros.AtividadePlano`)",
+      "modelo_inicial": "cadastros.AtividadePlano",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c15",
+      "levantamento": "- Fonte: código único, nome, meta, recurso, ativo; global; `cadastros.*_atividadeplano`.\n- Superfícies: `/cadastros/atividades/`, lista/modal; seleção Plano/EventoPlano; Conjuntos de atividades; resultados por atividade.\n- Duplicação **confirmada por decisão de produto**: `eventos.Servico`. Igualdade de nome isolada não autoriza fusão de registros individuais. Código UNIDADE_MOVEL possui comportamento documental.\n- Histórico/ação: manter código, meta e recurso nos instantâneos; identidade canônica compartilhada com mapeamento legado e preservação dos casos ambíguos. Quantidade/observação/resultado são do uso no processo.",
+      "acoes_executadas": [
+        "identidade canônica AtividadePlano preservada",
+        "Atividades e serviços atende Plano e Eventos",
+        "migração conservadora e histórico por uso preservados",
+        "contagens de conjuntos, planos e solicitações sem multiplicação por joins"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "catalogo.md",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C16",
+      "titulo": "Conjuntos de atividades (`cadastros.PresetAtividades`)",
+      "modelo_inicial": "cadastros.PresetAtividades",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c16",
+      "levantamento": "- Fonte: nome, descrição, ativo, padrão e atividades M2M; global; `cadastros.*_presetatividades`.\n- Superfícies: `/cadastros/conjuntos/`, lista/modal; aplicado no Plano novo; único padrão ativo.\n- Histórico/ação: conjunto é atalho, não nova identidade das atividades. Preservar M2M na unificação, padrão e instantâneos; revisar seleção com muitas atividades e textos longos.",
+      "acoes_executadas": [
+        "seleção de atividades canônicas",
+        "modal rolável com ações acessíveis"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C17",
+      "titulo": "Usuários (`identidade.Usuario`)",
+      "modelo_inicial": "identidade.Usuario",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c17",
+      "levantamento": "- Fonte: nome, login/e-mail únicos, senha, is_active/deve_trocar_senha; papéis Django Group sincronizados do código.\n- Superfícies: `/cadastros/usuarios/`, lista paginada 25 + modal; unidade via C08; rápido Unidade. Permissões `identidade/policies.py`, incluindo proteção da própria conta e privilégios.\n- Duplicação/histórico: conta não deve fundir com servidor/assinante. Auditoria preserva responsável pelas operações.\n- Ação: refinar modal amplo, instruções de papéis/senha, erro com valores preservados, sem alterar a cadeia de privilégios.",
+      "acoes_executadas": [
+        "modal de usuário refinado",
+        "perfis e lotação preservados sem confundir conta com servidor"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C18",
+      "titulo": "Tipos de evento (`eventos.TipoEvento`, `tipos-evento`)",
+      "modelo_inicial": "eventos.TipoEvento",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c18",
+      "levantamento": "- Uso: Solicitação; página adicional `/eventos/cadastros/tipos-evento/<pk>/modelo/` mantém solicitante/cargo/órgão padrão, serviços sugeridos M2M e equipes com quantidade (`TipoEventoEquipe`).\n- Duplicações: não é TipoViagem. Nome do solicitante/cargo padrão é preenchimento contextual, não pessoa/usuário.\n- Histórico/ação: preservar modelo e serviços canônicos; ampliar conforto da edição/modelo; filtros e valores digitados com erro precisam continuar consistentes.",
+      "acoes_executadas": [
+        "cabeçalho e edição incorporada refinados",
+        "erros associados aos campos e cancelamento explícito",
+        "modelo de tipo usa catálogo canônico"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C19",
+      "titulo": "Serviços (`eventos.Servico`, `servicos`)",
+      "modelo_inicial": "eventos.Servico",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c19",
+      "levantamento": "- Uso: `SolicitacaoServico` (serviço + observação por solicitação), modelo do TipoEvento e geração de viagem a partir do evento.\n- Duplicação: C15 obrigatoriamente. `SolicitacaoServico` PROTECT mantém vínculo, mas nome consultado em tela vem do cadastro atual.\n- Ação: migrar FKs/M2M ao catálogo comum, preservar identidade/observação, manutenção compatível de permissões Eventos; congelar rótulo no uso consolidado onde necessário e validar edição/inativação.",
+      "acoes_executadas": [
+        "Servico contextual tornou-se proxy do catálogo comum",
+        "permissões antigas e mapas de origem preservados",
+        "snapshot do nome histórico também na folha/CSV",
+        "contagens de conjuntos, planos e solicitações sem multiplicação por joins"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "catalogo.md",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C20",
+      "titulo": "Equipes (`eventos.Equipe`, `equipes`)",
+      "modelo_inicial": "eventos.Equipe",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c20",
+      "levantamento": "- Uso: modelo TipoEventoEquipe e SolicitacaoEquipe; quantidade solicitada/ajustada é do uso e não do catálogo.\n- Duplicação: equipe é grupo/recurso coletivo, não Servidor ou integrante ASCOM.\n- Ação: manter identidade e particularidades, revisar nome longo e quantidades/erros sem invalidar histórico.",
+      "acoes_executadas": [
+        "hierarquia e formulário incorporado refinados",
+        "validação de identificador e erro de campo"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C21",
+      "titulo": "Órgãos responsáveis (`eventos.OrgaoResponsavel`, `orgaos`)",
+      "modelo_inicial": "eventos.OrgaoResponsavel",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c21",
+      "levantamento": "- Uso: modelo TipoEvento e Solicitação. Escopo domínio, global dentro dele.\n- Duplicação: possível interseção textual com Unidade/Programa, sem equivalência comprovada. Não fundir.\n- Ação: manter fonte, PROTECT quando aplicável, revisar nomes longos, inativos atuais e filtros.",
+      "acoes_executadas": [
+        "hierarquia e formulário incorporado refinados",
+        "escopo e identidade próprios preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C22",
+      "titulo": "Unidades móveis (`eventos.UnidadeMovel`, `unidades-moveis`)",
+      "modelo_inicial": "eventos.UnidadeMovel",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c22",
+      "levantamento": "- Uso: recurso designado na Solicitação (`unidade_movel_designada`), separado do booleano de atendimento por unidade móvel.\n- Duplicação: possível associação futura com Viatura exige placa/identificador e regras; nome sozinho insuficiente.\n- Ação: manter entidade de domínio, preservar vínculo/ativo e revisar seletor longo.",
+      "acoes_executadas": [
+        "hierarquia e formulário incorporado refinados",
+        "recurso móvel contextual mantido distinto da viatura"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C23",
+      "titulo": "Textos prontos do despacho (`eventos.TextoDespacho`, `textos-despacho`)",
+      "modelo_inicial": "eventos.TextoDespacho",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c23",
+      "levantamento": "- Uso: modal/ação Despachar da Solicitação. Fonte nome/texto/ativo; DG e ADMIN mantêm.\n- Duplicação: finalidade e permissão diferentes de ModeloTexto/RespostaPadrao. Compartilhar componente, não unir dados indiscriminadamente.\n- Histórico/ação: despacho registrado como movimento/texto próprio; modelo editado não deve reescrever despacho anterior. Refinar área de texto e validação.",
+      "acoes_executadas": [
+        "hierarquia e formulário incorporado refinados",
+        "texto de despacho e restrição à DG preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C24",
+      "titulo": "Fornecedores (`coffee.Fornecedor`)",
+      "modelo_inicial": "coffee.Fornecedor",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c24",
+      "levantamento": "- `/coffee/cadastros/fornecedores/`: lista/modal; razão social, nome curto, CNPJ, contato/telefone/e-mail/portal certidão; CNPJ normalizado único quando informado.\n- Uso: contratos, pedidos/documentos, certidões e entregas; não equivale a órgão/unidade.\n- Histórico/ação: contrato protege fornecedor e PDFs/vias preservam emissão. Manter complementos locais; revisar formulário longo de contato e CNPJ.",
+      "acoes_executadas": [
+        "cabeçalho e modal refinados",
+        "grupos e mensagens de seleção em português"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C25",
+      "titulo": "Contratos (`coffee.Contrato`)",
+      "modelo_inicial": "coffee.Contrato",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c25",
+      "levantamento": "- `/coffee/cadastros/contratos/`: lista/modal, anexo PDF; fornecedor, número/GMS, objeto, vigência, valor/quantidades, antecedência, fiscal/cargo e observações.\n- Uso: aditivos, lotes, financeiro/documentos; fiscal é texto contratual, não substituir automaticamente pelo cargo atual de um servidor.\n- Histórico/ação: vigência efetiva considera aditivos, PROTECT em lotes; documentos arquivados não mudam. Modal extenso precisa largura/seções e actions acessíveis.",
+      "acoes_executadas": [
+        "modal amplo com seções e corpo rolável",
+        "espaçamento e antecedência legível",
+        "documento financeiro e vínculos preservados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C26",
+      "titulo": "Termos aditivos (`coffee.TermoAditivo`)",
+      "modelo_inicial": "coffee.TermoAditivo",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c26",
+      "levantamento": "- `/coffee/cadastros/aditivos/`: lista/modal + PDF; contrato, número, datas, arquivo.\n- Uso: vigência de contrato e verificação do pedido. Preservar todos os aditivos; não sobrescrever o contrato como se fosse novo.\n- Ação: revisar seleção de contrato/fornecedor, calendário, arquivo, conflito de versão e validação.",
+      "acoes_executadas": [
+        "modal refinado e contrato canônico preservado",
+        "IDs malformados recusados"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C27",
+      "titulo": "Lotes (`coffee.Lote`)",
+      "modelo_inicial": "coffee.Lote",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c27",
+      "levantamento": "- `/coffee/cadastros/lotes/`: lista/modal; contrato, número/exercício, quantidade, ativo, empenho, municípios M2M, orientações/especificações/observações.\n- `/coffee/lotes/`, virada de exercício, lote do município e pedidos consomem o mesmo registro; saldo é derivado do consumo.\n- Histórico/ação: lote não é cópia do fornecedor; preservar municípios/saldo/exercício e não órfãos; revisar seleção de municípios e modal extenso.",
+      "acoes_executadas": [
+        "modal de lote organizado por assunto",
+        "identidade de fornecedor/contrato mantida"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C28",
+      "titulo": "Ofício e protocolo (`coffee.ConfiguracaoOficio`)",
+      "modelo_inicial": "coffee.ConfiguracaoOficio",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c28",
+      "levantamento": "- `/coffee/cadastros/oficio/`: formulário próprio, registro singleton; vocativo/assinante/cargo, protocolo, destinatário, e-mails e modelos de assunto/mensagem.\n- Escopo domínio global, não por unidade; não existe FK unidade. Não vincular silenciosamente à unidade corrente de Viagens.\n- Duplicação: assinante textual tem interseção conceitual, mas autoria/finalidade GAF e contrato não comprovam equivalência com chefia da unidade. Manter e documentar limites.\n- Histórico/ação: novas vias usam configuração atual, antigas ficam arquivadas; revisar grupos e texto longo; preparação externa deve tratar estes dados como complemento local.",
+      "acoes_executadas": [
+        "cabeçalho e campos extensos refinados",
+        "configuração financeira própria mantida após investigação"
+      ],
+      "evidencias_finais": [
+        "relatorio.md",
+        "evidencias.md",
+        "verificar.log",
+        "ui-fluxos.log",
+        "consumidores-e2e.log",
+        "ui-consolidado.log"
+      ]
+    },
+    {
+      "id": "C29",
+      "titulo": "Palestrantes (`palestras.Palestrante`)",
+      "modelo_inicial": "palestras.Palestrante",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c29",
+      "levantamento": "- `/palestras/cadastros/palestrantes/`; nome, servidor opcional, município, divisão, lotação textual, contato/e-mail, tema de abordagem. Único nome+lotação, não apenas nome.\n- Uso: Palestra M2M, andamento, autocomplete `/palestras/api/palestrantes/` e conflito de agenda via servidor vinculado.\n- Histórico: exclusão recusada em uso; FK servidor SET_NULL não deve apagar identidade contextual. Inativo servidor já vinculado atualmente fica fora do queryset do formulário: **risco concreto de edição recusada/perda de vínculo**, corrigir.\n- Desempenho: lista inteira e formulário completo de edição por registro, cada um com select de todos os servidores. Ação: busca/paginação, apenas formulário solicitado, join município/servidor; preservar progressive enhancement, erros e identificação do atual.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página",
+        "SelecaoRemota e fonte_local canônica",
+        "endpoint Palestras autorizado pelo próprio formulário e limitado a 15 ativos",
+        "servidor atual renderizado fora da busca e preservado após inativação"
+      ]
+    },
+    {
+      "id": "C30",
+      "titulo": "Temas (`palestras.Tema`)",
+      "modelo_inicial": "palestras.Tema",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c30",
+      "levantamento": "- `/palestras/cadastros/temas/`; nome único sem caixa; seleção nas Palestras. Sem campo ativo no modelo atual.\n- Histórico/ação: PROTECT do tema utilizado, não inventar inativação sem regra; adicionar busca/paginação e mensagens acessíveis, validar edição/exclusão.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    },
+    {
+      "id": "C31",
+      "titulo": "Respostas padrão (`palestras.RespostaPadrao`)",
+      "modelo_inicial": "palestras.RespostaPadrao",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c31",
+      "levantamento": "- `/palestras/cadastros/respostas/`; tipo/mensagem, marcadores; seletor no responder da Palestra.\n- Histórico: `RespostaEnviada` guarda texto enviado; editar modelo afeta usos futuros. Não fundir com textos de despacho/viagem.\n- Ação: busca/paginação e formulário confortável de mensagem/erros; validar marcadores e preservação de valores.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    },
+    {
+      "id": "C32",
+      "titulo": "Equipe de atendimento (`imprensa.Integrante`)",
+      "modelo_inicial": "imprensa.Integrante",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c32",
+      "levantamento": "- `/imprensa/cadastros/equipe/`; nome curto único sem caixa, sem ativo; responsável dos atendimentos.\n- Duplicação: integrante pode ser parceiro; nome não prova correspondência a Usuario/Servidor ou integrante de Publicações.\n- Histórico/ação: FK PROTECT em uso; renomeação muda rótulo atual, sem recriar histórico; busca/paginação e cancelamento/erro claros.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    },
+    {
+      "id": "C33",
+      "titulo": "Veículos de imprensa (`imprensa.Veiculo`)",
+      "modelo_inicial": "imprensa.Veiculo",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c33",
+      "levantamento": "- `/imprensa/cadastros/veiculos/`; nome único sem caixa; Atendimento seleciona ou cria pelo campo **Outro veículo**, em serviço autorizado por `add_veiculo`.\n- Duplicação: veículo jornalístico não é Viatura. O rápido textual deve manter dados da folha e reutilizar único nome normalizado.\n- Histórico/ação: PROTECT em uso; buscar/paginar lista, validar cadastro rápido, edição e erro.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    },
+    {
+      "id": "C34",
+      "titulo": "Equipe de comunicação (`publicacoes.Integrante`)",
+      "modelo_inicial": "publicacoes.Integrante",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c34",
+      "levantamento": "- `/publicacoes/cadastros/equipe/`; nome curto único sem caixa, sem ativo; jornalista/redação/edição/revisão nas pautas.\n- Duplicação: equipe inclui parceiros SESP/AEN; não fundir automaticamente com pessoa/conta/equipe Imprensa.\n- Histórico/ação: PROTECT por pauta; implementar busca/paginação e layout/erro no arquétipo.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    },
+    {
+      "id": "C35",
+      "titulo": "Unidades responsáveis (`publicacoes.UnidadeResponsavel`)",
+      "modelo_inicial": "publicacoes.UnidadeResponsavel",
+      "estado_inicial": "inventariado por código",
+      "estado_final": "implementado e validado em LAB; interface 360/1440 conforme evidências do item",
+      "evidencia_inicial": "inventario.md#c35",
+      "levantamento": "- `/publicacoes/cadastros/unidades/`; nome editorial único; pauta permite **Outra unidade** com permissão `add_unidaderesponsavel`.\n- Duplicação potencial com C01, mas o próprio modelo documenta vocabulário da ASCOM independente da lotação. Exige mapeamento comprovado/identificador antes de unificar; manter separados nesta missão.\n- Histórico/ação: PROTECT em pauta, preservar rótulo de domínio; busca/paginação, validar rápido textual sem perder origem.",
+      "evidencias_finais": [
+        "ascom-validacao.md",
+        "ascom-unitarios.xml",
+        "ascom-mobile.xml",
+        "ascom-palestrante-desktop.xml",
+        "ascom-capturas/cobertura-360.json",
+        "ascom-capturas/cobertura-1440.json"
+      ],
+      "acoes_executadas": [
+        "busca e paginação de 25",
+        "hierarquia visual e campos confortáveis",
+        "edição e cancelamento com valores preservados",
+        "IDs malformados recusados sem erro interno",
+        "contagem de usos no PostgreSQL para a página"
+      ]
+    }
+  ],
+  "validacao_integrada": {
+    "comando": "bash scripts/verificar.sh",
+    "ambiente": "LAB Docker/Linux; snapshot isolado da missão",
+    "testes_aprovados": 2816,
+    "avisos": 5,
+    "saida": 0,
+    "log": "verificar.log",
+    "manifesto": "snapshot-linux.json"
+  }
+}

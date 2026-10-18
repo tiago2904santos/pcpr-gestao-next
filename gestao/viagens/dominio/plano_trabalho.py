@@ -68,6 +68,7 @@ class DadosPlano:
     diarias_total: Decimal | None = None
     tem_deslocamento: bool = False  # saída e chegada na sede informadas
     tem_atividades: bool = False
+    atividades_sem_meta: list[str] = field(default_factory=list)
     # Eventos adicionais (o 1 são os campos do plano): (número, tem destino, tem data) —
     # ou um EventoExtra, que também diz do efetivo e das diárias do evento.
     eventos_extras: list[tuple[int, bool, bool] | EventoExtra] = field(default_factory=list)
@@ -305,6 +306,11 @@ def avisos(d: DadosPlano) -> list[Pendencia]:
     if not d.tem_atividades:
         saida.append(Pendencia("Nenhuma atividade marcada: atividades, metas e recursos saem "
                                "em branco.", "atividades", "Sem atividades"))
+    elif d.atividades_sem_meta:
+        nomes = ", ".join(dict.fromkeys(d.atividades_sem_meta))
+        saida.append(Pendencia(
+            f"Sem meta cadastrada para: {nomes}. Complete a meta em Atividades e serviços "
+            "para incluí-la nos próximos planos.", "atividades", "Atividades sem meta"))
     return saida
 
 

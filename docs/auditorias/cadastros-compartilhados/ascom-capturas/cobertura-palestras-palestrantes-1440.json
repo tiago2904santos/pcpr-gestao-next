@@ -1,0 +1,14 @@
+[
+  {
+    "rota": "/palestras/cadastros/palestrantes/",
+    "largura": 1440,
+    "criar": true,
+    "editar": true,
+    "validar": true,
+    "cancelar": true,
+    "teclado": true,
+    "busca": true,
+    "paginacao": true,
+    "axe_violacoes": 0
+  }
+]

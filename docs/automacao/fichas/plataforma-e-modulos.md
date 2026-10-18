@@ -1,5 +1,11 @@
 # Fichas de automação — plataforma, operação e demais módulos
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Fase 2 · 17/10/2026. Fichas implementáveis dos **84 itens** da [matriz](../matriz-oportunidades.md) cujo
 grupo é "plataforma e módulos" (AUT-88 a AUT-171, exceto os itens dos outros dois grupos). Base obrigatória:
 [arquitetura](../arquitetura.md), [contratos](../contratos/), [plano de implantação](../plano-implantacao.md)

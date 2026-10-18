@@ -23,6 +23,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros.fontes import fonte_local
+
 from . import (
     conflitos,
     dominio,
@@ -147,6 +149,22 @@ def buscar_palestrantes(request: HttpRequest) -> JsonResponse:
 
 
 # ------------------------------------------------------------------ folha
+@require_GET
+def buscar_servidores(request: HttpRequest) -> JsonResponse:
+    """Mesma consulta institucional do formulário, com autorização de Palestras."""
+    _exigir(policies.pode_gerir_cadastros(request.user))
+    termo = " ".join((request.GET.get("q") or "").split())[:100]
+    consulta = fonte_local.consultar("servidor")
+    if termo:
+        consulta = consulta.filter(Q(nome__unaccent__icontains=termo)
+                                   | Q(cargo__nome__unaccent__icontains=termo)
+                                   | Q(unidade__nome__unaccent__icontains=termo)
+                                   | Q(unidade__sigla__unaccent__icontains=termo))
+    return JsonResponse({"resultados": [
+        {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao}
+        for s in consulta.order_by("nome", "pk")[:15]]})
+
+
 def _primeiro_erro(form) -> str:
     for nome, erros in form.errors.items():
         rotulo = form.fields[nome].label if nome in form.fields else ""
@@ -345,20 +363,33 @@ CADASTROS = {
 
 def _cadastro(request: HttpRequest, tipo: str) -> HttpResponse:
     _exigir(policies.pode_gerir_cadastros(request.user))
-    titulo, icone, url = CADASTROS[tipo]
+    titulo, icone, _url = CADASTROS[tipo]
     modelo: Any = {"temas": Tema, "palestrantes": Palestrante, "respostas": RespostaPadrao}[tipo]
     erro, editando = "", None
     form = FormularioPalestrante() if tipo == "palestrantes" else None
     editado: FormularioPalestrante | None = None
     valores: dict[str, str] = {}
+    if tipo == "palestrantes" and request.method == "GET" and request.GET.get("editar"):
+        pedido = request.GET["editar"]
+        if not pedido.isascii() or not pedido.isdecimal() or len(pedido) > 18:
+            raise Http404("Palestrante não encontrado.")
+        solicitada = get_object_or_404(Palestrante.objects.select_related("municipio"),
+                                      pk=int(pedido))
+        editando = solicitada.pk
+        editado = FormularioPalestrante(instance=solicitada, prefix=f"p{solicitada.pk}")
     if request.method == "POST":
         pk = request.POST.get("pk") or ""
-        pk_int = int(pk) if pk.isdigit() else None
+        if pk and (not pk.isascii() or not pk.isdecimal() or len(pk) > 18):
+            raise Http404("Cadastro não encontrado.")
+        pk_int = int(pk) if pk else None
         try:
             if request.POST.get("acao") == "excluir" and pk_int:
                 nome = services.excluir_cadastro(request.user, tipo, pk_int)
                 messages.success(request, f"“{nome}” excluído.")
-                return redirect(url)
+                parametros = request.GET.copy()
+                parametros.pop("editar", None)
+                return redirect(request.path + (f"?{parametros.urlencode()}"
+                                                if parametros else ""))
             if tipo == "temas":
                 services.salvar_tema(request.user, request.POST.get("nome", ""), pk_int)
             elif tipo == "respostas":
@@ -376,25 +407,48 @@ def _cadastro(request: HttpRequest, tipo: str) -> HttpResponse:
                     raise dominio.RegraViolada("Corrija os campos destacados.")
                 services.salvar_palestrante(request.user, enviado.cleaned_data, pk_int)
             messages.success(request, "Salvo.")
-            return redirect(url)
+            parametros = request.GET.copy()
+            parametros.pop("editar", None)
+            return redirect(request.path + (f"?{parametros.urlencode()}" if parametros else ""))
         except modelo.DoesNotExist as exc:
             raise Http404 from exc
         except dominio.RegraViolada as exc:
             erro, editando = str(exc), pk_int
             valores = {k: request.POST.get(k, "") for k in ("nome", "tipo", "mensagem")}
-    registros = list(modelo.objects.order_by("tipo" if tipo == "respostas" else "nome"))
-    usos = (services.usos_de_temas() if tipo == "temas"
-            else services.usos_de_palestrantes() if tipo == "palestrantes" else {})
+    q = " ".join((request.GET.get("q") or "").split())[:100]
+    consulta = modelo.objects.order_by("tipo" if tipo == "respostas" else "nome", "pk")
+    if q:
+        if tipo == "respostas":
+            consulta = consulta.filter(Q(tipo__unaccent__icontains=q)
+                                       | Q(mensagem__unaccent__icontains=q))
+        elif tipo == "palestrantes":
+            consulta = consulta.filter(Q(nome__unaccent__icontains=q)
+                                       | Q(lotacao__unaccent__icontains=q)
+                                       | Q(divisao__unaccent__icontains=q))
+        else:
+            consulta = consulta.filter(nome__unaccent__icontains=q)
+    if tipo == "palestrantes":
+        consulta = consulta.select_related("municipio", "servidor")
+    pagina = Paginator(consulta, POR_PAGINA).get_page(request.GET.get("pagina"))
+    registros = list(pagina.object_list)
+    ids = [r.pk for r in registros]
+    usos = (services.usos_de_temas(ids) if tipo == "temas"
+            else services.usos_de_palestrantes(ids) if tipo == "palestrantes" else {})
     for r in registros:
         r.usos = usos.get(r.pk, 0)
-        if tipo == "palestrantes":
-            r.form = (editado if editado is not None and editando == r.pk
-                      else FormularioPalestrante(instance=r, prefix=f"p{r.pk}"))
+        if tipo == "palestrantes" and editado is not None and editando == r.pk:
+            r.form = editado
+    parametros = request.GET.copy()
+    parametros.pop("editar", None)
+    voltar = request.path + (f"?{parametros.urlencode()}" if parametros else "")
     return render(request, "palestras/cadastro.html", {
         "tipo": tipo, "titulo": titulo, "icone": icone, "registros": registros, "erro": erro,
         "editando": editando, "valores": valores, "form": form,
         "outros": [(t, c) for t, c in CADASTROS.items() if t != tipo],
         "marcadores": dominio.MARCADORES,
+        "q": q, "page_obj": pagina, "voltar": voltar,
+        "edicao_query": urlencode({"q": q, "pagina": pagina.number}),
+        "querystring_base": f"{urlencode({'q': q})}&" if q else "",
         "migalhas": _migalhas((titulo, "")),
     })
 

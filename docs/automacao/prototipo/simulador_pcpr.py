@@ -27,6 +27,19 @@ Canal WhatsApp oficial (frente WA-3, só contra o simulador da Graph API `simula
 - `POST /recebimentos/sem-arquivo` (mensagem sem anexo; abre a janela);
 - variante V2: `GET|POST /canais/whatsapp/webhook` — o webhook da Meta entra direto no PCPR,
   que verifica `X-Hub-Signature-256`, registra e baixa a mídia pela Graph API (o n8n não vê).
+
+Ajustes da revisão do PR #23 (Codex):
+- o envelope `comunicacao.agendada` só leva campos do contrato (o antigo `rotulo` não-ASCII saiu;
+  o teste de UTF-8 usa um evento avulso válido, `POST /_sim/eventos`, e o modo de entrega
+  `assinatura_ascii`) — C2;
+- `POST /recebimentos` exige, como o contrato, `anexo_indice` e `total_anexos` e a chave
+  `receb:<canal>:<mensagem_id_canal>:<anexo_indice>`; campo ausente/inválido → 422 — C3;
+- `falha_temporaria` volta para `agendada` com backoff curto configurável (`/_sim/config`
+  `backoff_s`, `max_rodadas`); esgotadas as rodadas → `falhou` + exceção `limite_tentativas`
+  aberta pelo PCPR — C6;
+- `GET /comunicacoes?provedor_mensagem_id=` devolve só `{id, versao}` (operação do contrato) — C10;
+- deduplicação de recebimento por (servidor remetente resolvido, SHA-256), não global — C11;
+- falha injetável em `POST /recebimentos` (`falhar_recebimentos`: 503 não guardado) — C9.
 """
 
 from __future__ import annotations
@@ -85,7 +98,10 @@ MOTIVOS_EXCECAO = {
     "outro",
 }
 LIMITE_ARQUIVO = 25 * 1024 * 1024
-MAX_TENTATIVAS_PCPR = 3
+# Rodadas de envio (reservas) de uma comunicação com falha temporária no canal e espera entre
+# elas. Padrão "de produção" encurtado; os testes trocam por segundos em /_sim/config.
+MAX_RODADAS_PADRAO = 3
+BACKOFF_PADRAO_S = [120, 600]
 _ids = itertools.count(1)  # nunca reinicia: ids não se repetem entre cenários
 
 
@@ -139,11 +155,17 @@ class Estado:
             }
             self.desligar_apos_estado = False
             self.falhar_estado = 0
+            self.falhar_recebimentos = 0  # próximos N POST /recebimentos → 503 (não guardado)
+            self.max_rodadas = MAX_RODADAS_PADRAO
+            self.backoff_s = list(BACKOFF_PADRAO_S)
             self.viagens: dict[int, dict] = {}
             self.comunicacoes: dict[int, dict] = {}
             self.idem: dict[str, dict] = {}
             self.recebimentos: dict[int, dict] = {}
-            self.recebimento_por_sha: dict[str, int] = {}
+            # dedup do recebimento: (servidor remetente resolvido, SHA-256) → recebimento
+            self.recebimento_por_servidor_sha: dict[str, int] = {}
+            # "<canal>:<remetente>" → id do servidor (cadastro de contatos, sintético)
+            self.servidor_por_remetente: dict[str, int] = {}
             self.excecoes: list[dict] = []
             self.excecao_por_chave: dict[str, dict] = {}
             self.log: list[dict] = []
@@ -304,14 +326,20 @@ class Estado:
             }
             return 202, _publico_recebimento(self.recebimentos[rid])
         sha = hashlib.sha256(dados).hexdigest()
-        if sha in self.recebimento_por_sha:
-            original = self.recebimentos[self.recebimento_por_sha[sha]]
+        # Duplicado = o MESMO servidor já mandou estes bytes (por qualquer contato/mensagem). Dois
+        # servidores que devolvem o mesmo arquivo (ex.: formulário em branco idêntico) são dois
+        # recebimentos (C11; contrato: "mesmo SHA-256 no mesmo destino").
+        servidor = self.servidor_de(canal, remetente)
+        chave_dedup = f"{servidor}|{sha}"
+        if chave_dedup in self.recebimento_por_servidor_sha:
+            original = self.recebimentos[self.recebimento_por_servidor_sha[chave_dedup]]
             rid = next(_ids)
             self.recebimentos[rid] = {
                 "id": rid,
                 "estado": "duplicado",
                 "duplicado_de": original["id"],
                 "sha256": sha,
+                "servidor": servidor,
                 "campos": campos,
             }
             return 202, _publico_recebimento(self.recebimentos[rid])
@@ -325,6 +353,7 @@ class Estado:
             "estado": "quarentena_remetente" if quarentena else "aceito_para_processamento",
             "importacao_id": 100000 + rid,
             "sha256": sha,
+            "servidor": servidor,
             "tamanho": len(dados),
             "nome": nome,
             "tipo": tipo,
@@ -333,8 +362,14 @@ class Estado:
             "assinatura": "nao_verificada",
             "recebido_pela_api_em": agora_utc(),
         }
-        self.recebimento_por_sha[sha] = rid
+        self.recebimento_por_servidor_sha[chave_dedup] = rid
         return 202, _publico_recebimento(self.recebimentos[rid])
+
+    def servidor_de(self, canal: str, remetente: str) -> str:
+        """Servidor a quem o contato pertence (cadastro sintético em /_sim/remetentes). Contato
+        sem vínculo não é "resolvido": a deduplicação fica restrita ao próprio endereço."""
+        sid = self.servidor_por_remetente.get(f"{canal}:{remetente}")
+        return f"servidor:{sid}" if sid else f"nao_resolvido:{canal}:{remetente}"
 
     # ------------------------------------------------------------ negócio
     def _nova_viagem(self, inicio: datetime) -> dict:
@@ -432,10 +467,17 @@ class Estado:
                 "enviar_em": _iso_sp(c["enviar_em"]),
                 "imediato": c["imediato"],
                 "aviso": c["aviso"],
-                "rotulo": "véspera",  # não-ASCII de propósito (corpo bruto em UTF-8)
+                # Só campos do contrato ($defs/dados.comunicacao.agendada, additionalProperties
+                # false). O teste de UTF-8 no corpo bruto usa um evento avulso (POST /_sim/eventos).
             },
             causa,
         )
+
+    def evento_avulso(self, tipo: str, recurso: dict, correlacao: str, dados: dict) -> dict:
+        """Evento montado pelo teste (ex.: corpo com UTF-8 num campo do contrato); o teste valida
+        o envelope contra o esquema antes de entregá-lo."""
+        with self.trava:
+            return self._envelope(tipo, recurso, correlacao, dados)
 
     def confirmar_viagem(self, inicio: datetime, tipo: str) -> tuple[dict, dict, list[dict]]:
         with self.trava:
@@ -633,13 +675,21 @@ class Estado:
             segredo = b"segredo-errado-" + secrets.token_bytes(8)
         if modo == "outro_ambiente":  # assinado certo, mas declara outro ambiente
             corpo = corpo_json({**reg["envelope"], "ambiente": "producao"})
+        assinado = corpo
+        if modo == "assinatura_ascii":
+            # assina a MESMA informação re-serializada com escapes (é…), mas envia os bytes
+            # UTF-8: só passa se o n8n verificar uma re-serialização em vez do corpo bruto
+            assinado = json.dumps(reg["envelope"], ensure_ascii=True, separators=(",", ":")).encode(
+                "ascii"
+            )
         cabecalhos = {
             "Content-Type": "application/json; charset=utf-8",
             CABECALHO_EVENTO_ID: evento_id,
-            "X-PCPR-Correlacao": correlacao,
+            # cabeçalho HTTP é latin-1: a correlação vai com escapes (o corpo leva o texto real)
+            "X-PCPR-Correlacao": correlacao.encode("ascii", "backslashreplace").decode("ascii"),
         }
         if modo != "sem_assinatura":
-            cabecalhos[CABECALHO_ASSINATURA] = assinar(segredo, corpo, t)
+            cabecalhos[CABECALHO_ASSINATURA] = assinar(segredo, assinado, t)
         enviado = corpo + b" " if modo == "corpo_adulterado" else corpo  # JSON ainda válido
         inicio = time.time()
         entrega: dict[str, Any] = {"modo": modo, "em": inicio, "status": None, "erro": None}
@@ -1098,13 +1148,34 @@ class Manipulador(ManipuladorBase):
         c["provedor_mensagem_id"] = b.get("provedor_mensagem_id")
         if c["provedor_mensagem_id"]:  # wamid → comunicação (status chegam só com o wamid)
             est.com_por_wamid[c["provedor_mensagem_id"]] = c["id"]
+        c.setdefault("rodadas", []).append(
+            {"resultado": resultado, "erro": (b.get("erro") or "")[:300], "em": agora_utc()}
+        )
         if resultado == "enviada":
             c.update(estado="enviada", enviada_em=agora_utc())
-        elif resultado == "falha_temporaria" and c["tentativas"] < MAX_TENTATIVAS_PCPR:
+        elif resultado == "falha_temporaria" and c["tentativas"] < est.max_rodadas:
+            # o canal provou que NÃO aceitou: o PCPR reagenda (nova reserva na próxima rodada,
+            # pela reconciliação) com backoff; nada de laço dentro do n8n (C6)
+            espera = est.backoff_s[min(c["tentativas"], len(est.backoff_s)) - 1]
             c.update(
                 estado="agendada",
                 reserva=None,
-                enviar_em=agora_utc() + timedelta(minutes=2 ** c["tentativas"]),
+                enviar_em=agora_utc() + timedelta(seconds=espera),
+            )
+        elif resultado == "falha_temporaria":
+            # rodadas esgotadas: exceção humana no fim (o PCPR abre; o n8n não abre para temporária)
+            c.update(estado="falhou", motivo="limite_tentativas")
+            est._abrir_excecao(
+                chave=f"pcpr:limite-tentativas:{c['id']}",
+                corpo={
+                    "fluxo": "km-vespera",
+                    "correlacao_id": c["correlacao_id"],
+                    "motivo": "limite_tentativas",
+                    "detalhe": f"{c['tentativas']} rodadas de envio com falha temporária no "
+                    f"canal; última: {(b.get('erro') or '')[:200]}",
+                    "recurso": {"tipo": "comunicacao", "id": c["id"]},
+                },
+                origem="pcpr",
             )
         else:
             c.update(estado="falhou", motivo=b.get("erro") or resultado)
@@ -1132,15 +1203,20 @@ class Manipulador(ManipuladorBase):
         return 200, {"id": c["id"], "entrega": est.entrega_de(c) or r["entrega"]}, True
 
     def _por_mensagem_canal(self, qs: dict) -> None:
+        """`GET /comunicacoes?provedor_mensagem_id=` (contrato, C10): resposta mínima {id, versao},
+        sem destino nem conteúdo. Lista vazia = o resultado com esse id ainda não foi registrado
+        (o n8n responde não-2xx ao provedor para ele reentregar o status depois)."""
         wamid = (qs.get("provedor_mensagem_id") or [""])[0]
+        if not wamid or len(wamid) > 300:
+            return self._resp(
+                422,
+                {"codigo": "entrada_invalida", "mensagem": "provedor_mensagem_id obrigatório"},
+            )
         with self.estado.trava:
             cid = self.estado.com_por_wamid.get(wamid)
             c = self.estado.comunicacoes.get(cid) if cid else None
-            itens = (
-                [{"id": c["id"], "tipo": c["tipo"], "estado": c["estado"], "versao": c["versao"]}]
-                if c
-                else []
-            )
+            itens = [{"id": c["id"], "versao": c["versao"]}] if c else []
+        self._registro["encontrou"] = bool(itens)
         return self._resp(200, {"itens": itens})
 
     def _recebimento(self, corpo: bytes) -> tuple[int, Any, bool]:
@@ -1151,35 +1227,36 @@ class Manipulador(ManipuladorBase):
                 {"codigo": "entrada_invalida", "mensagem": "Acima de 25 MiB: use o portal."},
                 False,
             )
+        if est.falhar_recebimentos > 0:  # falha injetada (C9): nada gravado, nada guardado
+            est.falhar_recebimentos -= 1
+            return (
+                503,
+                {"codigo": "integracao_indisponivel", "mensagem": "falha simulada; repita"},
+                False,
+            )
         campos, arquivos = ler_multipart(self.headers.get("Content-Type", ""), corpo)
         recusa = self._recusa_canal_entrada(campos.get("canal", ""))
         if recusa:
             return recusa
-        faltando = [
-            k
-            for k in ("canal", "mensagem_id_canal", "remetente", "recebido_em", "sha256")
-            if not campos.get(k)
-        ]
+        obrigatorios = (
+            "canal",
+            "mensagem_id_canal",
+            "anexo_indice",
+            "total_anexos",
+            "remetente",
+            "recebido_em",
+            "sha256",
+        )
+        faltando = [k for k in obrigatorios if not campos.get(k)]
         if "arquivo" not in arquivos or faltando:
-            return (
-                400,
-                {
-                    "codigo": "entrada_invalida",
-                    "mensagem": f"Campos obrigatórios ausentes: {faltando or ['arquivo']}",
-                },
-                False,
-            )
+            return self._invalido(f"Campos obrigatórios ausentes: {faltando or ['arquivo']}")
+        problema = self._conferir_anexo(campos)
+        if problema:
+            return self._invalido(problema)
         dados = arquivos["arquivo"]["dados"]
         sha = hashlib.sha256(dados).hexdigest()
         if sha != campos["sha256"].lower():
-            return (
-                400,
-                {
-                    "codigo": "entrada_invalida",
-                    "mensagem": "SHA-256 informado não confere com o arquivo.",
-                },
-                False,
-            )
+            return self._invalido("SHA-256 informado não confere com o arquivo.")
         status, resposta = est.criar_recebimento(
             campos, dados, arquivos["arquivo"]["filename"], arquivos["arquivo"]["content_type"]
         )
@@ -1198,15 +1275,44 @@ class Manipulador(ManipuladorBase):
             return 423, {"codigo": "desligada", "mensagem": f"Canal {canal} desligado."}, False
         return None
 
+    def _invalido(self, mensagem: str) -> tuple[int, Any, bool]:
+        return 422, {"codigo": "entrada_invalida", "mensagem": mensagem}, False
+
+    def _conferir_anexo(self, campos: dict) -> str | None:
+        """Regras do contrato para `anexo_indice`/`total_anexos` e a chave de idempotência
+        `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` (10-6 E1; C3 do PR #23)."""
+        try:
+            indice = int(str(campos["anexo_indice"]))
+            total = int(str(campos["total_anexos"]))
+        except (KeyError, ValueError):
+            return "anexo_indice e total_anexos devem ser inteiros"
+        if indice < 0 or total < 1 or indice >= total:
+            return f"anexo_indice {indice} fora de 0..total_anexos-1 ({total})"
+        esperada = f"receb:{campos['canal']}:{campos['mensagem_id_canal']}:{indice}"
+        if self.headers.get("Idempotency-Key") != esperada:
+            return "Idempotency-Key deve ser receb:<canal>:<mensagem_id_canal>:<anexo_indice>"
+        return None
+
     def _recebimento_sem_arquivo(self) -> tuple[int, Any, bool]:
         b = self.corpo_dict()
         recusa = self._recusa_canal_entrada(str(b.get("canal", "")))
         if recusa:
             return recusa
-        obrigatorios = ("canal", "mensagem_id_canal", "remetente", "recebido_em", "motivo")
-        faltando = [k for k in obrigatorios if not b.get(k)]
+        obrigatorios = (
+            "canal",
+            "mensagem_id_canal",
+            "anexo_indice",
+            "total_anexos",
+            "remetente",
+            "recebido_em",
+            "motivo",
+        )
+        faltando = [k for k in obrigatorios if b.get(k) in (None, "")]
         if faltando or b.get("motivo") not in ("acima_do_limite", "sem_anexo", "nao_baixado"):
-            return 400, {"codigo": "entrada_invalida", "mensagem": f"faltando: {faltando}"}, False
+            return self._invalido(f"faltando: {faltando}")
+        problema = self._conferir_anexo(b)
+        if problema:
+            return self._invalido(problema)
         status, resposta = self.estado.criar_recebimento(
             {k: str(v) for k, v in b.items()}, None, None, None
         )
@@ -1450,7 +1556,28 @@ class Manipulador(ManipuladorBase):
             with est.trava:
                 if "lease_segundos" in b:
                     est.lease_s = int(b["lease_segundos"])
-            return self.responder(200, {"lease_segundos": est.lease_s})
+                if "backoff_s" in b:
+                    est.backoff_s = [float(x) for x in b["backoff_s"]] or list(BACKOFF_PADRAO_S)
+                if "max_rodadas" in b:
+                    est.max_rodadas = max(1, int(b["max_rodadas"]))
+                if "falhar_recebimentos" in b:
+                    est.falhar_recebimentos = int(b["falhar_recebimentos"])
+                atual = {
+                    "lease_segundos": est.lease_s,
+                    "backoff_s": est.backoff_s,
+                    "max_rodadas": est.max_rodadas,
+                    "falhar_recebimentos": est.falhar_recebimentos,
+                }
+            return self.responder(200, atual)
+        if caminho == "/_sim/remetentes":  # contato → servidor (dedup por servidor, C11)
+            with est.trava:
+                est.servidor_por_remetente[f"{b['canal']}:{b['remetente']}"] = int(b["servidor_id"])
+            return self.responder(200, {"servidor": est.servidor_de(b["canal"], b["remetente"])})
+        if caminho == "/_sim/eventos":  # evento avulso (teste de UTF-8 no corpo bruto)
+            ev = est.evento_avulso(
+                b["tipo"], b["recurso"], b["correlacao_id"], b.get("dados") or {}
+            )
+            return self.responder(200, {"id": ev["id"], "envelope": ev})
         if caminho == "/_sim/automacao":
             with est.trava:
                 if "ligada" in b:

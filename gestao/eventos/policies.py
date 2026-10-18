@@ -59,6 +59,12 @@ def pode_criar(usuario) -> bool:
     return _autenticado(usuario)
 
 
+def pode_buscar_motoristas(usuario, solicitacao=None) -> bool:
+    if solicitacao is None:
+        return pode_criar(usuario)
+    return pode_editar_dados(usuario, solicitacao) or pode_reabrir(usuario, solicitacao)
+
+
 def _responsavel(usuario, s) -> bool:
     return _autenticado(usuario) and (s.criado_por_id == usuario.pk or usuario.is_superuser)
 

@@ -16,6 +16,7 @@ urlpatterns = [
     path("pedidos/<int:pk>/encaminhar-dg/", views.encaminhar_dg, name="encaminhar_dg"),
     path("pedidos/<int:pk>/duplicar/", views.duplicar, name="duplicar"),
     path("api/palestrantes/", views.buscar_palestrantes, name="buscar_palestrantes"),
+    path("api/servidores/", views.buscar_servidores, name="buscar_servidores"),
     path("cadastros/palestrantes/", views.palestrantes, name="palestrantes"),
     path("cadastros/temas/", views.temas, name="temas"),
     path("cadastros/respostas/", views.respostas, name="respostas"),

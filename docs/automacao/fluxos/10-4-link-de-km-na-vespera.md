@@ -1,5 +1,11 @@
 # 10.4 — Link de quilometragem na véspera e lançamento por trecho no Diário de Bordo
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Desenho técnico de 17/10/2026, Fase 2 do plano de automação. Base:
 [`../arquitetura.md`](../arquitetura.md), [`../contratos/evento-integracao.schema.json`](../contratos/evento-integracao.schema.json)
 e [`../contratos/api-automacao.v1.yaml`](../contratos/api-automacao.v1.yaml).

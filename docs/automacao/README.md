@@ -18,14 +18,15 @@ local testado e um plano em etapas.
    viajantes não são usuários e não têm e-mail cadastrado. A etapa 1 do plano (API de automação v1,
    eventos de integração com worker de entregas, `Comunicacao`, `ContatoVerificado`, `LinkAcesso`, fila de
    exceções) destrava quase tudo.
-3. **WhatsApp é prioridade, com a plataforma oficial ainda bloqueada.** A política oficial do WhatsApp
-   Business (atualizada em 23/09/2026, consultada em 17/10/2026) proíbe autoridades policiais na
-   plataforma, sem exceção; provedores também recusam. Por decisão do usuário, o WhatsApp entra como
-   prioridade em três frentes: envio assistido pelo aparelho institucional com registro no sistema (já),
-   consulta formal à Meta/provedor e integração oficial construída, testada contra simulador e exportada
-   desligada, presa a um portão de autorização. Os fluxos são independentes de canal (portal, notificações
-   internas, e-mail institucional), então ligar o WhatsApp não muda estados nem regras. —
-   [whatsapp-viabilidade.md](whatsapp-viabilidade.md) · [plano](plano-implantacao.md)
+3. **WhatsApp Business é o canal principal do sistema de testes independente** (decisão de
+   18/10/2026). O usuário esclareceu que o site não é oficial da polícia e não vai operar com
+   policiais. O plano passa a priorizar a **Cloud API oficial**, primeiro no simulador e depois
+   em LAB dedicado com dados fictícios e contatos de teste autorizados. Portal e notificações
+   internas são apoio; e-mail é opcional. A restrição do cenário policial de 17/10 não bloqueia
+   automaticamente este piloto. A conta segue o onboarding normal da Meta; não há integração
+   real ativada. PREVIEW/DEMO público continua simulado. —
+   [regra vigente](../product/automacao-whatsapp-testes.md) · [plano](plano-implantacao.md) ·
+   [viabilidade revisada](whatsapp-viabilidade.md) · [ADR 0046](../adr/0046-whatsapp-principal-no-sistema-de-testes.md)
 4. **Hospedagem:** instalar o n8n no Ubuntu atual (Docker já existe); **não** reinstalar pela template —
    ela apaga a VPS e traz Traefik disputando 80/443. A VPS medida comporta n8n em modo normal com swap e
    limites de memória; IA local não cabe. — [hospedagem-n8n.md](../ops/mudanca-hospedagem/hospedagem-n8n.md)
@@ -37,7 +38,7 @@ local testado e um plano em etapas.
    (token só em hash, escopo, revogação, pré-visualização inofensiva, D−1 09:00 America/Sao_Paulo com
    regras de cima da hora, reagendamento e silêncio durante o deslocamento). — [10-4](fluxos/10-4-link-de-km-na-vespera.md)
 
-## Números
+## Números do levantamento histórico de 17/10/2026
 
 | | |
 |---|---|
@@ -81,7 +82,13 @@ local testado e um plano em etapas.
 - **Protótipo e workflows:** [prototipo/README.md](prototipo/README.md) · [n8n/README.md](n8n/README.md)
 - **Hospedagem:** [../ops/mudanca-hospedagem/](../ops/mudanca-hospedagem/README.md)
 
-## Dependências e bloqueios
+## Dependências do piloto revisado em 18/10/2026
+
+Fundação no PCPR, conta e recursos de teste da Meta, contatos de testadores verificados com opt-in,
+LAB isolado, webhook, retenção e testes ponta a ponta. WhatsApp é principal; SMTP e autorizações
+institucionais não são pré-requisitos. A ativação e os custos reais ainda não foram verificados.
+
+## Dependências históricas da implantação institucional (fora do piloto)
 
 Cópia externa do backup (bloqueia qualquer mudança na VPS) · SMTP e caixa postal institucionais · base
 legal do contato dos servidores (LGPD) · leitura do Decreto PR 7.304/2021 (complemento, não substituto, do

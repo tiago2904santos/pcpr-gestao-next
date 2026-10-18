@@ -1,5 +1,6 @@
 """Preparação de Planos: quantitativos, calendário, evento e geração reais."""
 
+import json
 from datetime import date
 from pathlib import Path
 
@@ -145,9 +146,19 @@ def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largu
     assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     pg.evaluate("scrollTo(0,0)")
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
-    assert rodar_axe(pg) == []
     pasta = Path("artifacts/planos-preparacao-identidade")
     pasta.mkdir(parents=True, exist_ok=True)
+    violacoes = rodar_axe(pg)
+    if violacoes:
+        geometria = pg.evaluate("""violacoes => ({scrollY, alvos: violacoes.flatMap(v =>
+            v.nodes.map(n => {const e = document.querySelector(n.target[0]);
+                return {target: n.target, rect: e?.getBoundingClientRect().toJSON(),
+                    html: e?.outerHTML};}))})""", violacoes)
+        (pasta / f"axe-{largura}.json").write_text(
+            json.dumps({"violacoes": violacoes, "geometria": geometria}, ensure_ascii=False,
+                       indent=2), encoding="utf-8")
+        pg.screenshot(path=str(pasta / f"axe-{largura}.png"))
+    assert violacoes == []
     pg.screenshot(path=str(pasta / f"preparacao-{largura}.png"), full_page=True)
     assert pg.erros_console == []
 

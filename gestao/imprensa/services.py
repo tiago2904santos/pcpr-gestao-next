@@ -16,7 +16,7 @@ from typing import Any
 
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Q
+from django.db.models import Count, OuterRef, Q, Subquery, Value
 from django.utils import timezone
 
 from . import dominio, policies
@@ -160,18 +160,22 @@ def em_uso(tipo: str, registro: Any) -> int:
     return Atendimento.objects.filter(veiculo=registro).count()
 
 
-def usos_por_registro(tipo: str) -> dict[int, int]:
-    """Quantos atendimentos usam cada registro (para a lista do cadastro, numa consulta)."""
+def usos_por_registro(tipo: str, ids: list[int] | None = None) -> dict[int, int]:
+    """Conta no banco; uma pessoa em duas funções no mesmo atendimento conta uma vez."""
     if tipo == "veiculos":
-        return dict(Atendimento.objects.filter(veiculo__isnull=False).values_list("veiculo")
+        atendimentos = Atendimento.objects.filter(veiculo__isnull=False)
+        if ids is not None:
+            atendimentos = atendimentos.filter(veiculo_id__in=ids)
+        return dict(atendimentos.values_list("veiculo")
                     .annotate(n=Count("pk")).order_by())
-    usos: dict[int, int] = {}
-    for um, outro in Atendimento.objects.filter(
-            Q(responsavel__isnull=False) | Q(responsavel_resposta__isnull=False)
-    ).values_list("responsavel_id", "responsavel_resposta_id"):
-        for pk in {um, outro} - {None}:
-            usos[pk] = usos.get(pk, 0) + 1
-    return usos
+    integrantes = Integrante.objects.all()
+    if ids is not None:
+        integrantes = integrantes.filter(pk__in=ids)
+    contagem = (Atendimento.objects.filter(Q(responsavel_id=OuterRef("pk"))
+                                           | Q(responsavel_resposta_id=OuterRef("pk")))
+                .order_by().values(chave=Value(1)).annotate(n=Count("pk")).values("n"))
+    return {pk: n or 0 for pk, n in integrantes.annotate(n=Subquery(contagem))
+            .values_list("pk", "n")}
 
 
 @transaction.atomic

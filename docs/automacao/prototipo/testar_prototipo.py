@@ -1,4 +1,4 @@
-"""Orquestra o protótipo inteiro e faz as asserções T1–T12 + métricas.
+"""Orquestra o protótipo inteiro e faz as asserções T1–T18 + métricas.
 
     .venv/Scripts/python.exe docs/automacao/prototipo/testar_prototipo.py
         [--manter]        não remove contêiner/simuladores no fim (depuração)
@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import contextlib
+import hashlib
 import json
 import math
 import os
@@ -45,7 +47,9 @@ sys.path.insert(0, str(RAIZ))
 
 import construir_workflows as cw  # noqa: E402
 import n8n_local  # noqa: E402
+from comum import montar_multipart  # noqa: E402
 from regra_vespera import FUSO  # noqa: E402
+from validar_esquema import validar  # noqa: E402
 
 REPO = RAIZ.parents[2]
 DOCS_N8N = REPO / "docs" / "automacao" / "n8n"
@@ -101,7 +105,11 @@ def sim(caminho: str, corpo: Any = None) -> Any:
 
 
 def canal(caminho: str, corpo: Any = None) -> Any:
-    st, b = http("POST" if corpo is not None else "GET", CANAL + caminho, corpo)
+    # /_sim/inbound espera o W4 responder, e o W4 só responde depois do PCPR (C9): até 30 s de
+    # download + 60 s de POST por entrega (tempos-limite dos nós), vezes as reentregas pedidas
+    entregas = 1 + int((corpo or {}).get("reentregar", 0)) if caminho == "/_sim/inbound" else 0
+    limite = 30 if not entregas else 100 * entregas
+    st, b = http("POST" if corpo is not None else "GET", CANAL + caminho, corpo, timeout=limite)
     assert st == 200, f"simulador canal {caminho} → {st} {b}"
     return b
 
@@ -131,6 +139,13 @@ def esperar(fn: Callable[[], Any], timeout: float, msg: str, intervalo: float = 
 
 def est() -> dict:
     return sim("/_sim/estado")
+
+
+def canal_no_ar() -> bool:
+    try:
+        return http("GET", CANAL + "/_sim/saude", timeout=3)[0] == 200
+    except (urllib.error.URLError, OSError):
+        return False
 
 
 def est_canal() -> dict:
@@ -208,54 +223,33 @@ def assentar(segundos: float = 3.0) -> None:
 # ===================================================================== validação do envelope
 
 
-def validar(valor: Any, esquema: dict, caminho: str = "$") -> list[str]:
-    """Validador mínimo para as palavras-chave usadas no schema do envelope."""
-    erros: list[str] = []
-    tipos = esquema.get("type")
-    if tipos:
-        tipos = tipos if isinstance(tipos, list) else [tipos]
-        mapa = {
-            "object": dict,
-            "string": str,
-            "integer": int,
-            "array": list,
-            "null": type(None),
-            "boolean": bool,
-        }
-        if not any(
-            isinstance(valor, mapa[t]) and not (t == "integer" and isinstance(valor, bool))
-            for t in tipos
-        ):
-            return [f"{caminho}: tipo {type(valor).__name__} ∉ {tipos}"]
-    if "const" in esquema and valor != esquema["const"]:
-        erros.append(f"{caminho}: ≠ const {esquema['const']}")
-    if "enum" in esquema and valor not in esquema["enum"]:
-        erros.append(f"{caminho}: {valor!r} fora do enum")
-    if "minimum" in esquema and isinstance(valor, int) and valor < esquema["minimum"]:
-        erros.append(f"{caminho}: < {esquema['minimum']}")
-    uuid_re = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-    if (
-        esquema.get("format") == "uuid"
-        and isinstance(valor, str)
-        and not re.fullmatch(uuid_re, valor)
-    ):
-        erros.append(f"{caminho}: não é uuid")
-    if esquema.get("format") == "date-time" and isinstance(valor, str):
-        try:
-            datetime.fromisoformat(valor.replace("Z", "+00:00"))
-        except ValueError:
-            erros.append(f"{caminho}: data-hora inválida")
-    if isinstance(valor, dict):
-        props = esquema.get("properties", {})
-        for req in esquema.get("required", []):
-            if req not in valor:
-                erros.append(f"{caminho}: falta {req}")
-        if esquema.get("additionalProperties") is False:
-            erros += [f"{caminho}: campo extra {k}" for k in valor if k not in props]
-        for k, sub in props.items():
-            if k in valor:
-                erros += validar(valor[k], sub, f"{caminho}.{k}")
-    return erros
+def validar_envelopes(envelopes: list[dict]) -> list[str]:
+    """Valida contra `evento-integracao.schema.json` com o validador stdlib completo para as
+    palavras-chave do esquema (allOf, if/then/else, $ref local, ...) — C2 do PR #23."""
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+    return [m for ev in envelopes for m in validar(ev, schema)]
+
+
+def negativos_do_validador(base: dict) -> dict[str, list[str]]:
+    """Envelopes que o esquema REJEITA têm de ser reprovados (prova de que o validador não
+    ignora allOf/if/then/$ref: o T1 antigo aprovava `dados.rotulo`)."""
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+
+    def com(muda: Callable[[dict], None]) -> list[str]:
+        ev = json.loads(json.dumps(base))
+        muda(ev)
+        return validar(ev, schema)
+
+    return {
+        "campo_extra_em_dados": com(lambda ev: ev["dados"].update(rotulo="véspera")),
+        "tipo_comunicacao_fora_do_enum": com(lambda ev: ev["dados"].update(tipo_comunicacao="sms")),
+        "dados_sem_campo_obrigatorio": com(lambda ev: ev["dados"].pop("comunicacao_id")),
+        "recurso_incompativel_com_o_tipo": com(lambda ev: ev["recurso"].update(tipo="viagem")),
+        "aviso_fora_do_padrao": com(lambda ev: ev["dados"].update(aviso="Viagem Já")),
+        "campo_extra_na_raiz": com(lambda ev: ev.update(extra=1)),
+        "data_sem_fuso": com(lambda ev: ev.update(ocorrido_em="2026-10-17T12:00:00")),
+        "id_nao_uuid": com(lambda ev: ev.update(id="nao-e-uuid")),
+    }
 
 
 # ===================================================================== cenários
@@ -280,9 +274,16 @@ def t1() -> dict:
     checar(len(envios) == 1, f"esperado 1 envio, houve {len(envios)}")
     checar(len(resultados) == 1, f"esperado 1 resultado, houve {len(resultados)}")
     checar(len(reservas) == 1, f"esperada 1 reserva, houve {len(reservas)}")
-    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-    erros = [m for ev in e["eventos"] for m in validar(ev["envelope"], schema)]
+    envelopes = [ev["envelope"] for ev in e["eventos"]]
+    erros = validar_envelopes(envelopes)
     checar(not erros, f"envelope fora do schema: {erros}")
+    tipos = sorted(ev["tipo"] for ev in envelopes)
+    checar(tipos == ["comunicacao.agendada", "viagem.confirmada"], f"tipos emitidos: {tipos}")
+    # negativos: o validador TEM de reprovar o que o esquema rejeita (C2)
+    agendada = next(ev for ev in envelopes if ev["tipo"] == "comunicacao.agendada")
+    negativos = negativos_do_validador(agendada)
+    aprovados_indevidamente = [k for k, erros_k in negativos.items() if not erros_k]
+    checar(not aprovados_indevidamente, f"validador aprovou: {aprovados_indevidamente}")
     T_ESTADO["t1"] = {"cid": cid, "evento_id": evento(r)["id"]}
     return {
         "comunicacao_id": cid,
@@ -292,7 +293,9 @@ def t1() -> dict:
         "reservas": len(reservas),
         "estado_final": com(e, cid)["estado"],
         "provedor_mensagem_id": com(e, cid)["provedor_mensagem_id"],
-        "envelopes_validados_contra_schema": len(e["eventos"]),
+        "envelopes_validados_contra_schema": {"quantos": len(envelopes), "tipos": tipos},
+        "campos_de_dados_da_agendada": sorted(agendada["dados"]),
+        "validador_reprovou_os_negativos": {k: v[:1] for k, v in negativos.items()},
         "chave_idempotencia_reserva": reservas[0]["chave"],
     }
 
@@ -388,10 +391,34 @@ def t3() -> dict:
     ok = entregar(eid)["status"]
     checar(ok == 202, f"controle positivo deveria dar 202, deu {ok}")
     esperar(lambda: len(aceitas(est_canal(), cid)) == 1, 30, "controle positivo não enviou")
+    # (f) UTF-8 no corpo bruto, num campo DO CONTRATO (correlacao_id; o antigo `dados.rotulo`
+    # saiu do simulador — C2): assinado sobre os bytes UTF-8 exatos → 202; assinado sobre a
+    # mesma informação re-serializada com escapes é → 401 (o n8n não re-serializa).
+    av = sim(
+        "/_sim/eventos",
+        {
+            "tipo": "viagem.confirmada",
+            "recurso": {"tipo": "viagem", "id": 999001, "versao": 1},
+            "correlacao_id": "viagem:véspera-ação-T3",
+            "dados": {"inicio_previsto": agora_sp().isoformat(timespec="seconds")},
+        },
+    )
+    erros = validar_envelopes([av["envelope"]])
+    checar(not erros, f"evento UTF-8 fora do schema: {erros}")
+    st_ascii = entregar(av["id"], "assinatura_ascii")["status"]
+    st_utf8 = entregar(av["id"])["status"]
+    checar(st_ascii == 401, f"assinatura sobre re-serialização deveria dar 401, deu {st_ascii}")
+    checar(st_utf8 == 202, f"assinatura sobre os bytes UTF-8 deveria dar 202, deu {st_utf8}")
     return {
         "respostas_invalidas": respostas,
         "envios_com_eventos_invalidos": 0,
         "controle_positivo": {"status": ok, "envios": 1},
+        "f_utf8_no_corpo_bruto": {
+            "campo": "correlacao_id (do contrato)",
+            "envelope_valido_no_schema": True,
+            "assinado_sobre_reserializacao_ascii": st_ascii,
+            "assinado_sobre_bytes_utf8": st_utf8,
+        },
     }
 
 
@@ -438,7 +465,12 @@ def t4() -> dict:
     )
     st_v2 = entregar(evento(nv)["id"])["status"]
     esperar(lambda: len(aceitas(est_canal(), c3)) == 1, 30, "versão atual não foi enviada")
+    # todos os envelopes do cenário (reagendada, cancelada, agendadas) contra o esquema (C2)
+    envelopes = [ev["envelope"] for ev in est()["eventos"]]
+    erros = validar_envelopes(envelopes)
+    checar(not erros, f"envelope fora do schema: {erros}")
     return {
+        "envelopes_validados_contra_schema": sorted(ev["tipo"] for ev in envelopes),
         "a_reagendada": {
             "comunicacao_antiga": c1,
             "resposta_n8n": st_antigo,
@@ -503,8 +535,10 @@ def t5() -> dict:
 
 
 def t6() -> dict:
+    """C5: o canal RECUSA 1x (503 com corpo de recusa = prova de que nada foi aceito) e aceita na
+    2ª tentativa controlada pelo W2 (sem retryOnFail nativo)."""
     resetar()
-    canal("/_sim/modo", {"modo": "falha_1x"})
+    canal("/_sim/modo", {"modo": "recusa_503_1x"})
     cid = comunicacao()["comunicacao_id"]
     esperar(lambda: com(est(), cid)["estado"] == "enviada", 30, "não ficou enviada")
     assentar()
@@ -512,44 +546,91 @@ def t6() -> dict:
     t = tentativas(c, cid)
     res = [x for x in chamadas(e, r"/comunicacoes/\d+/resultado", cid) if x["status"] == 200]
     checar(
-        [x["status"] for x in t] == [500, 200], f"tentativas no canal: {[x['status'] for x in t]}"
+        [x["status"] for x in t] == [503, 200], f"tentativas no canal: {[x['status'] for x in t]}"
     )
     checar(len(aceitas(c, cid)) == 1, "deveria haver 1 envio efetivo")
     checar(len(res) == 1 and res[0].get("resultado") == "enviada", f"resultados: {res}")
+    checar(not excecoes_de(e, cid), f"não deveria haver exceção: {excecoes_de(e, cid)}")
     return {
         "tentativas_no_canal": [x["status"] for x in t],
         "envios_efetivos": 1,
         "resultados": [x.get("resultado") for x in res],
         "intervalo_entre_tentativas_s": round(t[1]["em"] - t[0]["em"], 2),
+        "excecoes": 0,
     }
 
 
+def devida(cid: int) -> bool:
+    x = com(est(), cid)
+    return x["estado"] == "agendada" and datetime.fromisoformat(x["enviar_em"]) <= datetime.now(
+        FUSO
+    )
+
+
 def t7() -> dict:
+    """C6: canal sempre RECUSA (503 + corpo de recusa). Cada rodada = 3 tentativas curtas no W2 →
+    falha_temporaria → o PCPR reagenda com backoff; esgotadas as rodadas, o PCPR marca `falhou`
+    e abre UMA exceção. Sem laço infinito: depois disso a reconciliação não acha nada."""
     resetar()
-    canal("/_sim/modo", {"modo": "sempre_500"})
-    cid = comunicacao()["comunicacao_id"]
-    esperar(lambda: excecoes_de(est(), cid), 40, "exceção não foi aberta")
-    assentar(5)
-    n1 = len(tentativas(est_canal(), cid))
+    rodadas_max = 3
+    sim("/_sim/config", {"backoff_s": [2, 2], "max_rodadas": rodadas_max})
+    canal("/_sim/modo", {"modo": "recusa_503"})
+    cid = comunicacao()["comunicacao_id"]  # rodada 1 pelo evento
+    por_rodada: list[dict] = []
+    reconciliacoes: list[Any] = []
+    for rodada in range(1, rodadas_max + 1):
+        if rodada > 1:  # rodadas seguintes: o PCPR reagendou; a reconciliação pega quando vence
+            esperar(lambda: devida(cid), 20, f"rodada {rodada}: não voltou a ficar devida")
+            st, corpo = reconciliar()
+            checar(st == 200 and corpo.get("devidas") == 1, f"reconciliação {st} {corpo}")
+            reconciliacoes.append(corpo)
+        esperar(
+            lambda r=rodada: len(com(est(), cid).get("rodadas") or []) == r,
+            40,
+            f"rodada {rodada} sem resultado",
+        )
+        x = com(est(), cid)
+        por_rodada.append(
+            {
+                "rodada": rodada,
+                "resultado": x["rodadas"][-1]["resultado"],
+                "estado_depois": x["estado"],
+                "tentativas_no_canal_acumuladas": len(tentativas(est_canal(), cid)),
+            }
+        )
+    assentar(3)  # passa do último backoff: nada pode estar devido
     st, corpo = reconciliar()
-    checar(st == 200, f"reconciliação → {st} {corpo}")
-    assentar(5)
+    checar(st == 200 and corpo.get("devidas") == 0, f"reconciliação final: {st} {corpo}")
+    assentar(3)
     e, c = est(), est_canal()
-    n2 = len(tentativas(c, cid))
+    t = tentativas(c, cid)
     ex = excecoes_de(e, cid)
-    checar(n1 == 3, f"esperadas 3 tentativas (maxTries), houve {n1}")
-    checar(n2 == n1, f"continuou tentando depois de desistir: {n1} → {n2}")
+    x = com(e, cid)
+    checar(
+        [r["resultado"] for r in por_rodada] == ["falha_temporaria"] * rodadas_max,
+        f"rodadas: {por_rodada}",
+    )
+    checar(
+        [r["estado_depois"] for r in por_rodada] == ["agendada"] * (rodadas_max - 1) + ["falhou"],
+        f"estados: {por_rodada}",
+    )
+    checar(
+        len(t) == 3 * rodadas_max and all(z["status"] == 503 for z in t),
+        f"esperadas {3 * rodadas_max} tentativas 503, houve {[z['status'] for z in t]}",
+    )
     checar(not aceitas(c, cid), "nenhum envio deveria ter sido aceito")
-    checar(len(ex) == 1 and ex[0]["motivo"] == "limite_tentativas", f"exceções: {ex}")
-    checar(com(e, cid)["estado"] == "falhou", f"estado {com(e, cid)['estado']}")
+    checar(x["estado"] == "falhou" and x["motivo"] == "limite_tentativas", f"comunicação: {x}")
+    checar(
+        len(ex) == 1 and ex[0]["motivo"] == "limite_tentativas" and ex[0]["origem"] == "pcpr",
+        f"exceções: {ex}",
+    )
     return {
-        "tentativas": n1,
-        "tentativas_apos_reconciliacao": n2,
-        "reconciliacao": corpo,
-        "estado": "falhou",
-        "excecao": {
-            k: ex[0][k] for k in ("motivo", "origem", "fluxo", "detalhe", "execucao_orquestrador")
-        },
+        "rodadas": por_rodada,
+        "tentativas_no_canal": len(t),
+        "reconciliacoes_entre_rodadas": reconciliacoes,
+        "reconciliacao_depois_de_esgotar": corpo,
+        "estado": x["estado"],
+        "excecao": {k: ex[0][k] for k in ("motivo", "origem", "fluxo", "detalhe")},
     }
 
 
@@ -596,7 +677,7 @@ def t9() -> dict:
     checar(posts[1].get("replay") is True, "2ª chamada deveria ser repetição idempotente")
     checar(novos[0]["sha256"] == r1["arquivo"]["sha256"], "SHA-256 não confere com o arquivo")
     checar(
-        posts[0]["chave"] == posts[1]["chave"] == f"recebimento:email:{mid}",
+        posts[0]["chave"] == posts[1]["chave"] == f"receb:email:{mid}:0",
         f"chaves: {[p['chave'] for p in posts]}",
     )
     # (extra) consulta do recebimento pela API
@@ -716,6 +797,330 @@ def t12() -> dict:
         ],
         "envio_apos_normalizar": 1,
         "reconciliacao": T_ESTADO.get("t12_reconciliacao"),
+    }
+
+
+def t14() -> dict:
+    """C5: resultado AMBÍGUO no canal nunca é repetido. Tempo esgotado depois de o canal aceitar,
+    conexão derrubada depois de aceitar e HTTP 500 sem corpo de recusa → 1 tentativa só,
+    `resultado_desconhecido` + exceção; a reconciliação não reenvia."""
+    resetar()
+    casos: dict[str, int] = {}
+    for modo, atraso in (
+        ("timeout_apos_aceitar", 15),  # > 10 s, o tempo-limite do nó Enviar ao canal
+        ("desconectar_apos_aceitar", 0),
+        ("sempre_500", 0),
+    ):
+        canal("/_sim/modo", {"modo": modo, "atraso_s": atraso})
+        cid = comunicacao()["comunicacao_id"]
+        esperar(
+            lambda c=cid: com(est(), c)["estado"] == "falhou", 40, f"{modo}: não terminou falhou"
+        )
+        casos[modo] = cid
+    canal("/_sim/modo", {"modo": "ok"})
+    assentar(3)
+    st, corpo = reconciliar()
+    checar(st == 200 and corpo.get("devidas") == 0, f"reconciliação: {st} {corpo}")
+    assentar(3)
+    e, c = est(), est_canal()
+    saida: dict[str, Any] = {"reconciliacao_depois": corpo}
+    for modo, cid in casos.items():
+        t = tentativas(c, cid)
+        x = com(e, cid)
+        ex = excecoes_de(e, cid)
+        res = [z for z in chamadas(e, r"/comunicacoes/\d+/resultado", cid) if z["status"] == 200]
+        checar(len(t) == 1, f"{modo}: o canal recebeu {len(t)} tentativas (reenvio às cegas)")
+        aceitos_esperados = 0 if modo == "sempre_500" else 1
+        checar(len(aceitas(c, cid)) == aceitos_esperados, f"{modo}: envios {len(aceitas(c, cid))}")
+        checar(
+            x["estado"] == "falhou" and x["resultado"] == "resultado_desconhecido",
+            f"{modo}: {x['estado']}/{x['resultado']}",
+        )
+        checar([z.get("resultado") for z in res] == ["resultado_desconhecido"], f"{modo}: {res}")
+        checar([z["motivo"] for z in ex] == ["resultado_desconhecido"], f"{modo}: {ex}")
+        saida[modo] = {
+            "tentativas_no_canal": len(t),
+            "envios_aceitos_pelo_canal": len(aceitas(c, cid)),
+            "resultado": x["resultado"],
+            "excecao": ex[0]["motivo"],
+            "erro_registrado": (x.get("rodadas") or [{}])[-1].get("erro"),
+        }
+    return saida
+
+
+def t15() -> dict:
+    """C6: canal FORA DO AR (porta fechada → ECONNREFUSED, prova de que nada saiu) por um tempo
+    e depois volta: rodada 1 = 3 recusas → falha_temporaria → o PCPR reagenda; com o canal de
+    volta, a reconciliação faz a rodada 2 → exatamente 1 envio, sem exceção."""
+    resetar()
+    sim("/_sim/config", {"backoff_s": [3], "max_rodadas": 3})
+    canal("/_sim/fora_do_ar", {"segundos": 10})
+    time.sleep(0.5)
+    checar(not canal_no_ar(), "a porta do canal deveria estar fechada")
+    cid = comunicacao()["comunicacao_id"]
+    esperar(lambda: len(com(est(), cid).get("rodadas") or []) == 1, 30, "rodada 1 sem resultado")
+    r1 = com(est(), cid)
+    checar(
+        r1["estado"] == "agendada" and r1["rodadas"][0]["resultado"] == "falha_temporaria",
+        f"rodada 1: {r1['estado']} {r1['rodadas']}",
+    )
+    recusas = r1["rodadas"][0]["erro"].count("conexão recusada")
+    checar(recusas == 3, f"esperadas 3 recusas de conexão na rodada 1: {r1['rodadas'][0]}")
+    esperar(canal_no_ar, 30, "canal não voltou")
+    esperar(lambda: devida(cid), 20, "não voltou a ficar devida (backoff)")
+    st, corpo = reconciliar()
+    checar(st == 200 and corpo.get("devidas") == 1, f"reconciliação: {st} {corpo}")
+    esperar(lambda: com(est(), cid)["estado"] == "enviada", 30, "não ficou enviada")
+    st2, corpo2 = reconciliar()
+    checar(st2 == 200 and corpo2.get("devidas") == 0, f"2ª reconciliação: {st2} {corpo2}")
+    assentar(3)
+    e, c = est(), est_canal()
+    x = com(e, cid)
+    checar(len(tentativas(c, cid)) == 1 and len(aceitas(c, cid)) == 1, "esperado 1 envio")
+    checar(
+        [z["resultado"] for z in x["rodadas"]] == ["falha_temporaria", "enviada"],
+        f"rodadas: {x['rodadas']}",
+    )
+    checar(not excecoes_de(e, cid), f"não deveria haver exceção: {excecoes_de(e, cid)}")
+    return {
+        "canal_fora_do_ar_s": 10,
+        "rodada_1": {"resultado": "falha_temporaria", "conexoes_recusadas": recusas},
+        "estado_entre_rodadas": "agendada (backoff 3 s no PCPR)",
+        "reconciliacao": corpo,
+        "rodada_2": "enviada",
+        "envios_efetivos": 1,
+        "excecoes": 0,
+        "reconciliacao_final": corpo2,
+    }
+
+
+def _post_recebimento_direto(campos: dict[str, str], chave: str) -> tuple[int, Any]:
+    pdf = b"%PDF-1.4\n% PCPR T16 contrato\n%%EOF\n"
+    campos = {**campos, "sha256": hashlib.sha256(pdf).hexdigest()}
+    corpo, tipo = montar_multipart(campos, {"arquivo": ("t16.pdf", "application/pdf", pdf)})
+    req = urllib.request.Request(
+        f"{SIM}/api/automacao/v1/recebimentos",
+        data=corpo,
+        headers={
+            "Content-Type": tipo,
+            "Authorization": f"Bearer {SEGREDOS['token_api']}",
+            "Idempotency-Key": chave,
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.status, json.loads(r.read())
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read() or b"{}")
+
+
+def t16() -> dict:
+    """C3: mensagem com 2 anexos → 2 recebimentos distintos com a chave do contrato
+    `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` e anexo_indice/total_anexos no multipart;
+    a mesma mensagem reenviada → 0 recebimentos novos. O simulador exige os campos (422)."""
+    resetar()
+    mid = f"msg.sim.T16.{secrets.token_hex(4)}"
+    entrada = {
+        "mensagem_id": mid,
+        "remetente": "+5500000000161",
+        "canal": "email",
+        "anexos": [
+            {"texto": "T16 anexo A sintetico", "nome": "termo-a.pdf"},
+            {"texto": "T16 anexo B sintetico", "nome": "termo-b.pdf"},
+        ],
+    }
+    # Como um canal real, o simulador reentrega enquanto o W4 não der 2xx (o W4 só dá 2xx depois
+    # do PCPR). Na rodada completa de 18/10 00:28 o 1º webhook deste cenário passou de 30 s sem
+    # resposta (causa não confirmada; não se repetiu): a reentrega é o mecanismo do desenho, e as
+    # asserções abaixo (1 efeito por anexo, o resto repetição) valem com ou sem ela.
+    r1 = canal("/_sim/inbound", {**entrada, "reentregar": 2})
+    checar(r1["status"] == 200, f"webhook W4 respondeu {r1['entregas']} {r1.get('resposta')}")
+    e = est()
+    posts = chamadas(e, r"/recebimentos")
+    recs = [x for x in e["recebimentos"] if x["estado"] != "duplicado"]
+    chaves_esperadas = [f"receb:email:{mid}:0", f"receb:email:{mid}:1"]
+    chaves = sorted({p["chave"] for p in posts})
+    checar(chaves == chaves_esperadas, f"chaves: {chaves}")
+    for k in chaves_esperadas:  # por anexo: exatamente 1 efeito; o resto é repetição
+        efeitos = [
+            p for p in posts if p["chave"] == k and p["status"] == 202 and not p.get("replay")
+        ]
+        checar(len(efeitos) == 1, f"{k}: {len(efeitos)} POST com efeito ({posts})")
+    checar(len(recs) == 2 and recs[0]["id"] != recs[1]["id"], f"recebimentos: {recs}")
+    checar(len(e["recebimentos"]) == 2, f"registros: {len(e['recebimentos'])}")
+    por_indice = {x["campos"]["anexo_indice"]: x for x in recs}
+    checar(sorted(por_indice) == ["0", "1"], f"anexo_indice: {sorted(por_indice)}")
+    checar(all(x["campos"]["total_anexos"] == "2" for x in recs), "total_anexos ≠ 2")
+    checar(
+        [por_indice[str(i)]["sha256"] for i in range(2)] == [a["sha256"] for a in r1["arquivos"]],
+        "SHA-256 dos recebimentos ≠ dos anexos",
+    )
+    # (b) a MESMA mensagem de novo (reentrega do canal): só repetições idempotentes, 0 novos
+    r2 = canal("/_sim/inbound", {**entrada, "reentregar": 2})
+    checar(r2["status"] == 200, f"reenvio: {r2['entregas']}")
+    e2 = est()
+    novos_posts = chamadas(e2, r"/recebimentos")[len(posts) :]
+    aceitos_b = [p for p in novos_posts if p["status"] == 202]
+    checar(
+        {p["chave"] for p in aceitos_b} == set(chaves_esperadas)
+        and all(p.get("replay") for p in aceitos_b),
+        f"reenvio: {novos_posts}",
+    )
+    checar(len(e2["recebimentos"]) == 2, f"reenvio criou recebimento: {len(e2['recebimentos'])}")
+    # (c) o simulador do PCPR exige o contrato (direto na API, sem o n8n)
+    base = {
+        "canal": "email",
+        "mensagem_id_canal": f"{mid}.direto",
+        "remetente": "+5500000000162",
+        "recebido_em": "2026-10-17T12:00:00Z",
+    }
+    sem_indice = _post_recebimento_direto(base, f"receb:email:{mid}.direto:0")
+    chave_antiga = _post_recebimento_direto(
+        {**base, "anexo_indice": "0", "total_anexos": "1"}, f"recebimento:email:{mid}.direto"
+    )
+    indice_fora = _post_recebimento_direto(
+        {**base, "anexo_indice": "1", "total_anexos": "1"}, f"receb:email:{mid}.direto:1"
+    )
+    for nome, (st, corpo) in (
+        ("sem anexo_indice/total_anexos", sem_indice),
+        ("chave antiga recebimento:<canal>:<id>", chave_antiga),
+        ("anexo_indice >= total_anexos", indice_fora),
+    ):
+        checar(st == 422 and corpo.get("codigo") == "entrada_invalida", f"{nome}: {st} {corpo}")
+    # (d) mensagem sem anexo → o W4 responde 422 (nada a receber) sem chamar o PCPR
+    n_antes = len(chamadas(est(), r"/recebimentos.*"))
+    r3 = canal("/_sim/inbound", {**entrada, "mensagem_id": f"{mid}.vazia", "anexos": []})
+    checar(r3["status"] == 422, f"sem anexo: {r3['status']}")
+    checar(len(chamadas(est(), r"/recebimentos.*")) == n_antes, "sem anexo chamou o PCPR")
+    return {
+        "a_dois_anexos": {
+            "entregas_do_canal": r1["entregas"],
+            "chaves": chaves,
+            "recebimentos": [
+                {"id": x["id"], "anexo_indice": i, "total_anexos": 2}
+                for i, x in sorted(por_indice.items())
+            ],
+        },
+        "b_reenvio_da_mesma_mensagem": {
+            "entregas_do_canal": r2["entregas"],
+            "posts": [p["status"] for p in novos_posts],
+            "repeticoes_idempotentes": len(aceitos_b),
+            "recebimentos_novos": 0,
+        },
+        "c_contrato_no_simulador": {
+            "sem_anexo_indice": sem_indice[0],
+            "chave_antiga": chave_antiga[0],
+            "indice_fora_do_total": indice_fora[0],
+        },
+        "d_mensagem_sem_anexo": r3["status"],
+    }
+
+
+def t17() -> dict:
+    """C9: o W4 só responde 2xx ao canal DEPOIS de o PCPR aceitar. Falha no POST /recebimentos
+    ou no download → não-2xx → o canal reentrega a mensagem → 1 recebimento."""
+    resetar()
+    # (a) POST /recebimentos falha 1x (503 do PCPR, não guardado pela idempotência)
+    sim("/_sim/config", {"falhar_recebimentos": 1})
+    mid = f"msg.sim.T17a.{secrets.token_hex(4)}"
+    ra = canal(
+        "/_sim/inbound",
+        {"mensagem_id": mid, "remetente": "+5500000000171", "canal": "email", "reentregar": 3},
+    )
+    e = est()
+    posts = chamadas(e, r"/recebimentos")
+    recs = [x for x in e["recebimentos"] if x["estado"] != "duplicado"]
+    checar(ra["entregas"] == [503, 200], f"(a) entregas do canal: {ra['entregas']}")
+    checar([p["status"] for p in posts] == [503, 202], f"(a) POST /recebimentos: {posts}")
+    checar(not posts[1].get("replay"), "(a) a 2ª chamada não pode ser repetição de um 503")
+    checar(len(recs) == 1 and recs[0]["sha256"] == ra["arquivo"]["sha256"], f"(a) {recs}")
+    # (b) o download do anexo no canal falha 1x
+    canal("/_sim/modo", {"falhar_downloads": 1})
+    mid_b = f"msg.sim.T17b.{secrets.token_hex(4)}"
+    rb = canal(
+        "/_sim/inbound",
+        {"mensagem_id": mid_b, "remetente": "+5500000000172", "canal": "email", "reentregar": 3},
+    )
+    e, c = est(), est_canal()
+    downs = [d["status"] for d in c["downloads"] if d["arquivo"] == rb["arquivo"]["id"]]
+    posts_b = [
+        p for p in chamadas(e, r"/recebimentos") if p["chave"].startswith(f"receb:email:{mid_b}")
+    ]
+    recs_b = [
+        x
+        for x in e["recebimentos"]
+        if x["estado"] != "duplicado" and x["campos"]["mensagem_id_canal"] == mid_b
+    ]
+    checar(rb["entregas"] == [503, 200], f"(b) entregas do canal: {rb['entregas']}")
+    checar(downs == [500, 200], f"(b) downloads: {downs}")
+    checar([p["status"] for p in posts_b] == [202], f"(b) o PCPR só deveria ver 1 POST: {posts_b}")
+    checar(len(recs_b) == 1, f"(b) recebimentos: {recs_b}")
+    return {
+        "a_post_recebimentos_falha_1x": {
+            "respostas_do_w4_ao_canal": ra["entregas"],
+            "post_recebimentos": [p["status"] for p in posts],
+            "recebimentos": 1,
+        },
+        "b_download_falha_1x": {
+            "respostas_do_w4_ao_canal": rb["entregas"],
+            "downloads": downs,
+            "post_recebimentos": [p["status"] for p in posts_b],
+            "recebimentos": 1,
+        },
+    }
+
+
+def t18() -> dict:
+    """C11: deduplicação de recebimento por (servidor remetente resolvido, SHA-256). O mesmo
+    arquivo de 2 servidores → 2 recebimentos; o mesmo servidor 2x (inclusive por outro contato
+    dele) → 1."""
+    resetar()
+    a, b, a2 = "+5500000000181", "+5500000000182", "+5500000000183"
+    for remetente, sid in ((a, 9001), (b, 9002), (a2, 9001)):  # a2 = 2º contato do servidor 9001
+        sim("/_sim/remetentes", {"canal": "email", "remetente": remetente, "servidor_id": sid})
+    mesmo = [{"texto": "T18 formulario sintetico identico", "nome": "formulario.pdf"}]
+    envios = (("a1", a), ("b1", b), ("a2", a), ("a3_outro_contato", a2))
+    ids: dict[str, str] = {}
+    for rotulo, remetente in envios:
+        mid = f"msg.sim.T18.{rotulo}.{secrets.token_hex(3)}"
+        r = canal(
+            "/_sim/inbound",
+            {"mensagem_id": mid, "remetente": remetente, "canal": "email", "anexos": mesmo},
+        )
+        checar(r["status"] == 200, f"{rotulo}: webhook {r['status']}")
+        ids[rotulo] = mid
+    e = est()
+    por = {
+        rotulo: next(x for x in e["recebimentos"] if x["campos"]["mensagem_id_canal"] == mid)
+        for rotulo, mid in ids.items()
+    }
+    shas = {x["sha256"] for x in por.values()}
+    checar(len(shas) == 1, f"o arquivo deveria ser o mesmo nos 4 envios: {shas}")
+    estados = {k: x["estado"] for k, x in por.items()}
+    checar(
+        estados["a1"] == "aceito_para_processamento"
+        and estados["b1"] == "aceito_para_processamento",
+        f"servidores diferentes → 2 recebimentos: {estados}",
+    )
+    checar(
+        estados["a2"] == "duplicado" and por["a2"]["duplicado_de"] == por["a1"]["id"],
+        f"mesmo servidor 2x → duplicado: {estados}",
+    )
+    checar(
+        estados["a3_outro_contato"] == "duplicado"
+        and por["a3_outro_contato"]["duplicado_de"] == por["a1"]["id"],
+        f"outro contato do mesmo servidor → duplicado: {estados}",
+    )
+    nao_dup = [x for x in e["recebimentos"] if x["estado"] != "duplicado"]
+    checar(len(nao_dup) == 2, f"esperados 2 recebimentos, houve {len(nao_dup)}")
+    return {
+        "mesmo_sha256": True,
+        "por_envio": {
+            k: {"servidor": x["servidor"], "estado": x["estado"]} for k, x in por.items()
+        },
+        "recebimentos": 2,
+        "duplicados": 2,
     }
 
 
@@ -884,12 +1289,22 @@ CENARIOS: list[tuple[str, str, Callable[[], dict]]] = [
     ("T3", "assinatura inválida/antiga/adulterada/outro ambiente → 401 e 0 envio", t3),
     ("T4", "evento obsoleto (reagendada / versão antiga) → 409 e 0 envio", t4),
     ("T5", "automação desligada → 423/encerra, 0 envio, segue agendada", t5),
-    ("T6", "canal falha 1x e aceita → 1 envio efetivo e 1 resultado", t6),
-    ("T7", "canal sempre falha → exceção, sem loop", t7),
+    ("T6", "canal recusa 1x (503 + corpo de recusa) e aceita → 1 envio efetivo", t6),
+    ("T7", "canal sempre recusa → rodadas limitadas no PCPR, exceção no fim, sem laço", t7),
     ("T8", "evento perdido → reconciliação envia 1 vez", t8),
     ("T9", "arquivo devolvido 2x (mesmo id) → 1 recebimento", t9),
     ("T10", "reinício do n8n no meio → nada duplicado, reconciliação completa", t10),
     ("T12", "erro inesperado num fluxo → W5 abre exceção", t12),
+    (
+        "T14",
+        "resultado ambíguo no canal (tempo esgotado/desconexão após aceitar, 500) → "
+        "resultado_desconhecido, 0 reenvio",
+        t14,
+    ),
+    ("T15", "canal fora do ar e volta → PCPR reagenda (backoff) → 1 envio, sem exceção", t15),
+    ("T16", "mensagem com 2 anexos → 2 recebimentos (chave por anexo); reenvio → 0 novos", t16),
+    ("T17", "falha no POST /recebimentos ou no download → W4 não-2xx → reentrega → 1", t17),
+    ("T18", "dedup de recebimento por (servidor, SHA-256): 2 servidores → 2; mesmo → 1", t18),
     ("T13", "nenhum destino, link-credencial ou token de reserva retido nas execuções do n8n", t13),
 ]
 
@@ -1113,7 +1528,15 @@ def main() -> int:
             except Exception as exc:
                 item["passou"] = False
                 item["erro"] = f"{type(exc).__name__}: {exc}"
+                pilha = traceback.extract_tb(exc.__traceback__)
+                item["onde"] = [
+                    f"{q.name}:{q.lineno} {q.line}" for q in pilha if q.name == fn.__name__
+                ]
                 item["traceback"] = traceback.format_exc()[-2000:]
+                item["log_n8n"] = n8n_local.logs(30).splitlines()[-30:]
+                with contextlib.suppress(Exception):  # diagnóstico do canal (entregas, downloads)
+                    c = est_canal()
+                    item["canal"] = {"inbound": c["inbound"][-6:], "downloads": c["downloads"][-6:]}
             item["segundos"] = round(time.time() - inicio, 1)
             relatorio["cenarios"].append(item)
             print(
@@ -1151,7 +1574,11 @@ def main() -> int:
                 relatorio["exportacao"] = exportar_workflows(tmp)
             except Exception as exc:
                 relatorio["exportacao"] = {"erro": repr(exc)}
-        return 0 if all(c["passou"] for c in relatorio["cenarios"]) else 1
+        # export que falhou também reprova a execução (C8 do PR #23), como no testar_whatsapp
+        ok = all(c["passou"] for c in relatorio["cenarios"]) and "erro" not in relatorio.get(
+            "exportacao", {}
+        )
+        return 0 if ok else 1
     finally:
         amostrador.parar.set()
         if not manter:

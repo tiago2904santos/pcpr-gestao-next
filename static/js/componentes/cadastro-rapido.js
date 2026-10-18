@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * Cadastro rápido: o "+" ao lado de uma escolha abre um diálogo por cima do que está
- * aberto, grava o registro e o devolve já escolhido — sem recarregar a página, que levaria
+ * Cadastro rápido: o "+" ao lado de uma escolha abre uma etapa auxiliar, grava o
+ * registro e o devolve já escolhido — sem recarregar a página, que levaria
  * junto o que a pessoa tinha digitado.
  *
  * Marcação: `<dialog data-cadastro-rapido>` com um <form> que posta no mesmo endpoint da
@@ -96,9 +96,11 @@ function mostrarErro(form, mensagem) {
     erro.setAttribute("data-erro", "");
     form.querySelector(".dialogo__corpo")?.prepend(erro);
   }
+  erro.setAttribute("role", "alert");
+  erro.tabIndex = -1;
   erro.textContent = mensagem;
   erro.hidden = !mensagem;
-  if (mensagem) erro.scrollIntoView({ block: "nearest" });
+  if (mensagem) erro.focus();
 }
 
 /** @param {HTMLDialogElement} janela */
@@ -109,25 +111,37 @@ function ligar(janela) {
   janela.dataset.pronto = "1";
 
   // Fechar devolve o formulário em branco: a próxima vez começa limpa.
-  janela.addEventListener("close", () => { form.reset(); mostrarErro(form, ""); });
+  janela.addEventListener("close", () => {
+    if (janela.dataset.cadastroSuspenso) return;
+    form.reset();
+    mostrarErro(form, "");
+  });
 
   form.addEventListener("submit", async (evento) => {
     evento.preventDefault();
-    const enviar = /** @type {HTMLButtonElement | null} */ (
-      form.querySelector("button[type='submit'].botao--primario"));
-    if (enviar) enviar.disabled = true;
+    const submissor = /** @type {HTMLButtonElement | null} */ (evento.submitter);
+    const incluirOutro = submissor?.name === "outro";
+    const botoes = Array.from(form.querySelectorAll("button[type='submit']"))
+      .map(b => /** @type {HTMLButtonElement} */ (b));
+    const desabilitados = botoes.map(b => b.disabled);
+    botoes.forEach(b => { b.disabled = true; });
     const resposta = await fetch(form.action, {
       method: "POST", body: new FormData(form), credentials: "same-origin",
       headers: { Accept: "application/json", "X-Requested-With": "fetch" },
     }).catch(() => null);
-    if (enviar) enviar.disabled = false;
+    botoes.forEach((b, i) => { b.disabled = desabilitados[i]; });
     const corpo = resposta ? await resposta.json().catch(() => ({})) : {};
-    if (!resposta || !resposta.ok) {
+    if (!resposta || !resposta.ok || resposta.redirected || !corpo.id) {
       mostrarErro(form, corpo.erro || "Não foi possível cadastrar agora. Tente de novo.");
       return;
     }
     aplicar(janela, corpo);
-    fecharDialogo(janela);
+    if (incluirOutro && janela.open) {
+      form.reset();
+      mostrarErro(form, "");
+      const primeiro = form.querySelector("input:not([type='hidden'])");
+      if (primeiro instanceof HTMLElement) primeiro.focus();
+    } else fecharDialogo(janela);
     avisar(`“${corpo.nome}” cadastrado.`);
   });
 }

@@ -125,6 +125,19 @@ class Planejar(unittest.TestCase):
         v = ViagemRef(versao=2, inicio=sp(2026, 11, 10, 6, 30), cancelada=True)
         self.assertEqual(planejar(v, atual, self.agora).ignorado, "nada_pendente")
 
+    def test_cancelamento_obsoleto_nao_cancela_a_comunicacao_atual(self) -> None:
+        # C4 (PR #23): "viagem cancelada" da versão 2 chega depois de a comunicação ter sido
+        # recalculada na versão 3 (reagendamento posterior). Não pode cancelar a atual.
+        atual = ComunicacaoRef(id=7, versao_viagem=3, estado="agendada")
+        v = ViagemRef(versao=2, inicio=sp(2026, 11, 10, 6, 30), cancelada=True)
+        p = planejar(v, atual, self.agora)
+        self.assertEqual(p.ignorado, "versao_antiga")
+        self.assertIsNone(p.cancelar_id)
+        self.assertIsNone(p.criar)
+        # controle: o cancelamento da versão seguinte (4) cancela a mesma comunicação
+        v4 = ViagemRef(versao=4, inicio=sp(2026, 11, 10, 6, 30), cancelada=True)
+        self.assertEqual(planejar(v4, atual, self.agora).cancelar_id, 7)
+
     def test_evento_fora_de_ordem_com_versao_antiga_e_ignorado(self) -> None:
         atual = ComunicacaoRef(id=7, versao_viagem=3, estado="agendada")
         p = planejar(ViagemRef(versao=2, inicio=sp(2026, 11, 10, 6, 30)), atual, self.agora)

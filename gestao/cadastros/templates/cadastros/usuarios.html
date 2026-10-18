@@ -95,7 +95,7 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
 {% block depois_lista %}
 {% include "componentes/barra_paginacao.html" %}
 {% if pode_criar or editando %}
-<dialog id="dialogo-usuario" class="dialogo dialogo--largo" aria-labelledby="dialogo-usuario-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+<dialog id="dialogo-usuario" class="dialogo dialogo--cadastro dialogo--largo" aria-labelledby="dialogo-usuario-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_usuario' %}" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}

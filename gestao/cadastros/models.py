@@ -573,18 +573,50 @@ class AtividadePlano(Ativavel):
     # efeito no documento (estrutura de unidade móvel e o recurso associado).
     codigo = models.CharField("código", max_length=40, unique=True)
     nome = models.CharField("atividade", max_length=255)
-    meta = models.TextField("meta")
+    meta = models.TextField("meta", blank=True)
     recurso = models.TextField("recursos necessários", blank=True)
 
     UNIDADE_MOVEL = "UNIDADE_MOVEL"
 
     class Meta:
         ordering = ["nome"]
-        verbose_name = "atividade do plano"
-        verbose_name_plural = "atividades do plano"
+        verbose_name = "atividade e serviço"
+        verbose_name_plural = "atividades e serviços"
 
     def __str__(self) -> str:
         return self.nome
+
+    def save(self, *args, **kwargs):
+        # Mantém compatibilidade com a criação contextual de serviços só pelo nome.
+        if not self.codigo:
+            from .dominio_catalogo import codigo_da_atividade
+            existentes = set(type(self).objects.values_list("codigo", flat=True))
+            self.codigo = codigo_da_atividade(self.nome, existentes)
+        return super().save(*args, **kwargs)
+
+
+class VinculoFonteCadastro(models.Model):
+    """Identidade na origem e último estado recebido; os consumidores usam o ID local."""
+
+    fonte = models.CharField(max_length=80)
+    entidade = models.CharField(max_length=40)
+    registro_id = models.PositiveBigIntegerField()
+    identificador_externo = models.CharField(max_length=255)
+    campos_externos = models.JSONField(default=list)
+    ultimo_estado = models.JSONField(default=dict)
+    revisao = models.CharField(max_length=255, blank=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["fonte", "entidade", "identificador_externo"],
+                                    name="fonte_cadastro_identidade_unica"),
+            models.UniqueConstraint(fields=["entidade", "registro_id"],
+                                    name="fonte_cadastro_origem_unica"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.fonte}: {self.entidade} {self.identificador_externo}"
 
 
 class PresetAtividades(Ativavel):

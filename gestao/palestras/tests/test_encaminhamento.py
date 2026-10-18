@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from gestao.cadastros.models import Municipio
-from gestao.eventos.models import Movimento, Solicitacao
+from gestao.eventos.models import Movimento, Solicitacao, TipoEvento
 from gestao.identidade.models import Usuario
 from gestao.palestras import encaminhamento, historico
 from gestao.palestras.models import Palestra, Palestrante, Tema
@@ -24,6 +24,7 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def cenario():
+    TipoEvento.objects.get_or_create(nome="PCPR na Comunidade")
     u = Usuario.objects.create_user("ascom", "ascom@teste.invalid", None, nome="Ascom")
     u.groups.add(Group.objects.get(name="ASCOM_PALESTRAS"))
     cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",

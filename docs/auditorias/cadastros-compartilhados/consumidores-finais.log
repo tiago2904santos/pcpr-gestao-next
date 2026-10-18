@@ -1,0 +1,178 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from ini)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 3 items
+
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[360] FAILED [ 33%]
+tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[1440] FAILED [ 66%]
+tests/e2e/test_planos_preparacao_identidade.py::test_preparacao_quantidade_calendario_e_conferencia[360] PASSED [100%]
+
+================================== FAILURES ===================================
+________________ test_certidao_coffee_modal_e_calendario[360] _________________
+
+logado = <Page url='http://localhost:50283/coffee/certidoes/?anexar=1%3Afederal'>
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_certidao_coffee_modal_e_calendario(logado, largura):
+        from gestao.coffee.models import Certidao
+    
+        from .test_coffee import _lote_de_curitiba, _operador_do_modulo
+    
+        _operador_do_modulo()
+        lote = _lote_de_curitiba()
+        fornecedor = lote.contrato.fornecedor
+        fornecedor.razao_social = "Fornecedor sintético com identificação extensa para conferência"
+        fornecedor.save(update_fields=["razao_social"])
+        pg = logado
+        pg.emulate_media(reduced_motion="reduce")
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/coffee/certidoes/")
+        pg.locator('a[href^="?anexar="]').first.click()
+        janela = pg.locator("#dialogo-certidao")
+        expect(janela).to_be_visible()
+        expect(janela.get_by_role("heading")).to_contain_text(fornecedor.razao_social)
+        janela.get_by_role("button", name="Conferir e anexar", exact=True).click()
+        expect(pg.locator(".toast")).to_contain_text("escolha o PDF")
+        expect(janela).to_be_visible()
+        calendario = janela.get_by_role("button", name="Abrir calendário", exact=True)
+>       calendario.click()
+
+tests\e2e\test_cadastros_missao.py:320: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002DB7C2DFB60>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002DB7ECDF240>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("#dialogo-certidao").get_by_role("button", name="Abrir calendário", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Operations to perform:
+  Synchronize unmigrated apps: django_htmx, integracoes, messages, postgres, staticfiles
+  Apply all migrations: auth, cadastros, coffee, contenttypes, eventos, identidade, imprensa, palestras, plataforma, publicacoes, sessions, viagens
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  No migrations to apply.
+---------------------------- Captured stderr setup ----------------------------
+Using existing test database for alias 'default' ('test_pcpr_ui_encerramento_lab')...
+
+________________ test_certidao_coffee_modal_e_calendario[1440] ________________
+
+logado = <Page url='http://localhost:50283/coffee/certidoes/?anexar=2%3Afederal'>
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_certidao_coffee_modal_e_calendario(logado, largura):
+        from gestao.coffee.models import Certidao
+    
+        from .test_coffee import _lote_de_curitiba, _operador_do_modulo
+    
+        _operador_do_modulo()
+        lote = _lote_de_curitiba()
+        fornecedor = lote.contrato.fornecedor
+        fornecedor.razao_social = "Fornecedor sintético com identificação extensa para conferência"
+        fornecedor.save(update_fields=["razao_social"])
+        pg = logado
+        pg.emulate_media(reduced_motion="reduce")
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/coffee/certidoes/")
+        pg.locator('a[href^="?anexar="]').first.click()
+        janela = pg.locator("#dialogo-certidao")
+        expect(janela).to_be_visible()
+        expect(janela.get_by_role("heading")).to_contain_text(fornecedor.razao_social)
+        janela.get_by_role("button", name="Conferir e anexar", exact=True).click()
+        expect(pg.locator(".toast")).to_contain_text("escolha o PDF")
+        expect(janela).to_be_visible()
+        calendario = janela.get_by_role("button", name="Abrir calendário", exact=True)
+>       calendario.click()
+
+tests\e2e\test_cadastros_missao.py:320: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:55: in acao
+    return original(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002DB7C2DFB60>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002DB7EEEB9C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("#dialogo-certidao").get_by_role("button", name="Abrir calendário", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+- generated xml file: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\docs\auditorias\cadastros-compartilhados\consumidores-finais.xml -
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[360] - playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#dialogo-certidao").get_by_role("button", name="Abrir calendário", exact=True)
+FAILED tests/e2e/test_cadastros_missao.py::test_certidao_coffee_modal_e_calendario[1440] - playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#dialogo-certidao").get_by_role("button", name="Abrir calendário", exact=True)
+=================== 2 failed, 1 passed in 221.58s (0:03:41) ===================

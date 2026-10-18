@@ -1,5 +1,11 @@
 # Desempenho e custos — automação com n8n e IA (seção 12)
 
+> **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../product/automacao-whatsapp-testes.md). Este site é um sistema
+> de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
+> Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e
+> restrições policiais de 17/10 abaixo são histórico do cenário institucional, sem bloquear
+> automaticamente o piloto. Não houve implementação ou ativação real nesta revisão.
+
 Avaliação de **17/10/2026**. Base técnica: [arquitetura.md](arquitetura.md), [contratos](contratos/) e
 [plano de implantação](plano-implantacao.md). Os fluxos detalhados ([`fluxos/`](fluxos/)) definem como medir
 cada ganho; aqui ficam os números de desempenho, de recursos e de custo, separados por tema.
@@ -13,6 +19,18 @@ cada ganho; aqui ficam os números de desempenho, de recursos e de custo, separa
 | **[estimativa]** | conta feita aqui a partir de premissas declaradas; precisa de medição |
 | **[hipótese]** | volume ou tempo suposto só para dimensionar; **o usuário precisa confirmar** |
 | EXISTENTE · PARCIAL · PLANEJADA | capacidade que o código executa hoje · verificada só em parte · só no papel |
+
+## Orçamento do piloto independente — revisão de 18/10/2026
+
+WhatsApp Cloud API é principal no piloto; portanto, os custos de mensagem e eventual provedor
+passam a compor o orçamento, sem a exclusão por uso policial do cenário antigo. Conferir recursos
+de teste, modelos disponíveis, tarifas, limites e eventuais verificações no onboarding real.
+Não foi orçada uma conta real nesta revisão: não presumir gratuidade nem reutilizar a tabela
+histórica como preço contratado. SMTP institucional é opcional e não bloqueia o piloto.
+
+O primeiro ensaio usa LAB dedicado, dados administrativos fictícios e contatos de testadores
+autorizados. Medir custo por fluxo e estabelecer teto antes de ligar. Resultados do simulador
+não são consumo real da Meta. As contas abaixo continuam sendo a base histórica de 17/10/2026.
 
 ## 1. Conclusões
 

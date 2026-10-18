@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T02:26:50.000Z",
-  "createdAt": "2026-10-18T02:22:07.859Z",
+  "updatedAt": "2026-10-18T03:57:26.000Z",
+  "createdAt": "2026-10-18T03:52:34.188Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -819,6 +819,70 @@
     },
     {
       "parameters": {
+        "jsCode": "return [{ json: { adiar: $input.all().some((i) => i.json && i.json.adiar === true) } }];"
+      },
+      "id": "8fd681d7-9189-586c-a09c-def018fd3752",
+      "name": "Decidir resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "001361df-cdef-5b85-8e22-7fbb68c3eb91",
+              "leftValue": "={{ $json.adiar === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7bc0645e-af7b-5ac0-b8e1-1dc1740748cb",
+      "name": "Adiar algum status?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3960,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"erro\":\"status_de_mensagem_ainda_nao_registrada\"}",
+        "options": {
+          "responseCode": 503
+        }
+      },
+      "id": "68c0fc4a-7be2-5403-b803-ba5ce27e3588",
+      "name": "Responder 503 (reentregar)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        4180,
+        660
+      ]
+    },
+    {
+      "parameters": {
         "respondWith": "noData",
         "options": {
           "responseCode": 200
@@ -829,8 +893,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        3740,
-        560
+        4180,
+        460
       ]
     }
   ],
@@ -969,6 +1033,35 @@
     },
     "Juntar": {
       "main": [
+        [
+          {
+            "node": "Decidir resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decidir resposta": {
+      "main": [
+        [
+          {
+            "node": "Adiar algum status?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adiar algum status?": {
+      "main": [
+        [
+          {
+            "node": "Responder 503 (reentregar)",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Responder 200",
@@ -1170,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "bd3a1cfb-6159-47e7-85ea-2a476be81c49",
+  "versionId": "64399ccf-8359-487d-b2bf-66eeedc7f528",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1178,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T02:22:07.860Z",
-      "createdAt": "2026-10-18T02:22:07.860Z",
+      "updatedAt": "2026-10-18T03:52:34.189Z",
+      "createdAt": "2026-10-18T03:52:34.189Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "HhFOQ8OqUraQKQ1M",
+      "projectId": "KDapCLFoTUNmEURa",
       "project": {
-        "updatedAt": "2026-10-18T02:21:55.864Z",
-        "createdAt": "2026-10-18T02:21:55.864Z",
-        "id": "HhFOQ8OqUraQKQ1M",
+        "updatedAt": "2026-10-18T03:52:26.631Z",
+        "createdAt": "2026-10-18T03:52:26.631Z",
+        "id": "KDapCLFoTUNmEURa",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "c8000cae-c045-4496-81bd-c50027e66050"
+        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
       }
     }
   ],

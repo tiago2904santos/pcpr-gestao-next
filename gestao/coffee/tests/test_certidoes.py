@@ -93,3 +93,19 @@ def test_telas_das_certidoes(base):
     estranho = Usuario.objects.create_user("bia", "bia@teste.invalid", None, nome="Bia")
     cli.force_login(estranho)
     assert cli.get(reverse("coffee:certidoes")).status_code == 403
+
+
+def test_erro_do_anexo_fica_no_modal_e_preserva_validade(base):
+    usuario, fornecedor = base
+    cliente = Client()
+    cliente.force_login(usuario)
+    resposta = cliente.post(reverse("coffee:anexar_certidao"), {
+        "fornecedor": fornecedor.pk, "tipo": "federal", "validade": "17/11/2030",
+    }, follow=True)
+    assert resposta.status_code == 200
+    assert resposta.context["validade_informada"] == "17/11/2030"
+    modal = resposta.content.decode().split('<dialog id="dialogo-certidao"', 1)[1]
+    modal = modal.split("</dialog>", 1)[0]
+    assert 'role="alert"' in modal and "escolha o PDF" in modal
+    assert 'value="17/11/2030"' in modal
+    assert not Certidao.objects.exists()

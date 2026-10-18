@@ -34,6 +34,14 @@ from .pedidos import PedidoInvalido
 POR_PAGINA = 25
 
 
+def _identificador(texto: str) -> int | None:
+    if not texto:
+        return None
+    if not texto.isascii() or not texto.isdecimal() or len(texto) > 18 or int(texto) <= 0:
+        raise Http404
+    return int(texto)
+
+
 @dataclass(frozen=True)
 class Tabela:
     chave: str
@@ -72,7 +80,7 @@ TABELAS = {t.chave: t for t in (
                                         ("quantidade_contratada", "campo--md"),
                                         ("valor_unitario", "campo--md"),
                                         ("valor_total", "campo--md"),
-                                        ("antecedencia_minima_dias", "campo--md"))),
+                                        ("antecedencia_minima_dias", "campo--cresce"))),
                 ("Fiscal e documento", (("fiscal", "campo--lg"), ("cargo_fiscal", "campo--lg"),
                                         ("clausula_pagamento", "campo--lg"),
                                         ("arquivo", "campo--cresce"))),
@@ -200,8 +208,8 @@ def cadastros(request: HttpRequest, tabela: str) -> HttpResponse:
         qs = qs.filter(filtro)
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     editando, form = None, None
-    if (pk := request.GET.get("editar") or "").isdecimal():
-        editando = get_object_or_404(t.modelo, pk=int(pk))
+    if (pk := _identificador(request.GET.get("editar") or "")) is not None:
+        editando = get_object_or_404(t.modelo, pk=pk)
         form = t.formulario(instance=editando)
     elif request.GET.get("novo"):
         form = t.formulario()
@@ -248,8 +256,8 @@ def salvar(request: HttpRequest, tabela: str) -> HttpResponse:
     _exigir(request.user, tabela)
     t = _tabela(tabela)
     editando = None
-    if (pk := request.POST.get("pk") or "").isdecimal():
-        editando = get_object_or_404(t.modelo, pk=int(pk))
+    if (pk := _identificador(request.POST.get("pk") or "")) is not None:
+        editando = get_object_or_404(t.modelo, pk=pk)
     antigo = (t.modelo.objects.filter(pk=editando.pk).values_list("arquivo", flat=True)
               .first() or "") if editando is not None and hasattr(editando, "arquivo") else ""
     form = t.formulario(request.POST, request.FILES, instance=editando)

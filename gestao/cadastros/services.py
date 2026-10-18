@@ -9,7 +9,6 @@ desativar (o registro sai das escolhas, a história fica).
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -19,6 +18,8 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import Count
 
 from . import policies
+from .dominio_catalogo import codigo_da_atividade
+from .fontes import exigir_campos_locais
 from .models import (
     AtividadePlano,
     Cargo,
@@ -31,6 +32,7 @@ from .models import (
     TipoViagem,
     Unidade,
     Viatura,
+    VinculoFonteCadastro,
 )
 
 
@@ -56,6 +58,14 @@ def vinculos(objeto: models.Model) -> list[Vinculo]:
     por_modelo: dict[type[models.Model], int] = {}
     # include_hidden: as relações sem nome reverso ("+", ex.: sede do ofício) também protegem.
     for relacao in objeto._meta.get_fields(include_hidden=True):
+        if isinstance(objeto, AtividadePlano) and relacao.auto_created and relacao.many_to_many:
+            reversa = cast(models.ManyToManyRel, relacao)
+            modelo_relacionado = cast(type[models.Model], reversa.related_model)
+            total = modelo_relacionado._default_manager.filter(
+                **{reversa.field.name: objeto}).count()
+            if total:
+                por_modelo[modelo_relacionado] = total
+            continue
         if not (relacao.auto_created and not relacao.concrete
                 and (relacao.one_to_many or relacao.one_to_one)):
             continue
@@ -66,8 +76,15 @@ def vinculos(objeto: models.Model) -> list[Vinculo]:
         total = modelo._default_manager.filter(**{nome: objeto}).count()
         if total:
             por_modelo[modelo] = por_modelo.get(modelo, 0) + total
-    return [Vinculo(str(m._meta.verbose_name if n == 1 else m._meta.verbose_name_plural), n)
-            for m, n in por_modelo.items()]
+    resultado = [Vinculo(str(m._meta.verbose_name if n == 1 else m._meta.verbose_name_plural), n)
+                 for m, n in por_modelo.items()]
+    from .fontes import MODELOS
+    entidade = next((tipo for tipo, modelo in MODELOS.items()
+                     if objeto._meta.concrete_model is modelo), None)
+    if entidade and VinculoFonteCadastro.objects.filter(
+            entidade=entidade, registro_id=objeto.pk).exists():
+        resultado.append(Vinculo("vínculo com fonte dedicada", 1))
+    return resultado
 
 
 def _exigir_alterar(usuario, modelo) -> None:
@@ -77,6 +94,14 @@ def _exigir_alterar(usuario, modelo) -> None:
 
 def _gravar(objeto: models.Model, duplicado: str) -> None:
     """Grava; a unicidade do banco (nome, CPF…) vira mensagem, nunca erro 500."""
+    if objeto.pk:
+        anterior = type(objeto)._default_manager.get(pk=objeto.pk)
+        try:
+            exigir_campos_locais(anterior, {
+                campo.name: getattr(objeto, campo.name)
+                for campo in objeto._meta.fields if not campo.is_relation})
+        except ValueError as exc:
+            raise CadastroInvalido(str(exc)) from exc
     try:
         with transaction.atomic():
             objeto.save()
@@ -143,6 +168,10 @@ def alternar_ativo(usuario, modelo, pk: int):
     """Desativar tira das escolhas (ofício, viatura…) sem apagar a história; reativar volta."""
     _exigir_alterar(usuario, modelo)
     objeto = modelo.objects.select_for_update().get(pk=pk)
+    try:
+        exigir_campos_locais(objeto, {"ativo": not objeto.ativo})
+    except ValueError as exc:
+        raise CadastroInvalido(str(exc)) from exc
     objeto.ativo = not objeto.ativo
     campos = ["ativo", "atualizado_em"]
     if not objeto.ativo and getattr(objeto, "padrao", False):
@@ -341,18 +370,6 @@ def contagem_por(qs, campo: str) -> dict[int, int]:
 
 
 # ---------------------------------------------------------------- plano de trabalho
-def codigo_da_atividade(nome: str, existentes: set[str]) -> str:
-    """Código estável nascido do nome: sem acento, maiúsculas, "_" entre as palavras; se já
-    existir, "_2", "_3"… (referência). Sem nome, "ATIVIDADE"."""
-    import unicodedata
-    sem_acento = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode()
-    base = re.sub(r"[^A-Z0-9]+", "_", sem_acento.upper()).strip("_")[:34] or "ATIVIDADE"
-    codigo, n = base, 2
-    while codigo in existentes:
-        codigo, n = f"{base}_{n}", n + 1
-    return codigo
-
-
 @transaction.atomic
 def salvar_atividade(usuario, *, nome: str, meta: str, recurso: str = "",
                      pk: int | None = None) -> AtividadePlano:
@@ -367,6 +384,10 @@ def salvar_atividade(usuario, *, nome: str, meta: str, recurso: str = "",
         atividade = AtividadePlano(codigo=codigo_da_atividade(nome, existentes))
     if not meta.strip():
         raise CadastroInvalido("Informe a meta da atividade.")
+    if (atividade.nome != nome and AtividadePlano.objects.filter(nome__iexact=nome)
+            .exclude(pk=pk or 0).exists()):
+        raise CadastroInvalido("Já existe uma atividade ou serviço com este nome. "
+                               "Edite o registro existente.")
     atividade.nome, atividade.meta, atividade.recurso = nome, meta.strip(), recurso.strip()
     _gravar(atividade, f"Já existe uma atividade com o código {atividade.codigo}.")
     return atividade

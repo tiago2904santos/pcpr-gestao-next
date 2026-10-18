@@ -12,6 +12,8 @@ from __future__ import annotations
 from django.db import models
 from django.db.models.functions import Lower
 
+from gestao.cadastros.models import AtividadePlano
+
 
 class Catalogo(models.Model):
     nome = models.CharField("nome", max_length=150)
@@ -27,10 +29,26 @@ class Catalogo(models.Model):
         return self.nome
 
 
-class Servico(Catalogo):
-    class Meta(Catalogo.Meta):
+class Servico(AtividadePlano):
+    """Nome contextual e permissões de Eventos para o mesmo catálogo canônico."""
+
+    class Meta:
+        proxy = True
+        ordering = ["nome"]
         verbose_name = "serviço"
         verbose_name_plural = "serviços"
+
+
+class ServicoLegado(Catalogo):
+    """Mapa preservado da migração; nenhum formulário usa esta entidade."""
+
+    canonico = models.ForeignKey(AtividadePlano, on_delete=models.PROTECT,
+                                related_name="origens_eventos")
+    criterio = models.CharField(max_length=80)
+    vinculos_originais = models.JSONField(default=dict)
+
+    class Meta(Catalogo.Meta):
+        default_permissions = ()
         constraints = [models.UniqueConstraint(Lower("nome"), name="eventos_servico_nome")]
 
 
@@ -74,7 +92,7 @@ class TipoEvento(Catalogo):
     orgao_padrao = models.ForeignKey(OrgaoResponsavel, verbose_name="órgão padrão",
                                      on_delete=models.SET_NULL, null=True, blank=True,
                                      related_name="+")
-    servicos_sugeridos = models.ManyToManyField(Servico, verbose_name="serviços sugeridos",
+    servicos_sugeridos = models.ManyToManyField(AtividadePlano, verbose_name="serviços sugeridos",
                                                 blank=True, related_name="+")
 
     class Meta(Catalogo.Meta):

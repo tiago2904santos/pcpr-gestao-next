@@ -1,67 +1,51 @@
-# WhatsApp: viabilidade para a PCPR
+# WhatsApp Business: canal principal do sistema de testes
 
-Análise de 17/10/2026, Fase 2 do plano de automação. Ela parte da política oficial do WhatsApp
-para empresas, da documentação oficial da Meta e do n8n e da leitura do código do sistema novo e
-das referências em produção (GV e EV).
+## Conclusão vigente — 18/10/2026
 
-**Conclusão: a ativação da plataforma oficial do WhatsApp para a PCPR está BLOQUEADA (maturidade 5).**
-Pela política vigente, autoridades policiais estão entre os usuários proibidos do WhatsApp Business
-Platform. A política não prevê exceção, programa nem processo de aprovação para isso, e provedores
-autorizados também recusam polícia. Os fluxos de automação já funcionam sem WhatsApp: portal do
-servidor, notificações internas e e-mail institucional. Em 17/10/2026 o usuário definiu o WhatsApp como
-**prioridade**: envio assistido com registro já (WA-1), consulta formal à Meta (WA-2) e integração oficial
-pronta e desligada (WA-3) — seção "Prioridade definida pelo usuário", abaixo.
+O usuário esclareceu: **o site não é oficial da polícia, não vai operar com policiais e é um
+sistema de testes independente**. A premissa institucional policial da análise de 17/10 fica
+substituída para este piloto. A integração pela **WhatsApp Business Platform / Cloud API oficial**
+é o canal principal planejado, sem exigir uma autorização da PCPR ou uma exceção policial.
 
-Marcação usada neste documento:
+A elegibilidade da conta real não foi verificada e não é presumida. Usar a identidade verdadeira
+do responsável pelo projeto e identificar as mensagens como teste. A política oficial continua
+exigindo opt-in, modelos quando aplicáveis e respeito à janela de atendimento; consulta em
+[18/10/2026](https://whatsappbusiness.com/policy/). O onboarding deve conferir os recursos de teste
+atualmente disponíveis na conta. A documentação técnica de início da Meta retornou HTTP 429 nesta
+revisão; não se afirma um número fixo de destinatários nem dispensa de verificação comercial.
 
-- **EXISTENTE**: o código existe e executa hoje.
-- **VERIFICADA PARCIALMENTE**: vista na leitura do código, sem execução nesta auditoria, ou
-  incompleta.
-- **PLANEJADA**: só desenho, sem código.
-- **BLOQUEADA**: impedida por regra externa.
+## Escopo e sequência do piloto
 
-Classificação e maturidade seguem o vocabulário comum da Fase 2: maturidade 1 a 5; as
-classificações vão de "automação indicada com n8n" a "inadequada ou inviável atualmente".
+1. Simulador local para desenvolvimento e regressões (já existente).
+2. Fundação de comunicações no PCPR e adaptador oficial (a desenvolver).
+3. LAB dedicado com recursos de teste da Meta, contatos verificados, opt-in e lista de
+   destinatários permitidos, acesso autenticado e dados administrativos fictícios.
+4. Ensaio completo: aviso → status → resposta/documento sintético → associação → confirmação.
+5. Extensão a KM, documentos, DB/RT e dúvidas sobre a situação fictícia com link ao portal.
 
-Documentos relacionados (este texto não repete o que está neles):
+WhatsApp é o canal principal; portal e notificações internas são apoio; e-mail é opcional.
+Envio manual é contingência. PREVIEW/DEMO público continua simulado e não recebe credenciais.
+O estado inicial é `desligado`, não um bloqueio policial automático. A integração real ainda
+não foi implementada nem ativada; os resultados do protótipo são exclusivamente simulados.
 
-- [arquitetura.md](arquitetura.md): papéis do PCPR, do n8n e da IA, confiabilidade e segurança.
-- [plano-implantacao.md](plano-implantacao.md): decisões D4 ("canal com os servidores") e D4a (aparelho e
-  número institucionais do WhatsApp assistido e quem envia a consulta à Meta) e frentes WA-1 a WA-3.
-- [contratos/api-automacao.v1.yaml](contratos/api-automacao.v1.yaml): `/estado.canais`, reserva,
-  resultado, entrega e recebimentos.
-- Fluxos: [10-2 envio de documentos](fluxos/10-2-envio-de-documentos.md) ·
-  [10-3 prestação e mensagem de saque](fluxos/10-3-prestacao-e-mensagem-de-saque.md) ·
-  [10-4 link de KM](fluxos/10-4-link-de-km-na-vespera.md) ·
-  [10-5 DB e RT](fluxos/10-5-db-e-rt-para-assinatura.md) ·
-  [10-6 recebimento](fluxos/10-6-recebimento-de-documentos.md) ·
-  [11-1 rotas](fluxos/11-1-rotas-e-roteiros.md).
+## Frentes revisadas
 
----
+| Frente | Papel no piloto | Dependências |
+|---|---|---|
+| WA-3 / AUT-174 | Integração principal Cloud API: envio, recebimento, mídia e status | desenvolvimento, credenciais/recursos Meta e aceite em LAB; maturidade 3 |
+| WA-1 / AUT-172 | Contingência manual registrada | desenvolvimento no PCPR; maturidade 2 |
+| WA-2 / AUT-173 | Onboarding normal da conta independente | acesso ao painel e recursos de teste; maturidade 3; consulta policial histórica não exigida |
+| AUT-10 | Canal oficial WhatsApp no piloto, coberto pela WA-3 | maturidade 3; classificação externa, sem somar nova oportunidade |
 
-## Prioridade definida pelo usuário (17/10/2026)
+Critérios detalhados e regra de ambiente:
+[produto](../product/automacao-whatsapp-testes.md) · [plano](plano-implantacao.md) ·
+[ADR 0046](../adr/0046-whatsapp-principal-no-sistema-de-testes.md).
 
-O usuário definiu as integrações com o WhatsApp como **prioridade**. Isso não muda a conclusão acima: a
-plataforma oficial continua **bloqueada** (maturidade 5) até autorização escrita, e integração não oficial,
-número pessoal automatizado ou ocultar a identidade institucional seguem fora de cogitação (seções 1, 2 e
-4). A prioridade vira três frentes do [plano de implantação](plano-implantacao.md) (seção "Prioridade
-definida pelo usuário: WhatsApp"), que começam já, sem esperar as outras etapas:
+## Histórico de 17/10/2026 — cenário institucional policial
 
-| Frente | O que é | Maturidade | Item da matriz | Onde está aqui |
-|---|---|---|---|---|
-| **WA-1. WhatsApp assistido com registro** | Opção B da seção 7.3: mensagem mínima pela função de domínio, link `wa.me` aberto pelo operador no aparelho institucional e registro "enviado por WhatsApp manual" (`Comunicacao` com `origem = outro_meio`), quem e quando. Nenhum envio automático por esse caminho | **2** (uso depende da decisão D4a do plano e das perguntas P3/P4) | [AUT-172](matriz-oportunidades.md) | seções 7.2 e 7.3 |
-| **WA-2. Consulta formal de elegibilidade** | Enviar à Meta ou a provedor autorizado as perguntas P1–P10, por canal oficial e com responsável designado pela PCPR; arquivar a resposta e rever a classificação | **4** | [AUT-173](matriz-oportunidades.md) | seção 3 |
-| **WA-3. Integração oficial pronta e desligada** | Porta `gestao/integracoes/whatsapp` (simulado e Cloud API), opt-in no `ContatoVerificado`, modelos *utility* para aprovação, webhook com `X-Hub-Signature-256`, mídia por id, status para `/entrega`, workflows n8n exportados **desligados** e testados contra simulador da Graph API; `whatsapp = bloqueado` em `/estado` até a ativação | **5 para ativar** (construir e testar desligado é desenvolvimento, 2) | [AUT-174](matriz-oportunidades.md) | seções 5.2 e 6 |
-
-**Portão de ativação da WA-3** (do plano; todos obrigatórios): autorização escrita da Meta ou de provedor
-autorizado compatível com a política vigente; conta empresarial verificada em nome da instituição; decisão
-formal da PCPR e avaliação de LGPD (opt-in, base legal, retenção); modelos aprovados. Antes de ativar, também
-é preciso tratar o achado T13 do protótipo: no n8n 2.43.7, execuções de webhook de recebimento ficaram
-retidas com o número do remetente mesmo sem salvar execução ([desempenho-e-custos §14.7](desempenho-e-custos.md)).
-Até lá, as mesmas comunicações saem pelo portal, pelas notificações internas, pelo e-mail institucional e
-pela WA-1.
-
----
+**As seções abaixo são preservadas como pesquisa do cenário anterior.** As referências a
+PCPR, consulta excepcional, maturidade 5 e canal bloqueado valem para aquele cenário, não
+para o piloto independente acima. Não representam uma autorização nem uma ativação feita.
 
 ## 1. A regra encontrada na política vigente
 
