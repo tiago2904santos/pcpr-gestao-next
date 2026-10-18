@@ -7,6 +7,7 @@ from . import (
     views_diario,
     views_editor,
     views_editor_avulso,
+    views_envios,
     views_importacao,
     views_ordens,
     views_pacotes,
@@ -21,7 +22,13 @@ from . import (
 
 app_name = "viagens"
 
+
 urlpatterns = [
+    path("envios/", views_envios.lista, name="envios_manuais"),
+    path("envios/atualizar/", views_envios.atualizar, name="atualizar_envios"),
+    path("envios/<int:ps_pk>/", views_envios.detalhe, name="envio_manual"),
+    path("envios/<int:ps_pk>/arquivos/<int:comunicacao_pk>/<str:formato>/",
+         views_envios.baixar, name="baixar_envio_manual"),
     path("importacoes/", views_importacao.lista, name="importacoes"),
     path("importacoes/enviar/", views_importacao.enviar, name="enviar_importacao"),
     path("importacoes/estado/", views_importacao.estado, name="estado_importacao"),

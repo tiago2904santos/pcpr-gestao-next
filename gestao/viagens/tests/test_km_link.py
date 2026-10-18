@@ -457,3 +457,10 @@ def test_lembrete_depois_da_volta_e_obsoleto_quando_completa(c):
     entrega.processar_uma(porta=Espiao())
     outro.refresh_from_db()
     assert outro.situacao == S.OBSOLETA and "completos" in outro.motivo
+
+
+def test_service_worker_leva_o_vencimento_do_link(c):
+    path, _, _ = _enviar_link(c)
+    corpo = Client().get(path + "sw/").content.decode()
+    assert "const EXPIRA = " in corpo and "const EXPIRA = 0;" not in corpo
+    assert "pcpr-km-pagina:" in corpo and "status: 410" in corpo

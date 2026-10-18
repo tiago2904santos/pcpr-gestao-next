@@ -8,7 +8,6 @@ worker interno — a API não tem atalho.
 
 from __future__ import annotations
 
-import base64
 import hashlib
 from datetime import datetime
 from typing import Any
@@ -92,6 +91,10 @@ def _identificacao_invalida(d: dict) -> JsonResponse | None:
     indice = str(d.get("anexo_indice") if d.get("anexo_indice") is not None else "")
     if not indice.isdigit() or int(indice) > 999:
         return erro(422, "entrada_invalida", "anexo_indice é um inteiro de 0 a 999.")
+    total = str(d.get("total_anexos") if d.get("total_anexos") is not None else "")
+    if not total.isdigit() or not 1 <= int(total) <= 1000 or int(indice) >= int(total):
+        return erro(422, "entrada_invalida",
+                    "total_anexos é um inteiro ≥ 1 e anexo_indice fica entre 0 e total_anexos − 1.")
     return None
 
 
@@ -328,7 +331,7 @@ def criar_recebimento(ch: Chamada) -> JsonResponse:
             conteudo=conteudo, nome=str(d.get("nome_arquivo") or arquivo.name or ""),
             recebido_em=_data(d.get("recebido_em")),
             em_resposta_a=str(d.get("em_resposta_a_mensagem_canal") or "")[:300],
-            sha256_informado=base64.b64encode(bytes.fromhex(sha)).decode())
+            sha256_informado=sha)  # hex: o formato que o modelo compara
     except recebimentos.ConflitoDeArquivo as e:
         return erro(409, "conflito_de_versao", str(e))
     except ValueError:
@@ -461,6 +464,10 @@ def executar_ferramenta(ch: Chamada, nome: str) -> JsonResponse:
             dados = ferramentas.validar(f, ch.dados)
         except ferramentas.FerramentaInvalida as e:
             return erro(422, "entrada_invalida", str(e))
+        try:
+            ferramentas.conferir_portao(f)  # 423 sem consumir a delegação de uso único
+        except ferramentas.AutomacaoDesligada as e:
+            return erro(423, "desligada", str(e))
         try:
             with transaction.atomic():
                 delegacao = delegacoes.consumir(cabecalho, c, nome, f.recurso(dados))

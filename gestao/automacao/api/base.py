@@ -13,6 +13,7 @@ import json
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import wraps
 
 from django.conf import settings
@@ -20,6 +21,7 @@ from django.contrib.auth.decorators import login_not_required
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
 from django.http import Http404, HttpRequest, JsonResponse
+from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 
@@ -176,6 +178,27 @@ def rota(escopo: str, *, metodo: str = "GET", desligamento: str = "aceita",
 EM_ANDAMENTO = 0  # status do registro enquanto a primeira chamada executa
 
 
+#: Mais que o tempo máximo de uma requisição (gunicorn): "em andamento" mais velho que isto é
+#: de um processo que morreu entre reservar a chave e gravar a resposta.
+PRAZO_EM_ANDAMENTO = timedelta(minutes=5)
+
+
+def _assumir_abandonado(guardado: RegistroIdempotencia, impressao: str, request) -> bool:
+    """Reserva "em andamento" abandonada (o processo saiu antes de gravar ou apagar o
+    registro): a MESMA requisição assume a chave, renovando o prazo de forma atômica (só uma
+    retentativa assume). É seguro executar de novo porque todo efeito da API é idempotente
+    pela chave de negócio no serviço (reserva por tentativa, resultado por token, status por
+    wamid+status, recebimento pela chave receb:, exceção pela chave, delegação de uso único):
+    o que já tinha sido gravado volta como repetição, sem efeito novo."""
+    if (guardado.status != EM_ANDAMENTO or guardado.impressao != impressao
+            or guardado.rota != request.path[:120]):
+        return False
+    agora = timezone.now()
+    return bool(RegistroIdempotencia.objects.filter(
+        pk=guardado.pk, status=EM_ANDAMENTO, criado_em__lt=agora - PRAZO_EM_ANDAMENTO
+    ).update(criado_em=agora))
+
+
 def _repeticao(request, c, guardado: RegistroIdempotencia, impressao: str):
     if guardado.impressao != impressao or guardado.rota != request.path[:120]:
         return erro(422, "entrada_invalida", "Esta Idempotency-Key já foi usada com outra "
@@ -224,9 +247,12 @@ def _executar(funcao, request, c, correlacao, metodo, desligamento, args, kwargs
                                      and reuso_pelo_servico(_dados(request)) == chave)
             except ErroApi:
                 mesmo_recebimento = False
-            if not (mesmo_recebimento and outra and guardado.status != EM_ANDAMENTO):
+            if _assumir_abandonado(guardado, impressao, request):
+                registro = guardado  # o processo da 1ª chamada morreu: esta chamada assume
+            elif not (mesmo_recebimento and outra and guardado.status != EM_ANDAMENTO):
                 return _repeticao(request, c, guardado, impressao)
-            registro = None  # o serviço é idempotente pela própria chave e responde o 409
+            else:
+                registro = None  # o serviço é idempotente pela própria chave e responde o 409
     try:
         if desligamento == "recusa" and not chaves.geral_ligada():
             resposta = erro(423, "desligada", "A automação está desligada: nada foi feito. O "

@@ -299,6 +299,20 @@ class ConflitoDeArquivo(Exception):
     """Mesma chave de recebimento com outro arquivo (o canal mudou o anexo)."""
 
 
+def _hex(digest: str) -> str:
+    """SHA-256 guardado em hex (o normal) ou em base64 (como a Meta informa): sempre hex."""
+    import base64
+    import binascii
+
+    d = (digest or "").strip()
+    if len(d) == 64 and all(c in "0123456789abcdefABCDEF" for c in d):
+        return d.lower()
+    try:
+        return base64.b64decode(d, validate=True).hex()
+    except (binascii.Error, ValueError):
+        return d
+
+
 def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: bytes,
                     nome: str, recebido_em, em_resposta_a: str = "",
                     sha256_informado: str = "") -> tuple[Recebimento, bool]:
@@ -316,7 +330,7 @@ def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: 
     sha = hashlib.sha256(conteudo).hexdigest()
     existente = Recebimento.objects.filter(chave=chave).first()
     if existente is not None:
-        if existente.sha256 and existente.sha256 != sha:
+        if existente.sha256 and _hex(existente.sha256) != sha:
             raise ConflitoDeArquivo("Mesma mensagem e anexo com outro conteúdo.")
         return existente, False
     with transaction.atomic():

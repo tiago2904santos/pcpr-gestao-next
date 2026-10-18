@@ -178,7 +178,10 @@ def _feitos(ps: PrestacaoServidor, s: anexos.Situacao) -> dict:
 
 
 def _whatsapp(ps: PrestacaoServidor, diaria) -> str:
-    """O aviso de liberação das diárias por WhatsApp (só um link wa.me; nada é enviado)."""
+    """Conferência agrupada no modo manual; aviso legado nos outros transportes."""
+    from . import envios_manuais
+    if envios_manuais.manual():
+        return reverse("viagens:envio_manual", args=[ps.pk])
     from urllib.parse import quote
     telefone = re.sub(r"\D", "", ps.servidor.telefone or "")
     if not telefone or not ps.data_liberacao_diarias:

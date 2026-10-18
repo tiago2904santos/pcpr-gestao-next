@@ -36,6 +36,8 @@ def gerar_documento(payload: dict) -> None:
     doc.sha256, doc.tamanho = sha, len(conteudo)
     doc.situacao, doc.erro, doc.gerado_em = Documento.Situacao.PRONTO, "", timezone.now()
     doc.save(update_fields=["arquivo", "sha256", "tamanho", "situacao", "erro", "gerado_em"])
+    from . import envios_manuais
+    envios_manuais.atualizar_do_oficio(doc.oficio_id, doc.emitido_por)
     Historico.objects.create(
         oficio=doc.oficio, acao=Historico.Acao.DOCUMENTO,
         descricao=f"{doc.get_tipo_display()} versão {doc.versao} gerado (PDF/A-2a).",

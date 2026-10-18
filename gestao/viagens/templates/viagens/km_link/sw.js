@@ -6,7 +6,11 @@
 // - Dois caches: a página deste link (um por link) e os estáticos, UM por versão publicada e
 //   compartilhado entre links; a versão anterior dos estáticos é apagada ao ativar (sem isso
 //   cada link novo guardava outra cópia inteira no aparelho).
-const CACHE = "pcpr-km-{{ link_id|escapejs }}";
+// - O link vence: a cópia da página deixa de abrir offline depois de `EXPIRA` e é apagada
+//   (num aparelho perdido ou compartilhado, roteiro e km não ficam acessíveis para sempre).
+//   O nome do cache leva o vencimento, e qualquer cache de página vencido é apagado ao ativar.
+const EXPIRA = {{ expira_ms|default:0 }};
+const CACHE = `pcpr-km-pagina:{{ link_id|escapejs }}:${EXPIRA}`;
 const VERSAO = "{% static 'js/componentes/km-offline.js' %}";
 const CACHE_ESTATICOS = `pcpr-km-estaticos:${VERSAO}`;
 const PAGINA = "{{ base|escapejs }}";
@@ -35,10 +39,17 @@ self.addEventListener("install", (evento) => {
 self.addEventListener("activate", (evento) => {
   evento.waitUntil(caches.keys()
     .then((nomes) => Promise.all(nomes
-      .filter((n) => n.startsWith("pcpr-km-estaticos:") && n !== CACHE_ESTATICOS)
+      .filter((n) => (n.startsWith("pcpr-km-estaticos:") && n !== CACHE_ESTATICOS)
+        || paginaVencida(n) || /^pcpr-km-\d+$/.test(n))  // formato antigo, sem vencimento
       .map((n) => caches.delete(n))))
     .then(() => self.clients.claim()));
 });
+
+function paginaVencida(nome) {
+  if (!nome.startsWith("pcpr-km-pagina:")) return false;
+  const vence = Number(nome.split(":").pop());
+  return Number.isFinite(vence) && vence > 0 && Date.now() > vence;
+}
 
 async function pagina(pedido) {
   try {
@@ -48,7 +59,12 @@ async function pagina(pedido) {
     else if (resposta.status === 404 || resposta.status === 410) await caches.delete(CACHE);
     return resposta;
   } catch {
-    const copia = await caches.match(PAGINA);
+    if (EXPIRA && Date.now() > EXPIRA) {  // sem rede e o link já venceu: apaga e não mostra
+      await caches.delete(CACHE);
+      return new Response("Este link venceu. Peça um novo ao setor de viagens.",
+                          { status: 410, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    }
+    const copia = await (await caches.open(CACHE)).match(PAGINA);
     return copia || Response.error();
   }
 }

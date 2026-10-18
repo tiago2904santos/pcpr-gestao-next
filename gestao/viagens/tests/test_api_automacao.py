@@ -356,3 +356,76 @@ def test_envio_que_saiu_depois_do_optout_vira_excecao(c):
     assert c.com.situacao == "enviada" and c.com.mensagem_id == "wamid.OPTOUT"
     assert ExcecaoAutomacao.objects.filter(
         chave=f"depois-do-cancelamento:{c.com.pk}", tipo="contato").exists()
+
+
+# ------------------------------------------------------------------ 3ª revisão do PR #24 (Codex)
+def test_desligada_nao_consome_a_delegacao(c):
+    from gestao.automacao.ferramentas import Campo, Ferramenta, registrar
+
+    registrar(Ferramenta(
+        nome="teste.cancelar_com_recurso", descricao="cancela", risco="irreversivel",
+        entrada={"comunicacao": Campo("inteiro")}, executar=lambda u, e: {},
+        permitido=lambda u, e: u.has_perm("automacao.operar_automacao"),
+        recurso=lambda e: f"automacao.comunicacao:{e['comunicacao']}"))
+    admin, op = c.usuarios["admin"], c.usuarios["operador"]
+    cred, token = credenciais.emitir(admin, nome="IA2", tipo="ia",
+                                     ferramentas=["teste.cancelar_com_recurso"])
+    _, dlg = delegacoes.emitir(op, cred, ferramentas=["teste.cancelar_com_recurso"],
+                               recurso="automacao.comunicacao:1", motivo="teste")
+    chaves.desligar_tudo(admin, "teste")
+    url = "/ferramentas/teste.cancelar_com_recurso/executar"
+    r = _post(c, url, {"comunicacao": 1}, "ferramenta:desligada-001", token=token,
+              HTTP_X_PCPR_DELEGACAO=dlg)
+    assert r.status_code == 423
+    chaves.alterar(admin, chaves.GERAL, estado="ligada")
+    r = _post(c, url, {"comunicacao": 1}, "ferramenta:desligada-001", token=token,
+              HTTP_X_PCPR_DELEGACAO=dlg)
+    assert r.status_code == 202  # a delegação não tinha sido gasta pelo 423
+
+
+def test_sombra_nao_executa_pedido_que_ja_estava_na_fila(c):
+    _ferramentas_de_teste()
+    op = c.usuarios["operador"]
+    _, token = credenciais.emitir(op, nome="meu cliente 2", tipo="pessoal")
+    r = _post(c, "/ferramentas/teste.cancelar_aviso/executar", {"comunicacao": 1},
+              "ferramenta:sombra-0000001", token=token)
+    pedido = PedidoAprovacao.objects.get(pk=r.json()["pedido"])
+    chaves.alterar(c.usuarios["admin"], chaves.nome_fluxo("ferramentas"), estado="ligada",
+                   modo="sombra")
+    with pytest.raises(ferramentas.FerramentaRecusada):
+        ferramentas.aprovar(c.usuarios["gestor"], pedido.pk)
+    pedido.refresh_from_db()
+    assert pedido.situacao == "pendente"
+
+
+def test_reserva_em_andamento_abandonada_e_assumida(c):
+    from datetime import timedelta
+
+    from gestao.automacao.models_api import RegistroIdempotencia
+
+    chave = f"reserva:{c.com.pk}:v1:abandonada"
+    r = _post(c, f"/comunicacoes/{c.com.pk}/reservar", {}, chave)
+    assert r.status_code == 200
+    # Simula o processo que morreu depois de reservar a chave e antes de gravar a resposta.
+    RegistroIdempotencia.objects.filter(chave=chave).update(
+        status=0, corpo={}, criado_em=timezone.now() - timedelta(minutes=10))
+    de_novo = _post(c, f"/comunicacoes/{c.com.pk}/reservar", {}, chave)
+    # Não fica preso no "em andamento" (409 com Retry-After para sempre): a chamada assume
+    # e o serviço responde pelo estado real (a comunicação já está reservada).
+    assert "Retry-After" not in de_novo, de_novo.content
+    assert RegistroIdempotencia.objects.get(chave=chave).status != 0  # resolvida
+
+
+def test_total_de_anexos_e_conferido(c):
+    from gestao.automacao.models_api import CredencialIntegracao
+
+    cred = CredencialIntegracao.objects.get(pk=credenciais.autenticar(f"Bearer {c.token}").pk)
+    cred.escopos = [*cred.escopos, "recebimentos:criar"]
+    cred.save(update_fields=["escopos"])
+    base = {"canal": "whatsapp", "mensagem_id_canal": "wamid.TOT", "remetente": E164,
+            "motivo": "sem_anexo"}
+    for extra in ({"anexo_indice": 0}, {"anexo_indice": 0, "total_anexos": 0},
+                  {"anexo_indice": 2, "total_anexos": 2}):
+        r = _post(c, "/recebimentos/sem-arquivo", {**base, **extra},
+                  f"receb:whatsapp:wamid.TOT:{extra['anexo_indice']}")
+        assert r.status_code == 422, extra

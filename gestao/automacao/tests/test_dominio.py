@@ -77,3 +77,13 @@ def test_chave_do_recebimento_cabe_em_200_para_ids_de_ate_300():
     assert dominio.chave_recebimento("email", "x", 0).startswith("receb#sha256:")  # < 16
     emoji = dominio.chave_recebimento("whatsapp", "wamid.😀", 0)
     assert emoji.startswith("receb#sha256:whatsapp:") and emoji.isascii()
+
+
+def test_digest_guardado_em_base64_compara_como_hex():
+    import base64
+    import hashlib
+
+    from gestao.automacao.recebimentos import _hex
+
+    h = hashlib.sha256(b"x").hexdigest()
+    assert _hex(base64.b64encode(bytes.fromhex(h)).decode()) == h == _hex(h.upper())

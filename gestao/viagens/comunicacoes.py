@@ -141,6 +141,11 @@ def diarias_liberadas(ps: PrestacaoServidor, autor) -> None:
     (o da versão antiga, se ainda não saiu, fica obsoleto no envio)."""
     if not ps.data_liberacao_diarias:
         return
+    from . import envios_manuais
+
+    if envios_manuais.manual():
+        envios_manuais.enfileirar(ps, autor)
+        return
     _agendar(AVISO, ps, autor, f"{AVISO}:{ps.pk}:{versao(ps)}")
 
 

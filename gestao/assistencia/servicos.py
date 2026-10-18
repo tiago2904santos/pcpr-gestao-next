@@ -269,12 +269,16 @@ def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Su
     pedido_ia = _pedido_ia(uso, ctx, determ, config, simular)
     if pedido_ia.contem_documento and not porta.aceita_documentos:
         return regra("documento")  # ADR 0041: nem chega a reservar
-    if chamadas_hoje(uso.chave) >= config.max_chamadas_dia:
+    restantes = config.max_chamadas_dia - chamadas_hoje(uso.chave)
+    if restantes <= 0:
         return regra("limite_diario")
-    maximo = servico_ia.custo_maximo(pedido_ia, porta) * config.max_tentativas
+    # Cada tentativa é uma chamada (`chamadas_hoje` soma `tentativas_ia`): com poucas vagas no
+    # dia, o pedido não pode fazer mais tentativas do que sobra do teto diário.
+    tentativas = min(config.max_tentativas, restantes)
+    maximo = servico_ia.custo_maximo(pedido_ia, porta) * tentativas
     # O lease passa a cobrir a chamada inteira (todas as tentativas): ninguém retoma o pedido
     # enquanto ela pode estar em curso, e a reserva fica anotada nele.
-    prazo = timedelta(seconds=config.tempo_limite_s * config.max_tentativas + 60)
+    prazo = timedelta(seconds=config.tempo_limite_s * tentativas + 60)
     reserva = orcamento.reservar(uso.chave, maximo, pedido_pk=pedido.pk, prazo=prazo)
     if reserva is None:
         return regra("orcamento")
@@ -282,7 +286,7 @@ def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Su
     execucao = servico_ia.executar(pedido_ia, porta, servico_ia.Limites(
         max_entrada_caracteres=config.max_entrada_caracteres,
         max_tokens_saida=config.max_tokens_saida,
-        tempo_limite_s=float(config.tempo_limite_s), max_tentativas=config.max_tentativas))
+        tempo_limite_s=float(config.tempo_limite_s), max_tentativas=tentativas))
     orcamento.liquidar(reserva, execucao.custo_estimado, execucao.tokens_entrada,
                        execucao.tokens_saida)
     if not execucao.ok:

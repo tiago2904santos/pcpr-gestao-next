@@ -198,6 +198,15 @@ def _pedido(usuario, pk: int) -> PedidoAprovacao:
     return p
 
 
+def conferir_portao(f: Ferramenta) -> None:
+    """Chave geral e fluxo das ferramentas, ANTES de qualquer efeito colateral (consumir a
+    delegação, inclusive): desligado é 423 sem gastar nada."""
+    if f.risco != LEITURA:
+        permissao = chaves.permissao_de_efeito(None, FLUXO)
+        if not permissao.permitido:
+            raise AutomacaoDesligada(permissao.motivo)
+
+
 @transaction.atomic
 def aprovar(usuario, pk: int) -> PedidoAprovacao:
     """Quem aprova executa com a PRÓPRIA permissão (não a de quem pediu)."""
@@ -207,6 +216,9 @@ def aprovar(usuario, pk: int) -> PedidoAprovacao:
     permissao = chaves.permissao_de_efeito(None, FLUXO)
     if not permissao.permitido:
         raise FerramentaRecusada(f"Nada se aprova agora: {permissao.motivo}")
+    if permissao.modo == "sombra":  # sombra registra, nunca executa — nem o que já estava na fila
+        raise FerramentaRecusada("O fluxo das ferramentas está em modo sombra: nada é "
+                                 "executado. Volte para assistido para aprovar.")
     f = obter(p.ferramenta)
     agora = timezone.now()
     p.decidido_por, p.decidido_em = usuario, agora
