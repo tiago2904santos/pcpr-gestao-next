@@ -1,5 +1,5 @@
 {
-  "inicio": "2026-10-18T00:46:01-03:00",
+  "inicio": "2026-10-18T03:17:30-03:00",
   "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
   "python": "3.13.15",
   "cenarios": [
@@ -10,6 +10,35 @@
       "evidencia": {
         "testes": 19,
         "falhas": []
+      }
+    },
+    {
+      "id": "T20",
+      "nome": "unitários: validador do esquema (C2) e código de saída da suíte (C8)",
+      "passou": true,
+      "evidencia": {
+        "testes": 18,
+        "resultado": [
+          "test_todos_os_envelopes_emitidos_sao_validos (test_validar_esquema.EnvelopesDoSimulador.test_todos_os_envelopes_emitidos_sao_validos) ... ok",
+          "test_campo_extra_em_dados (test_validar_esquema.Negativos.test_campo_extra_em_dados) ... ok",
+          "test_campo_extra_na_raiz (test_validar_esquema.Negativos.test_campo_extra_na_raiz) ... ok",
+          "test_const_nao_aceita_booleano_no_lugar_de_numero (test_validar_esquema.Negativos.test_const_nao_aceita_booleano_no_lugar_de_numero) ... ok",
+          "test_const_nao_aceita_texto (test_validar_esquema.Negativos.test_const_nao_aceita_texto) ... ok",
+          "test_data_sem_fuso (test_validar_esquema.Negativos.test_data_sem_fuso) ... ok",
+          "test_enum (test_validar_esquema.Negativos.test_enum) ... ok",
+          "test_enum_nao_aceita_numero_no_lugar_de_booleano (test_validar_esquema.Negativos.test_enum_nao_aceita_numero_no_lugar_de_booleano) ... ok",
+          "test_id_nao_uuid (test_validar_esquema.Negativos.test_id_nao_uuid) ... ok",
+          "test_integer_recusa_booleano_e_fracao (test_validar_esquema.Negativos.test_integer_recusa_booleano_e_fracao) ... ok",
+          "test_obrigatorio_em_dados (test_validar_esquema.Negativos.test_obrigatorio_em_dados) ... ok",
+          "test_then_do_tipo (test_validar_esquema.Negativos.test_then_do_tipo) ... ok",
+          "test_recusa_em_vez_de_ignorar (test_validar_esquema.PalavraChaveDesconhecida.test_recusa_em_vez_de_ignorar) ... ok",
+          "test_ref_nao_local (test_validar_esquema.PalavraChaveDesconhecida.test_ref_nao_local) ... ok",
+          "test_inteiro_com_ponto_decimal_e_inteiro (test_validar_esquema.Positivos.test_inteiro_com_ponto_decimal_e_inteiro) ... ok",
+          "test_cenario_que_falha_reprova (test_saida_suite.CodigoDeSaida.test_cenario_que_falha_reprova) ... ok",
+          "test_export_com_erro_reprova (test_saida_suite.CodigoDeSaida.test_export_com_erro_reprova) ... ok",
+          "test_export_ok_aprova (test_saida_suite.CodigoDeSaida.test_export_ok_aprova) ... ok"
+        ],
+        "saida": 0
       }
     },
     {
@@ -25,7 +54,7 @@
         "resultados_registrados": 1,
         "reservas": 1,
         "estado_final": "enviada",
-        "provedor_mensagem_id": "sim-9eb11ddb66aa4a35b60e",
+        "provedor_mensagem_id": "sim-e78bcf565f0e406a8b7e",
         "envelopes_validados_contra_schema": {
           "quantos": 2,
           "tipos": [
@@ -67,10 +96,10 @@
             "$.id: 'nao-e-uuid' não é uuid"
           ]
         },
-        "chave_idempotencia_reserva": "reserva:2:v1:exec4"
+        "chave_idempotencia_reserva": "reserva:2:v1:exec5"
       },
       "passou": true,
-      "segundos": 3.8
+      "segundos": 7.7
     },
     {
       "id": "T2",
@@ -111,7 +140,7 @@
         }
       },
       "passou": true,
-      "segundos": 12.1
+      "segundos": 14.8
     },
     {
       "id": "T3",
@@ -137,7 +166,7 @@
         }
       },
       "passou": true,
-      "segundos": 4.9
+      "segundos": 7.4
     },
     {
       "id": "T4",
@@ -180,7 +209,7 @@
         }
       },
       "passou": true,
-      "segundos": 6.4
+      "segundos": 9.1
     },
     {
       "id": "T5",
@@ -210,7 +239,7 @@
         }
       },
       "passou": true,
-      "segundos": 7.2
+      "segundos": 9.9
     },
     {
       "id": "T6",
@@ -224,11 +253,11 @@
         "resultados": [
           "enviada"
         ],
-        "intervalo_entre_tentativas_s": 1.03,
+        "intervalo_entre_tentativas_s": 1.12,
         "excecoes": 0
       },
       "passou": true,
-      "segundos": 4.4
+      "segundos": 5.4
     },
     {
       "id": "T7",
@@ -275,7 +304,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.9
+      "segundos": 21.4
     },
     {
       "id": "T8",
@@ -291,7 +320,7 @@
         "envios": 1
       },
       "passou": true,
-      "segundos": 3.5
+      "segundos": 4.7
     },
     {
       "id": "T9",
@@ -304,20 +333,20 @@
         "posts_recebimentos": 2,
         "recebimentos": 1,
         "segunda_chamada_replay": true,
-        "chave": "receb:email:msg.sim.T9.f26a0b26:0",
+        "chave": "receb:email:msg.sim.T9.2bc50a68:0",
         "sha256_conferido": true,
         "tamanho_bytes": 634,
         "estado": "aceito_para_processamento"
       },
       "passou": true,
-      "segundos": 3.7
+      "segundos": 5.3
     },
     {
       "id": "T10",
       "nome": "reinício do n8n no meio → nada duplicado, reconciliação completa",
       "evidencia": {
         "lease_s": 15,
-        "tempo_para_voltar_s": 20.1,
+        "tempo_para_voltar_s": 79.7,
         "reentrega_evento_A_pos_reinicio": 202,
         "reconciliacao": {
           "devidas": 2
@@ -384,10 +413,10 @@
           }
         },
         "duplicados_no_canal": 0,
-        "segundos_entre_queda_e_volta": 33.5
+        "segundos_entre_queda_e_volta": 93.3
       },
       "passou": true,
-      "segundos": 35.7
+      "segundos": 97.7
     },
     {
       "id": "T12",
@@ -398,7 +427,7 @@
             "fluxo": "n8n:PCPR · Entregar comunicação",
             "motivo": "outro",
             "detalhe": "The service was not able to process your request (nó: Consultar estado)",
-            "execucao_orquestrador": "77"
+            "execucao_orquestrador": "78"
           }
         ],
         "envio_apos_normalizar": 1,
@@ -407,7 +436,7 @@
         }
       },
       "passou": true,
-      "segundos": 4.7
+      "segundos": 6.9
     },
     {
       "id": "T14",
@@ -439,7 +468,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.3
+      "segundos": 19.9
     },
     {
       "id": "T15",
@@ -462,7 +491,7 @@
         }
       },
       "passou": true,
-      "segundos": 13.7
+      "segundos": 15.6
     },
     {
       "id": "T16",
@@ -472,9 +501,11 @@
           "entregas_do_canal": [
             200
           ],
+          "ms_da_1a_entrega": 1664.5,
+          "prazo_ms": 20000,
           "chaves": [
-            "receb:email:msg.sim.T16.f3651fc7:0",
-            "receb:email:msg.sim.T16.f3651fc7:1"
+            "receb:email:msg.sim.T16.ee80668f:0",
+            "receb:email:msg.sim.T16.ee80668f:1"
           ],
           "recebimentos": [
             {
@@ -505,10 +536,21 @@
           "chave_antiga": 422,
           "indice_fora_do_total": 422
         },
-        "d_mensagem_sem_anexo": 422
+        "d_mensagem_sem_anexo": {
+          "entregas_do_canal": [
+            200
+          ],
+          "sem_arquivo": [
+            202
+          ],
+          "recebimento": {
+            "estado": "rejeitado",
+            "motivo": "sem_anexo"
+          }
+        }
       },
       "passou": true,
-      "segundos": 0.8
+      "segundos": 3.6
     },
     {
       "id": "T17",
@@ -541,7 +583,7 @@
         }
       },
       "passou": true,
-      "segundos": 1.7
+      "segundos": 4.6
     },
     {
       "id": "T18",
@@ -570,7 +612,143 @@
         "duplicados": 2
       },
       "passou": true,
-      "segundos": 0.8
+      "segundos": 3.9
+    },
+    {
+      "id": "T19",
+      "nome": "recusa permanente do PCPR / anexo sem bytes → exceção ou registro sem arquivo, resposta final ao canal, sem laço de reentrega; recusa que muda entre entregas → 2 exceções; falha temporária persistente → 503 + exceção fila_parada",
+      "evidencia": {
+        "a_422_permanente": {
+          "entregas_do_canal": [
+            200
+          ],
+          "post_recebimentos": [
+            422
+          ],
+          "excecao": {
+            "origem": "n8n",
+            "fluxo": "recebimento-canais",
+            "motivo": "outro",
+            "detalhe": "PCPR recusou recebimento de forma permanente (HTTP 422 entrada_invalida); canal email, anexo 1 de 1. O canal recebeu resposta final e não reentrega: conferir a mensagem na caixa."
+          },
+          "mesma_mensagem_de_novo": {
+            "entregas_do_canal": [
+              200
+            ],
+            "post_excecoes": [
+              "201",
+              "201 (repetição)"
+            ],
+            "excecoes": 1
+          }
+        },
+        "b_409_canal_bloqueado": {
+          "entregas_do_canal": [
+            200
+          ],
+          "post_recebimentos": [
+            409
+          ],
+          "excecao": "canal_indisponivel"
+        },
+        "c_413_do_pcpr": {
+          "entregas_do_canal": [
+            200
+          ],
+          "post_recebimentos": [
+            413
+          ],
+          "sem_arquivo": [
+            202
+          ],
+          "recebimento": "rejeitado (acima_do_limite)"
+        },
+        "d_anexo_anunciado_acima_do_limite": {
+          "entregas_do_canal": [
+            200
+          ],
+          "downloads": 0,
+          "sem_arquivo": [
+            202
+          ]
+        },
+        "e_anexo_inexistente_404": {
+          "entregas_do_canal": [
+            200
+          ],
+          "downloads": [
+            404
+          ],
+          "sem_arquivo": [
+            202
+          ],
+          "excecao": "arquivo_nao_baixado (aberta pelo PCPR)"
+        },
+        "f_recusa_que_muda_entre_entregas": {
+          "entregas_do_canal": [
+            [
+              200
+            ],
+            [
+              200
+            ],
+            [
+              200
+            ]
+          ],
+          "post_recebimentos": [
+            422,
+            409,
+            409
+          ],
+          "post_excecoes": [
+            "201",
+            "201",
+            "201 (repetição)"
+          ],
+          "excecoes": [
+            "canal_indisponivel",
+            "outro"
+          ]
+        },
+        "g_falha_temporaria_persistente": {
+          "mensagem_recente": {
+            "entregas_do_canal": [
+              503,
+              503
+            ],
+            "excecoes": 0
+          },
+          "mensagem_de_2_dias": {
+            "entregas_do_canal": [
+              503,
+              503,
+              503
+            ],
+            "post_recebimentos": [
+              423,
+              423,
+              423
+            ],
+            "post_excecoes_fila_parada": [
+              "201",
+              "201 (repetição)",
+              "201 (repetição)"
+            ],
+            "excecoes": [
+              "fila_parada"
+            ]
+          },
+          "entrada_religada": {
+            "entregas_do_canal": [
+              200
+            ],
+            "recebimentos": 1
+          }
+        }
+      },
+      "passou": true,
+      "segundos": 26.6
     },
     {
       "id": "T13",
@@ -579,24 +757,24 @@
         "logo_apos_os_cenarios": {
           "ocorrencias": {
             "link_km": 0,
-            "destino": 13,
+            "destino": 21,
             "token_reserva": 0
           },
           "onde": {
             "pcprRecebimento1|running|webhook": {
               "link_km": 0,
-              "destino": 13,
+              "destino": 21,
               "token_reserva": 0
             }
           }
         },
-        "segundos_ate_zerar": 21.4,
+        "segundos_ate_zerar": 45.1,
         "tabelas_de_execucao_no_fim": {
-          "execution_data": 13,
+          "execution_data": 4,
           "execution_metadata": 0,
           "execution_annotations": 0,
           "execution_annotation_tags": 0,
-          "execution_entity": 13
+          "execution_entity": 4
         },
         "ocorrencias_no_fim": {
           "link_km": 0,
@@ -605,90 +783,93 @@
         }
       },
       "passou": true,
-      "segundos": 21.4
+      "segundos": 45.1
     }
   ],
   "metricas": {
     "memoria_repouso_antes_mib": {
-      "min": 396.7,
-      "mediana": 397.0,
-      "max": 397.9,
+      "min": 392.5,
+      "mediana": 392.8,
+      "max": 394.2,
       "espera_s": 45
     },
     "latencia_evento_envio": {
       "sequencial_20": {
         "evento_ate_envio_ms": {
-          "p50": 177.0,
-          "p95": 201.8,
-          "min": 141.8,
-          "max": 285.1,
-          "media": 178.6
+          "p50": 858.8,
+          "p95": 2416.5,
+          "min": 661.3,
+          "max": 2657.1,
+          "media": 1153.3
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 74.0,
-          "p95": 100.7
+          "p50": 340.3,
+          "p95": 1535.1
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 147.4,
-          "p95": 172.3
+          "p50": 708.4,
+          "p95": 2366.9
         }
       },
       "rajada_20_simultaneos": {
         "evento_ate_envio_ms": {
-          "p50": 2545.4,
-          "p95": 3067.7,
-          "min": 1295.7,
-          "max": 3094.9,
-          "media": 2452.2
+          "p50": 12191.6,
+          "p95": 16565.1,
+          "min": 6665.1,
+          "max": 16638.5,
+          "media": 12223.4
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 673.1,
-          "p95": 1030.9
+          "p50": 3398.3,
+          "p95": 4650.6
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 2381.3,
-          "p95": 3021.8
+          "p50": 11531.2,
+          "p95": 15855.7
         }
       },
       "definicao": "t0 = POST do evento ao n8n (emissor do PCPR); fim = canal simulado registra o envio. Mesmo relógio (mesma máquina)."
     },
     "memoria_durante_testes_mib": {
-      "max": 739.9,
-      "mediana": 454.3,
-      "amostras": 76,
+      "max": 885.5,
+      "mediana": 486.2,
+      "amostras": 148,
       "max_por_fase": {
-        "T1": 428.8,
-        "T2": 460.8,
-        "T3": 443.6,
-        "T4": 462.2,
-        "T5": 478.1,
-        "T6": 480.7,
-        "T7": 494.8,
-        "T8": 483.4,
-        "T9": 484.4,
-        "T10": 725.5,
-        "T12": 641.7,
-        "T14": 464.7,
-        "T15": 433.6,
-        "T17": 424.0,
-        "T13": 443.8,
-        "latencia (20 sequenciais + rajada de 20)": 739.9
+        "T1": 434.6,
+        "T2": 454.7,
+        "T3": 455.8,
+        "T4": 471.1,
+        "T5": 493.2,
+        "T6": 495.3,
+        "T7": 503.8,
+        "T8": 492.9,
+        "T9": 500.2,
+        "T10": 717.2,
+        "T12": 721.3,
+        "T14": 635.5,
+        "T15": 608.7,
+        "T16": 604.0,
+        "T17": 602.7,
+        "T18": 605.1,
+        "T19": 562.7,
+        "T13": 499.5,
+        "latencia (20 sequenciais + rajada de 20)": 885.5
       }
     },
     "memoria_repouso_depois_mib": {
-      "min": 381.7,
-      "mediana": 383.0,
-      "max": 383.2,
+      "min": 459.4,
+      "mediana": 460.4,
+      "max": 461.8,
       "espera_s": 45
     },
     "banco_n8n_bytes": {
-      "database.sqlite": 3796992,
+      "database.sqlite": 4505600,
       "database.sqlite-shm": 32768,
-      "database.sqlite-wal": 4144752
+      "database.sqlite-wal": 4161232
     }
   },
   "preparacao": {
-    "segundos": 46.9,
+    "segundos": 253.5,
     "saida_cli": [
       "Note: Changes will not take effect if n8n is running.",
       "Please restart n8n for changes to take effect if n8n is currently running.",
@@ -704,7 +885,7 @@
       "pcprErros0000001"
     ]
   },
-  "primeira_subida_s": 9.7,
+  "primeira_subida_s": 84.9,
   "config_efetiva": {
     "diagnostics": false,
     "versionNotifications": false,
@@ -740,7 +921,7 @@
     "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
     "    at ClientRequest.wrapper (node:events:639:12)",
     "    at ClientRequest.emit (node:events:514:20)",
-    "    at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
     "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
     "    at Socket.socketOnData (node:_http_client:808:22)",
     "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
@@ -761,7 +942,7 @@
     "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
     "    at ClientRequest.wrapper (node:events:639:12)",
     "    at ClientRequest.emit (node:events:514:20)",
-    "    at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
     "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
     "    at Socket.socketOnData (node:_http_client:808:22)",
     "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
@@ -808,7 +989,7 @@
       },
       "w4-recebimento-de-arquivo.json": {
         "active": false,
-        "nos": 14,
+        "nos": 26,
         "credenciais": [
           "pcprApiToken0001",
           "pcprCanalApi0001",
@@ -829,6 +1010,6 @@
     "conteiner_existe": false,
     "portas_ainda_abertas": []
   },
-  "fim": "2026-10-18T00:52:09-03:00",
+  "fim": "2026-10-18T03:32:52-03:00",
   "segredos_no_relatorio": []
 }

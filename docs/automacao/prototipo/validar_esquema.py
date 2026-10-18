@@ -54,14 +54,32 @@ class EsquemaNaoSuportado(ValueError):
     """O esquema usa uma palavra-chave que este validador não implementa."""
 
 
+def _numero(valor: Any) -> bool:
+    return isinstance(valor, int | float) and not isinstance(valor, bool)
+
+
 def _tipo_ok(valor: Any, tipo: str) -> bool:
-    if tipo == "integer":
-        return isinstance(valor, int) and not isinstance(valor, bool)
+    if tipo == "integer":  # JSON Schema: 1.0 é inteiro (vale o valor, não a grafia)
+        return _numero(valor) and float(valor).is_integer()
     if tipo == "number":
-        return isinstance(valor, int | float) and not isinstance(valor, bool)
+        return _numero(valor)
     if tipo not in _TIPOS:
         raise EsquemaNaoSuportado(f"type {tipo!r}")
     return isinstance(valor, _TIPOS[tipo])
+
+
+def _igual(a: Any, b: Any) -> bool:
+    """Igualdade de instâncias JSON (const/enum): `true` ≠ `1` (no Python, True == 1) e
+    `1` == `1.0`; listas e objetos comparados elemento a elemento com a mesma regra."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return isinstance(a, bool) and isinstance(b, bool) and a is b
+    if _numero(a) or _numero(b):
+        return _numero(a) and _numero(b) and a == b
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_igual(x, y) for x, y in zip(a, b, strict=True))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_igual(a[k], b[k]) for k in a)
+    return type(a) is type(b) and a == b
 
 
 def _resolver(ref: str, raiz: dict) -> dict:
@@ -111,9 +129,9 @@ def validar(valor: Any, esquema: Any, caminho: str = "$", raiz: dict | None = No
         tipos = esquema["type"] if isinstance(esquema["type"], list) else [esquema["type"]]
         if not any(_tipo_ok(valor, t) for t in tipos):
             return [*erros, f"{caminho}: tipo {type(valor).__name__} fora de {tipos}"]
-    if "const" in esquema and valor != esquema["const"]:
+    if "const" in esquema and not _igual(valor, esquema["const"]):
         erros.append(f"{caminho}: {valor!r} ≠ const {esquema['const']!r}")
-    if "enum" in esquema and valor not in esquema["enum"]:
+    if "enum" in esquema and not any(_igual(valor, op) for op in esquema["enum"]):
         erros.append(f"{caminho}: {valor!r} fora do enum")
     if isinstance(valor, str):
         if "format" in esquema and not _formato_ok(valor, esquema["format"]):
@@ -124,7 +142,7 @@ def validar(valor: Any, esquema: Any, caminho: str = "$", raiz: dict | None = No
             erros.append(f"{caminho}: menor que {esquema['minLength']} caracteres")
         if "maxLength" in esquema and len(valor) > esquema["maxLength"]:
             erros.append(f"{caminho}: maior que {esquema['maxLength']} caracteres")
-    if isinstance(valor, int | float) and not isinstance(valor, bool):
+    if _numero(valor):
         if "minimum" in esquema and valor < esquema["minimum"]:
             erros.append(f"{caminho}: {valor} < {esquema['minimum']}")
         if "maximum" in esquema and valor > esquema["maximum"]:

@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:51:58.000Z",
-  "createdAt": "2026-10-18T03:46:18.095Z",
+  "updatedAt": "2026-10-18T06:31:45.000Z",
+  "createdAt": "2026-10-18T06:19:10.799Z",
   "id": "pcprRecebimento1",
   "name": "PCPR · Recebimento de arquivo",
   "description": null,
@@ -47,6 +47,18 @@
               "name": "cfg_canal",
               "value": "http://host.docker.internal:8766",
               "type": "string"
+            },
+            {
+              "id": "642fde00-6a33-5400-b566-ff8eb1c98b73",
+              "name": "cfg_limite_bytes",
+              "value": 26214400,
+              "type": "number"
+            },
+            {
+              "id": "704c062e-c4e2-5273-9c4d-635997c97b0a",
+              "name": "cfg_fila_parada_s",
+              "value": 14400,
+              "type": "number"
             }
           ]
         },
@@ -64,7 +76,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Um item por anexo: a chave do recebimento é receb:<canal>:<mensagem_id_canal>:<anexo_indice>\n// (contrato 10-6 E1; C3 do PR #23) e o PCPR consolida a mensagem por total_anexos.\nconst cfg = $('Configuração').first().json;\nconst b = cfg.body || {};\nconst anexos = Array.isArray(b.anexos) ? b.anexos : [];\nif (!anexos.length) return [{ json: { tem_anexo: false } }];\nreturn anexos.map((a, i) => ({ json: {\n  tem_anexo: true,\n  cfg_pcpr: cfg.cfg_pcpr,\n  cfg_canal: cfg.cfg_canal,\n  canal: String(b.canal || ''),\n  mensagem_id: String(b.mensagem_id || ''),\n  remetente: String(b.remetente || ''),\n  recebido_em: String(b.recebido_em || ''),\n  em_resposta_a_comunicacao: b.em_resposta_a_comunicacao ?? '',\n  arquivo_id: String(a.id || ''),\n  nome_arquivo: String(a.nome || ('anexo-' + i)),\n  anexo_indice: i,\n  total_anexos: anexos.length,\n} }));"
+        "jsCode": "// Um item por anexo: a chave do recebimento é receb:<canal>:<mensagem_id_canal>:<anexo_indice>\n// (contrato 10-6 E1; C3 do PR #23) e o PCPR consolida a mensagem por total_anexos.\n// O que não terá bytes vai para /recebimentos/sem-arquivo (contrato 10-6 E2): mensagem sem\n// anexo (anexo_indice 0, total_anexos 1) e anexo declarado acima do limite (nem é baixado).\nconst cfg = $('Configuração').first().json;\nconst b = cfg.body || {};\nconst anexos = Array.isArray(b.anexos) ? b.anexos : [];\nconst LIMITE = Number(cfg.cfg_limite_bytes);\nconst base = {\n  canal: String(b.canal || ''),\n  mensagem_id: String(b.mensagem_id || ''),\n  remetente: String(b.remetente || ''),\n  recebido_em: String(b.recebido_em || ''),\n  em_resposta_a_comunicacao: b.em_resposta_a_comunicacao ?? '',\n};\nif (!anexos.length) {\n  return [{ json: { ...base, arquivo_id: '', nome_arquivo: '', tamanho: 0, anexo_indice: 0,\n    total_anexos: 1, acao: 'sem_arquivo', motivo: 'sem_anexo' } }];\n}\nreturn anexos.map((a, i) => {\n  const tamanho = Number(a.tamanho || 0);\n  const grande = tamanho > LIMITE;\n  return { json: { ...base,\n    arquivo_id: String(a.id || ''),\n    nome_arquivo: String(a.nome || ('anexo-' + i)),\n    tamanho,\n    anexo_indice: i,\n    total_anexos: anexos.length,\n    acao: grande ? 'sem_arquivo' : 'baixar',\n    motivo: grande ? 'acima_do_limite' : '',\n  } };\n});"
       },
       "id": "b4b7a649-45b1-57ba-9596-665b03fd3dfa",
       "name": "Separar anexos",
@@ -73,6 +85,31 @@
       "position": [
         440,
         300
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "de7a94a0-b8b8-5b4a-8149-0576a03d54a9",
+      "name": "Cada anexo",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "91178148-e7c0-540f-b0f3-0d4c6550baaf",
+      "name": "Anexo atual",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        400
       ]
     },
     {
@@ -86,8 +123,8 @@
           },
           "conditions": [
             {
-              "id": "62abd68a-6085-54dc-9a2c-92d97e3f527d",
-              "leftValue": "={{ $json.tem_anexo === true }}",
+              "id": "424ad48c-cda1-5739-9f69-4b9b27ee8994",
+              "leftValue": "={{ $json.acao === 'baixar' }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -100,36 +137,19 @@
         },
         "options": {}
       },
-      "id": "f367e886-fa41-5f32-9952-ccb0a4e9dd2d",
-      "name": "Tem anexo?",
+      "id": "4a713a2e-e8fa-51a4-a073-571b233dcf37",
+      "name": "Baixar?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        660,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\"erro\":\"mensagem_sem_anexo\"}",
-        "options": {
-          "responseCode": 422
-        }
-      },
-      "id": "b0f1e5a2-c384-53ee-9056-45121a96f89c",
-      "name": "Responder 422 (sem anexo)",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        880,
-        480
+        1100,
+        400
       ]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ $json.cfg_canal }}/arquivos/{{ $json.arquivo_id }}",
+        "url": "={{ $('Configuração').first().json.cfg_canal }}/arquivos/{{ $json.arquivo_id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
@@ -147,7 +167,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
+        1320,
         200
       ],
       "credentials": {
@@ -157,6 +177,19 @@
         }
       },
       "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Falha no download do anexo no canal: 404/410 = o anexo não existe mais (permanente) →\n// /recebimentos/sem-arquivo com motivo nao_baixado (o PCPR abre a exceção arquivo_nao_baixado,\n// contrato). Qualquer outra falha (rede, 5xx, 429...) → reentregar (503).\nconst ctx = $('Anexo atual').first().json;\nconst e = $input.first().json.error || {};\nconst texto = JSON.stringify(e) + ' ' + String(e.message || '');\nlet sc = Number(e.statusCode || e.status || e.httpCode || 0);\nif (!sc) {\n  const m = /\"(?:httpCode|statusCode|status)\":\"?(\\d{3})/.exec(texto) ||\n    /^(\\d{3})\\b/.exec(String(e.message || ''));\n  if (m) sc = Number(m[1]);\n}\nconst descr = 'download: ' + (sc ? 'HTTP ' + sc : String(e.message || e.code || 'erro de rede'))\n  .slice(0, 200);\nif (sc === 404 || sc === 410) {\n  return [{ json: { ...ctx, passo: 'sem_arquivo', motivo: 'nao_baixado',\n    ultima_resposta: descr } }];\n}\nreturn [{ json: { ...ctx, passo: 'fim', desfecho: 'reentregar', ultima_resposta: descr } }];"
+      },
+      "id": "2d360d11-ddb0-5b47-a31f-a3093a1ab136",
+      "name": "Classificar download",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        360
+      ]
     },
     {
       "parameters": {
@@ -172,28 +205,27 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 2,
       "position": [
-        1100,
+        1540,
         100
       ]
     },
     {
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "return { json: { ...$('Separar anexos').item.json, sha256: $json.sha256 }, binary: $('Baixar arquivo').item.binary };"
+        "jsCode": "return [{ json: { ...$('Anexo atual').first().json, sha256: $json.sha256 }, binary: $('Baixar arquivo').first().binary }];"
       },
       "id": "65dc5447-edb7-568b-a31c-f0844a44327b",
       "name": "Reanexar arquivo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1320,
+        1760,
         100
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.cfg_pcpr }}/recebimentos",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/recebimentos",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -206,7 +238,13 @@
           ]
         },
         "options": {
-          "timeout": 60000
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
         },
         "sendBody": true,
         "contentType": "multipart-form-data",
@@ -270,7 +308,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
+        1980,
         100
       ],
       "credentials": {
@@ -283,29 +321,268 @@
     },
     {
       "parameters": {
-        "mode": "append",
-        "numberInputs": 3
+        "jsCode": "// Resposta do PCPR a recebimento → próximo passo do anexo (arquitetura §3.7/§3.12):\n// - aceito (2xx) → fim;\n// - transitório (rede, 5xx, 408, 423 desligada, 425, 429; 401/403 = credencial a corrigir) →\n//   reentregar: o W4 responde 503 e a mensagem continua no canal (nada se perde);\n// - 413 em /recebimentos → /recebimentos/sem-arquivo (motivo acima_do_limite, contrato);\n// - recusa permanente (409 canal_bloqueado ou conflito_de_versao, 422, outro 4xx): repetir não\n//   resolve → exceção humana com chave estável e resposta FINAL ao canal (sem laço de reentrega).\nconst OP = 'recebimento';\nconst ctx = $('Anexo atual').first().json;\nconst it = $input.first().json;\nlet sc = 0;\nlet corpo = {};\nlet rede = '';\nif (it.error !== undefined) {  // saída de erro do nó HTTP: falha de rede/tempo esgotado\n  const e = it.error || {};\n  rede = String(e.message || e.code || e || 'erro de rede').slice(0, 200);\n} else {\n  sc = Number(it.statusCode || 0);\n  corpo = (it.body && typeof it.body === 'object') ? it.body : {};\n}\nconst codigo = String(corpo.codigo || '');\nconst descr = rede ? ('rede: ' + rede) : ('HTTP ' + sc + (codigo ? ' ' + codigo : ''));\nconst base = { ...ctx, ultima_resposta: (OP + ': ' + descr).slice(0, 300) };\nif (rede || sc === 0 || sc >= 500 || [401, 403, 408, 423, 425, 429].includes(sc)) {\n  return [{ json: { ...base, passo: 'fim', desfecho: 'reentregar' } }];\n}\nif (sc >= 200 && sc < 300) {\n  return [{ json: { ...base, passo: 'fim',\n    desfecho: OP === 'recebimento' ? 'aceito' : 'registrado_sem_arquivo',\n    recebimento_id: corpo.id ?? null, estado: String(corpo.estado || '') } }];\n}\nif (sc === 413 && OP === 'recebimento') {\n  return [{ json: { ...base, passo: 'sem_arquivo', motivo: 'acima_do_limite' } }];\n}\n// Chave e corpo da exceção são função SÓ da classe da recusa (operação, HTTP, código, motivo do\n// sem-arquivo): a mesma recusa reentregue repete a chave com o MESMO corpo (201 repetição); uma\n// recusa diferente na entrega seguinte (ex.: 422 e depois 409 canal_bloqueado) abre OUTRA exceção\n// em vez de reusar a chave com outro corpo (422 \"chave reutilizada\" → 503 em laço; 3ª verificação).\n// Por isso a `mensagem` livre do PCPR não entra no corpo (pode variar entre entregas).\nconst motivoSem = OP === 'sem_arquivo' ? $('Pedido sem arquivo').first().json.motivo : '';\nconst classe = [OP, 'http' + sc, codigo, motivoSem].filter(Boolean).join('-');\nconst motivo_excecao = codigo === 'canal_bloqueado' ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { ...base, passo: 'excecao', motivo_excecao,\n  // contrato: excecao:<fluxo>:<recebimento>:<motivo>\n  chave_excecao: 'excecao:recebimento-canais:receb:' + ctx.canal + ':' + ctx.mensagem_id + ':' +\n    ctx.anexo_indice + ':' + classe + ':' + motivo_excecao,\n  detalhe: ('PCPR recusou ' + OP + ' de forma permanente (' + descr + '); canal ' + ctx.canal +\n    ', anexo ' + (Number(ctx.anexo_indice) + 1) + ' de ' + ctx.total_anexos +\n    (motivoSem ? ', motivo ' + motivoSem : '') +\n    '. O canal recebeu resposta final e não reentrega: conferir a mensagem na caixa.')\n    .slice(0, 2000) } }];"
       },
-      "id": "aa00e1f7-d538-5dc4-bcf4-95c0c588d67d",
-      "name": "Juntar",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "id": "4510bbeb-8d17-5045-a0b1-9ff5d1537d72",
+      "name": "Classificar entrega",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        1760,
-        300
+        2200,
+        100
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "39142982-d30b-5575-84eb-62b1c982f995",
+      "name": "Pedido sem arquivo",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        600
       ]
     },
     {
       "parameters": {
-        "jsCode": "// 2xx ao canal SÓ se o PCPR aceitou todos os anexos (C9). Qualquer falha (download ou POST)\n// → 503: o canal reentrega a mensagem inteira; os anexos já aceitos repetem a mesma\n// Idempotency-Key e o PCPR devolve a resposta guardada, sem efeito novo.\nconst itens = $input.all();\nconst total = $('Separar anexos').all().length;\nconst falhas = itens.filter((i) => i.json.error !== undefined).length;\nconst aceitos = itens.length - falhas;\nreturn [{ json: { todos_aceitos: falhas === 0 && aceitos === total, aceitos, falhas, total } }];"
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/recebimentos/sem-arquivo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=receb:{{ $('Anexo atual').first().json.canal }}:{{ $('Anexo atual').first().json.mensagem_id }}:{{ $('Anexo atual').first().json.anexo_indice }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ canal: $('Anexo atual').first().json.canal, mensagem_id_canal: $('Anexo atual').first().json.mensagem_id, anexo_indice: $('Anexo atual').first().json.anexo_indice, total_anexos: $('Anexo atual').first().json.total_anexos, remetente: $('Anexo atual').first().json.remetente, recebido_em: $('Anexo atual').first().json.recebido_em, nome_arquivo: $('Anexo atual').first().json.nome_arquivo || undefined, tamanho: $('Anexo atual').first().json.tamanho || undefined, motivo: $json.motivo }) }}",
+        "options": {
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "1fe2cda9-0731-56e0-bb0f-18bc37f50c2f",
+      "name": "Registrar sem arquivo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        640
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resposta do PCPR a sem_arquivo → próximo passo do anexo (arquitetura §3.7/§3.12):\n// - aceito (2xx) → fim;\n// - transitório (rede, 5xx, 408, 423 desligada, 425, 429; 401/403 = credencial a corrigir) →\n//   reentregar: o W4 responde 503 e a mensagem continua no canal (nada se perde);\n// - 413 em /recebimentos → /recebimentos/sem-arquivo (motivo acima_do_limite, contrato);\n// - recusa permanente (409 canal_bloqueado ou conflito_de_versao, 422, outro 4xx): repetir não\n//   resolve → exceção humana com chave estável e resposta FINAL ao canal (sem laço de reentrega).\nconst OP = 'sem_arquivo';\nconst ctx = $('Anexo atual').first().json;\nconst it = $input.first().json;\nlet sc = 0;\nlet corpo = {};\nlet rede = '';\nif (it.error !== undefined) {  // saída de erro do nó HTTP: falha de rede/tempo esgotado\n  const e = it.error || {};\n  rede = String(e.message || e.code || e || 'erro de rede').slice(0, 200);\n} else {\n  sc = Number(it.statusCode || 0);\n  corpo = (it.body && typeof it.body === 'object') ? it.body : {};\n}\nconst codigo = String(corpo.codigo || '');\nconst descr = rede ? ('rede: ' + rede) : ('HTTP ' + sc + (codigo ? ' ' + codigo : ''));\nconst base = { ...ctx, ultima_resposta: (OP + ': ' + descr).slice(0, 300) };\nif (rede || sc === 0 || sc >= 500 || [401, 403, 408, 423, 425, 429].includes(sc)) {\n  return [{ json: { ...base, passo: 'fim', desfecho: 'reentregar' } }];\n}\nif (sc >= 200 && sc < 300) {\n  return [{ json: { ...base, passo: 'fim',\n    desfecho: OP === 'recebimento' ? 'aceito' : 'registrado_sem_arquivo',\n    recebimento_id: corpo.id ?? null, estado: String(corpo.estado || '') } }];\n}\nif (sc === 413 && OP === 'recebimento') {\n  return [{ json: { ...base, passo: 'sem_arquivo', motivo: 'acima_do_limite' } }];\n}\n// Chave e corpo da exceção são função SÓ da classe da recusa (operação, HTTP, código, motivo do\n// sem-arquivo): a mesma recusa reentregue repete a chave com o MESMO corpo (201 repetição); uma\n// recusa diferente na entrega seguinte (ex.: 422 e depois 409 canal_bloqueado) abre OUTRA exceção\n// em vez de reusar a chave com outro corpo (422 \"chave reutilizada\" → 503 em laço; 3ª verificação).\n// Por isso a `mensagem` livre do PCPR não entra no corpo (pode variar entre entregas).\nconst motivoSem = OP === 'sem_arquivo' ? $('Pedido sem arquivo').first().json.motivo : '';\nconst classe = [OP, 'http' + sc, codigo, motivoSem].filter(Boolean).join('-');\nconst motivo_excecao = codigo === 'canal_bloqueado' ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { ...base, passo: 'excecao', motivo_excecao,\n  // contrato: excecao:<fluxo>:<recebimento>:<motivo>\n  chave_excecao: 'excecao:recebimento-canais:receb:' + ctx.canal + ':' + ctx.mensagem_id + ':' +\n    ctx.anexo_indice + ':' + classe + ':' + motivo_excecao,\n  detalhe: ('PCPR recusou ' + OP + ' de forma permanente (' + descr + '); canal ' + ctx.canal +\n    ', anexo ' + (Number(ctx.anexo_indice) + 1) + ' de ' + ctx.total_anexos +\n    (motivoSem ? ', motivo ' + motivoSem : '') +\n    '. O canal recebeu resposta final e não reentrega: conferir a mensagem na caixa.')\n    .slice(0, 2000) } }];"
+      },
+      "id": "fc9669ad-43fb-57c5-8386-5b069d4842e1",
+      "name": "Classificar registro sem arquivo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0992ecc2-a5b8-57b5-873f-89bc1163651b",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "fim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fim"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ee9e7d8e-89ed-52e5-8f79-45918cabc494",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "sem_arquivo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sem_arquivo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f16f5777-d602-544f-ad0d-70bf20f7355a",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "excecao",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "excecao"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "inesperado"
+        }
+      },
+      "id": "f7908b3f-7b48-5c16-9a8a-0958a477efc7",
+      "name": "Próximo passo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2420,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.chave_excecao }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'recebimento-canais', correlacao_id: 'recebimento:' + $json.canal + ':' + $json.mensagem_id, motivo: $json.motivo_excecao, detalhe: $json.detalhe }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "674206bf-bedd-5362-8be3-5f8dde82f14c",
+      "name": "Abrir exceção (recusa permanente)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Anexo atual').first().json, desfecho: 'excecao_aberta', excecao_id: $json.id ?? null } }];"
+      },
+      "id": "397595ac-e009-5b8e-b2bc-2f69cc08e6c8",
+      "name": "Exceção aberta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Anexo atual').first().json, desfecho: 'reentregar', ultima_resposta: 'exceção não registrada no PCPR' } }];"
+      },
+      "id": "482e20a9-424d-5676-b17e-7b4e7f2e6d79",
+      "name": "Exceção não aberta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$('Anexo atual').first().json, desfecho: 'reentregar', ultima_resposta: 'passo inesperado: ' + String($json.passo) } }];"
+      },
+      "id": "55cc37c6-029b-5425-aaa3-485dbf61aac3",
+      "name": "Passo inesperado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 2xx ao canal SÓ quando todo anexo teve desfecho final no PCPR (C9): aceito, registrado sem\n// arquivo ou exceção aberta (recusa permanente). Qualquer 'reentregar' → 503: o canal reentrega\n// a mensagem inteira; o que já foi registrado repete a mesma Idempotency-Key, sem efeito novo.\nconst itens = $input.all().map((i) => i.json);\nconst esperados = $('Separar anexos').all().length;\nconst conta = (d) => itens.filter((i) => i.desfecho === d).length;\nconst resumo = {\n  total: esperados,\n  aceitos: conta('aceito'),\n  sem_arquivo: conta('registrado_sem_arquivo'),\n  excecoes: conta('excecao_aberta'),\n  reentregar: conta('reentregar'),\n};\nconst finais = resumo.aceitos + resumo.sem_arquivo + resumo.excecoes;\nconst confirmar = itens.length === esperados && finais === esperados;\n// §3.7 \"depois, exceção; nunca laço infinito\": falha temporária que persiste (PCPR fora do ar,\n// 5xx, 423, credencial inválida) numa mensagem recebida pelo canal há mais de cfg_fila_parada_s\n// → exceção fila_parada (chave e corpo estáveis por mensagem) E continua 503: o canal segue\n// reentregando até o próprio limite e o arquivo não se perde; a pessoa já foi avisada.\nconst msg = $('Separar anexos').first().json;\nconst idade_s = (Date.now() - Date.parse(String(msg.recebido_em || ''))) / 1000;\nconst limite_s = Number($('Configuração').first().json.cfg_fila_parada_s);\nreturn [{ json: { ...resumo, confirmar, canal: msg.canal, mensagem_id: msg.mensagem_id,\n  fila_parada: !confirmar && Number.isFinite(idade_s) && idade_s > limite_s } }];"
       },
       "id": "55e3390e-9511-5b2f-b416-60050ef45048",
       "name": "Decidir resposta",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1980,
-        300
+        880,
+        100
       ]
     },
     {
@@ -319,8 +596,8 @@
           },
           "conditions": [
             {
-              "id": "f863fba9-e97a-5036-b05b-f40a0d5fe5f9",
-              "leftValue": "={{ $json.todos_aceitos === true }}",
+              "id": "5b4cc448-d5d5-5e0e-9f8f-e93ab21c840b",
+              "leftValue": "={{ $json.confirmar === true }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -333,19 +610,19 @@
         },
         "options": {}
       },
-      "id": "7db80068-aa9f-5b05-bb36-a240cf16ca37",
-      "name": "Todos aceitos pelo PCPR?",
+      "id": "11251668-1234-5d06-b71f-5002a1e29818",
+      "name": "Confirmar ao canal?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2200,
-        300
+        1100,
+        0
       ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ aceitos: $json.aceitos, total: $json.total }) }}",
+        "responseBody": "={{ JSON.stringify({ total: $json.total, aceitos: $json.aceitos, sem_arquivo: $json.sem_arquivo, excecoes: $json.excecoes }) }}",
         "options": {
           "responseCode": 200
         }
@@ -355,14 +632,14 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        2420,
-        200
+        1320,
+        -100
       ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ erro: 'recebimento_nao_confirmado', aceitos: $json.aceitos, falhas: $json.falhas, total: $json.total }) }}",
+        "responseBody": "={{ JSON.stringify({ erro: 'recebimento_nao_confirmado', total: $('Decidir resposta').first().json.total, aceitos: $('Decidir resposta').first().json.aceitos, sem_arquivo: $('Decidir resposta').first().json.sem_arquivo, excecoes: $('Decidir resposta').first().json.excecoes, reentregar: $('Decidir resposta').first().json.reentregar, fila_parada: $('Decidir resposta').first().json.fila_parada }) }}",
         "options": {
           "responseCode": 503
         }
@@ -372,9 +649,81 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        2420,
-        400
+        1760,
+        60
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bbeb2f9b-fce5-5e9c-8b55-207cd9e0d15e",
+              "leftValue": "={{ $json.fila_parada === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "dc65042c-3a38-5c0f-81e1-13b643cbaf0a",
+      "name": "Fila parada?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=excecao:recebimento-canais:receb:{{ $json.canal }}:{{ $json.mensagem_id }}:fila_parada"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'recebimento-canais', correlacao_id: 'recebimento:' + $json.canal + ':' + $json.mensagem_id, motivo: 'fila_parada', detalhe: 'O PCPR não confirma o recebimento desta mensagem há mais de ' + Math.round($('Configuração').first().json.cfg_fila_parada_s / 3600) + ' h (falha temporária persistente: PCPR fora do ar, automação desligada ou credencial). O canal continua reentregando até o próprio limite; conferir a mensagem na caixa.' }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "4dc0a981-6d40-5ce7-9634-1bd39042727d",
+      "name": "Exceção: fila parada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "onError": "continueErrorOutput"
     }
   ],
   "connections": {
@@ -404,7 +753,18 @@
       "main": [
         [
           {
-            "node": "Tem anexo?",
+            "node": "Cada anexo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anexo atual": {
+      "main": [
+        [
+          {
+            "node": "Baixar?",
             "type": "main",
             "index": 0
           }
@@ -433,11 +793,62 @@
         ]
       ]
     },
-    "Juntar": {
+    "Classificar entrega": {
       "main": [
         [
           {
-            "node": "Decidir resposta",
+            "node": "Próximo passo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar download": {
+      "main": [
+        [
+          {
+            "node": "Próximo passo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido sem arquivo": {
+      "main": [
+        [
+          {
+            "node": "Registrar sem arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar sem arquivo": {
+      "main": [
+        [
+          {
+            "node": "Classificar registro sem arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classificar registro sem arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar registro sem arquivo": {
+      "main": [
+        [
+          {
+            "node": "Próximo passo",
             "type": "main",
             "index": 0
           }
@@ -448,14 +859,32 @@
       "main": [
         [
           {
-            "node": "Todos aceitos pelo PCPR?",
+            "node": "Confirmar ao canal?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Tem anexo?": {
+    "Cada anexo": {
+      "main": [
+        [
+          {
+            "node": "Decidir resposta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Anexo atual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar?": {
       "main": [
         [
           {
@@ -466,7 +895,7 @@
         ],
         [
           {
-            "node": "Responder 422 (sem anexo)",
+            "node": "Pedido sem arquivo",
             "type": "main",
             "index": 0
           }
@@ -484,9 +913,9 @@
         ],
         [
           {
-            "node": "Juntar",
+            "node": "Classificar download",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -495,25 +924,144 @@
       "main": [
         [
           {
-            "node": "Juntar",
+            "node": "Classificar entrega",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Juntar",
+            "node": "Classificar entrega",
             "type": "main",
-            "index": 2
+            "index": 0
           }
         ]
       ]
     },
-    "Todos aceitos pelo PCPR?": {
+    "Próximo passo": {
+      "main": [
+        [
+          {
+            "node": "Cada anexo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pedido sem arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Abrir exceção (recusa permanente)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Passo inesperado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir exceção (recusa permanente)": {
+      "main": [
+        [
+          {
+            "node": "Exceção aberta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exceção não aberta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exceção aberta": {
+      "main": [
+        [
+          {
+            "node": "Cada anexo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exceção não aberta": {
+      "main": [
+        [
+          {
+            "node": "Cada anexo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passo inesperado": {
+      "main": [
+        [
+          {
+            "node": "Cada anexo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar ao canal?": {
       "main": [
         [
           {
             "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fila parada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila parada?": {
+      "main": [
+        [
+          {
+            "node": "Exceção: fila parada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 503 (reentregar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exceção: fila parada": {
+      "main": [
+        [
+          {
+            "node": "Responder 503 (reentregar)",
             "type": "main",
             "index": 0
           }
@@ -542,7 +1090,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "be0b300a-8456-4aa1-b52d-4ceb8073572e",
+  "versionId": "1d7d1ca2-c8e1-4f35-b01c-7588564affcb",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -550,21 +1098,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:46:18.097Z",
-      "createdAt": "2026-10-18T03:46:18.097Z",
+      "updatedAt": "2026-10-18T06:19:10.816Z",
+      "createdAt": "2026-10-18T06:19:10.816Z",
       "role": "workflow:owner",
       "workflowId": "pcprRecebimento1",
-      "projectId": "Ivrpx1fsWEVS1XJN",
+      "projectId": "kdXYnwnvJFdtahnM",
       "project": {
-        "updatedAt": "2026-10-18T03:46:09.768Z",
-        "createdAt": "2026-10-18T03:46:09.768Z",
-        "id": "Ivrpx1fsWEVS1XJN",
+        "updatedAt": "2026-10-18T06:18:13.239Z",
+        "createdAt": "2026-10-18T06:18:13.239Z",
+        "id": "kdXYnwnvJFdtahnM",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "e728cecd-6a3b-4aeb-a8df-5c31a79cdd38"
+        "creatorId": "8ba0b2af-dc60-48f0-a71f-9ee8d97c3167"
       }
     }
   ],

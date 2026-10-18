@@ -148,6 +148,10 @@ class EstadoGraph:
             # próximas N mensagens ACEITAS respondem 502 sem corpo da Graph API (proxy no meio):
             # o cliente não tem como saber que a Meta aceitou (resposta ambígua)
             self.respostas_ambiguas = 0
+            # próximas mensagens respondem com erro ESTRUTURADO da Graph API: cada item
+            # {status, code, aceitar}; aceitar=true = a Meta aceitou e a resposta veio com erro
+            # (aceite incerto para o cliente), false = recusa antes de aceitar (ex.: 130429)
+            self.erros_estruturados: list[dict] = []
 
     # ---------------------------------------------------------------- utilidades
     def novo_wamid(self, prefixo: str = "OUT") -> str:
@@ -521,6 +525,14 @@ class Manipulador(ManipuladorBase):
                 )
         else:
             return recusar(400, 100, "(#100) Invalid parameter", f"type {tipo!r} não simulado")
+        with est.trava:
+            injetado = est.erros_estruturados.pop(0) if est.erros_estruturados else None
+        if injetado and not injetado.get("aceitar"):
+            return recusar(
+                int(injetado["status"]),
+                int(injetado["code"]),
+                str(injetado.get("mensagem") or "(simulado) recusado antes do aceite"),
+            )
         wamid = est.novo_wamid("OUT")
         reg.update(aceita=True, status=200, wamid=wamid, janela_aberta=janela)
         with est.trava:
@@ -546,6 +558,12 @@ class Manipulador(ManipuladorBase):
         if ambigua:
             return self.responder(
                 502, b"<html><body>502 Bad Gateway (simulador)</body></html>", tipo="text/html"
+            )
+        if injetado:  # aceitou, mas a resposta é um erro estruturado (5xx genérico da Graph)
+            reg["resposta_erro_apos_aceite"] = [injetado["status"], injetado["code"]]
+            return self.responder(
+                int(injetado["status"]),
+                erro_graph(int(injetado["code"]), "(simulado) An unknown error has occurred."),
             )
         self.responder(
             200,
@@ -668,6 +686,7 @@ class Manipulador(ManipuladorBase):
                     "modo_131047",
                     "atraso_status_assincrono_s",
                     "respostas_ambiguas",
+                    "erros_estruturados",
                 ):
                     if k in b:
                         setattr(est, k, b[k])

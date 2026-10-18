@@ -18,7 +18,9 @@
 - `POST /_sim/inbound`: simula uma mensagem recebida com 1..N anexos (`anexos: [{texto, nome}]`;
   conteúdo igual entre mensagens = mesmo SHA-256) e avisa o n8n (W4) por webhook autenticado com
   `X-Canal-Token`. Com `reentregar: N`, reentrega a MESMA mensagem enquanto a resposta não for 2xx
-  (como um canal real), até N vezes.
+  (como um canal real), até N vezes. Anexo com `removido: true` é anunciado mas responde 404 no
+  download; `tamanho_declarado` muda o tamanho anunciado (ex.: acima do limite).
+  `recebido_ha_s` data a mensagem no passado (falha temporária persistente → fila_parada).
 
     python simulador_canal.py --porta 8766
     (PCPR_CANAL_CHAVE, PCPR_CANAL_TOKEN_WEBHOOK, PCPR_CANAL_URL_INBOUND por ambiente)
@@ -41,6 +43,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from datetime import timedelta
 from http.server import ThreadingHTTPServer
 from typing import Any
 from urllib.parse import urlsplit
@@ -119,15 +122,19 @@ class EstadoCanal:
                 "quedas": list(self.quedas),
             }
 
-    def _anexo(self, texto: str, nome: str) -> dict:
+    def _anexo(self, texto: str, nome: str, pedido: dict | None = None) -> dict:
+        """`removido`: o anexo é anunciado mas não existe mais no canal (download 404);
+        `tamanho_declarado`: tamanho anunciado pelo canal (ex.: acima do limite)."""
+        p = pedido or {}
         pdf = pdf_sintetico(texto)
         arq = "arq-" + hashlib.sha256(pdf).hexdigest()[:16]
-        self.arquivos[arq] = pdf
+        if not p.get("removido"):
+            self.arquivos[arq] = pdf
         return {
             "id": arq,
             "nome": nome,
             "mime": "application/pdf",
-            "tamanho": len(pdf),
+            "tamanho": int(p.get("tamanho_declarado") or len(pdf)),
             "sha256": hashlib.sha256(pdf).hexdigest(),
         }
 
@@ -143,6 +150,7 @@ class EstadoCanal:
                     self._anexo(
                         str(p.get("texto") or f"Documento sintetico {mid} anexo {i}"),
                         str(p.get("nome") or f"documento-{i + 1}.pdf"),
+                        p,
                     )
                     for i, p in enumerate(pedidos)
                 ]
@@ -150,7 +158,10 @@ class EstadoCanal:
                     "canal": b.get("canal", "email"),
                     "mensagem_id": mid,
                     "remetente": b.get("remetente", "+5500000000001"),
-                    "recebido_em": iso_z(agora_utc()),
+                    # `recebido_ha_s`: mensagem que chegou ao canal há tempo (fila parada, §3.7)
+                    "recebido_em": iso_z(
+                        agora_utc() - timedelta(seconds=float(b.get("recebido_ha_s") or 0))
+                    ),
                     "em_resposta_a_comunicacao": b.get("em_resposta_a_comunicacao"),
                     "anexos": anexos,
                 }
@@ -188,6 +199,7 @@ class EstadoCanal:
         return {
             **entregas[-1],
             "entregas": [x["status"] for x in entregas],
+            "ms_entregas": [x["ms"] for x in entregas],
             "arquivos": msg["anexos"],
             "arquivo": (msg["anexos"] or [None])[0],
         }
@@ -219,7 +231,11 @@ class Manipulador(ManipuladorBase):
                 if falhar:
                     est.falhar_downloads -= 1
                 est.downloads.append(
-                    {"arquivo": m.group(1), "em": time.time(), "status": 500 if falhar else 200}
+                    {
+                        "arquivo": m.group(1),
+                        "em": time.time(),
+                        "status": 500 if falhar else (200 if dados is not None else 404),
+                    }
                 )
             if falhar:
                 return self.responder(500, {"erro": "falha simulada no download"})

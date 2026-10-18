@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:57:26.000Z",
-  "createdAt": "2026-10-18T03:52:34.188Z",
+  "updatedAt": "2026-10-18T06:43:37.000Z",
+  "createdAt": "2026-10-18T06:34:35.480Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -699,7 +699,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ fluxo: 'recebimento-canais', correlacao_id: 'whatsapp:' + String($json.wamid).slice(-12), motivo: 'outro', detalhe: 'SHA-256 da mídia baixada diverge do informado pela Meta; nada importado.', execucao_orquestrador: String($execution.id) }) }}",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'recebimento-canais', correlacao_id: 'whatsapp:' + String($json.wamid).slice(-12), motivo: 'outro', detalhe: 'SHA-256 da mídia baixada diverge do informado pela Meta; nada importado.' }) }}",
         "options": {
           "timeout": 10000
         }
@@ -1263,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "64399ccf-8359-487d-b2bf-66eeedc7f528",
+  "versionId": "56d5c31e-06fd-4bd9-9f26-706c67b9d8cc",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1271,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:52:34.189Z",
-      "createdAt": "2026-10-18T03:52:34.189Z",
+      "updatedAt": "2026-10-18T06:34:35.499Z",
+      "createdAt": "2026-10-18T06:34:35.499Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "KDapCLFoTUNmEURa",
+      "projectId": "0CS3vavw6UwQeMAZ",
       "project": {
-        "updatedAt": "2026-10-18T03:52:26.631Z",
-        "createdAt": "2026-10-18T03:52:26.631Z",
-        "id": "KDapCLFoTUNmEURa",
+        "updatedAt": "2026-10-18T06:33:47.174Z",
+        "createdAt": "2026-10-18T06:33:47.174Z",
+        "id": "0CS3vavw6UwQeMAZ",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
+        "creatorId": "73f432c8-09aa-4153-b5dc-0601a17f8f3b"
       }
     }
   ],

@@ -39,7 +39,11 @@ Ajustes da revisão do PR #23 (Codex):
   aberta pelo PCPR — C6;
 - `GET /comunicacoes?provedor_mensagem_id=` devolve só `{id, versao}` (operação do contrato) — C10;
 - deduplicação de recebimento por (servidor remetente resolvido, SHA-256), não global — C11;
-- falha injetável em `POST /recebimentos` (`falhar_recebimentos`: 503 não guardado) — C9.
+- falha injetável em `POST /recebimentos` (`falhar_recebimentos`: 503 não guardado) — C9;
+- recusa permanente injetável (`recusar_recebimentos`: 422), limite do corpo configurável
+  (`limite_recebimento_bytes` → 413), canal de entrada de e-mail bloqueável (`/_sim/canais`
+  `email_entrada`) e `/recebimentos/sem-arquivo` com `nao_baixado` abrindo a exceção
+  `arquivo_nao_baixado` (contrato) — 2ª verificação do C9.
 """
 
 from __future__ import annotations
@@ -88,13 +92,21 @@ MODELOS_WHATSAPP = {
 }
 STATUS_WHATSAPP = {"delivered": "entregue", "read": "lida", "failed": "falhou"}
 RESULTADOS = {"enviada", "falha_temporaria", "falha_definitiva", "resultado_desconhecido"}
-MOTIVOS_EXCECAO = {
+MOTIVOS_EXCECAO = {  # enum de ExcecaoPedido.motivo no contrato
     "canal_indisponivel",
     "resultado_desconhecido",
     "destinatario_sem_contato",
     "contato_nao_verificado",
     "documento_nao_identificado",
     "limite_tentativas",
+    "documento_nao_pronto",
+    "destinatario_sem_acesso_portal",
+    "devolucao_canal",
+    "orcamento_atingido",
+    "arquivo_nao_baixado",
+    "fila_parada",
+    "remetente_em_excesso",
+    "infraestrutura_leitura",
     "outro",
 }
 LIMITE_ARQUIVO = 25 * 1024 * 1024
@@ -156,6 +168,11 @@ class Estado:
             self.desligar_apos_estado = False
             self.falhar_estado = 0
             self.falhar_recebimentos = 0  # próximos N POST /recebimentos → 503 (não guardado)
+            # próximos N POST /recebimentos → 422 entrada_invalida (recusa PERMANENTE: repetir dá
+            # o mesmo 422; o W4 tem de abrir exceção e encerrar, não pedir reentrega)
+            self.recusar_recebimentos = 0
+            # corpo (multipart) acima disto → 413; padrão: 25 MiB do arquivo + 64 KiB de campos
+            self.limite_recebimento = LIMITE_ARQUIVO + 64 * 1024
             self.max_rodadas = MAX_RODADAS_PADRAO
             self.backoff_s = list(BACKOFF_PADRAO_S)
             self.viagens: dict[int, dict] = {}
@@ -1221,7 +1238,7 @@ class Manipulador(ManipuladorBase):
 
     def _recebimento(self, corpo: bytes) -> tuple[int, Any, bool]:
         est = self.estado
-        if len(corpo) > LIMITE_ARQUIVO + 64 * 1024:
+        if len(corpo) > est.limite_recebimento:
             return (
                 413,
                 {"codigo": "entrada_invalida", "mensagem": "Acima de 25 MiB: use o portal."},
@@ -1238,6 +1255,9 @@ class Manipulador(ManipuladorBase):
         recusa = self._recusa_canal_entrada(campos.get("canal", ""))
         if recusa:
             return recusa
+        if est.recusar_recebimentos > 0:  # recusa permanente injetada (2ª verificação, C9)
+            est.recusar_recebimentos -= 1
+            return self._invalido("recusa permanente simulada (arquivo não aceito pelo PCPR)")
         obrigatorios = (
             "canal",
             "mensagem_id_canal",
@@ -1317,6 +1337,18 @@ class Manipulador(ManipuladorBase):
             {k: str(v) for k, v in b.items()}, None, None, None
         )
         self._registro["recebimento_id"] = resposta["id"]
+        if b["motivo"] == "nao_baixado":  # contrato: exceção arquivo_nao_baixado
+            self.estado._abrir_excecao(
+                chave=f"pcpr:arquivo-nao-baixado:{resposta['id']}",
+                corpo={
+                    "fluxo": "recebimento-canais",
+                    "correlacao_id": f"recebimento:{b['canal']}:{b['mensagem_id_canal']}",
+                    "motivo": "arquivo_nao_baixado",
+                    "detalhe": "Anexo anunciado pelo canal não pôde ser baixado.",
+                    "recurso": {"tipo": "recebimento", "id": resposta["id"]},
+                },
+                origem="pcpr",
+            )
         return status, resposta, True
 
     # ------------------------------------------------------------ arquivo assinado (W6 baixa)
@@ -1562,11 +1594,17 @@ class Manipulador(ManipuladorBase):
                     est.max_rodadas = max(1, int(b["max_rodadas"]))
                 if "falhar_recebimentos" in b:
                     est.falhar_recebimentos = int(b["falhar_recebimentos"])
+                if "recusar_recebimentos" in b:
+                    est.recusar_recebimentos = int(b["recusar_recebimentos"])
+                if "limite_recebimento_bytes" in b:
+                    est.limite_recebimento = int(b["limite_recebimento_bytes"])
                 atual = {
                     "lease_segundos": est.lease_s,
                     "backoff_s": est.backoff_s,
                     "max_rodadas": est.max_rodadas,
                     "falhar_recebimentos": est.falhar_recebimentos,
+                    "recusar_recebimentos": est.recusar_recebimentos,
+                    "limite_recebimento_bytes": est.limite_recebimento,
                 }
             return self.responder(200, atual)
         if caminho == "/_sim/remetentes":  # contato → servidor (dedup por servidor, C11)
@@ -1633,14 +1671,15 @@ class Manipulador(ManipuladorBase):
             )
         if caminho == "/_sim/canais":
             with est.trava:
-                for chave, grupo in (
-                    ("whatsapp", "canais"),
-                    ("whatsapp_entrada", "canais_entrada"),
+                for chave, grupo, nome in (
+                    ("whatsapp", "canais", "whatsapp"),
+                    ("whatsapp_entrada", "canais_entrada", "whatsapp"),
+                    ("email_entrada", "canais_entrada", "email"),
                 ):
                     if chave in b:
                         if b[chave] not in ESTADOS_CANAL:
                             return self.responder(400, {"erro": f"{chave} inválido"})
-                        est.automacao[grupo]["whatsapp"] = b[chave]
+                        est.automacao[grupo][nome] = b[chave]
             return self.responder(
                 200,
                 {

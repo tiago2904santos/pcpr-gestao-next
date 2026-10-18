@@ -1,4 +1,4 @@
-"""Orquestra o protótipo inteiro e faz as asserções T1–T18 + métricas.
+"""Orquestra o protótipo inteiro e faz as asserções T1–T20 + métricas.
 
     .venv/Scripts/python.exe docs/automacao/prototipo/testar_prototipo.py
         [--manter]        não remove contêiner/simuladores no fim (depuração)
@@ -915,6 +915,9 @@ def _post_recebimento_direto(campos: dict[str, str], chave: str) -> tuple[int, A
         return exc.code, json.loads(exc.read() or b"{}")
 
 
+PRAZO_1A_ENTREGA_MS = 20_000  # W4 com 2 anexos (medido: < 1 s); o canal desiste em 90 s
+
+
 def t16() -> dict:
     """C3: mensagem com 2 anexos → 2 recebimentos distintos com a chave do contrato
     `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` e anexo_indice/total_anexos no multipart;
@@ -932,10 +935,16 @@ def t16() -> dict:
     }
     # Como um canal real, o simulador reentrega enquanto o W4 não der 2xx (o W4 só dá 2xx depois
     # do PCPR). Na rodada completa de 18/10 00:28 o 1º webhook deste cenário passou de 30 s sem
-    # resposta (causa não confirmada; não se repetiu): a reentrega é o mecanismo do desenho, e as
-    # asserções abaixo (1 efeito por anexo, o resto repetição) valem com ou sem ela.
+    # resposta (causa não confirmada; não se repetiu). A reentrega fica ligada para o relatório
+    # mostrar o que aconteceu, mas a 1ª entrega TEM de dar 2xx dentro do prazo: um W4 que trave na
+    # 1ª entrega não pode passar despercebido (2ª verificação do C3).
     r1 = canal("/_sim/inbound", {**entrada, "reentregar": 2})
     checar(r1["status"] == 200, f"webhook W4 respondeu {r1['entregas']} {r1.get('resposta')}")
+    checar(
+        r1["entregas"][0] == 200 and r1["ms_entregas"][0] <= PRAZO_1A_ENTREGA_MS,
+        f"1ª entrega (2 anexos) fora do prazo de {PRAZO_1A_ENTREGA_MS} ms: "
+        f"{r1['entregas']} {r1['ms_entregas']}",
+    )
     e = est()
     posts = chamadas(e, r"/recebimentos")
     recs = [x for x in e["recebimentos"] if x["estado"] != "duplicado"]
@@ -988,14 +997,33 @@ def t16() -> dict:
         ("anexo_indice >= total_anexos", indice_fora),
     ):
         checar(st == 422 and corpo.get("codigo") == "entrada_invalida", f"{nome}: {st} {corpo}")
-    # (d) mensagem sem anexo → o W4 responde 422 (nada a receber) sem chamar o PCPR
-    n_antes = len(chamadas(est(), r"/recebimentos.*"))
-    r3 = canal("/_sim/inbound", {**entrada, "mensagem_id": f"{mid}.vazia", "anexos": []})
-    checar(r3["status"] == 422, f"sem anexo: {r3['status']}")
-    checar(len(chamadas(est(), r"/recebimentos.*")) == n_antes, "sem anexo chamou o PCPR")
+    # (d) mensagem sem anexo → /recebimentos/sem-arquivo (motivo sem_anexo, contrato): o PCPR
+    # registra e orienta o remetente; o W4 confirma ao canal (antes: 422 sem chamar o PCPR, e o
+    # canal reentregava até desistir — 2ª verificação do C9)
+    mid_v = f"{mid}.vazia"
+    r3 = canal("/_sim/inbound", {**entrada, "mensagem_id": mid_v, "anexos": [], "reentregar": 2})
+    e3 = est()
+    sem = [
+        p
+        for p in chamadas(e3, r"/recebimentos/sem-arquivo")
+        if p["chave"] == f"receb:email:{mid_v}:0"
+    ]
+    rec_v = [x for x in e3["recebimentos"] if x["campos"].get("mensagem_id_canal") == mid_v]
+    checar(r3["entregas"] == [200], f"sem anexo: entregas {r3['entregas']} {r3.get('resposta')}")
+    checar([p["status"] for p in sem] == [202], f"sem anexo: sem-arquivo {sem}")
+    checar(
+        len(rec_v) == 1 and rec_v[0]["estado"] == "rejeitado" and rec_v[0]["motivo"] == "sem_anexo",
+        f"sem anexo: recebimento {rec_v}",
+    )
+    checar(
+        not [p for p in chamadas(e3, r"/recebimentos") if mid_v in str(p["chave"])],
+        "sem anexo chamou POST /recebimentos",
+    )
     return {
         "a_dois_anexos": {
             "entregas_do_canal": r1["entregas"],
+            "ms_da_1a_entrega": r1["ms_entregas"][0],
+            "prazo_ms": PRAZO_1A_ENTREGA_MS,
             "chaves": chaves,
             "recebimentos": [
                 {"id": x["id"], "anexo_indice": i, "total_anexos": 2}
@@ -1013,7 +1041,11 @@ def t16() -> dict:
             "chave_antiga": chave_antiga[0],
             "indice_fora_do_total": indice_fora[0],
         },
-        "d_mensagem_sem_anexo": r3["status"],
+        "d_mensagem_sem_anexo": {
+            "entregas_do_canal": r3["entregas"],
+            "sem_arquivo": [p["status"] for p in sem],
+            "recebimento": {"estado": rec_v[0]["estado"], "motivo": rec_v[0]["motivo"]},
+        },
     }
 
 
@@ -1122,6 +1154,234 @@ def t18() -> dict:
         "recebimentos": 2,
         "duplicados": 2,
     }
+
+
+def t19() -> dict:
+    """2ª verificação do C9 (arquitetura §3.7 e §3.12): recusa PERMANENTE do PCPR e anexo sem bytes
+    não viram laço de reentrega nem perda silenciosa. Cada caso: o canal recebe resposta final
+    (2xx) já na 1ª entrega, mesmo pedindo até 3 reentregas, e sobra um registro humano no PCPR
+    (exceção ou recebimento `rejeitado` com orientação ao remetente)."""
+    remetente = "+5500000000191"
+
+    def receber(mid: str, anexos: list[dict] | None = None, **mais: Any) -> dict:
+        corpo: dict[str, Any] = {
+            "mensagem_id": mid,
+            "remetente": remetente,
+            "canal": "email",
+            "reentregar": 3,
+            **mais,
+        }
+        if anexos is not None:
+            corpo["anexos"] = anexos
+        return canal("/_sim/inbound", corpo)
+
+    def da_msg(e: dict, mid: str) -> dict[str, Any]:
+        chave = f"receb:email:{mid}:0"
+        return {
+            "posts": [p["status"] for p in chamadas(e, r"/recebimentos") if p["chave"] == chave],
+            "sem_arquivo": [
+                p["status"]
+                for p in chamadas(e, r"/recebimentos/sem-arquivo")
+                if p["chave"] == chave
+            ],
+            "excecoes_n8n": [
+                p for p in chamadas(e, r"/excecoes") if f"{chave}:" in str(p["chave"])
+            ],
+            "excecoes": [x for x in e["excecoes"] if mid in str(x.get("correlacao_id"))],
+            "recebimentos": [
+                x for x in e["recebimentos"] if x["campos"].get("mensagem_id_canal") == mid
+            ],
+            "w5": [x for x in e["excecoes"] if str(x["fluxo"]).startswith("n8n:")],
+        }
+
+    saida: dict[str, Any] = {}
+    # (a) 422 permanente no POST /recebimentos → exceção do n8n + 200; reentrega → a MESMA exceção
+    resetar()
+    sim("/_sim/config", {"recusar_recebimentos": 99})
+    mid = f"msg.sim.T19a.{secrets.token_hex(3)}"
+    r = receber(mid)
+    x = da_msg(est(), mid)
+    checar(r["entregas"] == [200], f"(a) entregas {r['entregas']} {r.get('resposta')}")
+    checar(x["posts"] == [422], f"(a) POST /recebimentos {x['posts']}")
+    checar(
+        len(x["excecoes"]) == 1
+        and x["excecoes"][0]["origem"] == "n8n"
+        and x["excecoes"][0]["fluxo"] == "recebimento-canais"
+        and x["excecoes"][0]["motivo"] == "outro",
+        f"(a) exceções {x['excecoes']}",
+    )
+    checar(not x["recebimentos"] and not x["w5"], f"(a) recebimentos/W5: {x}")
+    r2 = receber(mid)  # o canal entrega a mesma mensagem outra vez (ex.: caixa relida)
+    x2 = da_msg(est(), mid)
+    checar(r2["entregas"] == [200], f"(a2) entregas {r2['entregas']}")
+    checar(len(x2["excecoes"]) == 1, f"(a2) exceção duplicada: {x2['excecoes']}")
+    checar(
+        [(p["status"], bool(p.get("replay"))) for p in x2["excecoes_n8n"]]
+        == [(201, False), (201, True)],
+        f"(a2) POST /excecoes {x2['excecoes_n8n']}",
+    )
+    saida["a_422_permanente"] = {
+        "entregas_do_canal": r["entregas"],
+        "post_recebimentos": x["posts"],
+        "excecao": {k: x["excecoes"][0][k] for k in ("origem", "fluxo", "motivo", "detalhe")},
+        "mesma_mensagem_de_novo": {
+            "entregas_do_canal": r2["entregas"],
+            "post_excecoes": ["201", "201 (repetição)"],
+            "excecoes": 1,
+        },
+    }
+    # (b) canal de entrada bloqueado → 409 canal_bloqueado → exceção canal_indisponivel + 200
+    resetar()
+    sim("/_sim/canais", {"email_entrada": "bloqueado"})
+    mid = f"msg.sim.T19b.{secrets.token_hex(3)}"
+    r = receber(mid)
+    x = da_msg(est(), mid)
+    checar(r["entregas"] == [200], f"(b) entregas {r['entregas']}")
+    checar(x["posts"] == [409], f"(b) POST /recebimentos {x['posts']}")
+    checar([e["motivo"] for e in x["excecoes"]] == ["canal_indisponivel"], f"(b) {x['excecoes']}")
+    saida["b_409_canal_bloqueado"] = {
+        "entregas_do_canal": r["entregas"],
+        "post_recebimentos": x["posts"],
+        "excecao": "canal_indisponivel",
+    }
+    # (c) 413 do PCPR → /recebimentos/sem-arquivo (acima_do_limite), sem exceção do n8n
+    resetar()
+    sim("/_sim/config", {"limite_recebimento_bytes": 256})
+    mid = f"msg.sim.T19c.{secrets.token_hex(3)}"
+    r = receber(mid)
+    x = da_msg(est(), mid)
+    checar(r["entregas"] == [200], f"(c) entregas {r['entregas']}")
+    checar(
+        x["posts"] == [413] and x["sem_arquivo"] == [202], f"(c) {x['posts']} {x['sem_arquivo']}"
+    )
+    checar(
+        [(y["estado"], y["motivo"]) for y in x["recebimentos"]]
+        == [("rejeitado", "acima_do_limite")],
+        f"(c) recebimentos {x['recebimentos']}",
+    )
+    checar(not x["excecoes"], f"(c) exceções {x['excecoes']}")
+    saida["c_413_do_pcpr"] = {
+        "entregas_do_canal": r["entregas"],
+        "post_recebimentos": x["posts"],
+        "sem_arquivo": x["sem_arquivo"],
+        "recebimento": "rejeitado (acima_do_limite)",
+    }
+    # (d) anexo anunciado acima de 25 MiB → nem é baixado; sem-arquivo acima_do_limite
+    resetar()
+    mid = f"msg.sim.T19d.{secrets.token_hex(3)}"
+    r = receber(mid, [{"texto": "T19 d grande", "tamanho_declarado": 30 * 1024 * 1024}])
+    e, c = est(), est_canal()
+    x = da_msg(e, mid)
+    downs = [d["status"] for d in c["downloads"] if d["arquivo"] == r["arquivo"]["id"]]
+    checar(r["entregas"] == [200], f"(d) entregas {r['entregas']}")
+    checar(not downs and not x["posts"] and x["sem_arquivo"] == [202], f"(d) {downs} {x}")
+    checar(
+        [(y["estado"], y["motivo"]) for y in x["recebimentos"]]
+        == [("rejeitado", "acima_do_limite")],
+        f"(d) recebimentos {x['recebimentos']}",
+    )
+    saida["d_anexo_anunciado_acima_do_limite"] = {
+        "entregas_do_canal": r["entregas"],
+        "downloads": 0,
+        "sem_arquivo": x["sem_arquivo"],
+    }
+    # (e) anexo que não existe mais no canal (404) → sem-arquivo nao_baixado → exceção do PCPR
+    resetar()
+    mid = f"msg.sim.T19e.{secrets.token_hex(3)}"
+    r = receber(mid, [{"texto": "T19 e removido", "removido": True}])
+    e, c = est(), est_canal()
+    x = da_msg(e, mid)
+    downs = [d["status"] for d in c["downloads"] if d["arquivo"] == r["arquivo"]["id"]]
+    checar(r["entregas"] == [200], f"(e) entregas {r['entregas']}")
+    checar(downs == [404] and not x["posts"] and x["sem_arquivo"] == [202], f"(e) {downs} {x}")
+    checar(
+        [(y["origem"], y["motivo"]) for y in x["excecoes"]] == [("pcpr", "arquivo_nao_baixado")],
+        f"(e) exceções {x['excecoes']}",
+    )
+    saida["e_anexo_inexistente_404"] = {
+        "entregas_do_canal": r["entregas"],
+        "downloads": downs,
+        "sem_arquivo": x["sem_arquivo"],
+        "excecao": "arquivo_nao_baixado (aberta pelo PCPR)",
+    }
+    # (f) a recusa permanente MUDA entre entregas (422 na 1ª, 409 canal_bloqueado na 2ª): cada
+    # classe de recusa tem a sua chave (corpo = função da chave) → 2 exceções, nenhuma 422 de
+    # "chave reutilizada", resposta final ao canal nas duas; a 3ª entrega repete a 2ª sem efeito
+    resetar()
+    sim("/_sim/config", {"recusar_recebimentos": 1})
+    mid = f"msg.sim.T19f.{secrets.token_hex(3)}"
+    r1 = receber(mid)
+    sim("/_sim/canais", {"email_entrada": "bloqueado"})
+    r2 = receber(mid)
+    r3 = receber(mid)
+    x = da_msg(est(), mid)
+    entregas_f = [r1["entregas"], r2["entregas"], r3["entregas"]]
+    checar(entregas_f == [[200], [200], [200]], f"(f) entregas {entregas_f}")
+    checar(x["posts"] == [422, 409, 409], f"(f) POST /recebimentos {x['posts']}")
+    excs_f = [(p["status"], bool(p.get("replay"))) for p in x["excecoes_n8n"]]
+    checar(excs_f == [(201, False), (201, False), (201, True)], f"(f) POST /excecoes {excs_f}")
+    checar(
+        sorted(y["motivo"] for y in x["excecoes"]) == ["canal_indisponivel", "outro"],
+        f"(f) exceções {x['excecoes']}",
+    )
+    saida["f_recusa_que_muda_entre_entregas"] = {
+        "entregas_do_canal": entregas_f,
+        "post_recebimentos": x["posts"],
+        "post_excecoes": [f"{st}{' (repetição)' if rep else ''}" for st, rep in excs_f],
+        "excecoes": sorted(y["motivo"] for y in x["excecoes"]),
+    }
+    # (g) falha TEMPORÁRIA persistente (§3.7): entrada de e-mail desligada (423). Mensagem recente
+    # → só 503 (o canal reentrega), sem exceção. Mensagem recebida há 2 dias (> 4 h) → continua
+    # 503 (nada se perde) e abre UMA exceção fila_parada, repetida sem efeito a cada reentrega;
+    # religada a entrada, a reentrega seguinte registra 1 recebimento.
+    resetar()
+    sim("/_sim/canais", {"email_entrada": "desligado"})
+    mid_rec = f"msg.sim.T19g.recente.{secrets.token_hex(3)}"
+    rr = receber(mid_rec, reentregar=1)
+    xr = da_msg(est(), mid_rec)
+    checar(rr["entregas"] == [503, 503], f"(g) recente: entregas {rr['entregas']}")
+    checar(not xr["excecoes"] and not xr["excecoes_n8n"], f"(g) recente: exceções {xr}")
+    mid = f"msg.sim.T19g.velha.{secrets.token_hex(3)}"
+    rv = receber(mid, recebido_ha_s=2 * 86400, reentregar=2)
+    e = est()
+    xv = da_msg(e, mid)
+    chave_fila = f"excecao:recebimento-canais:receb:email:{mid}:fila_parada"
+    posts_fila = [
+        (p["status"], bool(p.get("replay")))
+        for p in chamadas(e, r"/excecoes")
+        if p["chave"] == chave_fila
+    ]
+    checar(rv["entregas"] == [503, 503, 503], f"(g) velha: entregas {rv['entregas']}")
+    checar(xv["posts"] == [423, 423, 423], f"(g) velha: POST /recebimentos {xv['posts']}")
+    checar(
+        posts_fila == [(201, False), (201, True), (201, True)], f"(g) POST /excecoes {posts_fila}"
+    )
+    checar(
+        [(y["origem"], y["motivo"]) for y in xv["excecoes"]] == [("n8n", "fila_parada")],
+        f"(g) exceções {xv['excecoes']}",
+    )
+    sim("/_sim/canais", {"email_entrada": "ligado"})
+    rl = receber(mid, reentregar=0)
+    xl = da_msg(est(), mid)
+    checar(rl["entregas"] == [200], f"(g) religada: entregas {rl['entregas']}")
+    checar(
+        [y["estado"] for y in xl["recebimentos"]] == ["aceito_para_processamento"],
+        f"(g) religada: recebimentos {xl['recebimentos']}",
+    )
+    checar(len(xl["excecoes"]) == 1, f"(g) religada: exceções {xl['excecoes']}")
+    saida["g_falha_temporaria_persistente"] = {
+        "mensagem_recente": {"entregas_do_canal": rr["entregas"], "excecoes": 0},
+        "mensagem_de_2_dias": {
+            "entregas_do_canal": rv["entregas"],
+            "post_recebimentos": xv["posts"],
+            "post_excecoes_fila_parada": [
+                f"{st}{' (repetição)' if rep else ''}" for st, rep in posts_fila
+            ],
+            "excecoes": ["fila_parada"],
+        },
+        "entrada_religada": {"entregas_do_canal": rl["entregas"], "recebimentos": 1},
+    }
+    return saida
 
 
 def metricas_latencia() -> dict:
@@ -1305,6 +1565,13 @@ CENARIOS: list[tuple[str, str, Callable[[], dict]]] = [
     ("T16", "mensagem com 2 anexos → 2 recebimentos (chave por anexo); reenvio → 0 novos", t16),
     ("T17", "falha no POST /recebimentos ou no download → W4 não-2xx → reentrega → 1", t17),
     ("T18", "dedup de recebimento por (servidor, SHA-256): 2 servidores → 2; mesmo → 1", t18),
+    (
+        "T19",
+        "recusa permanente do PCPR / anexo sem bytes → exceção ou registro sem arquivo, "
+        "resposta final ao canal, sem laço de reentrega; recusa que muda entre entregas → "
+        "2 exceções; falha temporária persistente → 503 + exceção fila_parada",
+        t19,
+    ),
     ("T13", "nenhum destino, link-credencial ou token de reserva retido nas execuções do n8n", t13),
 ]
 
@@ -1421,6 +1688,32 @@ def rodar_t11() -> dict:
     }
 
 
+def rodar_t20() -> dict:
+    """Unitários sem Docker em processo separado (os dublês do teste de saída não tocam esta
+    execução): validador do esquema (C2) e código de saída da suíte (C8)."""
+    r = subprocess.run(
+        [sys.executable, "-m", "unittest", "-v", "test_validar_esquema", "test_saida_suite"],
+        cwd=RAIZ,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+        timeout=120,
+    )
+    linhas = r.stderr.splitlines()
+    rodados = next((int(x.split()[1]) for x in linhas if x.startswith("Ran ")), 0)
+    return {
+        "id": "T20",
+        "nome": "unitários: validador do esquema (C2) e código de saída da suíte (C8)",
+        "passou": r.returncode == 0 and rodados > 0,
+        "evidencia": {
+            "testes": rodados,
+            "resultado": [x for x in linhas if x.endswith(("ok", "FAIL", "ERROR"))],
+            "saida": r.returncode,
+        },
+    }
+
+
 def exportar_workflows(tmp: Path) -> dict:
     destino = tmp / "exportado"
     destino.mkdir()
@@ -1494,6 +1787,7 @@ def main() -> int:
     amostrador = Amostrador()
     try:
         relatorio["cenarios"].append(rodar_t11())
+        relatorio["cenarios"].append(rodar_t20())
         procs = subir_simuladores(tmp)
         imp = tmp / "importar"
         cw.construir(imp / "workflows")

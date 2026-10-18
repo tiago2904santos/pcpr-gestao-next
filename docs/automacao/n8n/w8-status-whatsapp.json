@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:57:26.000Z",
-  "createdAt": "2026-10-18T03:52:34.191Z",
+  "updatedAt": "2026-10-18T06:43:37.000Z",
+  "createdAt": "2026-10-18T06:34:35.505Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -30,6 +30,12 @@
               "name": "cfg_pcpr",
               "value": "http://host.docker.internal:8765/api/automacao/v1",
               "type": "string"
+            },
+            {
+              "id": "402f34c7-d2bd-558f-8b84-4409452ac7a8",
+              "name": "cfg_adiar_max_s",
+              "value": 3600,
+              "type": "number"
             }
           ]
         },
@@ -160,7 +166,7 @@
           "conditions": [
             {
               "id": "f1ff9957-3ced-535e-a6d3-ed7d58873ad9",
-              "leftValue": "={{ $json.comunicacao_id === null }}",
+              "leftValue": "={{ $json.comunicacao_id === null && (Date.now() - Date.parse($json.ocorrido_em)) <= $('Configuração').first().json.cfg_adiar_max_s * 1000 }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -180,6 +186,105 @@
       "position": [
         1540,
         300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "545020f8-057b-500a-8808-13b1d8738e1c",
+              "leftValue": "={{ $json.comunicacao_id !== null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4b15713d-3aa1-50a3-bf04-7874e9699767",
+      "name": "Comunicação conhecida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "=excecao:whatsapp-status:{{ $json.wamid }}:{{ $json.status }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'whatsapp', correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', detalhe: 'Status ' + $json.status + ' de uma mensagem que o PCPR não conhece (nenhum resultado com este id do provedor após ' + $('Configuração').first().json.cfg_adiar_max_s + ' s): confirmado à Meta sem gravar. Conferir se houve envio sem registro.' }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "fd9ac48c-fe06-540d-893e-09b2179c22cf",
+      "name": "Exceção: status sem comunicação",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4638227-8308-56ef-aee1-15f14e1daffb",
+              "name": "adiar",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "e471a5f4-5dc7-591e-a8da-2d6efed3b2c4",
+      "name": "Marcar órfão",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2200,
+        420
       ]
     },
     {
@@ -204,7 +309,7 @@
       "typeVersion": 3.4,
       "position": [
         1760,
-        420
+        560
       ]
     },
     {
@@ -234,7 +339,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1760,
+        1980,
         200
       ],
       "credentials": {
@@ -268,21 +373,21 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1980,
+        2200,
         200
       ]
     },
     {
       "parameters": {
         "mode": "append",
-        "numberInputs": 2
+        "numberInputs": 3
       },
       "id": "3207f3b5-6501-534e-bd13-8a8472e9bcb3",
       "name": "Juntar resultado",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2200,
+        2420,
         300
       ]
     },
@@ -295,7 +400,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2420,
+        2640,
         300
       ]
     }
@@ -418,9 +523,49 @@
         ],
         [
           {
+            "node": "Comunicação conhecida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comunicação conhecida?": {
+      "main": [
+        [
+          {
             "node": "Registrar entrega",
             "type": "main",
             "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exceção: status sem comunicação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exceção: status sem comunicação": {
+      "main": [
+        [
+          {
+            "node": "Marcar órfão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar órfão": {
+      "main": [
+        [
+          {
+            "node": "Juntar resultado",
+            "type": "main",
+            "index": 2
           }
         ]
       ]
@@ -463,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "920f1bca-ae90-4628-96e8-82b37036b163",
+  "versionId": "d3568585-9fa9-4fef-bb95-4bcbce43f345",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -471,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:52:34.193Z",
-      "createdAt": "2026-10-18T03:52:34.193Z",
+      "updatedAt": "2026-10-18T06:34:35.509Z",
+      "createdAt": "2026-10-18T06:34:35.509Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "KDapCLFoTUNmEURa",
+      "projectId": "0CS3vavw6UwQeMAZ",
       "project": {
-        "updatedAt": "2026-10-18T03:52:26.631Z",
-        "createdAt": "2026-10-18T03:52:26.631Z",
-        "id": "KDapCLFoTUNmEURa",
+        "updatedAt": "2026-10-18T06:33:47.174Z",
+        "createdAt": "2026-10-18T06:33:47.174Z",
+        "id": "0CS3vavw6UwQeMAZ",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
+        "creatorId": "73f432c8-09aa-4153-b5dc-0601a17f8f3b"
       }
     }
   ],
