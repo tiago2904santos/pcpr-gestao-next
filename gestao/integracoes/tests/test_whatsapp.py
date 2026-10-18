@@ -276,3 +276,12 @@ def test_mudanca_de_outro_numero_e_ignorada():
                                   phone_number_id="999")
     assert webhook.ler(corpo, numero_esperado="111").status == ()
     assert len(webhook.ler(corpo, numero_esperado="999").status) == 1
+
+
+def test_teto_de_itens_conta_tambem_os_malformados():
+    """Itens malformados também contam para o teto, conferido a cada item: um corpo assinado
+    cheio de lixo não é processado até o fim."""
+    lixo = {"object": "whatsapp_business_account", "entry": [{"changes": [{
+        "field": "messages", "value": {"statuses": [{"x": i} for i in range(1001)]}}]}]}
+    with pytest.raises(erros.PayloadInvalido):
+        webhook.ler(json.dumps(lixo).encode())

@@ -184,12 +184,14 @@ def ler(corpo: bytes, numero_esperado: str = "") -> Lote:
                     if chave:
                         perfis[chave] = nome
             for s in _lista(valor.get("statuses")):
+                _contar_item(status, mensagens, ignorados)  # o teto vale ANTES de processar
                 lido = _status(_dict(s))
                 if lido is None:
                     ignorados += 1
                 else:
                     status.append(lido)
             for m in _lista(valor.get("messages")):
+                _contar_item(status, mensagens, ignorados)
                 lida = _mensagem(_dict(m), perfis)
                 if lida is None:
                     ignorados += 1
@@ -201,6 +203,13 @@ def ler(corpo: bytes, numero_esperado: str = "") -> Lote:
             if len(status) + len(mensagens) > MAXIMO_DE_ITENS:
                 raise PayloadInvalido("Webhook com itens demais.", "itens")
     return Lote(tuple(status), tuple(mensagens), tuple(erros), ignorados)
+
+
+def _contar_item(status: list, mensagens: list, ignorados: int) -> None:
+    """Teto de itens por corpo, conferido a cada item (inclusive os malformados, que só
+    contam como ignorados): um corpo assinado gigante não consome CPU/memória até o fim."""
+    if len(status) + len(mensagens) + ignorados >= MAXIMO_DE_ITENS:
+        raise PayloadInvalido("Webhook com itens demais.", "itens")
 
 
 # ------------------------------------------------------------- montagem (simulador)

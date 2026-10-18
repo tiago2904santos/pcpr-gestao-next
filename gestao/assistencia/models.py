@@ -133,6 +133,9 @@ class PedidoSugestao(models.Model):
     # presa de um worker que morreu no meio — `orcamento.liberar_reservas_presas`).
     reserva_usd = models.DecimalField(max_digits=12, decimal_places=6, default=Decimal(0))
     reserva_mes = models.DateField(null=True, blank=True)
+    #: Vagas do teto diário de chamadas tomadas por este pedido enquanto a chamada está em voo
+    #: (zera ao concluir/encerrar): outros workers descontam estas vagas antes de admitir.
+    tentativas_admitidas = models.PositiveSmallIntegerField(default=0)
     motivo = models.CharField(max_length=255, blank=True)  # código/mensagem, sem conteúdo
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)

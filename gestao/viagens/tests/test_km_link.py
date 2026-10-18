@@ -464,3 +464,14 @@ def test_service_worker_leva_o_vencimento_do_link(c):
     corpo = Client().get(path + "sw/").content.decode()
     assert "const EXPIRA = " in corpo and "const EXPIRA = 0;" not in corpo
     assert "pcpr-km-pagina:" in corpo and "status: 410" in corpo
+
+
+def test_primeira_emissao_depois_da_rotina_agenda_o_link(c):
+    """Ofício emitido pela 1ª vez depois da rotina da véspera, saindo amanhã: a emissão agenda
+    o link (a rotina do dia seguinte já não o veria); rodar a rotina depois não duplica."""
+    _ligar(c)
+    _contatos(c)
+    cv._link_na_primeira_emissao(c.oficio, c.usuarios["operador"])
+    assert Comunicacao.objects.filter(tipo=cv.LINK_KM).count() == 1
+    cv.agendar_links_km()
+    assert Comunicacao.objects.filter(tipo=cv.LINK_KM).count() == 1

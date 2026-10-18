@@ -162,3 +162,33 @@ def test_reserva_de_pedido_encerrado_sem_lease_e_varrida(django_user_model):
                                                    reservado_ate=None)
     assert orcamento.liberar_reservas_presas() == 1
     assert OrcamentoIA.objects.get(escopo=orcamento.GLOBAL).reservado_usd == 0
+
+
+@pytest.mark.django_db
+def test_vagas_do_dia_descontam_pedidos_em_voo(django_user_model):
+    """Dois workers perto do teto diário: as tentativas já admitidas por um pedido em voo
+    (lease vivo) saem das vagas do outro."""
+    from datetime import timedelta
+    from types import SimpleNamespace
+
+    from django.utils import timezone
+
+    from gestao.assistencia import servicos
+    from gestao.assistencia.models import PedidoSugestao
+
+    em_voo, novo = _pedido(django_user_model, 8), _pedido(django_user_model, 9)
+    PedidoSugestao.objects.filter(pk=em_voo.pk).update(
+        tentativas_admitidas=2, reservado_ate=timezone.now() + timedelta(minutes=5))
+    config = SimpleNamespace(max_chamadas_dia=3, max_tentativas=3)
+    assert servicos._admitir(novo, USO, config) == 1  # 3 do dia − 2 em voo
+    PedidoSugestao.objects.filter(pk=em_voo.pk).update(reservado_ate=timezone.now())
+    assert servicos._admitir(novo, USO, config) == 3  # lease vencido: as vagas voltam
+
+
+def test_nomes_da_equipe_saem_antes_do_provedor():
+    from gestao.assistencia import servicos
+
+    texto = "Reunião com Ana Paula Ribeiro e o motorista Ribeiro na sede; ANA confirmou."
+    limpo = servicos._sem_nomes(texto, ["Ana Paula Ribeiro"])
+    assert "Ribeiro" not in limpo and "Paula" not in limpo
+    assert limpo.count("[pessoa]") >= 2 and "sede" in limpo

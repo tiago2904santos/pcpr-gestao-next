@@ -500,11 +500,27 @@ def _periodo_do_documento(dados: dict) -> tuple:
     return (trechos[0].get("saida"), trechos[-1].get("chegada"))
 
 
+def _link_na_primeira_emissao(oficio: Oficio, usuario) -> None:
+    """Ofício de viatura emitido pela 1ª vez DEPOIS da rotina da véspera, saindo hoje ou
+    amanhã: a rotina não o veria mais (só procura saídas de amanhã), então o link de km é
+    agendado aqui. A chave por diário e versão impede duplicar com a rotina."""
+    if oficio.tipo_transporte != Oficio.TipoTransporte.VIATURA:
+        return
+    prestacao = getattr(oficio, "prestacao", None)
+    saida = oficio.trechos.aggregate(m=Min("saida_em"))["m"]
+    if prestacao is None or saida is None:
+        return
+    hoje = timezone.localdate()
+    if hoje <= timezone.localtime(saida).date() <= hoje + timedelta(days=1):
+        _agendar_link(servico_diario.obter(prestacao), hoje, autor=usuario)
+
+
 def oficio_emitido(oficio: Oficio, usuario, documento: Documento) -> None:
     """Na transação de `services.emitir`: reemissão (versão 2 em diante) avisa a equipe —
     "datas mudaram" se a saída ou a chegada mudou, senão "use a versão nova". O aviso de
     uma versão anterior que ainda não saiu fica obsoleto."""
     if documento.versao <= 1:
+        _link_na_primeira_emissao(oficio, usuario)
         return
     automacao.encerrar_relacionadas(_recurso_oficio(oficio.pk),
                                     (REAGENDAMENTO, SUBSTITUICAO, RETIRADA),

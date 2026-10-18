@@ -260,8 +260,18 @@ def _deterministico_rt(ctx: Contexto) -> dict:
 
 def _aplicar_rt(usuario, recurso_id: str, textos: dict[str, str], versao: str,
                 substituir: bool) -> None:
+    # Trava as linhas que compõem a versão (prestação, ofício, viagem e plano) e SÓ ENTÃO
+    # relê tudo: a conferência da versão usa os dados de depois das travas, não a cópia lida
+    # antes (um ofício ou plano editado no meio não passa com fatos velhos).
     p = _prestacao(recurso_id)
     PrestacaoContas.objects.select_for_update().get(pk=p.pk)
+    Oficio.objects.select_for_update().filter(pk=p.oficio_id).first()
+    if p.oficio.viagem_id:
+        Viagem.objects.select_for_update().filter(pk=p.oficio.viagem_id).first()
+    plano = relatorio.plano_da_viagem(p)
+    if plano is not None:
+        PlanoTrabalho.objects.select_for_update().filter(pk=plano.pk).first()
+    p = _prestacao(recurso_id)  # releitura depois das travas
     if _contexto_rt(p, {}).versao != versao:
         raise Obsoleta("O relatório ou os dados da viagem mudaram desde a sugestão.")
     existia = RelatorioTecnico.objects.filter(prestacao=p).first()

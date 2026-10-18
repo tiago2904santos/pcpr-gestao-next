@@ -15,9 +15,11 @@ Regras que valem para todos os usos:
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import logging
+import re
 from dataclasses import asdict
 from datetime import datetime, timedelta
 from typing import Any
@@ -114,6 +116,12 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
         [uso.chave, recurso_id, ctx.versao, uso.versao_prompt, config.modo, opcoes],
         ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     with transaction.atomic():
+        # A trava (pessoa + uso) vem ANTES de procurar pedidos iguais: dois pedidos idênticos
+        # simultâneos não acham, os dois, a fila vazia (o 2º daria IntegrityError na chave). Ela
+        # também serializa a cota por pessoa e dia, contada e incrementada abaixo.
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)",
+                           [_trava(f"ia-cota:{usuario.pk}:{uso.chave}")])
         anteriores = list(PedidoSugestao.objects.select_for_update()
                           .filter(chave__startswith=base).order_by("-id"))
         for p in anteriores:
@@ -122,11 +130,6 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
             if (p.estado == E.CONCLUIDO
                     and Sugestao.objects.filter(pedido=p, estado=S.PRONTA).exists()):
                 return p
-        # Cota por pessoa e dia, contada E incrementada sob a mesma trava (pessoa + uso): dois
-        # pedidos simultâneos de registros diferentes não passam juntos do limite.
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT pg_advisory_xact_lock(%s)",
-                           [_trava(f"ia-cota:{usuario.pk}:{uso.chave}")])
         hoje = PedidoSugestao.objects.filter(uso=uso.chave, usuario=usuario,
                                              criado_em__gte=_inicio_do_dia()).count()
         if hoje >= config.max_pedidos_pessoa_dia:
@@ -180,11 +183,32 @@ def _fora_de_transacao(profundidade: int) -> None:
         raise ForaDeTransacao("Chamada à IA dentro de transação: não pode.")
 
 
+CONECTIVOS = {"da", "de", "do", "das", "dos", "e"}
+
+
+def _sem_nomes(texto: str, nomes) -> str:
+    """Tira os nomes conhecidos da equipe ANTES de mandar ao provedor (o validador da saída é
+    a 2ª barreira, não a 1ª): o nome inteiro e cada parte de 4+ letras viram "[pessoa]"."""
+    partes: set[str] = set()
+    for nome in nomes or ():
+        nome = " ".join(str(nome or "").split())
+        if not nome:
+            continue
+        partes.add(nome)
+        partes.update(p for p in nome.split() if len(p) >= 4 and p.lower() not in CONECTIVOS)
+    for parte in sorted(partes, key=len, reverse=True):  # o nome inteiro antes das partes
+        texto = re.sub(rf"(?<!\w){re.escape(parte)}(?!\w)", "[pessoa]", texto,
+                       flags=re.IGNORECASE)
+    return texto
+
+
 def _pedido_ia(uso: ganchos.UsoIA, ctx: ganchos.Contexto, deterministico: dict,
                config: ConfiguracaoUso, simular: str = "") -> PedidoIA:
-    blocos = [BlocoDeDados("fatos", serializar_fatos(f for f in ctx.fatos if not f.do_pedido),
+    nomes = ctx.extras.get("nomes", ())
+    fatos = [dataclasses.replace(f, valor=_sem_nomes(f.valor, nomes)) for f in ctx.fatos]
+    blocos = [BlocoDeDados("fatos", serializar_fatos(f for f in fatos if not f.do_pedido),
                            ctx.recurso_rotulo)]
-    for f in ctx.fatos:
+    for f in fatos:
         if f.do_pedido:
             blocos.append(BlocoDeDados(f.chave, f.valor, f.rotulo))
     blocos.append(BlocoDeDados("lacunas_permitidas", ", ".join(uso.lacunas_conhecidas) or "—",
@@ -218,6 +242,24 @@ def _sem_dado_pessoal(dados: Any) -> list[str]:
 
     varrer(dados)
     return erros
+
+
+def _admitir(pedido: PedidoSugestao, uso: str, config) -> int:
+    """Quantas tentativas este pedido pode fazer, sob trava por uso: o teto diário menos as
+    chamadas já feitas hoje e as vagas tomadas por pedidos AINDA em voo (lease vivo). As vagas
+    ficam anotadas no pedido até ele concluir ou ser encerrado. Cada tentativa é uma chamada."""
+    with transaction.atomic():
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)", [_trava(f"ia-dia:{uso}")])
+        em_voo = (PedidoSugestao.objects
+                  .filter(uso=uso, estado=E.PROCESSANDO, tentativas_admitidas__gt=0,
+                          reservado_ate__gt=timezone.now())
+                  .exclude(pk=pedido.pk)
+                  .aggregate(n=Sum("tentativas_admitidas"))["n"] or 0)
+        restantes = config.max_chamadas_dia - chamadas_hoje(uso) - em_voo
+        tentativas = max(0, min(config.max_tentativas, restantes))
+        PedidoSugestao.objects.filter(pk=pedido.pk).update(tentativas_admitidas=tentativas)
+    return tentativas
 
 
 def chamadas_hoje(uso: str) -> int:
@@ -269,12 +311,9 @@ def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Su
     pedido_ia = _pedido_ia(uso, ctx, determ, config, simular)
     if pedido_ia.contem_documento and not porta.aceita_documentos:
         return regra("documento")  # ADR 0041: nem chega a reservar
-    restantes = config.max_chamadas_dia - chamadas_hoje(uso.chave)
-    if restantes <= 0:
+    tentativas = _admitir(pedido, uso.chave, config)
+    if tentativas <= 0:
         return regra("limite_diario")
-    # Cada tentativa é uma chamada (`chamadas_hoje` soma `tentativas_ia`): com poucas vagas no
-    # dia, o pedido não pode fazer mais tentativas do que sobra do teto diário.
-    tentativas = min(config.max_tentativas, restantes)
     maximo = servico_ia.custo_maximo(pedido_ia, porta) * tentativas
     # O lease passa a cobrir a chamada inteira (todas as tentativas): ninguém retoma o pedido
     # enquanto ela pode estar em curso, e a reserva fica anotada nele.
@@ -308,7 +347,9 @@ def _encerrar(pedido: PedidoSugestao, estado: str, motivo: str) -> None:
             return
         orcamento.liberar_do_pedido(atual)
         atual.estado, atual.motivo, atual.reservado_ate = estado, motivo[:255], None
-        atual.save(update_fields=["estado", "motivo", "reservado_ate", "atualizado_em"])
+        atual.tentativas_admitidas = 0
+        atual.save(update_fields=["estado", "motivo", "reservado_ate", "tentativas_admitidas",
+                                  "atualizado_em"])
 
 
 def _registrar(pedido: PedidoSugestao, uso: ganchos.UsoIA, ctx: ganchos.Contexto,
@@ -348,8 +389,9 @@ def _registrar(pedido: PedidoSugestao, uso: ganchos.UsoIA, ctx: ganchos.Contexto
                                         expira_em=timezone.now() + retencao())
         atual.estado, atual.reservado_ate = E.CONCLUIDO, None
         atual.versao_fonte, atual.motivo = ctx.versao, motivo[:255]
+        atual.tentativas_admitidas = 0  # as chamadas feitas agora contam pela sugestão
         atual.save(update_fields=["estado", "reservado_ate", "versao_fonte", "motivo",
-                                  "atualizado_em"])
+                                  "tentativas_admitidas", "atualizado_em"])
     return s
 
 
