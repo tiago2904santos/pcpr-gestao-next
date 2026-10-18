@@ -181,7 +181,9 @@ def aplicar_status(c: Comunicacao, s: StatusEntrega) -> None:
         c.motivo = "Envio confirmado pela Meta depois do resultado desconhecido."
         excecoes.encerrar_do_assunto(comunicacao=c, resolucao="A Meta confirmou o envio.")
     nova = dominio.proxima_entrega(c.entrega or "", s.status)
-    if s.status == "entregue" and not c.entregue_em:
+    if s.status == "entregue" and (not c.entregue_em or quando < c.entregue_em):
+        # A leitura que chega antes preenche entregue_em com a hora dela; a entrega explícita
+        # (sempre anterior ou igual) corrige para a hora real.
         c.entregue_em = quando
     if s.status == "lida":
         c.lida_em = c.lida_em or quando

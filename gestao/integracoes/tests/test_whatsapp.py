@@ -285,3 +285,12 @@ def test_teto_de_itens_conta_tambem_os_malformados():
         "field": "messages", "value": {"statuses": [{"x": i} for i in range(1001)]}}]}]}
     with pytest.raises(erros.PayloadInvalido):
         webhook.ler(json.dumps(lixo).encode())
+
+
+def test_documento_sem_id_de_midia_e_ignorado():
+    corpo = {"object": "whatsapp_business_account", "entry": [{"changes": [{
+        "field": "messages", "value": {"messages": [
+            {"id": "wamid.SEMMIDIA", "from": "5541999990001", "type": "document",
+             "document": {"filename": "x.pdf"}}]}}]}]}
+    lote = webhook.ler(json.dumps(corpo).encode())
+    assert lote.mensagens == () and lote.ignorados == 1

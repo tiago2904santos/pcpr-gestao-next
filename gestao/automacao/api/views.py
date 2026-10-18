@@ -260,9 +260,9 @@ def resultado(ch: Chamada, pk: int) -> JsonResponse:
     envio: Envio | None = None
     erro_canal: erros_canal.ErroWhatsapp | None = None
     if res == "enviada":
-        mensagem_id = str(d.get("provedor_mensagem_id") or "")[:300]
-        if not mensagem_id:
-            return erro(422, "entrada_invalida", "Informe provedor_mensagem_id.")
+        mensagem_id = str(d.get("provedor_mensagem_id") or "")
+        if not 1 <= len(mensagem_id) <= 300:  # nunca cortar: dois ids longos virariam um só
+            return erro(422, "entrada_invalida", "Informe provedor_mensagem_id (até 300).")
         # O registro grava origem="n8n" (abaixo); Envio.origem só conhece as origens da porta.
         provedor = str(d.get("provedor") or "")
         origem = (Origem(provedor) if provedor in {o.value for o in Origem}
@@ -287,16 +287,19 @@ def entrega_status(ch: Chamada, pk: int) -> JsonResponse:
     d = ch.dados
     status_api: dict[Any, str] = {"entregue": "delivered", "lida": "read", "falhou": "failed"}
     status = status_api.get(d.get("status"))
-    mensagem_id = str(d.get("provedor_mensagem_id") or "")[:300]
-    if status is None or not mensagem_id:
+    mensagem_id = str(d.get("provedor_mensagem_id") or "")
+    if status is None or not 1 <= len(mensagem_id) <= 300:
         return erro(422, "entrada_invalida", "status (entregue|lida|falhou) e "
-                    "provedor_mensagem_id são obrigatórios.")
+                    "provedor_mensagem_id (até 300) são obrigatórios.")
+    ocorrido_em = _data(d.get("ocorrido_em"))
+    if ocorrido_em is None:  # contrato: obrigatório; sem ele o status ganharia a hora errada
+        return erro(422, "entrada_invalida", "ocorrido_em (data e hora ISO 8601) é obrigatório.")
     c = _comunicacao(pk)
     if c.mensagem_id and c.mensagem_id != mensagem_id:
         return erro(409, "conflito_de_versao", "Esta comunicação tem outro id no provedor.")
     with transaction.atomic():
         entrada.registrar_status(StatusRecebido(
-            mensagem_id=mensagem_id, status=status, ocorrido_em=_data(d.get("ocorrido_em")),
+            mensagem_id=mensagem_id, status=status, ocorrido_em=ocorrido_em,
             referencia=f"com:{c.pk}:t{c.tentativas}", erro_detalhe=mascarar(d.get("erro") or ""),
             erro_codigo="n8n" if status == "failed" else ""), c.canal)
     c.refresh_from_db()

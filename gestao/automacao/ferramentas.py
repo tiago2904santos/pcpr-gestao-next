@@ -192,10 +192,28 @@ def _pedido(usuario, pk: int) -> PedidoAprovacao:
     if p.situacao != PedidoAprovacao.Situacao.PENDENTE:
         raise FerramentaRecusada("Este pedido já foi decidido.")
     if p.expira_em <= timezone.now():
-        p.situacao = PedidoAprovacao.Situacao.EXPIRADO
-        p.save(update_fields=["situacao"])
-        raise FerramentaRecusada("O pedido expirou: peça de novo.")
+        raise PedidoVencido("O pedido expirou: peça de novo.")
     return p
+
+
+class PedidoVencido(FerramentaRecusada):
+    """Venceu antes da decisão: quem chama grava EXPIRADO fora da transação desfeita."""
+
+
+def _marcar_vencido(pk: int) -> None:
+    PedidoAprovacao.objects.filter(pk=pk, situacao=PedidoAprovacao.Situacao.PENDENTE).update(
+        situacao=PedidoAprovacao.Situacao.EXPIRADO)
+
+
+def _decidir(funcao, usuario, pk: int, *args):
+    """A decisão roda numa transação; se o pedido tinha vencido, a marca EXPIRADO é gravada
+    DEPOIS do rollback (senão ele ficaria pendente para sempre, falhando a cada clique)."""
+    try:
+        with transaction.atomic():
+            return funcao(usuario, pk, *args)
+    except PedidoVencido:
+        _marcar_vencido(pk)
+        raise
 
 
 def conferir_portao(f: Ferramenta) -> None:
@@ -207,8 +225,15 @@ def conferir_portao(f: Ferramenta) -> None:
             raise AutomacaoDesligada(permissao.motivo)
 
 
-@transaction.atomic
 def aprovar(usuario, pk: int) -> PedidoAprovacao:
+    return _decidir(_aprovar, usuario, pk)
+
+
+def recusar(usuario, pk: int, motivo: str) -> PedidoAprovacao:
+    return _decidir(_recusar, usuario, pk, motivo)
+
+
+def _aprovar(usuario, pk: int) -> PedidoAprovacao:
     """Quem aprova executa com a PRÓPRIA permissão (não a de quem pediu)."""
     p = _pedido(usuario, pk)
     if p.pedido_por_id == usuario.pk:
@@ -238,8 +263,7 @@ def aprovar(usuario, pk: int) -> PedidoAprovacao:
     return p
 
 
-@transaction.atomic
-def recusar(usuario, pk: int, motivo: str) -> PedidoAprovacao:
+def _recusar(usuario, pk: int, motivo: str) -> PedidoAprovacao:
     p = _pedido(usuario, pk)
     p.situacao, p.motivo = PedidoAprovacao.Situacao.RECUSADO, (motivo or "Recusado.")[:255]
     p.decidido_por, p.decidido_em = usuario, timezone.now()

@@ -125,11 +125,12 @@ def _mensagem(m: dict[str, Any], perfis: dict[str, str]) -> MensagemRecebida | N
         bruto = _dict(m.get(tipo))
         texto = _texto(bruto.get("caption"), 1024)
         midia_id = _texto(bruto.get("id"), 128)
-        if midia_id:
-            anexo = Anexo(midia_id=midia_id, tipo=tipo, mime=_texto(bruto.get("mime_type"), 100),
-                          sha256=_texto(bruto.get("sha256"), 100),
-                          nome=_texto(bruto.get("filename"), 255), legenda=texto,
-                          url=_texto(bruto.get("url"), 2000))
+        if not midia_id:
+            return None  # mídia sem id: malformada (contada em `ignorados`), nada a baixar
+        anexo = Anexo(midia_id=midia_id, tipo=tipo, mime=_texto(bruto.get("mime_type"), 100),
+                      sha256=_texto(bruto.get("sha256"), 100),
+                      nome=_texto(bruto.get("filename"), 255), legenda=texto,
+                      url=_texto(bruto.get("url"), 2000))
     elif tipo == "interactive":
         bruto = _dict(m.get("interactive"))
         botao = _dict(bruto.get("button_reply") or bruto.get("list_reply"))

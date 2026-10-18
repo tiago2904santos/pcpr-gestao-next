@@ -712,3 +712,25 @@ def test_contato_com_a_outra_forma_do_celular_e_recusado(c):
     outro.save(update_fields=["telefone"])
     with pytest.raises(contatos_mod.ContatoInvalido):
         contatos_mod.cadastrar(c.usuarios["operador"], outro.pk)
+
+
+def test_entregue_em_fica_com_a_hora_real_mesmo_se_a_leitura_chegar_antes(c):
+    from django.db import transaction as tx
+
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import StatusRecebido
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    agora = timezone.now()
+    with tx.atomic():
+        entrada_mod.registrar_status(StatusRecebido(mensagem_id=aviso.mensagem_id, status="read",
+                                                    ocorrido_em=agora))
+        entrada_mod.registrar_status(StatusRecebido(
+            mensagem_id=aviso.mensagem_id, status="delivered",
+            ocorrido_em=agora - timedelta(minutes=3)))
+    aviso.refresh_from_db()
+    assert aviso.entregue_em == agora - timedelta(minutes=3) and aviso.lida_em == agora

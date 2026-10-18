@@ -469,6 +469,17 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
     if envio is not None:
         t.resultado = R.ACEITA
         t.save()
+        mais_nova = (TentativaEntrega.objects.filter(comunicacao=c, numero__gt=t.numero,
+                                                     resultado=R.ACEITA)
+                     .exclude(pk=t.pk).exists())
+        if mais_nova:
+            # A pessoa já tinha tentado de novo e a nova saiu: a velha também saiu (resultado
+            # tardio). Não troca o id do provedor da comunicação; avisa do provável duplicado.
+            excecoes.abrir(T.RESULTADO_INCERTO, f"duplicado:{c.pk}:t{t.numero}",
+                           f"Comunicação #{c.pk}: a tentativa {t.numero}, dada como incerta, "
+                           "também saiu — a pessoa pode ter recebido a mensagem duas vezes.",
+                           comunicacao=c)
+            return t
         _aceita(c, envio, origem, agora)
         if cancelada:  # saiu mesmo assim: o registro diz a verdade e uma pessoa confere
             excecoes.abrir(T.CONTATO, f"depois-do-cancelamento:{c.pk}",

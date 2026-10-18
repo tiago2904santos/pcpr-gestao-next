@@ -429,3 +429,55 @@ def test_total_de_anexos_e_conferido(c):
         r = _post(c, "/recebimentos/sem-arquivo", {**base, **extra},
                   f"receb:whatsapp:wamid.TOT:{extra['anexo_indice']}")
         assert r.status_code == 422, extra
+
+
+def test_entrega_exige_hora_e_id_do_provedor_sem_cortar(c):
+    r = _post(c, f"/comunicacoes/{c.com.pk}/reservar", {}, f"reserva:{c.com.pk}:v1:r5-0001")
+    token = r.json()["reserva"]["token"]
+    longo = "wamid." + "x" * 300
+    assert _post(c, f"/comunicacoes/{c.com.pk}/resultado",
+                 {"reserva_token": token, "resultado": "enviada", "provedor": "whatsapp",
+                  "provedor_mensagem_id": longo}, f"resultado:{c.com.pk}:r5-1").status_code == 422
+    ok = _post(c, f"/comunicacoes/{c.com.pk}/resultado",
+               {"reserva_token": token, "resultado": "enviada", "provedor": "whatsapp",
+                "provedor_mensagem_id": "wamid.R5"}, f"resultado:{c.com.pk}:r5-2")
+    assert ok.status_code == 200
+    sem_hora = _post(c, f"/comunicacoes/{c.com.pk}/entrega",
+                     {"provedor_mensagem_id": "wamid.R5", "status": "lida"},
+                     f"entrega:{c.com.pk}:wamid.R5:lida")
+    assert sem_hora.status_code == 422
+
+
+def test_pedido_vencido_fica_expirado(c):
+    _ferramentas_de_teste()
+    op = c.usuarios["operador"]
+    _, token = credenciais.emitir(op, nome="meu cliente 3", tipo="pessoal")
+    r = _post(c, "/ferramentas/teste.cancelar_aviso/executar", {"comunicacao": 1},
+              "ferramenta:vencido-000001", token=token)
+    pedido = PedidoAprovacao.objects.get(pk=r.json()["pedido"])
+    PedidoAprovacao.objects.filter(pk=pedido.pk).update(
+        expira_em=timezone.now() - timedelta(minutes=1))
+    with pytest.raises(ferramentas.FerramentaRecusada):
+        ferramentas.aprovar(c.usuarios["gestor"], pedido.pk)
+    pedido.refresh_from_db()
+    assert pedido.situacao == "expirado"
+
+
+def test_resultado_tardio_nao_troca_o_envio_mais_novo(c):
+    """Tentativa 1 incerta; a pessoa tentou de novo e a 2 saiu; depois a 1 também confirma:
+    o id do provedor da comunicação continua o da 2 e abre exceção de provável duplicado."""
+    from gestao.automacao.models import TentativaEntrega
+    from gestao.integracoes.whatsapp.porta import Envio, Origem
+
+    com = c.com
+    t1 = TentativaEntrega.objects.create(comunicacao=com, numero=1, chave="t-r5-1",
+                                         adaptador="n8n", resultado="incerta")
+    t2 = TentativaEntrega.objects.create(comunicacao=com, numero=2, chave="t-r5-2",
+                                         adaptador="n8n")
+    entrega.registrar_resultado(t2.pk, envio=Envio(mensagem_id="wamid.NOVA",
+                                                   origem=Origem.CLOUD_API), origem="n8n")
+    entrega.registrar_resultado(t1.pk, envio=Envio(mensagem_id="wamid.VELHA",
+                                                   origem=Origem.CLOUD_API), origem="n8n")
+    com.refresh_from_db()
+    assert com.mensagem_id == "wamid.NOVA"
+    assert ExcecaoAutomacao.objects.filter(chave=f"duplicado:{com.pk}:t1").exists()
