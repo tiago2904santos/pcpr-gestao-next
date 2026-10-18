@@ -30,8 +30,6 @@ registrar_modulo(
                      requer="viagens.view_planotrabalho"),
                 # Nasce do ofício emitido; no menu porque a barra não cabe no tablet (768px)
                 # com mais um item solto.
-                Item("Envios manuais", "viagens:envios_manuais", "send",
-                     requer="viagens.view_prestacaoservidor"),
                 Item("Prestação de contas", "viagens:prestacoes", "receipt",
                      requer="viagens.view_prestacaoservidor"),
             )),

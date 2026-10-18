@@ -133,9 +133,8 @@ def reservar(canal: str = "whatsapp") -> Reserva | None:
 
 
 def transporte() -> str:
-    """Saída manual, worker interno ou n8n. Valor desconhecido desliga a saída automática."""
-    valor = getattr(settings, "AUTOMACAO_TRANSPORTE", "manual")
-    return valor if valor in ("manual", "interno", "n8n") else "manual"
+    """Quem leva as mensagens ao canal: o worker do PCPR (`interno`) ou o n8n pela API."""
+    return "n8n" if getattr(settings, "AUTOMACAO_TRANSPORTE", "interno") == "n8n" else "interno"
 
 
 @transaction.atomic
@@ -143,7 +142,7 @@ def _reservar_uma(canal: str = "whatsapp") -> tuple[bool, Reserva | None]:
     """(tratou alguma linha?, reserva pronta para enviar ou None)."""
     agora = timezone.now()
     _expirar_reservas(agora)
-    if transporte() in ("n8n", "manual"):
+    if transporte() == "n8n":
         return False, None  # o n8n reserva pela API; aqui só se vencem os prazos
     ligados = _fluxos_ligados(canal)
     if not ligados:
@@ -152,7 +151,6 @@ def _reservar_uma(canal: str = "whatsapp") -> tuple[bool, Reserva | None]:
          .select_related("servidor", "contato")
          .filter(canal=canal, situacao=S.AGENDADA, proxima_tentativa_em__lte=agora,
                  fluxo__in=ligados)
-         .filter(Q(contexto__manual__isnull=True) | Q(contexto__manual=False))
          .order_by("proxima_tentativa_em", "id").first())
     if c is None:
         return False, None
@@ -165,8 +163,6 @@ def _preparar(c: Comunicacao, agora, *, prazo: timedelta = PRAZO_DA_RESERVA,
               ) -> tuple[bool, Reserva | None, str]:
     """Revalida tudo e, se pode sair, grava a tentativa e reserva. Devolve (tratou, reserva,
     código da recusa no vocabulário do contrato). Chamar com a linha travada."""
-    if transporte() == "manual" or c.contexto.get("manual"):
-        return False, None, "regra_violada"
     canal = c.canal
     configuracao = whatsapp_config.carregar()
     definicao = ganchos.tipo(c.tipo)
@@ -331,9 +327,6 @@ def reservar_pela_api(pk: int, *, versao_esperada: int | None, execucao: str
     if c is None:
         return ResultadoReserva(recusa="inexistente", motivo="Comunicação inexistente.")
     estado = c.situacao
-    if transporte() == "manual" or c.contexto.get("manual"):
-        return ResultadoReserva(recusa="regra_violada", estado_atual=estado,
-                                motivo="Envio manual: prepare a mensagem no sistema.")
     canal = ChaveAutomacao.objects.filter(nome=chaves.nome_canal(c.canal)).first()
     if canal is not None and canal.estado == ChaveAutomacao.Estado.BLOQUEADA:
         return ResultadoReserva(recusa="canal_bloqueado", estado_atual=estado,
@@ -379,9 +372,6 @@ def repetir_reserva(tentativa_id: int) -> ResultadoReserva:
             or not c.reservada_ate or c.reservada_ate <= agora):
         return ResultadoReserva(recusa="ja_processada", estado_atual=c.situacao,
                                 motivo="A reserva desta chave já terminou.")
-    if transporte() == "manual" or c.contexto.get("manual"):
-        return ResultadoReserva(recusa="regra_violada", estado_atual=c.situacao,
-                                motivo="O transporte de saída está no modo manual.")
     definicao = ganchos.tipo(c.tipo)
     preparo = definicao.preparar({**(c.contexto or {}), "_comunicacao": c.pk}) \
         if definicao else None
@@ -447,8 +437,6 @@ def enviar(reserva: Reserva, porta=None) -> None:
 
     if VERIFICAR_TRANSACAO and connection.in_atomic_block:
         raise RuntimeError("O envio ao canal não pode acontecer com transação aberta.")
-    if transporte() == "manual":
-        raise RuntimeError("Saída automática desligada: transporte manual.")
     porta = porta or whatsapp.adaptador()
     inicio = time.monotonic()
     envio: Envio | None = None

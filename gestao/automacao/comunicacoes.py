@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from django.conf import settings
 from django.db import connection, transaction
 from django.utils import timezone
 
@@ -60,8 +59,7 @@ def agendar(*, tipo: str, servidor_id: int | None, recurso: str, chave: str,
         "aceita_resposta": definicao.aceita_resposta,
         "criada_por": criada_por if getattr(criada_por, "pk", None) else None,
         "em_resposta_a": em_resposta_a})
-    if (criada and not comunicacao.contexto.get("manual")
-            and settings.AUTOMACAO_TRANSPORTE in ("interno", "n8n")):
+    if criada:
         transaction.on_commit(_notificar_worker)
         from . import contrato, eventos
 
@@ -93,9 +91,6 @@ def _travar(usuario, pk: int) -> Comunicacao:
     c = Comunicacao.objects.select_for_update().get(pk=pk)
     policies.exigir(policies.pode_operar_objeto(usuario, c),
                     "Você não pode mexer nesta comunicação.")
-    if c.contexto.get("manual"):
-        raise ComunicacaoInvalida(
-            "Prepare e confirme este envio pela tela de Envios manuais de Viagens.")
     return c
 
 

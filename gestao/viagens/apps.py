@@ -29,9 +29,6 @@ class ViagensConfig(AppConfig):
         registrar_rotina("lembretes de km (WhatsApp)", comunicacoes_viagem.agendar_lembretes_km)
         registrar_rotina("lembretes de comprovante (WhatsApp)", comunicacoes.agendar_lembretes)
 
-        from . import envios_manuais
-        registrar_rotina("pendências de envio manual", envios_manuais.sincronizar)
-
         from . import agenda, busca, conflitos, de_eventos
         agenda.registrar()
         busca.registrar()

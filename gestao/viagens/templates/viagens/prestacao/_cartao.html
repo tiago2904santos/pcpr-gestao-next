@@ -95,7 +95,7 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
           <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' ps.pk %}">{% icone "file-check-2" %}Pacote final (PDF)</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_relatorio' ps.prestacao_id ps.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}RT deste servidor (PDF)</a>
           {% if l.whatsapp_automatico %}<a class="menu__item" role="menuitem" href="{% url 'automacao:comunicacao' l.whatsapp_automatico.0 %}">{% icone "send" %}{{ l.whatsapp_automatico.1|capfirst }}</a>{% endif %}
-          {% if l.whatsapp %}<a class="menu__item" role="menuitem" href="{{ l.whatsapp }}" target="_self" rel="noreferrer">{% icone "message-circle" %}Avisar por WhatsApp</a>{% endif %}
+          {% if l.whatsapp %}<a class="menu__item" role="menuitem" href="{{ l.whatsapp }}" target="_blank" rel="noopener">{% icone "message-circle" %}Avisar por WhatsApp</a>{% endif %}
           {% if aberta and not ps.finalizada and not ps.arquivada %}<div class="menu__separador" role="separator"></div>
           <button type="submit" class="menu__item" role="menuitem" formaction="{% url 'viagens:acao_prestacao' ps.pk 'arquivar' %}">{% icone "inbox" %}Arquivar (sai das abas de trabalho)</button>{% endif %}
         </div>
