@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T12:07:17.000Z",
-  "createdAt": "2026-10-18T12:00:53.590Z",
+  "updatedAt": "2026-10-18T12:28:42.000Z",
+  "createdAt": "2026-10-18T12:24:02.681Z",
   "id": "pcprEntregaCom01",
   "name": "PCPR · Entregar comunicação",
   "description": null,
@@ -1170,7 +1170,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "aa81c81d-9422-4b02-9b17-362282832bb3",
+  "versionId": "8137d498-8d7c-4e1c-8131-dc1683e7285f",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -1178,21 +1178,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T12:00:53.594Z",
-      "createdAt": "2026-10-18T12:00:53.594Z",
+      "updatedAt": "2026-10-18T12:24:02.685Z",
+      "createdAt": "2026-10-18T12:24:02.685Z",
       "role": "workflow:owner",
       "workflowId": "pcprEntregaCom01",
-      "projectId": "zvAtIvuw8WMUV8g8",
+      "projectId": "u3wY7YA2TSQUQQ95",
       "project": {
-        "updatedAt": "2026-10-18T12:00:42.322Z",
-        "createdAt": "2026-10-18T12:00:42.322Z",
-        "id": "zvAtIvuw8WMUV8g8",
+        "updatedAt": "2026-10-18T12:23:54.037Z",
+        "createdAt": "2026-10-18T12:23:54.037Z",
+        "id": "u3wY7YA2TSQUQQ95",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "f2c19496-90ce-4619-932a-5d97f4fc7837"
+        "creatorId": "496f7149-70de-4186-9d28-99fdb1839413"
       }
     }
   ],

@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T11:53:45.000Z",
-  "createdAt": "2026-10-18T11:47:59.208Z",
+  "updatedAt": "2026-10-18T12:28:42.000Z",
+  "createdAt": "2026-10-18T12:24:02.713Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -600,7 +600,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },
@@ -693,7 +693,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:whatsapp-sha256:' + (String($json.wamid))).length <= 200 ? 'excecao:whatsapp-sha256:' + (String($json.wamid)) : 'excecao#sha256:whatsapp-sha256:' + (String($json.wamid)).hash('sha256') }}"
+              "value": "={{ ('excecao:whatsapp-sha256:' + (String($json.wamid))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-sha256:' + (String($json.wamid))) ? 'excecao:whatsapp-sha256:' + (String($json.wamid)) : 'excecao#sha256:whatsapp-sha256:' + (String($json.wamid)).hash('sha256') }}"
             }
           ]
         },
@@ -733,7 +733,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },
@@ -1263,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "797ec4bd-a977-4d81-98be-1d904e648f65",
+  "versionId": "2c36cb3b-2fc2-4b1b-a8a0-1a8c9d7acb8a",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1271,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T11:47:59.212Z",
-      "createdAt": "2026-10-18T11:47:59.212Z",
+      "updatedAt": "2026-10-18T12:24:02.715Z",
+      "createdAt": "2026-10-18T12:24:02.715Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "nIXggRJar58WS71C",
+      "projectId": "u3wY7YA2TSQUQQ95",
       "project": {
-        "updatedAt": "2026-10-18T11:47:40.902Z",
-        "createdAt": "2026-10-18T11:47:40.902Z",
-        "id": "nIXggRJar58WS71C",
+        "updatedAt": "2026-10-18T12:23:54.037Z",
+        "createdAt": "2026-10-18T12:23:54.037Z",
+        "id": "u3wY7YA2TSQUQQ95",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "17e91010-8eab-4731-b94d-60f636bcda7a"
+        "creatorId": "496f7149-70de-4186-9d28-99fdb1839413"
       }
     }
   ],

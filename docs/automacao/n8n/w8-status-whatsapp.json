@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T11:53:45.000Z",
-  "createdAt": "2026-10-18T11:47:59.217Z",
+  "updatedAt": "2026-10-18T12:28:42.000Z",
+  "createdAt": "2026-10-18T12:24:02.719Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -233,7 +233,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao#sha256:whatsapp-status:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
+              "value": "={{ ('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status))) ? 'excecao:whatsapp-status:' + (String($json.wamid + ':' + $json.status)) : 'excecao#sha256:whatsapp-status:' + (String($json.wamid + ':' + $json.status)).hash('sha256') }}"
             }
           ]
         },
@@ -608,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "8749dbeb-42b5-4a1e-97e1-b2bff6143d01",
+  "versionId": "47cade72-920b-4173-9f24-8baeefea5929",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -616,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T11:47:59.222Z",
-      "createdAt": "2026-10-18T11:47:59.222Z",
+      "updatedAt": "2026-10-18T12:24:02.722Z",
+      "createdAt": "2026-10-18T12:24:02.722Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "nIXggRJar58WS71C",
+      "projectId": "u3wY7YA2TSQUQQ95",
       "project": {
-        "updatedAt": "2026-10-18T11:47:40.902Z",
-        "createdAt": "2026-10-18T11:47:40.902Z",
-        "id": "nIXggRJar58WS71C",
+        "updatedAt": "2026-10-18T12:23:54.037Z",
+        "createdAt": "2026-10-18T12:23:54.037Z",
+        "id": "u3wY7YA2TSQUQQ95",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "17e91010-8eab-4731-b94d-60f636bcda7a"
+        "creatorId": "496f7149-70de-4186-9d28-99fdb1839413"
       }
     }
   ],

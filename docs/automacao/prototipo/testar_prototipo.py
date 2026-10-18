@@ -1455,6 +1455,15 @@ def t19() -> dict:
         == ["fila_parada"],
         f"(j) exceções {e['excecoes']}",
     )
+    # (k) id com caractere fora do BMP (emoji): JS conta 2, Python conta 1 — por isso a chave
+    # bruta só vale em ASCII; aqui sai a com hash nos dois lados e o recebimento entra (202)
+    resetar()
+    mid = f"msg.sim.T19k.{secrets.token_hex(3)}.😀"
+    rk = receber(mid)
+    xk = da_msg(est(), mid)
+    checar(chave_recebimento("email", mid, 0).startswith("receb#sha256:"), "(k) chave bruta")
+    checar(rk["entregas"] == [200] and xk["posts"] == [202], f"(k) {rk['entregas']} {xk}")
+    checar(len(xk["recebimentos"]) == 1, f"(k) recebimentos {xk['recebimentos']}")
     saida["i_j_ids_muito_longos"] = {
         "i_id_290_sem_arquivo": {
             "chave_do_recebimento": len(chave_i),

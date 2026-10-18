@@ -54,7 +54,9 @@ Na rodada seguinte, o mesmo limite na **chave do recebimento**: o contrato passo
 acima de 200 caracteres, ela é `receb#sha256:<canal>:<hex do id>:<anexo_indice>` — o `#` no 1º
 segmento garante que nenhum id curto (nem um que imite `sha256:<hex>`) gere a mesma chave. A
 exceção do status órfão deixou de citar o prazo configurável no corpo (mesma chave → mesmo corpo,
-mesmo depois de reconfigurar). O validador aceita inteiros maiores que o `float`. A regra é única
+mesmo depois de reconfigurar). O validador aceita inteiros maiores que o `float`. A chave bruta só vale se for ASCII
+imprimível (`[ -~]`): `len` do Python e `.length` do JS (UTF-16) passam a medir igual, e nada
+fora do ASCII vai no cabeçalho HTTP (T19k, id com emoji). A regra é única
 (`comum.chave_recebimento`, usada pelo simulador e pelos testes; `chave_recebimento_js` nos
 workflows) e também vale para a exceção `fila_parada`. Testes T19i (id de 290 caracteres, 413 →
 recebimento rejeitado com orientação) e T19j (id de 160, exceção `fila_parada`).
