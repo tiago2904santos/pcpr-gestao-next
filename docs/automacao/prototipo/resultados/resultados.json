@@ -1,5 +1,5 @@
 {
-  "inicio": "2026-10-18T10:28:40-03:00",
+  "inicio": "2026-10-18T11:06:53-03:00",
   "imagem": "docker.n8n.io/n8nio/n8n:2.43.7",
   "python": "3.13.15",
   "cenarios": [
@@ -55,7 +55,7 @@
         "resultados_registrados": 1,
         "reservas": 1,
         "estado_final": "enviada",
-        "provedor_mensagem_id": "sim-ff9ccfa4293849d692d1",
+        "provedor_mensagem_id": "sim-d6ed3f2269e6451baefc",
         "envelopes_validados_contra_schema": {
           "quantos": 2,
           "tipos": [
@@ -97,10 +97,10 @@
             "$.id: 'nao-e-uuid' não é uuid"
           ]
         },
-        "chave_idempotencia_reserva": "reserva:2:v1:exec5"
+        "chave_idempotencia_reserva": "reserva:2:v1:exec4"
       },
       "passou": true,
-      "segundos": 3.8
+      "segundos": 4.1
     },
     {
       "id": "T2",
@@ -141,7 +141,7 @@
         }
       },
       "passou": true,
-      "segundos": 12.2
+      "segundos": 12.4
     },
     {
       "id": "T3",
@@ -167,7 +167,7 @@
         }
       },
       "passou": true,
-      "segundos": 4.9
+      "segundos": 5.1
     },
     {
       "id": "T4",
@@ -210,7 +210,7 @@
         }
       },
       "passou": true,
-      "segundos": 6.3
+      "segundos": 6.5
     },
     {
       "id": "T5",
@@ -240,7 +240,7 @@
         }
       },
       "passou": true,
-      "segundos": 7.1
+      "segundos": 7.3
     },
     {
       "id": "T6",
@@ -254,11 +254,11 @@
         "resultados": [
           "enviada"
         ],
-        "intervalo_entre_tentativas_s": 1.04,
+        "intervalo_entre_tentativas_s": 1.03,
         "excecoes": 0
       },
       "passou": true,
-      "segundos": 4.4
+      "segundos": 4.5
     },
     {
       "id": "T7",
@@ -305,7 +305,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.4
+      "segundos": 17.3
     },
     {
       "id": "T8",
@@ -321,7 +321,7 @@
         "envios": 1
       },
       "passou": true,
-      "segundos": 3.3
+      "segundos": 3.4
     },
     {
       "id": "T9",
@@ -334,20 +334,20 @@
         "posts_recebimentos": 2,
         "recebimentos": 1,
         "segunda_chamada_replay": true,
-        "chave": "receb:email:msg.sim.T9.9f10cef8:0",
+        "chave": "receb:email:msg.sim.T9.a84b5d1b:0",
         "sha256_conferido": true,
         "tamanho_bytes": 634,
         "estado": "aceito_para_processamento"
       },
       "passou": true,
-      "segundos": 3.5
+      "segundos": 3.6
     },
     {
       "id": "T10",
       "nome": "reinício do n8n no meio → nada duplicado, reconciliação completa",
       "evidencia": {
         "lease_s": 15,
-        "tempo_para_voltar_s": 19.0,
+        "tempo_para_voltar_s": 22.1,
         "reentrega_evento_A_pos_reinicio": 202,
         "reconciliacao": {
           "devidas": 2
@@ -414,10 +414,10 @@
           }
         },
         "duplicados_no_canal": 0,
-        "segundos_entre_queda_e_volta": 28.2
+        "segundos_entre_queda_e_volta": 31.4
       },
       "passou": true,
-      "segundos": 30.3
+      "segundos": 33.8
     },
     {
       "id": "T12",
@@ -428,7 +428,7 @@
             "fluxo": "n8n:PCPR · Entregar comunicação",
             "motivo": "outro",
             "detalhe": "The service was not able to process your request (nó: Consultar estado)",
-            "execucao_orquestrador": "78"
+            "execucao_orquestrador": "77"
           }
         ],
         "envio_apos_normalizar": 1,
@@ -437,7 +437,7 @@
         }
       },
       "passou": true,
-      "segundos": 4.8
+      "segundos": 4.7
     },
     {
       "id": "T14",
@@ -469,7 +469,7 @@
         }
       },
       "passou": true,
-      "segundos": 17.2
+      "segundos": 17.1
     },
     {
       "id": "T15",
@@ -492,7 +492,7 @@
         }
       },
       "passou": true,
-      "segundos": 13.5
+      "segundos": 13.8
     },
     {
       "id": "T16",
@@ -502,11 +502,11 @@
           "entregas_do_canal": [
             200
           ],
-          "ms_da_1a_entrega": 304.9,
+          "ms_da_1a_entrega": 371.6,
           "prazo_ms": 20000,
           "chaves": [
-            "receb:email:msg.sim.T16.6574cddd:0",
-            "receb:email:msg.sim.T16.6574cddd:1"
+            "receb:email:msg.sim.T16.8975bb7c:0",
+            "receb:email:msg.sim.T16.8975bb7c:1"
           ],
           "recebimentos": [
             {
@@ -551,7 +551,7 @@
         }
       },
       "passou": true,
-      "segundos": 0.9
+      "segundos": 1.0
     },
     {
       "id": "T17",
@@ -584,7 +584,7 @@
         }
       },
       "passou": true,
-      "segundos": 1.7
+      "segundos": 1.8
     },
     {
       "id": "T18",
@@ -807,7 +807,7 @@
         }
       },
       "passou": true,
-      "segundos": 7.3
+      "segundos": 7.7
     },
     {
       "id": "T13",
@@ -827,7 +827,7 @@
             }
           }
         },
-        "segundos_ate_zerar": 21.8,
+        "segundos_ate_zerar": 21.7,
         "tabelas_de_execucao_no_fim": {
           "execution_data": 4,
           "execution_metadata": 0,
@@ -842,92 +842,92 @@
         }
       },
       "passou": true,
-      "segundos": 21.8
+      "segundos": 21.7
     }
   ],
   "metricas": {
     "memoria_repouso_antes_mib": {
-      "min": 399.4,
-      "mediana": 406.1,
-      "max": 406.1,
+      "min": 385.6,
+      "mediana": 385.8,
+      "max": 386.2,
       "espera_s": 45
     },
     "latencia_evento_envio": {
       "sequencial_20": {
         "evento_ate_envio_ms": {
-          "p50": 152.5,
-          "p95": 185.7,
-          "min": 130.7,
-          "max": 220.4,
-          "media": 157.2
+          "p50": 233.4,
+          "p95": 292.0,
+          "min": 207.5,
+          "max": 305.8,
+          "media": 239.5
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 60.0,
-          "p95": 76.3
+          "p50": 73.0,
+          "p95": 93.1
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 127.6,
-          "p95": 149.7
+          "p50": 188.0,
+          "p95": 246.8
         }
       },
       "rajada_20_simultaneos": {
         "evento_ate_envio_ms": {
-          "p50": 2165.7,
-          "p95": 2769.9,
-          "min": 1148.0,
-          "max": 2770.5,
-          "media": 2188.1
+          "p50": 4046.1,
+          "p95": 5071.8,
+          "min": 2083.3,
+          "max": 5216.0,
+          "media": 3954.8
         },
         "evento_ate_resposta_202_ms": {
-          "p50": 572.5,
-          "p95": 881.1
+          "p50": 1032.7,
+          "p95": 1684.6
         },
         "evento_ate_reserva_no_pcpr_ms": {
-          "p50": 2029.7,
-          "p95": 2715.8
+          "p50": 3713.5,
+          "p95": 4954.8
         }
       },
       "definicao": "t0 = POST do evento ao n8n (emissor do PCPR); fim = canal simulado registra o envio. Mesmo relógio (mesma máquina)."
     },
     "memoria_durante_testes_mib": {
-      "max": 824.8,
-      "mediana": 469.3,
-      "amostras": 77,
+      "max": 842.3,
+      "mediana": 473.5,
+      "amostras": 81,
       "max_por_fase": {
-        "T1": 435.5,
-        "T2": 461.1,
-        "T3": 462.2,
-        "T4": 465.5,
-        "T5": 486.6,
-        "T6": 480.8,
-        "T7": 494.1,
-        "T8": 482.4,
-        "T9": 486.7,
-        "T10": 716.3,
-        "T12": 684.6,
-        "T14": 653.2,
-        "T15": 425.2,
-        "T17": 432.6,
-        "T18": 455.5,
-        "T19": 497.3,
-        "T13": 503.5,
-        "latencia (20 sequenciais + rajada de 20)": 824.8
+        "T1": 421.2,
+        "T2": 454.1,
+        "T3": 453.8,
+        "T4": 453.1,
+        "T5": 466.8,
+        "T6": 484.8,
+        "T7": 487.6,
+        "T8": 476.3,
+        "T9": 473.5,
+        "T10": 722.4,
+        "T12": 678.1,
+        "T14": 675.6,
+        "T15": 417.3,
+        "T16": 424.2,
+        "T17": 441.8,
+        "T19": 493.1,
+        "T13": 502.2,
+        "latencia (20 sequenciais + rajada de 20)": 842.3
       }
     },
     "memoria_repouso_depois_mib": {
-      "min": 524.2,
-      "mediana": 524.4,
-      "max": 524.6,
+      "min": 695.7,
+      "mediana": 695.8,
+      "max": 696.1,
       "espera_s": 45
     },
     "banco_n8n_bytes": {
-      "database.sqlite": 4562944,
+      "database.sqlite": 4608000,
       "database.sqlite-shm": 32768,
       "database.sqlite-wal": 4148872
     }
   },
   "preparacao": {
-    "segundos": 37.7,
+    "segundos": 53.5,
     "saida_cli": [
       "Note: Changes will not take effect if n8n is running.",
       "Please restart n8n for changes to take effect if n8n is currently running.",
@@ -943,7 +943,7 @@
       "pcprErros0000001"
     ]
   },
-  "primeira_subida_s": 12.3,
+  "primeira_subida_s": 14.6,
   "config_efetiva": {
     "diagnostics": false,
     "versionNotifications": false,
@@ -1000,7 +1000,7 @@
     "    at ClientRequest.RedirectableRequest._onNativeResponse (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/follow-redirects@1.16.0_debug@4.4.3_supports-color@8.1.1_/node_modules/follow-redirects/index.js:109:12)",
     "    at ClientRequest.wrapper (node:events:639:12)",
     "    at ClientRequest.emit (node:events:514:20)",
-    "    at HTTPParser.parserOnIncomingClient (node:_http_client:973:27)",
+    "    at HTTPParser.parserOnIncomingClient [as onIncoming] (node:_http_client:973:27)",
     "    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)",
     "    at Socket.socketOnData (node:_http_client:808:22)",
     "    at Axios.request (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/axios@1.20.0_debug@4.4.3_supports-color@8.1.1__supports-color@8.1.1/node_modules/axios/dist/node/axios.cjs:6308:43)",
@@ -1068,6 +1068,6 @@
     "conteiner_existe": false,
     "portas_ainda_abertas": []
   },
-  "fim": "2026-10-18T10:34:43-03:00",
+  "fim": "2026-10-18T11:13:28-03:00",
   "segredos_no_relatorio": []
 }

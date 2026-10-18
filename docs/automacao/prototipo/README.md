@@ -126,11 +126,12 @@ Arquivos:
 
 ## Resultados da suíte principal
 
-**Rodada final: 18/10/2026, 10:28–10:34 (horário de Brasília) — T1–T20, todos passaram, saída
+**Rodada final: 18/10/2026, 11:06–11:13 (horário de Brasília) — T1–T20, todos passaram, saída
 0** (é a registrada em `resultados/resultados.json`, campos `inicio`/`fim`; export de W1–W5 com
 `"active": false`, sem segredo no relatório, contêiner removido e portas livres no fim). Inclui
 as verificações seguintes do Codex: chaves de exceção e de recebimento limitadas a 200 e só
-ASCII (T19h–T19k) e 4xx definitivo no download do W4 (T19 e2/e3). O parágrafo abaixo descreve a
+ASCII (T19h–T19k), 4xx definitivo no download do W4 (T19 e2/e3) e corpos de exceção sem valor
+configurável (`fila_parada` e status órfão). O parágrafo abaixo descreve a
 rodada da [terceira verificação](#terceira-verificação--o-que-mudou): T19 com os casos (f) recusa que muda
 entre entregas e (g) falha transitória persistente → `fila_parada`. A máquina continuava
 carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaixo).
@@ -148,7 +149,8 @@ carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaix
 | 18/10 02:13–02:28 | T11, T20 + 18/18, saída 0 | rodada final da 2ª verificação (métricas completas) |
 | 18/10 03:17–03:33 | T11, T20 + 18/18, saída 0 | 3ª verificação: W4 com chave de exceção por classe de recusa e exceção `fila_parada` (T19f, T19g) |
 | 18/10, manhã (rodadas intermediárias) | T1–T20 passaram (uma rodada intermediária teve T15 e outra T19(g) falhando por tempo, com a máquina carregada por outra bateria; ambos passaram isolados e na rodada seguinte) | chaves ≤ 200 e só ASCII (`#sha256`), corpo estável do órfão, inteiros grandes no validador |
-| **18/10 10:28–10:34** | **T1–T20, saída 0** (`resultados.json`) | W4: 4xx estável no download é definitivo (T19 e2/e3); contrato com a regra ASCII da chave |
+| 18/10 10:28–10:34 | T1–T20, saída 0 | W4: 4xx estável no download é definitivo (T19 e2/e3); contrato com a regra ASCII da chave |
+| **18/10 11:06–11:13** | **T1–T20, saída 0** (`resultados.json`) | corpo da exceção `fila_parada` sem o prazo configurável (mesma chave → mesmo corpo depois de reconfigurar) |
 
 **T13 nesta rodada:** a 1ª varredura, logo depois dos cenários, achou **21** ocorrências do
 telefone sintético (`destino`) em execuções de webhook do W4 com status `running` (marcadas como

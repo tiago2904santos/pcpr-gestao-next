@@ -1407,10 +1407,12 @@ def w4() -> dict:
         ],
         corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
         "correlacao_id: 'recebimento:' + $json.canal + ':' + $json.mensagem_id, "
+        # corpo = função só da chave: sem o limite configurável (cfg_fila_parada_s), que mudaria o
+        # corpo numa reentrega depois de reconfigurar (422 "chave reutilizada" → 503 em laço)
         "motivo: 'fila_parada', detalhe: 'O PCPR não confirma o recebimento desta mensagem há mais "
-        "de ' + Math.round(" + cfg + ".cfg_fila_parada_s / 3600) + ' h (falha temporária "
-        "persistente: PCPR fora do ar, automação desligada ou credencial). O canal continua "
-        "reentregando até o próprio limite; conferir a mensagem na caixa.' }) }}",
+        "que o prazo configurado (falha temporária persistente: PCPR fora do ar, automação "
+        "desligada ou credencial). O canal continua reentregando até o próprio limite; conferir "
+        "a mensagem na caixa.' }) }}",
     )
     for a, c in [
         ("Webhook do canal", "Configuração"),
