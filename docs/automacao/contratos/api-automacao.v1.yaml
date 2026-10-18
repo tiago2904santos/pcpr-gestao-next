@@ -347,7 +347,7 @@ paths:
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
-        description: "`Idempotency-Key`: `entrega:<comunicacao>:<provedor_mensagem_id>:<status>`."
+        description: "`Idempotency-Key`: `entrega:<comunicacao>:<provedor_mensagem_id>:<status>` quando essa forma tem até 200 caracteres e é toda ASCII imprimível; senão (o `provedor_mensagem_id` aceita até 300), `entrega#sha256:<hex do SHA-256 (UTF-8) de <comunicacao>:<provedor_mensagem_id>:<status>>` — o `#` no 1º segmento impede colisão com a forma bruta."
         content:
           application/json:
             schema:

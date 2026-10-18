@@ -971,6 +971,31 @@ def tw14(variante: str) -> dict:
     sd = graph("/_sim/status", {**corpo_c, "wamid": wamid_d, "timestamp": int(time.time())})
     std = sd["entregas"][0]["status"]
     checar(std is not None and not 200 <= std < 300, f"(c) status recente deveria adiar: {std}")
+    # (f) comunicação CONHECIDA com id do provedor longo (190 caracteres; o contrato aceita 300):
+    # a chave de /entrega passaria de 200 → entrega#sha256:<hex>, e o status é gravado
+    destino_f = telefone(GRUPOS["OUT"])
+    cid_f = com_wa(destino_f, tipo="link_km", entregar=False)["comunicacao_id"]
+    token_f, _ = enviar_como_w6(destino_f, cid_f, com_callback=False)
+    wamid_f = "wamid.SIMLONGOCONHECIDO" + secrets.token_hex(8) + "K" * 151
+    registrar_resultado(cid_f, token_f, wamid_f)
+    sf = graph(
+        "/_sim/status",
+        {
+            **corpo_c,
+            "wamid": wamid_f,
+            "timestamp": int(time.time()),
+            "para": re.sub(r"\D", "", destino_f),
+        },
+    )
+    stf = sf["entregas"][0]["status"]
+    esperar(lambda: com(est(), cid_f)["entrega"] == "entregue", 15, "(f) status não gravado")
+    chaves_f = [
+        str(p["chave"])
+        for p in chamadas(est(), r"/comunicacoes/\d+/entrega", cid_f)
+        if str(p["chave"]).startswith("entrega#sha256:")
+    ]
+    checar(stf == 200, f"(f) status de wamid longo deveria ser 200: {stf}")
+    checar(chaves_f and all(len(k) <= 200 for k in chaves_f), f"(f) chaves {chaves_f}")
     # (e) órfão antigo com wamid LONGO (190 caracteres; a consulta aceita até 300): a chave da
     # exceção passaria de 200 → o cabeçalho usa sha256 e o status é confirmado (Codex 4306152916)
     wamid_e = "wamid.SIMLONGO" + secrets.token_hex(8) + "Q" * 160
@@ -1005,6 +1030,12 @@ def tw14(variante: str) -> dict:
             "reentrega": rc["entregas"][0]["status"],
             "excecoes": 1,
             "status_recente_de_controle": std,
+        },
+        "f_conhecida_com_wamid_longo": {
+            "tamanho_do_wamid": len(wamid_f),
+            "primeira_entrega": stf,
+            "tamanho_da_chave_de_entrega": len(chaves_f[0]),
+            "entrega_final": "entregue",
         },
         "e_orfao_com_wamid_longo": {
             "tamanho_do_wamid": len(wamid_e),

@@ -15,7 +15,7 @@ automação do PCPR ainda não existe, então nada aqui foi testado contra o sis
   **18/10/2026 11:06–11:13** (−03:00), T1–T20 passando — é a rodada registrada em
   `prototipo/resultados/resultados.json`, campos `inicio`/`fim`).
 - W2, W6, W7 e W8: exportados pela suíte do WhatsApp oficial (`testar_whatsapp.py`, rodada de
-  **18/10/2026 09:23–09:28** (−03:00), TW0–TW16 passando — a de
+  **18/10/2026 11:22–11:27** (−03:00), TW0–TW16 passando — a de
   `prototipo/resultados/resultados-whatsapp.json`). O W2 tem o desvio por canal (WhatsApp → W6). W6–W8 são a
   frente **WA-3 — prontos e DESLIGADOS** (seção própria no fim): não publicar nem cadastrar
   credencial real antes do portão de ativação.

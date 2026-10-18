@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T12:28:42.000Z",
-  "createdAt": "2026-10-18T12:24:02.719Z",
+  "updatedAt": "2026-10-18T14:27:29.000Z",
+  "createdAt": "2026-10-18T14:22:34.241Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -323,7 +323,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "=entrega:{{ $json.comunicacao_id }}:{{ $json.wamid }}:{{ $json.status }}"
+              "value": "={{ ('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))).length <= 200 && /^[ -~]*$/.test('entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status))) ? 'entrega:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)) : 'entrega#sha256:' + (String($json.comunicacao_id + ':' + $json.wamid + ':' + $json.status)).hash('sha256') }}"
             }
           ]
         },
@@ -608,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "47cade72-920b-4173-9f24-8baeefea5929",
+  "versionId": "fb6d4cc5-3b84-4000-a502-4583eeb0cf18",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -616,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T12:24:02.722Z",
-      "createdAt": "2026-10-18T12:24:02.722Z",
+      "updatedAt": "2026-10-18T14:22:34.243Z",
+      "createdAt": "2026-10-18T14:22:34.243Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "u3wY7YA2TSQUQQ95",
+      "projectId": "jrnmoTWd9cqmTcaJ",
       "project": {
-        "updatedAt": "2026-10-18T12:23:54.037Z",
-        "createdAt": "2026-10-18T12:23:54.037Z",
-        "id": "u3wY7YA2TSQUQQ95",
+        "updatedAt": "2026-10-18T14:22:25.944Z",
+        "createdAt": "2026-10-18T14:22:25.944Z",
+        "id": "jrnmoTWd9cqmTcaJ",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "496f7149-70de-4186-9d28-99fdb1839413"
+        "creatorId": "8842a687-0fae-48df-ac19-f0b87e6e6555"
       }
     }
   ],

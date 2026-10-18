@@ -2482,7 +2482,9 @@ def w8() -> dict:
         cabecalhos=[
             (
                 "Idempotency-Key",
-                "=entrega:{{ $json.comunicacao_id }}:{{ $json.wamid }}:{{ $json.status }}",
+                chave_limitada(
+                    "entrega:", "$json.comunicacao_id + ':' + $json.wamid + ':' + $json.status"
+                ),
             )
         ],
         corpo_json="={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, "

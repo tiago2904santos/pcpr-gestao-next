@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T12:28:42.000Z",
-  "createdAt": "2026-10-18T12:24:02.713Z",
+  "updatedAt": "2026-10-18T14:27:29.000Z",
+  "createdAt": "2026-10-18T14:22:34.237Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -1263,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "2c36cb3b-2fc2-4b1b-a8a0-1a8c9d7acb8a",
+  "versionId": "ca683a93-4b5f-43f7-b1e1-817bde16e9c4",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1271,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T12:24:02.715Z",
-      "createdAt": "2026-10-18T12:24:02.715Z",
+      "updatedAt": "2026-10-18T14:22:34.239Z",
+      "createdAt": "2026-10-18T14:22:34.239Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "u3wY7YA2TSQUQQ95",
+      "projectId": "jrnmoTWd9cqmTcaJ",
       "project": {
-        "updatedAt": "2026-10-18T12:23:54.037Z",
-        "createdAt": "2026-10-18T12:23:54.037Z",
-        "id": "u3wY7YA2TSQUQQ95",
+        "updatedAt": "2026-10-18T14:22:25.944Z",
+        "createdAt": "2026-10-18T14:22:25.944Z",
+        "id": "jrnmoTWd9cqmTcaJ",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "496f7149-70de-4186-9d28-99fdb1839413"
+        "creatorId": "8842a687-0fae-48df-ac19-f0b87e6e6555"
       }
     }
   ],

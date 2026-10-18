@@ -131,7 +131,9 @@ Arquivos:
 `"active": false`, sem segredo no relatório, contêiner removido e portas livres no fim). Inclui
 as verificações seguintes do Codex: chaves de exceção e de recebimento limitadas a 200 e só
 ASCII (T19h–T19k), 4xx definitivo no download do W4 (T19 e2/e3) e corpos de exceção sem valor
-configurável (`fila_parada` e status órfão). O parágrafo abaixo descreve a
+configurável (`fila_parada` e status órfão). No W8, a chave de `/entrega` também é limitada
+(`entrega#sha256:<hex>` acima de 200 ou fora do ASCII; TW14f, wamid de 190 caracteres de uma
+comunicação conhecida), e o contrato documenta a forma. O parágrafo abaixo descreve a
 rodada da [terceira verificação](#terceira-verificação--o-que-mudou): T19 com os casos (f) recusa que muda
 entre entregas e (g) falha transitória persistente → `fila_parada`. A máquina continuava
 carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaixo).
@@ -485,7 +487,7 @@ principal **03:17–03:33** e suíte WA-3 **03:33–03:44**, saída 0 nas duas.
 Frente WA-3 do [plano de implantação](../plano-implantacao.md), executada em 17/10/2026
 (rodada de 23:21–23:27), refeita com a revisão do PR #23 em 18/10/2026 (00:52–00:57) e com a
 segunda verificação (02:02–02:13), com a terceira (03:33–03:44) e com as verificações
-seguintes do Codex (**rodada final 09:23–09:28, TW0–TW16 passaram**, a registrada em
+seguintes do Codex (**rodada final 11:22–11:27, TW0–TW16 passaram**, a registrada em
 `resultados/resultados-whatsapp.json`, saída 0). A política oficial
 proíbe órgãos policiais na WhatsApp Business Platform ([viabilidade](../whatsapp-viabilidade.md),
 seção 1): o objetivo foi deixar a integração **pronta e comprovada contra um simulador**, exportada
