@@ -351,9 +351,9 @@ def _atender_intencao(r: Recebimento, contato: ContatoVerificado, intencao: str,
         contato.save(update_fields=["revogado_em", "revogado_motivo"])
         registrar_evento_contato(EventoContato.Acao.REVOGADO, contato=contato,
                                  origem="simulador" if simulado else "mensagem")
-        Comunicacao.objects.filter(contato=contato, situacao__in=(
-            S.AGUARDANDO_APROVACAO, S.AGENDADA)).update(
-            situacao=S.CANCELADA, motivo="A pessoa pediu para não receber mais mensagens.")
+        from .contatos import cancelar_do_contato
+
+        cancelar_do_contato(contato, "A pessoa pediu para não receber mais mensagens.")
         _responder(r, "automacao.descadastro", f"descadastro:{r.pk}", contato=contato)
     elif intencao == "aceito":
         if not contato.optin_em:

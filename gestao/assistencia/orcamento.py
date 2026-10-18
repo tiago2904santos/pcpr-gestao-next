@@ -21,7 +21,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.db import IntegrityError, transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 
 from . import policies
@@ -155,8 +155,15 @@ def liberar_reservas_presas(agora=None, folga: timedelta = FOLGA_RESERVA_PRESA) 
     liberadas = 0
     while True:
         with transaction.atomic():
+            # Também a reserva de pedido já encerrado (sem lease): nunca deveria sobrar, mas se
+            # sobrar não fica presa para sempre.
             pedido = (PedidoSugestao.objects.select_for_update(skip_locked=True)
-                      .filter(reserva_usd__gt=0, reservado_ate__lt=agora - folga)
+                      .filter(Q(reservado_ate__lt=agora - folga)
+                              | Q(reservado_ate__isnull=True,
+                                  estado__in=(PedidoSugestao.Estado.CONCLUIDO,
+                                              PedidoSugestao.Estado.FALHOU,
+                                              PedidoSugestao.Estado.CANCELADO)),
+                              reserva_usd__gt=0)
                       .order_by("id").first())
             if pedido is None:
                 return liberadas

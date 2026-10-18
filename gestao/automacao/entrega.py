@@ -456,10 +456,17 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         pk=t.comunicacao_id)
     agora = timezone.now()
     t.terminada_em, t.duracao_ms = agora, duracao_ms
+    cancelada = c.situacao == S.CANCELADA  # opt-out (ou cancelamento) com o envio já reservado
     if envio is not None:
         t.resultado = R.ACEITA
         t.save()
         _aceita(c, envio, origem, agora)
+        if cancelada:  # saiu mesmo assim: o registro diz a verdade e uma pessoa confere
+            excecoes.abrir(T.CONTATO, f"depois-do-cancelamento:{c.pk}",
+                           f"Comunicação #{c.pk} saiu depois de cancelada (o transporte já "
+                           "tinha reservado o envio quando o contato saiu). Confira com a "
+                           "pessoa e registre o pedido de desculpas se for o caso.",
+                           comunicacao=c)
         return t
     codigo = getattr(erro, "codigo", "") or ""
     t.codigo_erro, t.detalhe = codigo[:40], sem_credencial(str(erro or ""))[:255]
@@ -467,6 +474,16 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         erro.args = (sem_credencial(str(erro)),)
     if t.resultado == R.INCERTA:  # o prazo já tinha vencido e agora veio uma falha: fica
         t.save()
+        return t
+    if cancelada:  # não saiu e foi cancelada no meio: continua cancelada, nunca reagenda
+        t.resultado = (R.INCERTA if not isinstance(
+            erro, (erros_canal.FalhaTemporaria, erros_canal.FalhaDefinitiva,
+                   erros_canal.CanalBloqueado)) else R.DEFINITIVA)
+        t.save()
+        if t.resultado == R.INCERTA:
+            excecoes.abrir(T.RESULTADO_INCERTO, f"incerta-cancelada:{c.pk}",
+                           f"Comunicação #{c.pk} foi cancelada com o envio em curso e não se "
+                           "sabe se saiu. Confira com a pessoa; não reenvie.", comunicacao=c)
         return t
     if isinstance(erro, erros_canal.CanalBloqueado):
         t.resultado = R.DEFINITIVA

@@ -619,3 +619,22 @@ def test_status_repetido_com_outro_horario_nao_e_422(c, n8n):
         assert r.status_code == 200, r.content
     aviso.refresh_from_db()
     assert aviso.entrega == "lida"
+
+
+def test_resposta_que_cita_aviso_vencido_vai_para_uma_pessoa(c):
+    """A resposta que cita um pedido de arquivo cujo prazo de resposta já passou não entra
+    sozinha no assunto velho: fica para uma pessoa decidir o destino."""
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(
+        resposta_ate=timezone.now() - timedelta(days=1))
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF, nome="c.pdf")
+    _processar_entradas()
+    recebimentos.processar_um()
+    r = Recebimento.objects.get()
+    assert r.comunicacao_id == aviso.pk  # a citação fica registrada…
+    assert r.situacao != Recebimento.Situacao.ASSOCIADO  # …mas não associa sozinha
+    assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()

@@ -285,9 +285,16 @@ def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Su
 
 
 def _encerrar(pedido: PedidoSugestao, estado: str, motivo: str) -> None:
-    PedidoSugestao.objects.filter(pk=pedido.pk).update(estado=estado, motivo=motivo[:255],
-                                                       reservado_ate=None,
-                                                       atualizado_em=timezone.now())
+    """Encerra o pedido e DEVOLVE a reserva de orçamento que ainda estiver nele (erro
+    inesperado entre reservar e liquidar). Sem isso, com `reservado_ate` nulo, nem a varredura
+    de reservas presas a acharia e o teto mensal se esgotaria aos poucos."""
+    with transaction.atomic():
+        atual = PedidoSugestao.objects.select_for_update().filter(pk=pedido.pk).first()
+        if atual is None:
+            return
+        orcamento.liberar_do_pedido(atual)
+        atual.estado, atual.motivo, atual.reservado_ate = estado, motivo[:255], None
+        atual.save(update_fields=["estado", "motivo", "reservado_ate", "atualizado_em"])
 
 
 def _registrar(pedido: PedidoSugestao, uso: ganchos.UsoIA, ctx: ganchos.Contexto,

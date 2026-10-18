@@ -113,11 +113,19 @@ def revogar(usuario, pk: int, motivo: str) -> ContatoVerificado:
     contato.save(update_fields=["revogado_em", "revogado_motivo"])
     registrar_evento_contato(EventoContato.Acao.REVOGADO, contato=contato, por=usuario,
                              origem="operador")
-    Comunicacao.objects.filter(contato=contato, situacao__in=(
-        Comunicacao.Situacao.AGUARDANDO_APROVACAO, Comunicacao.Situacao.AGENDADA)).update(
-        situacao=Comunicacao.Situacao.CANCELADA, motivo="O contato foi revogado.",
-        atualizada_em=timezone.now())
+    cancelar_do_contato(contato, "O contato foi revogado.")
     return contato
+
+
+def cancelar_do_contato(contato: ContatoVerificado, motivo: str) -> int:
+    """Opt-out: nada mais sai para este contato — inclusive o que já estava RESERVADO (o
+    transporte ainda não mandou). Se o resultado de um envio reservado chegar depois,
+    `entrega.registrar_resultado` não o reagenda e, se saiu, abre exceção."""
+    S = Comunicacao.Situacao
+    return Comunicacao.objects.filter(contato=contato, situacao__in=(
+        S.AGUARDANDO_APROVACAO, S.AGENDADA, S.RESERVADA)).update(
+        situacao=S.CANCELADA, motivo=motivo[:255], reservada_ate=None,
+        atualizada_em=timezone.now())
 
 
 # ------------------------------------------------------------------ testadores (LAB)

@@ -120,14 +120,22 @@ def _recusar(pk: int, motivo: str) -> None:
 
 # ------------------------------------------------------------------ associação
 def _comunicacao(r: Recebimento) -> Comunicacao | None:
-    if r.comunicacao_id and r.comunicacao is not None and r.comunicacao.aceita_resposta:
-        return r.comunicacao
+    # A comunicação citada (resposta a uma mensagem nossa) vale só dentro do prazo de resposta
+    # dela, contado da chegada do arquivo — como a busca abaixo. Fora do prazo, vai para uma
+    # pessoa decidir o destino (nada entra sozinho num assunto velho).
+    quando = r.recebido_em or timezone.now()
+    citada = r.comunicacao if r.comunicacao_id else None
+    if (citada is not None and citada.aceita_resposta and citada.resposta_ate
+            and citada.resposta_ate > quando):
+        return citada
+    if citada is not None and citada.aceita_resposta:
+        return None  # citou um pedido de arquivo vencido: uma pessoa decide
     if not r.contato_id:
         return None
     return (Comunicacao.objects.filter(contato_id=r.contato_id,
                                        situacao__in=(Comunicacao.Situacao.ENVIADA,
                                                      Comunicacao.Situacao.MANUAL))
-            .exclude(aceita_resposta="").filter(resposta_ate__gt=timezone.now())
+            .exclude(aceita_resposta="").filter(resposta_ate__gt=quando)
             .order_by("-enviada_em", "-id").first())
 
 

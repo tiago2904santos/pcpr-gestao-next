@@ -129,3 +129,36 @@ def test_lease_vencido_devolve_a_reserva_antes_de_refazer(django_user_model):
     assert servicos.reservar_proximo(agora=timezone.now() + timedelta(minutes=2)) == p.pk
     assert PedidoSugestao.objects.get(pk=p.pk).reserva_usd == 0
     assert OrcamentoIA.objects.get(escopo=orcamento.GLOBAL).reservado_usd == 0
+
+
+@pytest.mark.django_db
+def test_erro_inesperado_devolve_a_reserva(django_user_model):
+    """Erro inesperado entre reservar e liquidar: `_encerrar` devolve a reserva (antes ela
+    ficava presa para sempre, com `reservado_ate` nulo fora da varredura)."""
+    from datetime import timedelta
+
+    from gestao.assistencia import servicos
+    from gestao.assistencia.models import PedidoSugestao
+
+    p = _pedido(django_user_model, 6)
+    orcamento.reservar(USO, Decimal("0.300"), pedido_pk=p.pk, prazo=timedelta(minutes=1))
+    servicos._encerrar(PedidoSugestao.objects.get(pk=p.pk),
+                       PedidoSugestao.Estado.FALHOU, "erro_interno")
+    p.refresh_from_db()
+    assert p.estado == PedidoSugestao.Estado.FALHOU and p.reserva_usd == 0
+    assert OrcamentoIA.objects.get(escopo=orcamento.GLOBAL).reservado_usd == 0
+    assert OrcamentoIA.objects.get(escopo=USO).reservado_usd == 0
+
+
+@pytest.mark.django_db
+def test_reserva_de_pedido_encerrado_sem_lease_e_varrida(django_user_model):
+    from datetime import timedelta
+
+    from gestao.assistencia.models import PedidoSugestao
+
+    p = _pedido(django_user_model, 7)
+    orcamento.reservar(USO, Decimal("0.300"), pedido_pk=p.pk, prazo=timedelta(minutes=1))
+    PedidoSugestao.objects.filter(pk=p.pk).update(estado=PedidoSugestao.Estado.FALHOU,
+                                                   reservado_ate=None)
+    assert orcamento.liberar_reservas_presas() == 1
+    assert OrcamentoIA.objects.get(escopo=orcamento.GLOBAL).reservado_usd == 0

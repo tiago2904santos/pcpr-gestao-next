@@ -313,3 +313,46 @@ def test_link_pessoal_escopo_validade_e_revogacao(c):
     assert Client().get("/p/curto/").status_code == 404
     from gestao.automacao.entrega import sem_credencial
     assert token2 not in sem_credencial(f"Abra https://x.invalid/p/{token2}/ agora")
+
+
+def test_optout_cancela_o_envio_ja_reservado(c):
+    """Contato revogado com o envio já reservado pelo n8n: a comunicação é cancelada na hora;
+    falha depois não a reagenda; se o n8n já tinha mandado, o resultado é registrado como é e
+    abre exceção para uma pessoa conferir."""
+    from gestao.automacao import contatos as contatos_mod
+    from gestao.automacao.models import ContatoVerificado as CV
+    from gestao.automacao.models import ExcecaoAutomacao
+
+    r = _post(c, f"/comunicacoes/{c.com.pk}/reservar", {}, f"reserva:{c.com.pk}:v1:optout")
+    assert r.status_code == 200, r.content
+    token = r.json()["reserva"]["token"]
+    contato = CV.objects.get(servidor_id=c.ps.servidor_id)
+    contatos_mod.revogar(c.usuarios["operador"], contato.pk, "Saiu do teste")
+    c.com.refresh_from_db()
+    assert c.com.situacao == "cancelada" and c.com.reservada_ate is None
+    falha = _post(c, f"/comunicacoes/{c.com.pk}/resultado",
+                  {"reserva_token": token, "resultado": "falha_temporaria",
+                   "provedor": "whatsapp", "erro": "503"}, f"resultado:{c.com.pk}:optout-1")
+    assert falha.status_code == 200, falha.content
+    c.com.refresh_from_db()
+    assert c.com.situacao == "cancelada"  # não ressuscita
+    assert not ExcecaoAutomacao.objects.filter(chave__startswith="depois-do-cancelamento").exists()
+
+
+def test_envio_que_saiu_depois_do_optout_vira_excecao(c):
+    from gestao.automacao import contatos as contatos_mod
+    from gestao.automacao.models import ContatoVerificado as CV
+    from gestao.automacao.models import ExcecaoAutomacao
+
+    r = _post(c, f"/comunicacoes/{c.com.pk}/reservar", {}, f"reserva:{c.com.pk}:v1:optout2")
+    token = r.json()["reserva"]["token"]
+    contato = CV.objects.get(servidor_id=c.ps.servidor_id)
+    contatos_mod.revogar(c.usuarios["operador"], contato.pk, "Saiu do teste")
+    ok = _post(c, f"/comunicacoes/{c.com.pk}/resultado",
+               {"reserva_token": token, "resultado": "enviada", "provedor": "whatsapp",
+                "provedor_mensagem_id": "wamid.OPTOUT"}, f"resultado:{c.com.pk}:optout-2")
+    assert ok.status_code == 200, ok.content
+    c.com.refresh_from_db()
+    assert c.com.situacao == "enviada" and c.com.mensagem_id == "wamid.OPTOUT"
+    assert ExcecaoAutomacao.objects.filter(
+        chave=f"depois-do-cancelamento:{c.com.pk}", tipo="contato").exists()
