@@ -25,13 +25,16 @@ SINONIMOS_TIPO = (
     (r"\bvisita\b", "visita"),
 )
 DIAS_DA_SEMANA = r"(segunda|terca|quarta|quinta|sexta)-feira"
-# Palavra-chave (texto dobrado) → nome do serviço (dobrado).
+# Palavra-chave (texto dobrado) → nomes (dobrados) que o serviço pode ter no catálogo. A CIN
+# entrou no catálogo compartilhado com o Plano de Trabalho com o nome da atividade (0008).
 SERVICOS = (
-    (r"\b(cin|rg|identidade|carteira de identidade|2a via)\b", "emissao de cin"),
-    (r"\b(digitais|biometria|coleta de digita\w*)\b", "coleta de digitais"),
-    (r"\bfoto(s|grafia)?\b", "fotografia para documento"),
-    (r"\bjuridic\w*\b", "orientacao juridica"),
-    (r"\b(atendimento social|assistente social|assistencia social)\b", "atendimento social"),
+    (r"\b(cin|rg|identidade|carteira de identidade|2a via)\b",
+     ("emissao de cin", "confeccao da carteira de identidade nacional (cin)")),
+    (r"\b(digitais|biometria|coleta de digita\w*)\b", ("coleta de digitais",)),
+    (r"\bfoto(s|grafia)?\b", ("fotografia para documento",)),
+    (r"\bjuridic\w*\b", ("orientacao juridica",)),
+    (r"\b(atendimento social|assistente social|assistencia social)\b",
+     ("atendimento social",)),
 )
 _NEGACAO = re.compile(r"\b(nao|sem|dispensa\w*)\b[^.\n]{0,30}$")
 _R_UNIDADE_MOVEL = re.compile(r"\bunidade movel\b|\bonibus da identificac\w*")
@@ -185,8 +188,9 @@ def servicos(texto: str, nomes: set[str]) -> list[str]:
     """Os serviços citados (por palavra-chave), sem os negados ("não precisa de foto")."""
     d = dobrar(texto)
     achados = []
-    for padrao, nome in SERVICOS:
-        if nome not in nomes:
+    for padrao, possiveis in SERVICOS:
+        nome = next((n for n in possiveis if n in nomes), None)
+        if nome is None:
             continue
         for m in re.finditer(padrao, d):
             inicio_da_frase = max(d.rfind(".", 0, m.start()), d.rfind("\n", 0, m.start())) + 1

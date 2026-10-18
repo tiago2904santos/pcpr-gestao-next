@@ -57,17 +57,13 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     if not policies.pode_gerir_catalogo(request.user, slug):
         raise PermissionDenied
     cat = catalogos.CATALOGOS[slug]
-<<<<<<< HEAD
-    erro, editando, valores, campo_erro = "", None, {}, ""
-=======
     q = " ".join((request.GET.get("q") or "").split())[:100]
     # `situacao=` é o endereço antigo do filtro: continua valendo.
     aba = request.GET.get("aba") or request.GET.get("situacao") or ""
     aba = "inativos" if aba == "inativos" else ""
-    base = "&".join(p for p in (f"q={q}" if q else "", f"aba={aba}" if aba else "") if p)
+    base = urlencode({chave: valor for chave, valor in (("q", q), ("aba", aba)) if valor})
     volta = f"{request.path}?{base}" if base else request.path
-    erro, editando, valores, abrir = "", None, {}, False
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
+    erro, editando, valores, abrir, campo_erro = "", None, {}, False, ""
     if request.method == "POST":
         pk = request.POST.get("pk") or ""
         if pk and (not pk.isascii() or not pk.isdecimal() or len(pk) > 18):
@@ -90,16 +86,11 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
         except cat.modelo.DoesNotExist as exc:
             raise Http404 from exc
         except catalogos.CatalogoInvalido as exc:
-<<<<<<< HEAD
-            erro, editando = str(exc), pk_int
-            campo_erro = exc.campo or ""
-=======
             if acao in ("excluir", "ativo"):
                 messages.error(request, str(exc))
                 return redirect(volta)
-            erro, abrir = str(exc), True
+            erro, abrir, campo_erro = str(exc), True, exc.campo or ""
             editando = cat.modelo.objects.filter(pk=pk_int).first() if pk_int else None
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
             valores = {"nome": request.POST.get("nome", ""), "texto": request.POST.get("texto", "")}
     else:
         pk_editar = request.GET.get("editar") or ""
@@ -117,29 +108,24 @@ def catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     if q:
         qs = qs.filter(nome__icontains=q)
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-<<<<<<< HEAD
-    base = urlencode({chave: valor for chave, valor in
-                      (("q", q), ("situacao", situacao)) if valor})
-    return render(request, "eventos/catalogo.html", {
-        "cat": cat, "page_obj": pagina, "registros": list(pagina.object_list), "q": q,
-        "situacao": situacao, "erro": erro, "editando": editando, "valores": valores,
-        "campo_erro": campo_erro,
-        "querystring_base": f"{base}&" if base else "",
-        "outros": [catalogos.CATALOGOS[s] for s in policies.catalogos_visiveis(request.user)
-                   if s != slug],
-=======
-    descricao = (f"{'Os dados' if cat.com_texto else 'O nome'} {cat.genitivo} usado"
-                 f"{'s' if cat.com_texto else ''} nas solicitações. O desativado sai dos "
-                 "formulários novos e continua nas solicitações que já o usam.")
+    if slug == "servicos":  # o catálogo é o mesmo das atividades do Plano de Trabalho
+        descricao = ("Catálogo compartilhado com o Plano de Trabalho. As alterações valem para "
+                     "os próximos usos; itens inativos continuam vinculados aos registros "
+                     "anteriores.")
+    else:
+        descricao = (f"{'Os dados' if cat.com_texto else 'O nome'} {cat.genitivo} usado"
+                     f"{'s' if cat.com_texto else ''} nas solicitações. O desativado sai dos "
+                     "formulários novos e continua nas solicitações que já o usam.")
     feminino = cat.genitivo.startswith("da ")
     return render(request, "eventos/catalogo.html", {
         "cat": cat, "descricao_catalogo": descricao, "page_obj": pagina,
         "registros": list(pagina.object_list), "q": q, "aba": aba,
         "abas": [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")],
-        "contagens": contagens, "erro": erro, "editando": editando, "valores": valores,
+        "contagens": contagens, "erro": erro, "campo_erro": campo_erro,
+        "editando": editando, "valores": valores,
+        "limite_nome": cat.modelo._meta.get_field("nome").max_length,
         "abrir_dialogo": abrir, "novo_rotulo": f"{'Nova' if feminino else 'Novo'} {cat.singular}",
         "querystring_base": f"{base}&" if base else "", "voltar": volta,
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
         "migalhas": _migalhas((cat.titulo, "")),
     }, status=422 if erro else 200)
 
