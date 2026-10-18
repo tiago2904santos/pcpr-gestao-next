@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T10:34:10.000Z",
-  "createdAt": "2026-10-18T10:28:24.542Z",
+  "updatedAt": "2026-10-18T11:25:03.000Z",
+  "createdAt": "2026-10-18T11:15:38.379Z",
   "id": "pcprWhatsStatus1",
   "name": "PCPR · Status WhatsApp",
   "description": null,
@@ -608,7 +608,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "9d151fb0-0054-4c9d-b994-b34933e3ad8a",
+  "versionId": "c1a70630-c575-4619-8a5f-f6a2c35b32d0",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -616,21 +616,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T10:28:24.546Z",
-      "createdAt": "2026-10-18T10:28:24.546Z",
+      "updatedAt": "2026-10-18T11:15:38.390Z",
+      "createdAt": "2026-10-18T11:15:38.390Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsStatus1",
-      "projectId": "jxqqEKa6wcQm2eEj",
+      "projectId": "uciL6q3WjAhIxGO2",
       "project": {
-        "updatedAt": "2026-10-18T10:28:13.057Z",
-        "createdAt": "2026-10-18T10:28:13.057Z",
-        "id": "jxqqEKa6wcQm2eEj",
+        "updatedAt": "2026-10-18T11:15:00.779Z",
+        "createdAt": "2026-10-18T11:15:00.779Z",
+        "id": "uciL6q3WjAhIxGO2",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "da9c8742-2037-487d-937b-0fa0d5d4ebf8"
+        "creatorId": "54499f16-bedb-456f-ae8f-64e89799e5d2"
       }
     }
   ],

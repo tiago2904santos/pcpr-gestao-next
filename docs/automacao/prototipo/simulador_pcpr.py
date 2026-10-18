@@ -73,6 +73,7 @@ from comum import (
     ManipuladorBase,
     agora_utc,
     assinar,
+    chave_recebimento,
     corpo_json,
     iso_z,
     ler_multipart,
@@ -1308,9 +1309,12 @@ class Manipulador(ManipuladorBase):
             return "anexo_indice e total_anexos devem ser inteiros"
         if indice < 0 or total < 1 or indice >= total:
             return f"anexo_indice {indice} fora de 0..total_anexos-1 ({total})"
-        esperada = f"receb:{campos['canal']}:{campos['mensagem_id_canal']}:{indice}"
+        esperada = chave_recebimento(campos["canal"], campos["mensagem_id_canal"], indice)
         if self.headers.get("Idempotency-Key") != esperada:
-            return "Idempotency-Key deve ser receb:<canal>:<mensagem_id_canal>:<anexo_indice>"
+            return (
+                "Idempotency-Key deve ser receb:<canal>:<mensagem_id_canal>:<anexo_indice> "
+                "(acima de 200 caracteres, receb:<canal>:sha256:<hex do id>:<anexo_indice>)"
+            )
         return None
 
     def _recebimento_sem_arquivo(self) -> tuple[int, Any, bool]:
@@ -1435,7 +1439,7 @@ class Manipulador(ManipuladorBase):
     def _v2_mensagem(self, msg: dict) -> tuple[int, int]:
         est = self.estado
         wamid = str(msg.get("id") or "")
-        chave = f"receb:whatsapp:{wamid}:0"
+        chave = chave_recebimento("whatsapp", wamid, 0)
         est.wa_vistos[chave] = est.wa_vistos.get(chave, 0) + 1
         if est.wa_vistos[chave] > 1:
             return 0, 1  # reentrega da Meta: já registrado

@@ -14,6 +14,22 @@ from email.policy import HTTP
 from http.server import BaseHTTPRequestHandler
 from typing import Any
 
+# ---------------------------------------------------------------- chave do recebimento
+
+LIMITE_CHAVE = 200  # Idempotency-Key: 16 a 200 caracteres (contrato)
+
+
+def chave_recebimento(canal: str, mensagem_id: str, anexo_indice: int | str) -> str:
+    """`receb:<canal>:<mensagem_id_canal>:<anexo_indice>`; se passar de 200 caracteres (o id do
+    canal pode ter até 300), `receb:<canal>:sha256:<hex do id>:<anexo_indice>`. É a MESMA regra
+    no PCPR, no simulador e nos workflows (`construir_workflows.chave_recebimento_js`)."""
+    bruta = f"receb:{canal}:{mensagem_id}:{anexo_indice}"
+    if len(bruta) <= LIMITE_CHAVE:
+        return bruta
+    digest = hashlib.sha256(str(mensagem_id).encode()).hexdigest()
+    return f"receb:{canal}:sha256:{digest}:{anexo_indice}"
+
+
 # ---------------------------------------------------------------- assinatura de eventos
 
 CABECALHO_ASSINATURA = "X-PCPR-Assinatura"

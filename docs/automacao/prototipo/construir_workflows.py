@@ -161,6 +161,17 @@ def _cond(expr: str, cid: str) -> dict:
     }
 
 
+def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str:
+    """Expressão n8n da chave do recebimento — a mesma regra de `comum.chave_recebimento`:
+    `receb:<canal>:<id>:<anexo>` até 200 caracteres; acima, o id vira `sha256:<hex>`."""
+    c, m, i = f"String({canal_js})", f"String({mensagem_js})", f"String({indice_js})"
+    bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
+    return (
+        f"={{{{ {bruta}.length <= 200 ? {bruta} : "
+        f"'receb:' + {c} + ':sha256:' + {m}.hash('sha256') + ':' + {i} }}}}"
+    )
+
+
 def chave_limitada(prefixo: str, logica_js: str) -> str:
     """Expressão n8n de uma Idempotency-Key que cabe no limite do contrato (16 a 200 caracteres).
 
@@ -1186,7 +1197,7 @@ def w4() -> dict:
         cabecalhos=[
             (
                 "Idempotency-Key",
-                "=receb:{{ $json.canal }}:{{ $json.mensagem_id }}:{{ $json.anexo_indice }}",
+                chave_recebimento_js("$json.canal", "$json.mensagem_id", "$json.anexo_indice"),
             ),
         ],
         extra_params={
@@ -1260,8 +1271,7 @@ def w4() -> dict:
         cabecalhos=[
             (
                 "Idempotency-Key",
-                f"=receb:{{{{ {ctx}.canal }}}}:{{{{ {ctx}.mensagem_id }}}}:"
-                f"{{{{ {ctx}.anexo_indice }}}}",
+                chave_recebimento_js(f"{ctx}.canal", f"{ctx}.mensagem_id", f"{ctx}.anexo_indice"),
             ),
         ],
         corpo_json=f"={{{{ JSON.stringify({{ canal: {ctx}.canal, "
@@ -1380,8 +1390,10 @@ def w4() -> dict:
         cabecalhos=[
             (
                 "Idempotency-Key",
-                "=excecao:recebimento-canais:receb:{{ $json.canal }}:{{ $json.mensagem_id }}"
-                ":fila_parada",
+                chave_limitada(
+                    "excecao:recebimento-canais:",
+                    "'receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'",
+                ),
             ),
         ],
         corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
@@ -2176,7 +2188,7 @@ def w7() -> dict:
         tentativas=3,
         espera_ms=1000,
         timeout=20000,
-        cabecalhos=[("Idempotency-Key", "=receb:whatsapp:{{ $json.wamid }}:0")],
+        cabecalhos=[("Idempotency-Key", chave_recebimento_js("'whatsapp'", "$json.wamid", "0"))],
         extra_params={
             "sendBody": True,
             "contentType": "multipart-form-data",
@@ -2242,7 +2254,7 @@ def w7() -> dict:
         (1540, 560),
         tentativas=3,
         espera_ms=1000,
-        cabecalhos=[("Idempotency-Key", "=receb:whatsapp:{{ $json.wamid }}:0")],
+        cabecalhos=[("Idempotency-Key", chave_recebimento_js("'whatsapp'", "$json.wamid", "0"))],
         corpo_json="={{ JSON.stringify({ canal: 'whatsapp', mensagem_id_canal: $json.wamid, "
         "anexo_indice: 0, total_anexos: 1, remetente: $json.remetente, "
         "recebido_em: $json.recebido_em, motivo: 'sem_anexo' }) }}",

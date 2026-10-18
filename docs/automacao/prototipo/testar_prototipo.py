@@ -47,7 +47,7 @@ sys.path.insert(0, str(RAIZ))
 
 import construir_workflows as cw  # noqa: E402
 import n8n_local  # noqa: E402
-from comum import montar_multipart  # noqa: E402
+from comum import chave_recebimento, montar_multipart  # noqa: E402
 from regra_vespera import FUSO  # noqa: E402
 from validar_esquema import validar  # noqa: E402
 
@@ -1176,7 +1176,7 @@ def t19() -> dict:
         return canal("/_sim/inbound", corpo)
 
     def da_msg(e: dict, mid: str) -> dict[str, Any]:
-        chave = f"receb:email:{mid}:0"
+        chave = chave_recebimento("email", mid, 0)
         return {
             "posts": [p["status"] for p in chamadas(e, r"/recebimentos") if p["chave"] == chave],
             "sem_arquivo": [
@@ -1345,7 +1345,7 @@ def t19() -> dict:
     rv = receber(mid, recebido_ha_s=2 * 86400, reentregar=2)
     e = est()
     xv = da_msg(e, mid)
-    chave_fila = f"excecao:recebimento-canais:receb:email:{mid}:fila_parada"
+    chave_fila = f"excecao:recebimento-canais:receb:email:{mid}:fila_parada"  # cabe em 200
     posts_fila = [
         (p["status"], bool(p.get("replay")))
         for p in chamadas(e, r"/excecoes")
@@ -1410,6 +1410,60 @@ def t19() -> dict:
         "tamanho_da_chave_da_excecao": posts_h[0][2],
         "post_excecoes": ["201", "201 (repetição)"],
         "excecoes": 1,
+    }
+    # (i) id do canal com 290 caracteres (o contrato aceita até 300): a chave do recebimento
+    # passaria de 200 → receb:<canal>:sha256:<hex>:<anexo>, a mesma regra no PCPR. O 413 ainda
+    # vira recebimento rejeitado com orientação (antes: 400 na chave → exceção genérica).
+    resetar()
+    sim("/_sim/config", {"limite_recebimento_bytes": 256})
+    mid = "msg.sim.T19i." + secrets.token_hex(3) + "y" * 271
+    checar(len(mid) == 290, f"(i) tamanho do id {len(mid)}")
+    ri = receber(mid)
+    xi = da_msg(est(), mid)
+    chave_i = chave_recebimento("email", mid, 0)
+    checar(ri["entregas"] == [200], f"(i) entregas {ri['entregas']}")
+    checar(len(chave_i) <= 200 and ":sha256:" in chave_i, f"(i) chave {chave_i}")
+    checar(xi["posts"] == [413] and xi["sem_arquivo"] == [202], f"(i) {xi['posts']} {xi}")
+    checar(
+        [(y["estado"], y["motivo"]) for y in xi["recebimentos"]]
+        == [("rejeitado", "acima_do_limite")],
+        f"(i) recebimentos {xi['recebimentos']}",
+    )
+    # (j) falha temporária persistente com id de 160 caracteres: a exceção fila_parada abre
+    # (a chave dela passaria de 200 → sha256), e a mensagem segue em 503
+    resetar()
+    sim("/_sim/canais", {"email_entrada": "desligado"})
+    mid = "msg.sim.T19j." + secrets.token_hex(3) + "z" * 141
+    rj = receber(mid, recebido_ha_s=2 * 86400, reentregar=1)
+    e = est()
+    posts_j = [
+        (p["status"], bool(p.get("replay")), len(str(p["chave"])))
+        for p in chamadas(e, r"/excecoes")
+        if str(p["chave"]).startswith("excecao:recebimento-canais:sha256:")
+    ]
+    checar(rj["entregas"] == [503, 503], f"(j) entregas {rj['entregas']}")
+    checar(
+        [(st, rep) for st, rep, _ in posts_j] == [(201, False), (201, True)]
+        and all(n <= 200 for _, _, n in posts_j),
+        f"(j) POST /excecoes {posts_j}",
+    )
+    checar(
+        [y["motivo"] for y in e["excecoes"] if mid[-12:] in str(y.get("correlacao_id"))]
+        == ["fila_parada"],
+        f"(j) exceções {e['excecoes']}",
+    )
+    saida["i_j_ids_muito_longos"] = {
+        "i_id_290_sem_arquivo": {
+            "chave_do_recebimento": len(chave_i),
+            "post_recebimentos": xi["posts"],
+            "sem_arquivo": xi["sem_arquivo"],
+            "recebimento": "rejeitado (acima_do_limite)",
+        },
+        "j_id_160_fila_parada": {
+            "entregas_do_canal": rj["entregas"],
+            "post_excecoes": ["201", "201 (repetição)"],
+            "tamanho_da_chave": posts_j[0][2],
+        },
     }
     return saida
 
