@@ -777,3 +777,28 @@ anterior/próxima, ajuste à largura e zoom de 150%/200%. A área ampliada tem r
 própria e acesso por teclado; o texto extraído também fica disponível a leitores
 de tela. Link para abrir o PDF permanece como alternativa. Não depende do plug-in
 nativo (que apresentou uma área vazia no teste de navegador).
+
+### Sugestão de IA — cartão e revisão (assistência)
+
+`{% load assistencia %}{% painel_ia "<uso>" <pk> ["<uso relacionado>" …] %}` renderiza
+`assistencia/_painel_uso.html`: uma `secao` com o nome do uso, o selo do estado (sem pedido,
+redigindo, sugestão pronta, obsoleta, decidida, desligado), o selo do modo (por regra ou com
+IA, com o código AUT), a nota "nada entra no documento sem a sua decisão", os campos livres
+opcionais do pedido (`area-texto` com ajuda) e o botão de pedir; a sugestão pronta leva à
+tela de revisão. Usos relacionados entram só como link (sem consultas). Fica FORA dos
+formulários da folha (formulário dentro de formulário não existe em HTML). Quem não vê o
+registro pela política do contexto não vê o cartão.
+
+`{% link_ia "<uso>" <pk> %}` (`assistencia/_link_uso.html`) é a entrada leve para listas e
+telas com orçamento de consultas: um `botao--sm botao--sutil` para a tela do pedido, que confere
+a permissão e mostra a última sugestão do registro.
+
+`assistencia/_item_sugestao.html` é um item da revisão só para leitura (dentro de `dl`): o valor,
+as fontes como `selo--neutro` (os campos do sistema usados) e a nota (link quando começa com
+"/"). Na revisão editável, cada item aplicável vira `area-texto`, e o "Substituir o texto atual"
+aparece quando o campo do registro já tem texto de pessoa.
+
+Só classes existentes (`secao`, `selo`, `campo`, `area-texto`, `botao`, `definicoes`); sem
+estilo nem script inline. Consumidores: RT, ofício, plano, viagem, revisão da importação,
+relatório consolidado (cartão); leitura de comprovantes e catálogo de atividades (link). UI Lab:
+seção 24, "Sugestão de IA", com todos os estados e itens sintéticos.

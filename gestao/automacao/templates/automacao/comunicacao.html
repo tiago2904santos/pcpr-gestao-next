@@ -1,0 +1,125 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Comunicação #{{ c.pk }} · Automação{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block cabecalho_detalhe %}{% include "componentes/registro_hero.html" with pagina=True contexto=contexto_hero titulo=rotulo_tipo complemento=c.servidor|default:"Sem destinatário" situacao_template="automacao/_selos_comunicacao.html" %}{% endblock %}
+{% block principal %}
+{% if c.situacao == 'incerta' %}
+<p class="alerta alerta--perigo" role="alert">{% icone "alert-triangle" classe="icone--sm" %}<span>Não se sabe se esta mensagem saiu. Confira com o destinatário antes de pedir uma nova tentativa — senão ele pode receber duas.</span></p>
+{% elif c.motivo %}
+<p class="alerta alerta--{% if c.tom == 'perigo' %}perigo{% elif c.tom == 'sucesso' %}sucesso{% else %}aviso{% endif %}" role="status">{% icone "info" classe="icone--sm" %}<span>{{ c.motivo }}</span></p>
+{% endif %}
+<section class="cartao" aria-labelledby="t-mensagem">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-mensagem">Mensagem</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if conteudo %}
+      <p class="texto-pre">{{ conteudo.texto|linebreaksbr }}</p>
+      {% if conteudo.modelo %}<p class="texto-secundario texto-sm">Fora da janela de 24 h: sai como o modelo <strong>{{ conteudo.modelo }}</strong>.</p>{% endif %}
+      <p class="texto-secundario texto-sm">O texto fica guardado até {{ conteudo.expira_em|date:"d/m/Y" }} (retenção).</p>
+    {% elif c.situacao == 'agendada' or c.situacao == 'aguardando_aprovacao' %}
+      <p class="vazio-inline">O texto é montado na hora do envio, com os dados daquele momento.</p>
+    {% else %}
+      <p class="vazio-inline">O texto não está mais guardado (passou a retenção) ou a mensagem nunca foi montada.</p>
+    {% endif %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-historico">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-historico">Tentativas e entrega</h2></div>
+  <div class="cartao__corpo">
+  {% if tentativas or status %}
+    <ol class="linha-tempo">
+      {% for t in tentativas %}
+      <li class="linha-tempo__item{% if t.resultado == 'aceita' %} linha-tempo__item--marca{% endif %}"><span class="linha-tempo__marcador">{% icone "send" %}</span><div><p class="linha-tempo__titulo">Tentativa {{ t.numero }} · {{ t.get_resultado_display }}{% if t.adaptador == 'simulado' %} (simulado){% endif %}</p><p class="linha-tempo__meta">{{ t.iniciada_em|date:"d/m H:i:s" }}{% if t.duracao_ms is not None %} · {{ t.duracao_ms }} ms{% endif %}{% if t.codigo_erro %} · código {{ t.codigo_erro }}{% endif %}{% if t.detalhe %} — {{ t.detalhe }}{% endif %}</p></div></li>
+      {% endfor %}
+      {% for s in status %}
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% if s.status == 'falhou' %}{% icone "x-circle" %}{% else %}{% icone "check" %}{% endif %}</span><div><p class="linha-tempo__titulo">{{ s.status|capfirst }}</p><p class="linha-tempo__meta">{{ s.ocorrido_em|default:s.registrado_em|date:"d/m H:i:s" }}{% if s.categoria_preco %} · tarifa: {{ s.categoria_preco }}{% if s.tipo_preco %} ({{ s.tipo_preco }}){% endif %}{% endif %}{% if s.codigo_erro %} · erro {{ s.codigo_erro }}{% endif %}</p></div></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">Ainda não houve ida ao canal.</p>{% endif %}
+  </div>
+</section>
+{% if recebimentos %}
+<section class="cartao" aria-labelledby="t-respostas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-respostas">Respostas recebidas</h2></div>
+  <ul class="registros">{% for r in recebimentos %}{% include "automacao/_recebimento.html" %}{% endfor %}</ul>
+</section>
+{% endif %}
+{% if simulador %}
+<section class="cartao" aria-labelledby="t-simulador">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-simulador">Simulador</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario">O canal está simulado: estas ações produzem o que a Meta mandaria e entram pelo mesmo caminho do webhook.</p>
+    {% if c.mensagem_id %}
+    <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'simular_status' %}" class="grupo-botoes">{% csrf_token %}
+      <button class="botao botao--sm" type="submit" name="status" value="entregue">{% icone "check" %}Simular entrega</button>
+      <button class="botao botao--sm" type="submit" name="status" value="lida">{% icone "eye" %}Simular leitura</button>
+      <button class="botao botao--sm" type="submit" name="status" value="falhou">{% icone "x-circle" %}Simular falha na entrega</button>
+    </form>
+    {% if c.contato %}
+    <form method="post" enctype="multipart/form-data" action="{% url 'automacao:acao_comunicacao' c.pk 'simular_resposta' %}" class="pilha">{% csrf_token %}
+      <h3 class="texto-lg peso-semi">Resposta do servidor</h3>
+      {% include "componentes/campo.html" with campo=form_resposta.texto %}
+      {% include "componentes/campo.html" with campo=form_resposta.arquivo %}
+      <div><button class="botao" type="submit">{% icone "upload" %}Simular resposta</button></div>
+    </form>
+    {% endif %}
+    {% elif c.situacao == 'agendada' %}
+    <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'simular_falha' %}" class="pilha">{% csrf_token %}
+      <div class="campo"><label class="campo__rotulo" for="sim-resultado">Na próxima tentativa, o canal simulado deve</label>
+        <pc-select class="seletor"><select class="selecao" id="sim-resultado" name="resultado"><option value="">Aceitar a mensagem</option><option value="temporaria"{% if c.simular == 'temporaria' %} selected{% endif %}>Falhar temporariamente (limite de vazão)</option><option value="definitiva"{% if c.simular == 'definitiva' %} selected{% endif %}>Recusar (número sem WhatsApp)</option><option value="incerta"{% if c.simular == 'incerta' %} selected{% endif %}>Deixar o resultado desconhecido</option></select></pc-select></div>
+      <div><button class="botao botao--sm" type="submit">Aplicar</button></div>
+    </form>
+    {% else %}<p class="vazio-inline">Nada a simular neste estado.</p>{% endif %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-dados">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados">Dados</h2></div>
+  <div class="cartao__corpo pilha">
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Assunto" valor=assunto.rotulo|default:c.recurso %}
+      {% include "componentes/metadado.html" with rotulo="Fluxo" valor=c.fluxo %}
+      {% include "componentes/metadado.html" with rotulo="Criada por" valor=c.criada_por ausente="Sistema" %}
+      {% include "componentes/metadado.html" with rotulo="Criada em" valor=c.criada_em|date:"d/m/Y H:i" %}
+      {% include "componentes/metadado.html" with rotulo="Vale até" valor=c.expira_em|date:"d/m/Y H:i" ausente="Sem prazo" %}
+      {% include "componentes/metadado.html" with rotulo="Aprovada por" valor=c.aprovada_por ausente="—" %}
+      {% include "componentes/metadado.html" with rotulo="Enviada em" valor=c.enviada_em|date:"d/m H:i" ausente="—" %}
+      {% include "componentes/metadado.html" with rotulo="Entregue em" valor=c.entregue_em|date:"d/m H:i" ausente="—" %}
+      {% include "componentes/metadado.html" with rotulo="Lida em" valor=c.lida_em|date:"d/m H:i" ausente="—" %}
+    </dl>
+    {% if assunto.url %}<a class="botao botao--sm" href="{{ assunto.url }}">{% icone "external-link" %}Abrir o assunto</a>{% endif %}
+  </div>
+</section>
+{% if pode_operar %}
+<section class="cartao" aria-labelledby="t-acoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-acoes">Ações</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if c.situacao == 'aguardando_aprovacao' %}
+      <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'aprovar' %}">{% csrf_token %}<button class="botao botao--primario" type="submit">{% icone "check" %}Aprovar o envio</button></form>
+    {% endif %}
+    {% if c.situacao == 'incerta' %}
+      <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'chegou' %}">{% csrf_token %}<button class="botao" type="submit">{% icone "check-circle-2" %}Confirmei: a mensagem chegou</button></form>
+    {% endif %}
+    {% if c.situacao == 'falhou' or c.situacao == 'incerta' or c.situacao == 'recusada' or c.situacao == 'expirada' %}
+      <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'tentar' %}" class="pilha">{% csrf_token %}
+        {% if c.situacao == 'incerta' %}<label class="escolha"><input type="checkbox" name="nao_chegou" value="sim" required><span>Confirmei com o destinatário que a mensagem não chegou</span></label>{% endif %}
+        <div><button class="botao" type="submit">{% icone "refresh-cw" %}Tentar de novo</button></div>
+      </form>
+    {% endif %}
+    {% if c.situacao != 'enviada' and c.situacao != 'manual' and c.situacao != 'reservada' and c.situacao != 'cancelada' %}
+      <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'manual' %}">{% csrf_token %}<button class="botao botao--sutil" type="submit">{% icone "copy" %}Avisei por fora (contingência)</button></form>
+    {% endif %}
+    {% if c.situacao == 'aguardando_aprovacao' or c.situacao == 'agendada' or c.situacao == 'falhou' or c.situacao == 'recusada' %}
+      <form method="post" action="{% url 'automacao:acao_comunicacao' c.pk 'cancelar' %}" data-confirmar="Esta mensagem não sai mais. Para avisar a pessoa depois, será preciso uma nova comunicação." data-confirmar-titulo="Cancelar a comunicação #{{ c.pk }}?" data-confirmar-rotulo="Cancelar comunicação" data-confirmar-perigo>{% csrf_token %}<button class="botao botao--perigo-sutil" type="submit">{% icone "ban" %}Cancelar</button></form>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+{% if excecoes %}
+<section class="cartao" aria-labelledby="t-excecoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-excecoes">Exceções</h2></div>
+  <ul class="registros">{% for e in excecoes %}{% include "automacao/_excecao.html" %}{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -60,6 +60,30 @@ services:
       web:
         condition: service_healthy
 
+  # WhatsApp do sistema de testes (ADR 0047): no PREVIEW o canal é SEMPRE simulado — o
+  # startup recusa WHATSAPP_MODO=cloud_api aqui (check automacao.E001).
+  automacao:
+    <<: *app
+    command: ["python", "manage.py", "processar_automacao"]
+    environment:
+      <<: *ambiente
+      WHATSAPP_MODO: simulado
+      AUTOMACAO_TRANSPORTE: interno
+    depends_on:
+      web:
+        condition: service_healthy
+
+  # Assistência por IA (ADR 0048): simulada no PREVIEW, sem chave e sem custo.
+  ia:
+    <<: *app
+    command: ["python", "manage.py", "processar_ia"]
+    environment:
+      <<: *ambiente
+      IA_MODO: simulado
+    depends_on:
+      web:
+        condition: service_healthy
+
   importador:
     <<: *app
     command: ["python", "manage.py", "processar_importacoes"]

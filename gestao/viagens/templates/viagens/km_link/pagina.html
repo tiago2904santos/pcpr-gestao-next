@@ -1,0 +1,74 @@
+{% extends "base_publica.html" %}
+{% load static %}
+{% block titulo %}Diário de bordo{% endblock %}
+{# Página pública de celular: sem o CSS das telas internas (operacional.css, ~37 KB gzip). #}
+{% block estilos_operacionais %}{% endblock %}
+{% block estilos %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/km-offline.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% comment %}
+Link de km (fluxo 10-4), sem login. Título genérico (a pré-visualização do mensageiro não
+mostra nada da viagem). Só os trechos deste diário: municípios, data da saída e distância
+prevista (referência, nunca vira km). Sem placa, CPF, equipe ou horários.
+Cada trecho é um formulário comum (funciona sem JavaScript); o km-offline.js guarda no
+aparelho, envia quando há rede e mostra, por trecho, o que está só aqui e o que já está
+no sistema.
+{% endcomment %}
+{% block conteudo %}
+<div class="fornecedor-envio pilha-lg" data-km-offline data-link="{{ link_id }}" data-salvar="{{ base }}salvar/" data-sw="{{ base }}sw/" data-escopo="{{ base }}"{% if somente_leitura %} data-somente-leitura{% endif %}>
+  <header class="pilha-sm">
+    <p class="rotulo-caixa-alta texto-secundario">Diário de bordo · dados fictícios</p>
+    <h1 class="cartao-acesso__titulo">Quilometragem da viagem</h1>
+    <p class="texto-secundario">Olá, {{ nome }}. Em cada trecho, anote o km do painel na saída e na chegada. Este link é pessoal e vale até {{ valido_ate|date:"d/m/Y" }}.</p>
+    <p class="texto-secundario texto-sm" id="km-resumo">{{ completas }} de {{ total }} trecho{{ total|pluralize }} com os dois km no sistema.</p>
+  </header>
+
+  <p class="sr-only" role="status" data-km-anuncio></p>
+  <div class="alerta alerta--aviso" role="status" data-km-rede hidden>{% icone "alert-triangle" %}<div class="alerta__corpo"><p data-km-rede-texto></p></div></div>
+  {% if somente_leitura %}<div class="alerta alerta--aviso">{% icone "lock" %}<div class="alerta__corpo"><p>{{ somente_leitura }}</p></div></div>{% endif %}
+  {% if erro %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+
+  <div class="documento">
+    {% for item in linhas %}{% with l=item.l r=item.resultado %}
+    <section class="secao" aria-labelledby="t-trecho-{{ l.pk }}">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo" id="t-trecho-{{ l.pk }}"><span class="secao__numero">{{ l.numero }}</span>{{ l.rota }}</h2>
+        <p class="secao__nota">Saída em {{ l.data }}{% if l.prevista %} · distância prevista de cerca de {{ l.prevista }} km (só referência){% endif %}</p>
+      </div>
+      <form method="post" action="{{ base }}salvar/" class="pilha" novalidate data-km-form data-linha="{{ l.pk }}" data-chave="{{ l.chave }}" data-km-inicial="{{ l.km_inicial|default_if_none:'' }}" data-km-final="{{ l.km_final|default_if_none:'' }}" data-salvo="{{ l.salvo }}">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ item.id }}">
+        <input type="hidden" name="linha" value="{{ l.pk }}">
+        <input type="hidden" name="chave" value="{{ l.chave }}">
+        {% if r and r.situacao == "conflito" %}
+        <input type="hidden" name="base_km_inicial" value="{{ r.servidor.km_inicial|default_if_none:'' }}">
+        <input type="hidden" name="base_km_final" value="{{ r.servidor.km_final|default_if_none:'' }}">
+        {% else %}
+        <input type="hidden" name="base_km_inicial" value="{{ l.km_inicial|default_if_none:'' }}">
+        <input type="hidden" name="base_km_final" value="{{ l.km_final|default_if_none:'' }}">
+        {% endif %}
+        <div class="campos campos--iguais">
+          <div class="campo"><label class="campo__rotulo" for="km-ini-{{ l.pk }}">Km na saída</label><input class="entrada" type="text" id="km-ini-{{ l.pk }}" name="km_inicial" inputmode="numeric" pattern="[0-9.]*" maxlength="9" autocomplete="off" aria-describedby="km-estado-{{ l.pk }}" value="{{ item.valores.km_inicial|default_if_none:'' }}"{% if somente_leitura %} readonly{% endif %}></div>
+          <div class="campo"><label class="campo__rotulo" for="km-fim-{{ l.pk }}">Km na chegada</label><input class="entrada" type="text" id="km-fim-{{ l.pk }}" name="km_final" inputmode="numeric" pattern="[0-9.]*" maxlength="9" autocomplete="off" aria-describedby="km-estado-{{ l.pk }}" value="{{ item.valores.km_final|default_if_none:'' }}"{% if somente_leitura %} readonly{% endif %}></div>
+        </div>
+        <p class="texto-sm" id="km-estado-{{ l.pk }}"><span class="selo km-estado {% if r %}{% if r.situacao == "gravado" %}selo--sucesso{% elif r.situacao == "conflito" %}selo--aviso{% else %}selo--perigo{% endif %}{% elif l.salvo %}selo--sucesso{% else %}selo--neutro{% endif %}" data-km-estado>{% if r %}{% if r.situacao == "gravado" %}Salvo no sistema {{ r.salvo }}.{% elif r.situacao == "conflito" %}Este trecho foi alterado no sistema depois que você digitou.{% else %}Não foi salvo: {{ r.mensagem }}{% endif %}{% elif l.salvo %}Salvo no sistema {{ l.salvo }}.{% else %}Ainda sem km no sistema.{% endif %}</span></p>
+        {% if not somente_leitura %}<div class="linha"><button type="submit" class="botao botao--primario botao--bloco" data-km-salvar>{% icone "save" %}Salvar este trecho</button></div>{% endif %}
+        <div class="alerta alerta--aviso" data-km-conflito{% if not r or r.situacao != "conflito" %} hidden{% endif %}>{% icone "alert-triangle" %}<div class="alerta__corpo pilha-sm">
+          <p class="alerta__titulo">Qual valor fica?</p>
+          <p data-km-conflito-texto>{% if r and r.situacao == "conflito" %}No sistema: saída {{ r.servidor.km_inicial|default_if_none:"—" }}, chegada {{ r.servidor.km_final|default_if_none:"—" }}. O seu: saída {{ r.seu.km_inicial|default_if_none:"—" }}, chegada {{ r.seu.km_final|default_if_none:"—" }}.{% endif %}</p>
+          <div class="linha">
+            <button type="submit" class="botao botao--sm" data-km-usar-meu>Usar o meu valor</button>
+            <a class="botao botao--sm botao--sutil" href="{{ base }}" data-km-manter>Manter o do sistema</a>
+          </div>
+        </div></div>
+      </form>
+    </section>
+    {% endwith %}{% empty %}
+    <section class="secao" aria-labelledby="t-vazio">
+      <h2 class="secao__titulo" id="t-vazio">Ainda não há trechos neste diário</h2>
+      <p class="texto-secundario">O setor de viagens ainda está montando o roteiro. Abra este link de novo mais tarde.</p>
+    </section>
+    {% endfor %}
+  </div>
+  <p class="texto-secundario texto-sm">Sistema de testes com dados fictícios. Sem internet, o que você salvar fica guardado neste aparelho e é enviado quando a conexão voltar.</p>
+</div>
+{% endblock %}

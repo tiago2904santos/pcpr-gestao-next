@@ -1,0 +1,886 @@
+{
+  "updatedAt": "2026-10-18T12:36:15.000Z",
+  "createdAt": "2026-10-18T12:30:39.124Z",
+  "id": "pcprEntregaCom01",
+  "name": "PCPR · Entregar comunicação",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "6eb80d91-f8dd-585e-bc2b-75b270e6bf32",
+      "name": "Quando chamado por outro workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5174fdf-82cf-55d7-93bd-b9a6e2cd1e91",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8775/api/automacao/v1",
+              "type": "string"
+            },
+            {
+              "id": "df26720c-cc69-550e-8407-3d249267673c",
+              "name": "fluxo",
+              "value": "={{ $json.fluxo || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "8243690e-d927-510e-bd3e-6ddb398798d7",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.cfg_pcpr }}/estado",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-PCPR-Correlacao",
+              "value": "={{ $json.correlacao_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "04dac21b-7583-513d-987b-1387bf7e8ffe",
+      "name": "Consultar estado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69de0a47-2598-5949-a7bc-0d0fea2b1fda",
+              "leftValue": "={{ $json.ligada === true && ($json.fluxos || {})[$('Configuração').first().json.fluxo] !== false }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3a8d4516-fd9b-53bd-91cf-091826b022f0",
+      "name": "Automação ligada?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "feec252c-a39b-5f37-b1c4-fa6562ec54ec",
+      "name": "Fim: automação desligada",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_pcpr }}/comunicacoes/{{ $('Configuração').first().json.comunicacao_id }}/reservar",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))).length <= 200 && /^[ -~]*$/.test(\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))) ? \"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)) : \"reserva#sha256:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)).hash('sha256') }}"
+            },
+            {
+              "name": "X-PCPR-Versao-Esperada",
+              "value": "={{ $('Configuração').first().json.versao }}"
+            },
+            {
+              "name": "X-PCPR-Correlacao",
+              "value": "={{ $('Configuração').first().json.correlacao_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "d0475184-643d-5f37-9e09-efd3a071d436",
+      "name": "Reservar comunicação",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8058e373-374a-5c1c-aed2-f35519fd0c0b",
+                    "leftValue": "={{ $json.statusCode }}",
+                    "rightValue": 200,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reservada"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "594df3dc-0961-5324-8cc1-833e9fbedee8",
+                    "leftValue": "={{ $json.statusCode }}",
+                    "rightValue": 409,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "409 não enviar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4c7f862d-0d15-5970-a38b-8562bbebad15",
+                    "leftValue": "={{ $json.statusCode }}",
+                    "rightValue": 423,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "423 desligada"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "inesperado"
+        }
+      },
+      "id": "c80ec371-9e71-5ec0-a873-a7f7ae78877e",
+      "name": "Resultado da reserva",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e9e1220a-1c02-5956-96c8-637d34462d51",
+      "name": "Fim: obsoleta, cancelada ou já enviada (409)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "319d2149-a17d-5857-87a6-f4b73a0d2cdd",
+      "name": "Fim: desligada no meio do caminho (423)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Reserva devolveu HTTP {{ $json.statusCode }}: {{ JSON.stringify($json.body).slice(0, 300) }}"
+      },
+      "id": "8a359902-91ac-5e3b-ab4e-2b6520dbdf29",
+      "name": "Erro: reserva inesperada",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "425b3b34-901a-56db-ac13-c7c6040201a4",
+              "name": "comunicacao_id",
+              "value": "={{ $json.body.id }}",
+              "type": "number"
+            },
+            {
+              "id": "fe2337ab-7d73-5947-b9fc-aed5d830467d",
+              "name": "reserva_token",
+              "value": "={{ $json.body.reserva.token }}",
+              "type": "string"
+            },
+            {
+              "id": "b7604c45-5707-5c8d-89f6-bcf42ed6fef8",
+              "name": "canal",
+              "value": "={{ $json.body.canal }}",
+              "type": "string"
+            },
+            {
+              "id": "b485b803-402a-558b-aa80-0255ffe182e3",
+              "name": "destino",
+              "value": "={{ $json.body.destino }}",
+              "type": "string"
+            },
+            {
+              "id": "3106e1b1-0da8-58a7-bba9-cb870f852619",
+              "name": "mensagem",
+              "value": "={{ $json.body.mensagem }}",
+              "type": "object"
+            },
+            {
+              "id": "04cf32d3-86c1-5c81-aa44-2fc88abe7275",
+              "name": "anexos",
+              "value": "={{ $json.body.anexos || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "93e6da4b-2da2-5434-92c4-69e10486f0b6",
+              "name": "idempotencia_canal",
+              "value": "={{ $json.body.idempotencia_canal }}",
+              "type": "string"
+            },
+            {
+              "id": "9c526d0e-27e7-58e8-80c3-06c246818e8a",
+              "name": "responder_a",
+              "value": "={{ $json.body.responder_a || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c7e350cc-80f3-5bc7-bfaa-1880ef1e0d99",
+              "name": "correlacao_id",
+              "value": "={{ $('Configuração').first().json.correlacao_id }}",
+              "type": "string"
+            },
+            {
+              "id": "fb98cb3b-0b0f-5ad6-8921-3e21c2f0dd1b",
+              "name": "cfg_pcpr",
+              "value": "={{ $('Configuração').first().json.cfg_pcpr }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "c04fab78-035d-5719-8bee-35614f93d042",
+      "name": "Contexto do envio",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4f53338f-92b9-57b2-b1ab-f1f8cb2292a3",
+              "leftValue": "={{ $json.canal === 'whatsapp' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ea7595fe-ac8c-5349-96c5-292ad7b73061",
+      "name": "Canal é WhatsApp?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1430,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pcprWhatsEnvio01",
+          "mode": "id",
+          "cachedResultName": "PCPR · Enviar por WhatsApp (oficial)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "49a5f3cf-33c3-5514-8c79-b108e42cc9b8",
+      "name": "Enviar por WhatsApp (W6)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1650,
+        -180
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "e8f147e8-27b6-5c39-affc-30e49b50c47c",
+      "name": "Fim: tratado pelo W6",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1870,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// API real do PCPR: o único canal com transporte no n8n é o WhatsApp (W6). Qualquer outro canal\n// na reserva não é enviado: falha definitiva + exceção (nunca envio por um canal não previsto).\nconst ctx = $('Contexto do envio').first().json;\nreturn [{ json: { resultado: 'falha_definitiva', provedor_mensagem_id: '',\n  erro: 'canal ' + String(ctx.canal || '?') + ' sem transporte no n8n',\n  motivo_excecao: 'outro' } }];"
+      },
+      "id": "b1b6079a-e759-5528-9d57-d8ca9a2bce8b",
+      "name": "Canal sem transporte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e674b78f-44fd-50c6-8d48-76ede72d7ec8",
+              "name": "resultado",
+              "value": "={{ $json.resultado }}",
+              "type": "string"
+            },
+            {
+              "id": "6b4253d1-a4df-58fd-96c8-811830fca65c",
+              "name": "provedor_mensagem_id",
+              "value": "={{ $json.provedor_mensagem_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "b0ff634a-8d69-5ec6-8170-d42d75c06926",
+              "name": "erro",
+              "value": "={{ $json.erro || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "92255f92-b547-5431-93c8-99e0cf91a6a1",
+              "name": "motivo_excecao",
+              "value": "={{ $json.motivo_excecao || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "6bdb920e-665f-52f5-a574-897e82a615ce",
+      "name": "Resultado do envio",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Contexto do envio').first().json.cfg_pcpr }}/comunicacoes/{{ $('Contexto do envio').first().json.comunicacao_id }}/resultado",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
+            },
+            {
+              "name": "X-PCPR-Correlacao",
+              "value": "={{ $('Contexto do envio').first().json.correlacao_id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reserva_token: $('Contexto do envio').first().json.reserva_token, resultado: $json.resultado, provedor: 'canal-simulado', provedor_mensagem_id: $json.provedor_mensagem_id || undefined, erro: $json.erro || undefined }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "4652c185-2482-5e81-b7fb-2d57b0852caf",
+      "name": "Registrar resultado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5a7ef0ee-62e2-5366-9c19-7354fb15af4f",
+              "leftValue": "={{ Boolean($('Resultado do envio').first().json.motivo_excecao) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1067bac6-941b-5e07-963d-42c8f6a8ad81",
+      "name": "Abrir exceção?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "69a6bd0b-8502-5eed-bd72-13582a57c7ee",
+      "name": "Fim: registrado",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2860,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Contexto do envio').first().json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: ($('Configuração').first().json.fluxo || 'n8n'), correlacao_id: $('Contexto do envio').first().json.correlacao_id, motivo: $('Resultado do envio').first().json.motivo_excecao, detalhe: 'comunicacao ' + $('Contexto do envio').first().json.comunicacao_id + ': ' + $('Resultado do envio').first().json.erro, execucao_orquestrador: String($execution.id), recurso: { tipo: 'comunicacao', id: $('Contexto do envio').first().json.comunicacao_id } }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "c93cca7e-3cd9-56bf-a84d-761ca3712e17",
+      "name": "Abrir exceção",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Canal sem transporte": {
+      "main": [
+        [
+          {
+            "node": "Resultado do envio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quando chamado por outro workflow": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Consultar estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar estado": {
+      "main": [
+        [
+          {
+            "node": "Automação ligada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contexto do envio": {
+      "main": [
+        [
+          {
+            "node": "Canal é WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar por WhatsApp (W6)": {
+      "main": [
+        [
+          {
+            "node": "Fim: tratado pelo W6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado do envio": {
+      "main": [
+        [
+          {
+            "node": "Registrar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar resultado": {
+      "main": [
+        [
+          {
+            "node": "Abrir exceção?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Automação ligada?": {
+      "main": [
+        [
+          {
+            "node": "Reservar comunicação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fim: automação desligada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reservar comunicação": {
+      "main": [
+        [
+          {
+            "node": "Resultado da reserva",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado da reserva": {
+      "main": [
+        [
+          {
+            "node": "Contexto do envio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fim: obsoleta, cancelada ou já enviada (409)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fim: desligada no meio do caminho (423)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro: reserva inesperada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Canal é WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "Enviar por WhatsApp (W6)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Canal sem transporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir exceção?": {
+      "main": [
+        [
+          {
+            "node": "Abrir exceção",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fim: registrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "b9b267d1-1113-467c-b621-252a6ed20643",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T12:30:39.128Z",
+      "createdAt": "2026-10-18T12:30:39.128Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprEntregaCom01",
+      "projectId": "n5ei4JiqNqKfr82t",
+      "project": {
+        "updatedAt": "2026-10-18T12:30:31.150Z",
+        "createdAt": "2026-10-18T12:30:31.150Z",
+        "id": "n5ei4JiqNqKfr82t",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "2adc8501-40c6-45e5-bf84-8b229c47e2d1"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

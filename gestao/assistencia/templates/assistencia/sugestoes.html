@@ -1,0 +1,35 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Sugestões · Assistência{% endblock %}
+{% block titulo_lista %}Sugestões{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada sugestão pedida, com o estado da decisão humana, a origem (regra ou IA), os tokens e o custo estimado. O texto só aparece ao abrir, para quem pode ver o registro.</p>{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Recortes">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}estado={{ chave }}{% if qs_sem_aba %}&amp;{% endif %}{% endif %}{{ qs_sem_aba }}"{% if chave == estado %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+{% block filtros %}
+<form class="filtros" method="get" action="{% url 'assistencia:sugestoes' %}">
+  {% if estado %}<input type="hidden" name="estado" value="{{ estado }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="filtro-uso">Uso</label>
+    <pc-select class="seletor"><select class="selecao" id="filtro-uso" name="uso"><option value="">Todos os usos</option>{% for u in usos %}<option value="{{ u.chave }}"{% if u.chave == uso_filtro %} selected{% endif %}>{{ u.codigo }} · {{ u.rotulo }}</option>{% endfor %}</select></pc-select>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button>{% if uso_filtro %}<a class="botao botao--texto" href="{% url 'assistencia:sugestoes' %}{% if estado %}?estado={{ estado }}{% endif %}">Limpar</a>{% endif %}</div>
+</form>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">Sugestões</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"sugestão,sugestões" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">{% for s in linhas %}{% include "assistencia/_linha_sugestao.html" %}{% endfor %}</ul>
+{% elif estado or uso_filtro %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma sugestão neste recorte" texto="Troque de aba ou de uso." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="text-quote" titulo="Nenhuma sugestão ainda" texto="Peça um rascunho no relatório técnico, no ofício ou no plano de trabalho." %}
+{% endif %}
+{% endblock %}
+{% block depois_lista %}{% include "componentes/barra_paginacao.html" %}{% endblock %}

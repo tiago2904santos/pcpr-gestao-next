@@ -18,7 +18,8 @@ case "${1:-web}" in
     if [ "${PREVIEW_SEMEAR:-se-vazio}" = "se-vazio" ]; then
       python manage.py semear_demo --se-vazio
     fi
-    exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers "${WEB_CONCURRENCY:-3}" \
+    exec gunicorn config.wsgi --config deploy/docker/gunicorn_conf.py \
+      --bind 0.0.0.0:8000 --workers "${WEB_CONCURRENCY:-3}" \
       --access-logfile - --forwarded-allow-ips "*"
     ;;
   worker)

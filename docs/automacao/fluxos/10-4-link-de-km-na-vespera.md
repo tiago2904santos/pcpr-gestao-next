@@ -12,8 +12,9 @@ e [`../contratos/api-automacao.v1.yaml`](../contratos/api-automacao.v1.yaml).
 
 **Situação:** funcionalidade **futura, ainda a especificar**. No sistema novo o fluxo não existe:
 ficou de fora por decisão registrada (`docs/migration/decisoes.md:205`). O EV em produção tem o
-fluxo m096. Este documento especifica o porte do m096 com as melhorias apontadas. Nada aqui está
-implementado.
+fluxo m096. Este documento especifica o porte do m096 com as melhorias apontadas. Nada aqui estava
+implementado em 17/10; o que o piloto de testes construiu está na seção
+[Implementação (18/10/2026)](#implementação-18102026), no fim.
 
 Marcação: **[existe]** código que roda hoje · **[parcial]** · **[novo]** a desenvolver ·
 **[decisão]** depende de resposta do usuário (seção 14). As evidências refletem o disco em
@@ -912,3 +913,109 @@ O código não responde a estas perguntas. O que o usuário precisa informar vem
       viagens — {unidade}."
 13. **Retenção:** por quanto tempo guardar `LancamentoKm` e os links revogados ou vencidos
     (proposta: o mesmo prazo da prestação de contas)?
+
+---
+
+## Implementação (18/10/2026)
+
+Piloto de testes (dados fictícios), sobre a fundação do ADR 0047 (`gestao/automacao`). O que vale
+aqui substitui, **para o piloto**, as partes do desenho acima que dependiam de modelos novos
+(`LinkDiarioKm`, `LancamentoKm`, `DiarioBordo.versao`): nenhum modelo nem migração foi criado.
+
+### O que foi construído
+
+| Peça | Onde | Observação |
+|---|---|---|
+| Tipo `viagens.link_km` (fluxo `km_vespera`) | `gestao/viagens/comunicacoes_viagem.py` | Rotina diária `agendar_links_km(hoje)`: ofício emitido, de viatura, com a primeira saída amanhã → pré-cria o diário (`diario.obter`) e agenda às 09:00 de hoje (ou já). Chave `viagens.link_km:<diário>:<versão>`: rodar de novo não duplica |
+| Responsável | `gestao/viagens/km_link.py` (`responsavel`) | O motorista que o diário reconhece **com cadastro**: da equipe, servidor de outro ofício ou servidor trocado no diário. Pessoa não cadastrada e "motorista de outro ofício" ficam sem link |
+| Versão | `km_link.versao` | Hash de (diário, responsável, primeira saída, última chegada). Mudou → a mensagem antiga fica obsoleta no envio |
+| Link criado no envio | `comunicacoes_viagem._preparar_link` + `entrega._com_link` | O `preparar` devolve o texto com `{{link}}` e um `PedidoLink(escopo="km", recurso="viagens.diario:<pk>", valido_ate=23:59 do 5º dia após a chegada final)`. O worker cria o link **só depois de todas as recusas** (contato, opt-in, telefone, lista de testadores, limite, modelo) e troca o marcador no texto e nos parâmetros. A cópia guardada fica com `{{link}}`. Em sombra, com mensagem recusada ou com a versão superada, **nenhum link é criado nem revogado** (testado) |
+| Variáveis do modelo (fora da janela) | `Preparo.parametros` | `primeiro_nome`, `link_url`, `valido_ate`, `unidade` (`VariaveisLinkKm`). Sem placa, horário, local nem número do ofício |
+| Revogação | `oficio_cancelado`, `responsavel_do_diario` | Ofício cancelado → `revogar_do_recurso(..., "oficio_cancelado")` e o que não saiu fica obsoleto. Motorista trocado no diário → `responsavel_trocado` e, se a viagem é de amanhã ou já começou, link novo agendado para o novo responsável |
+| Lembrete `viagens.lembrete_km` (fluxo `km_lembretes`) | `agendar_lembretes_km(hoje)` | No dia seguinte à chegada final, com km faltando e link enviado. **Sem link novo** no texto (um link novo revogaria o do celular, com o que ainda não foi enviado): diz quando o link foi recebido e até quando vale. Fica obsoleto se o diário completar, o link cair ou o responsável mudar |
+| Página pública | `gestao/viagens/views_km_link.py` (registrada para o escopo `km`), `templates/viagens/km_link/pagina.html` | `GET /p/<token>/`: só os trechos deste diário (municípios, data da saída, distância prevista como referência). Sem placa, CPF, equipe, número do ofício ou outra viagem; título genérico. Cada trecho é um formulário comum (funciona sem JavaScript). Ofício cancelado, diário de outra pessoa ou recurso que não é diário → a mesma página "Link indisponível" do link vencido. Ofício em correção ou prestação finalizada → só leitura |
+| Gravação | `POST /p/<token>/salvar/` → `km_link.aplicar` | JSON (`{"lancamentos": [...]}`, até 50 itens e 32 KB) ou formulário. CSRF normal do Django (`X-CSRFToken` lido do `<meta name="csrf-token">`). Limite de 60 gravações por link a cada 10 min. `links.registrar_uso(link, lancamento=True)` quando algo grava |
+| Offline | `static/js/componentes/km-offline.js` (`// @ts-check`, módulo com nonce) e `templates/viagens/km_link/sw.js` | Ver "Offline" abaixo |
+| Avisos à equipe | `oficio_cancelado`, `oficio_emitido` | Ver "Avisos à equipe" abaixo |
+| Dados do PREVIEW | `gestao/viagens/demonstracao_whatsapp.py` (chamado por `viagens.demonstracao.semear` depois da automação) | Um `viagens.link_km` enviado (o motorista ganha contato simulado; o link existe, o token não aparece em lugar nenhum), um aviso de viagem cancelada enviado, um lembrete de km agendado para depois da volta e um `PedidoAprovacao` pendente (um colega da unidade pediu, pela ferramenta `comunicacoes.cancelar`, para cancelar o lembrete; o DEMO decide) |
+| E2E | `tests/e2e/test_km_offline.py` | Trecho salvo com rede → "Salvo no sistema"; com `set_offline(True)` → "Salvo neste aparelho"; rede de volta → sobe sozinho (conferido no banco). axe sem violações graves; sem rolagem horizontal em 360 e 1440 px |
+
+### Decisões
+
+**Quem age ao gravar (registro no estilo de ADR).** O serviço do diário (`diario.salvar_linhas`)
+exige um usuário com `pode_editar_equipe_prestacao`. Não foi criado usuário "de sistema" nem
+atalho que pule a policy. A gravação pelo link roda **em nome de quem agendou o envio do link**
+(`Comunicacao.criada_por`; para um link criado à mão, `LinkAcesso.criado_por`), sob
+`auditoria.contexto(usuario, ip, "km:<diário>:<id do lançamento>")`, o mesmo padrão do
+recebimento automático (ADR 0047). Quem agenda é quem emitiu o ofício (o `Historico` da emissão;
+sem ele, quem criou o ofício) ou, na troca de motorista, quem trocou. Consequências: a validação
+(km final ≥ inicial, constraint do banco) é a mesma do autosave; se essa pessoa perder a
+permissão ou ficar inativa, o link para de gravar e a página pede um link novo; a trilha mostra o
+operador como autor, e o `requisicao_id` `km:<diário>:<id>` diz que veio do link (portador do
+link, não identidade comprovada). Alternativas descartadas: usuário de sistema (contorna as
+policies), gravar sem usuário (a trilha perde o responsável), o motorista como usuário
+(servidores não são usuários).
+
+**Idempotência sem tabela nova.** Cada lançamento tem um id gerado no aparelho
+(`^[A-Za-z0-9_-]{8,64}$`). Antes de aplicar, o serviço procura na trilha de auditoria (só
+leitura) uma alteração da linha com `requisicao_id = "km:<diário>:<id>"`; se existe, devolve
+"gravado" sem gravar de novo, mesmo que o setor tenha apagado o km depois. Lançamento que não
+mudou nada, recusado ou em conflito não deixa rastro e é reavaliado se chegar de novo (sem
+efeito, porque a regra de conflito o barra).
+
+**Regra de conflito (por campo, com a base).** O lançamento leva `base`: o que a pessoa via ao
+editar. Campo igual à base é campo em que a pessoa não mexeu, e não entra. Para cada campo
+mexido: valor do sistema igual ao novo → nada a fazer; igual à base → aplica; diferente dos dois
+→ **conflito**: nada do lançamento é gravado, a resposta traz o valor do sistema e o da pessoa,
+e a página pergunta qual fica ("Usar o meu valor" manda um lançamento novo com a base no valor
+do sistema; "Manter o do sistema" descarta o do aparelho). A chave do trecho
+(`t:<trecho>`/`r:<realizado>`) tem de bater com a linha; senão "o roteiro mudou". Recusas: só
+dígitos (ponto de milhar aceito), até 9.999.999, chegada menor que a saída, mais de 5.000 km num
+trecho. A IA nunca preenche km.
+
+**Offline.** O `km-offline.js` guarda cada lançamento no `localStorage` com a chave
+`pcpr-km:v1:<link>:<linha>` (um por link e por trecho; sem armazenamento, só na memória da aba)
+e mostra por trecho "Salvo neste aparelho (ainda não enviado)", "Enviando…", "Salvo no sistema
+às HH:MM", o conflito ou a recusa. Envia na hora, quando a conexão volta (`online`), ao abrir a
+página e a cada 30 s enquanto houver pendência; um lote em voo por vez; editar um trecho com
+envio pendente gera outro lançamento com a mesma base (ou, se o anterior estava em voo, com a
+base no valor em voo). O **service worker** é servido pela própria porta do link
+(`GET /p/<token>/sw/`, com `Service-Worker-Allowed: /p/<token>/`), dentro da CSP
+(`script-src 'self'`): página com rede primeiro e cópia sem rede; estáticos com cópia primeiro;
+POST nunca passa pelo cache; 404/410 da rede apaga a cópia (link revogado ou vencido). Sem
+service worker (navegador antigo, registro recusado), o modo offline vale enquanto a aba fica
+aberta.
+
+**Avisos à equipe (10-2).** `viagens.aviso_cancelamento` (cancelar um ofício **emitido**, sem o
+motivo — D-13), `viagens.aviso_reagendamento` (reemissão em que a primeira saída ou a última
+chegada mudou em relação ao documento anterior) e `viagens.aviso_substituicao` (reemissão sem
+mudança de datas), todos no fluxo `avisos_viagem`, só para quem está no ofício e tem WhatsApp
+verificado. Versões: cancelamento = (ofício, `cancelado_em`); reemissão = (ofício, versão do
+documento). Reativar, reabrir, reemitir de novo ou cancelar torna o aviso anterior obsoleto (na
+hora, por `encerrar_relacionadas`, ou no envio, pelo `preparar`). Fora da janela de 24 h saem
+como modelo, com `parametros`. Na reemissão, quem estava no documento anterior e saiu da equipe
+recebe `viagens.aviso_retirada` ("você não faz mais parte da equipe desta viagem (teste)"; obsoleto
+se a pessoa voltar ou sair outra versão), e os links de km de quem não é mais o responsável caem
+(`responsavel_trocado`).
+
+### Não validado ou não feito
+
+- Navegador: o E2E cobre a aba aberta que perde e recupera a rede. **Não** cobre recarregar a
+  página sem rede (o service worker servindo a cópia), nem iOS/Safari; não houve captura visual
+  revisada.
+- O `GET` não é totalmente sem efeito: a porta `/p/` (automação) registra `exibido_em`/`usado_em`
+  (no máximo a cada 5 min). O desenho pedia GET sem escrita (requisito 2 da seção 2.2).
+- "Quem recebeu" o documento não é rastreado (o envio de documentos do 10-2 não existe): os
+  avisos de reemissão e de cancelamento vão para a equipe atual com contato verificado; quem
+  saiu da equipe não é avisado (D-17).
+- Reagendamento só é detectado na **reemissão** do ofício; o ajuste dos trechos realizados
+  (`realizado.py`) não avisa nem replaneja o link.
+- Ofício emitido depois da rotina do dia, com saída amanhã, fica sem link (a rotina seguinte só
+  olha a saída do dia seguinte): falta o gancho na emissão (`planejar`).
+- Cartão do operador (gerar, mostrar, prorrogar, revogar, resolver conflito na folha do diário),
+  `ativo_desde` (link que só abre em D−1), eventos `quilometragem.*`, `aparelho_id`, a chave
+  `LINK_KM_PUBLICO` e a janela 07:00–21:00 não foram feitos.
+- O limite de taxa das gravações usa o cache do Django (por processo, sem `CACHES`
+  compartilhado).
+- O aviso de cancelamento do PREVIEW é agendado pelo seed depois de dar contato à equipe de um
+  ofício que o seed de Viagens já tinha cancelado (na hora do cancelamento ninguém tinha contato).

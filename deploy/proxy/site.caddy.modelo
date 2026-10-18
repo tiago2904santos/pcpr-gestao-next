@@ -41,8 +41,8 @@ DOMINIO {
 		format filter {
 			wrap json
 			fields {
-				request>uri regexp "(/agenda/ics/|/fornecedor/)[^/?]+" "${1}[token]"
-				request>headers>Referer regexp "(/agenda/ics/|/fornecedor/)[^/?]+" "${1}[token]"
+				request>uri regexp "(/agenda/ics/|/fornecedor/|/p/)[^/?]+" "${1}[token]"
+				request>headers>Referer regexp "(/agenda/ics/|/fornecedor/|/p/)[^/?]+" "${1}[token]"
 			}
 		}
 	}

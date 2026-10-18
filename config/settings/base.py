@@ -85,6 +85,10 @@ INSTALLED_APPS = [
     "gestao.ui_lab",
     # Integrações externas (ADR 0019)
     "gestao.integracoes",
+    # Automação: WhatsApp, comunicações, recebimentos e exceções (ADR 0047)
+    "gestao.automacao",
+    # Assistência por IA: porta, orçamento, sugestões e Central de ajuda (ADR 0048)
+    "gestao.assistencia",
 ]
 
 MIDDLEWARE = [
@@ -179,11 +183,15 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / "var" / "media"
 # Teto do corpo da requisição (via assinada: até 15 MB + formulário). Ver LimiteDoCorpoMiddleware.
 LIMITE_DO_CORPO_BYTES = 16 * 1024 * 1024
+# O webhook da Meta lê o corpo bruto (até 3 MB); o padrão do Django (2,5 MB) recusaria antes.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 3 * 1024 * 1024 + 64 * 1024
 LIMITES_DO_CORPO_POR_CAMINHO = {
     "/viagens/importacoes/enviar/": (
         26 * 1024 * 1024,
         "Envio grande demais: envie um arquivo por vez, de até 25 MB.",
     ),
+    # A Meta manda até 3 MB por webhook (mídia vem por id, nunca no corpo).
+    "/integracoes/whatsapp/webhook/": (3 * 1024 * 1024, "Webhook acima de 3 MB."),
 }
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
@@ -304,6 +312,46 @@ EPROTOCOLO = {
     "cod_assunto_viagem": env("EPROTOCOLO_COD_ASSUNTO_VIAGEM"),
     "cod_especie_oficio": env("EPROTOCOLO_COD_ESPECIE_OFICIO"),
 }
+
+# WhatsApp Business Platform — Cloud API oficial (ADR 0046/0047;
+# docs/integrations/whatsapp-cloud-api-referencia.md). Sem WHATSAPP_MODO=cloud_api e todas as
+# credenciais = simulado. O PREVIEW recusa o modo real (check automacao.E001). Fora de
+# PRODUCTION só recebem os números da lista de testadores autorizados.
+WHATSAPP = {
+    "modo": env("WHATSAPP_MODO", "simulado"),
+    "versao": env("WHATSAPP_GRAPH_VERSION", "v25.0"),
+    "phone_number_id": env("WHATSAPP_PHONE_NUMBER_ID"),
+    "waba_id": env("WHATSAPP_WABA_ID"),
+    "access_token": env("WHATSAPP_ACCESS_TOKEN"),
+    "app_secret": env("WHATSAPP_APP_SECRET"),
+    "verify_token": env("WHATSAPP_VERIFY_TOKEN"),
+    "lista_fechada": env("WHATSAPP_LISTA_FECHADA", "true"),
+    "limite_por_hora": env("WHATSAPP_LIMITE_POR_HORA", "30"),
+    "remetente": env("WHATSAPP_REMETENTE", "Sistema de testes (dados fictícios)"),
+    # tipo=modelo:idioma;… — modelos aprovados na Meta para mensagens fora da janela de 24 h.
+    "modelos": env("WHATSAPP_MODELOS"),
+}
+AUTOMACAO_RETENCAO_DIAS = int(env("AUTOMACAO_RETENCAO_DIAS", "30"))
+# Quem leva as mensagens ao canal: o worker do PCPR ("interno", padrão) ou o n8n pela API v1.
+AUTOMACAO_TRANSPORTE = env("AUTOMACAO_TRANSPORTE", "interno")
+AUTOMACAO_API_LIGADA = env_bool("AUTOMACAO_API_LIGADA", True)
+# Eventos PCPR → n8n (rede interna; HMAC). Sem URL, nenhum evento sai.
+N8N_EVENTOS_URL = env("N8N_EVENTOS_URL")
+N8N_EVENTOS_SEGREDO = env("N8N_EVENTOS_SEGREDO")
+AUTOMACAO_TERMO_VERSAO = env("AUTOMACAO_TERMO_VERSAO", "2026-10")
+
+# IA (ADR 0048): simulado por padrão; o modo real (Anthropic) só com IA_MODO=anthropic e chave,
+# e nunca no PREVIEW. Teto de gasto e limites por uso ficam na tela de Assistência.
+IA = {
+    "modo": env("IA_MODO", "simulado"), "modelo": env("IA_MODELO", "claude-opus-5-5"),
+    "api_key": env("IA_API_KEY"), "base_url": env("IA_BASE_URL", "https://api.anthropic.com"),
+    "timeout": env("IA_TIMEOUT", "30"), "max_tentativas": env("IA_MAX_TENTATIVAS", "2"),
+    "max_tokens_saida": env("IA_MAX_TOKENS_SAIDA", "2000"),
+    "limite_entrada_caracteres": env("IA_LIMITE_ENTRADA", "24000"),
+    "esforco": env("IA_ESFORCO", "low"),
+    "fallback_no_servidor": env("IA_FALLBACK_SERVIDOR", "true"),
+}
+ASSISTENCIA_RETENCAO_DIAS = int(env("ASSISTENCIA_RETENCAO_DIAS", "30"))
 
 # Orçamento de consultas SQL por requisição (alerta em DEV/LAB e falha em teste).
 ORCAMENTO_SQL_POR_REQUISICAO = 25

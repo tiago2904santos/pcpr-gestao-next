@@ -1,0 +1,25 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Exceções · Automação{% endblock %}
+{% block titulo_lista %}Fila de exceções{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">O que a automação não resolve sozinha: resultado desconhecido, contato sem opt-in, arquivo sem destino, mensagem para a equipe. Assuma, trate e diga o que foi feito.</p>{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Recortes">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">Exceções</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"exceção,exceções" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">{% for e in linhas %}{% include "automacao/_excecao.html" %}{% endfor %}</ul>
+{% elif aba %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nada neste recorte" texto="Troque de aba para ver as outras exceções." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhuma exceção aberta" texto="Tudo o que a automação fez se resolveu sozinho." %}
+{% endif %}
+{% endblock %}
+{% block depois_lista %}{% include "componentes/barra_paginacao.html" %}{% endblock %}

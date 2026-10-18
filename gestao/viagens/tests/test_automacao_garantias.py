@@ -1,0 +1,621 @@
+"""Garantias da automação que a revisão cética pediu para provar: ações das telas (POST),
+aprovação por outra pessoa e com a automação ligada, idempotência sob concorrência e depois
+de religar, recebimento V1 com vários anexos, eventos para o n8n, manutenção (validade,
+órfãos, retenção), limite por hora, lembretes encerrados pelo caminho do WhatsApp, a
+prestação certa entre duas abertas, arquivo grande e repetido, e o webhook (413 e corpo
+re-serializado)."""
+
+# ruff: noqa: F811  (a fixture `c` vem do módulo vizinho)
+from __future__ import annotations
+
+import hashlib
+import json
+from datetime import timedelta
+
+import pytest
+from django.core.management import call_command
+from django.test import Client, override_settings
+from django.utils import timezone
+
+from gestao.automacao import (
+    chaves,
+    entrega,
+    eventos,
+    ferramentas,
+    manutencao,
+    recebimentos,
+    simulador,
+)
+from gestao.automacao.api import credenciais
+from gestao.automacao.models import (
+    Comunicacao,
+    ExcecaoAutomacao,
+    LinkAcesso,
+    Recebimento,
+    StatusEntrega,
+)
+from gestao.automacao.models_api import EventoIntegracao, PedidoAprovacao
+from gestao.integracoes.whatsapp import webhook
+from gestao.viagens import comunicacoes as viagens_whatsapp
+from gestao.viagens.models import AnexoPrestacao, PrestacaoServidor
+
+from .test_whatsapp_prestacao import (  # noqa: F401  (fixtures e utilitários)
+    E164,
+    PDF,
+    TODOS,
+    Espiao,
+    _aviso,
+    _contato_ativo,
+    _liberar,
+    _ligar,
+    _processar_entradas,
+    _sem_trava_de_transacao,
+    c,
+)
+
+pytestmark = pytest.mark.django_db
+S = Comunicacao.Situacao
+
+
+def _cliente(usuario) -> Client:
+    cliente = Client()
+    cliente.force_login(usuario)
+    return cliente
+
+
+# ------------------------------------------------------------------ ações das telas
+def test_acoes_da_comunicacao_pela_tela(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    op = _cliente(c.usuarios["operador"])
+    url = f"/automacao/comunicacoes/{aviso.pk}"
+    op.post(f"{url}/simular_falha/", {"resultado": "incerta"})
+    entrega.processar_uma(porta=Espiao())
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.INCERTA
+    op.post(f"{url}/tentar/")  # sem a declaração: recusado
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.INCERTA
+    op.post(f"{url}/tentar/", {"nao_chegou": "sim"})
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGENDADA and aviso.revisao == 2
+    assert not ExcecaoAutomacao.objects.filter(comunicacao=aviso, situacao="aberta").exists()
+    op.post(f"{url}/manual/")
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.MANUAL
+    # Outra unidade não age (404).
+    assert _cliente(c.usuarios["outra"]).post(f"{url}/cancelar/").status_code == 404
+
+
+def test_excecao_assumir_resolver_e_descartar_pela_tela(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c, testador=False)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    e = ExcecaoAutomacao.objects.get(tipo="contato")
+    op = _cliente(c.usuarios["operador"])
+    op.post(f"/automacao/excecoes/{e.pk}/assumir/")
+    e.refresh_from_db()
+    assert e.responsavel == c.usuarios["operador"]
+    op.post(f"/automacao/excecoes/{e.pk}/resolver/", {"resolucao": ""})  # sem texto: não
+    e.refresh_from_db()
+    assert e.situacao == "aberta"
+    op.post(f"/automacao/excecoes/{e.pk}/resolver/", {"resolucao": "Avisei por telefone."})
+    e.refresh_from_db()
+    assert e.situacao == "resolvida" and e.resolvida_por == c.usuarios["operador"]
+    assert _cliente(c.usuarios["outra"]).get(f"/automacao/excecoes/{e.pk}/").status_code == 404
+
+
+def test_chaves_contato_testador_e_links_pela_tela(c):
+    admin = _cliente(c.usuarios["admin"])
+    admin.post("/automacao/canal/chave/", {"nome": "geral", "estado": "ligada"})
+    assert chaves.geral_ligada()
+    admin.post("/automacao/canal/desligar/", {"motivo": "teste"})
+    assert not chaves.geral_ligada()
+    contato = _contato_ativo(c)
+    op = _cliente(c.usuarios["operador"])
+    op.post(f"/automacao/contatos/{contato.pk}/revogar/", {"motivo": "Saiu do teste"})
+    contato.refresh_from_db()
+    assert contato.revogado_em is not None
+    from gestao.automacao.models import DestinatarioAutorizado, EventoContato
+    d = DestinatarioAutorizado.objects.get()
+    admin.post(f"/automacao/testadores/{d.pk}/remover/")
+    d.refresh_from_db()
+    assert d.removido_em is not None
+    # O histórico dos contatos fica auditado sem o número.
+    acoes = set(EventoContato.objects.values_list("acao", flat=True))
+    assert {"cadastrado", "verificado", "optin", "revogado", "testador_incluido",
+            "testador_removido"} <= acoes
+    assert EventoContato.objects.filter(acao="cadastrado").get().final == E164[-4:]
+
+
+def test_link_pessoal_revogacao_respeita_a_unidade(c):
+    from gestao.automacao import links
+
+    link, _ = links.criar(escopo="km", recurso="viagens.diario:1",
+                          servidor_id=c.ps.servidor_id)
+    outra = _cliente(c.usuarios["outra"])
+    if c.ps.servidor.unidade_id:  # servidor de outra unidade: 404
+        assert outra.post(f"/automacao/links/{link.pk}/revogar/").status_code == 404
+    _cliente(c.usuarios["operador"]).post(f"/automacao/links/{link.pk}/revogar/")
+    assert LinkAcesso.objects.get(pk=link.pk).revogado_em is not None
+
+
+def test_arquivo_recebido_so_para_a_unidade(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    simulador.simular_resposta(c.usuarios["operador"], _aviso(c).pk, conteudo=PDF,
+                               nome="c.pdf")
+    _processar_entradas()
+    recebimentos.processar_um()
+    r = Recebimento.objects.get()
+    url = f"/automacao/recebidos/{r.pk}/arquivo/"
+    assert _cliente(c.usuarios["operador"]).get(url).status_code == 200
+    assert _cliente(c.usuarios["outra"]).get(url).status_code == 404
+
+
+# ------------------------------------------------------------------ aprovação
+def test_quem_pede_nao_aprova_e_desligada_nao_aprova(c):
+    _ligar(c, *TODOS, "ferramentas")
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    gestor = c.usuarios["gestor"]
+    r = ferramentas.executar("comunicacoes.cancelar", {"comunicacao": aviso.pk},
+                             usuario=gestor, origem="tela")
+    pedido = r.aprovacao
+    from django.core.exceptions import PermissionDenied
+    with pytest.raises(PermissionDenied):
+        ferramentas.aprovar(gestor, pedido.pk)
+    chaves.desligar_tudo(c.usuarios["admin"], "incidente")
+    with pytest.raises(ferramentas.FerramentaRecusada):
+        ferramentas.aprovar(c.usuarios["operador"], pedido.pk)
+    chaves.alterar(c.usuarios["admin"], chaves.GERAL, estado="ligada")
+    ferramentas.aprovar(c.usuarios["operador"], pedido.pk)
+    pedido.refresh_from_db()
+    aviso.refresh_from_db()
+    assert pedido.situacao == PedidoAprovacao.Situacao.APROVADO
+    assert pedido.decidido_por == c.usuarios["operador"] and aviso.situacao == S.CANCELADA
+
+
+def test_negacao_de_ferramenta_fica_registrada(c):
+    from django.core.exceptions import PermissionDenied
+
+    from gestao.automacao.models_api import ExecucaoFerramenta
+
+    with pytest.raises(PermissionDenied):
+        ferramentas.executar("prestacao.situacao", {"ps": c.ps.pk},
+                             usuario=c.usuarios["outra"])
+    assert ExecucaoFerramenta.objects.filter(resultado="negada",
+                                             usuario=c.usuarios["outra"]).exists()
+
+
+# ------------------------------------------------------------------ idempotência
+@pytest.fixture
+def n8n(c, settings):
+    settings.AUTOMACAO_TRANSPORTE = "n8n"
+    settings.WHATSAPP = {"modelos": "viagens.diarias_liberadas=diarias_teste:pt_BR"}
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    _, token = credenciais.emitir(c.usuarios["admin"], nome="n8n", tipo="transporte")
+    return token
+
+
+def _post(token, caminho, corpo, chave):
+    return Client().post(f"/api/automacao/v1{caminho}", json.dumps(corpo),
+                         content_type="application/json", HTTP_AUTHORIZATION=f"Bearer {token}",
+                         HTTP_IDEMPOTENCY_KEY=chave)
+
+
+def test_423_nao_e_guardado_e_depois_de_religar_a_mesma_chave_funciona(c, n8n):
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-religar"
+    chaves.desligar_tudo(c.usuarios["admin"], "teste")
+    assert _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).status_code == 423
+    chaves.alterar(c.usuarios["admin"], chaves.GERAL, estado="ligada")
+    assert _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).status_code == 200
+
+
+def test_chave_em_andamento_nao_executa_duas_vezes(c, n8n):
+    from gestao.automacao.models_api import CredencialIntegracao, RegistroIdempotencia
+
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-concorrente"
+    cred = CredencialIntegracao.objects.get(nome="n8n")
+    # A primeira chamada "ainda executando": o registro em andamento já existe.
+    RegistroIdempotencia.objects.create(credencial=cred, chave=chave,
+                                        rota=f"/api/automacao/v1/comunicacoes/{aviso.pk}/reservar",
+                                        impressao="x", status=0, corpo={})
+    r = _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave)
+    assert r.status_code in (409, 422)
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGENDADA  # a segunda não reservou
+
+
+def test_repeticao_aceita_o_token_da_primeira_reserva(c, n8n):
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-repete"
+    primeira = _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).json()
+    _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave)  # a repetição
+    r = _post(n8n, f"/comunicacoes/{aviso.pk}/resultado",
+              {"reserva_token": primeira["reserva"]["token"], "resultado": "enviada",
+               "provedor_mensagem_id": "wamid.REP1"}, f"resultado:{aviso.pk}:repete-1")
+    assert r.status_code == 200 and r.json()["estado"] == "enviada"
+
+
+def test_recebimento_v1_com_dois_anexos_e_sem_associacao_automatica(c, n8n):
+    from gestao.automacao.models_api import CredencialIntegracao
+
+    cred = CredencialIntegracao.objects.get(nome="n8n")
+    cred.escopos = [*cred.escopos, "recebimentos:criar"]
+    cred.save(update_fields=["escopos"])
+    for indice, conteudo in enumerate((PDF, PDF + b"%%outro")):
+        r = Client().post("/api/automacao/v1/recebimentos", {
+            "arquivo": _arquivo(conteudo), "canal": "whatsapp", "mensagem_id_canal": "wamid.V1",
+            "anexo_indice": str(indice), "total_anexos": "2", "remetente": E164,
+            "recebido_em": timezone.now().isoformat(),
+            "sha256": hashlib.sha256(conteudo).hexdigest()},
+            HTTP_AUTHORIZATION=f"Bearer {n8n}",
+            HTTP_IDEMPOTENCY_KEY=f"receb:whatsapp:wamid.V1:{indice}")
+        assert r.status_code == 202, r.content
+    assert Recebimento.objects.filter(mensagem_id="wamid.V1").count() == 2
+    # Sem a assinatura do provedor, nada entra sozinho na prestação.
+    assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()
+    assert ExcecaoAutomacao.objects.filter(tipo="associacao").count() == 2
+
+
+def _arquivo(conteudo):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    return SimpleUploadedFile("comprovante.pdf", conteudo, content_type="application/pdf")
+
+
+# ------------------------------------------------------------------ eventos e manutenção
+@override_settings(N8N_EVENTOS_URL="http://n8n.invalid/webhook/pcpr-eventos",
+                   N8N_EVENTOS_SEGREDO="segredo-de-teste")
+def test_eventos_assinados_entregues_com_repeticao(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    EventoIntegracao.objects.exclude(tipo="comunicacao.agendada").delete()  # os das chaves
+    e = EventoIntegracao.objects.get(tipo="comunicacao.agendada")
+    assert e.corpo["recurso"]["tipo"] == "comunicacao" and "destino" not in json.dumps(e.corpo)
+    chamadas = []
+
+    def falha(url, corpo, cab):
+        chamadas.append(cab)
+        return 503
+
+    assert eventos.processar_um(postar=falha)
+    e.refresh_from_db()
+    assert e.situacao == "pendente" and e.tentativas == 1
+    import hmac as hmac_mod
+    t = chamadas[0]["X-PCPR-Assinatura"].split(",")[0][2:]
+    esperado = hmac_mod.new(b"segredo-de-teste", t.encode() + b"." + json.dumps(
+        e.corpo, ensure_ascii=False, separators=(",", ":")).encode(), hashlib.sha256).hexdigest()
+    assert chamadas[0]["X-PCPR-Assinatura"].endswith(esperado)
+    EventoIntegracao.objects.filter(pk=e.pk).update(disponivel_em=timezone.now())
+    assert eventos.processar_um(postar=lambda u, corpo, cab: 401)
+    e.refresh_from_db()
+    assert e.situacao == "configuracao"
+    assert ExcecaoAutomacao.objects.filter(chave="eventos-n8n:401").exists()
+
+
+def test_manutencao_validade_orfaos_e_retencao(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(expira_em=timezone.now() - timedelta(1))
+    chaves.desligar_tudo(c.usuarios["admin"], "teste")
+    assert manutencao.expirar_vencidas() == 1  # vale mesmo com a automação desligada
+    StatusEntrega.objects.create(mensagem_id="wamid.ORFAO", status="entregue")
+    StatusEntrega.objects.filter(mensagem_id="wamid.ORFAO").update(
+        registrado_em=timezone.now() - timedelta(hours=2))
+    assert manutencao.reconciliar() == 1
+    # Já tem exceção: não entra de novo — e, resolvida por uma pessoa, não reabre.
+    assert manutencao.reconciliar() == 0
+    ExcecaoAutomacao.objects.filter(chave="orfao:wamid.ORFAO").update(
+        situacao=ExcecaoAutomacao.Situacao.RESOLVIDA)
+    assert manutencao.reconciliar() == 0
+    assert ExcecaoAutomacao.objects.get(chave="orfao:wamid.ORFAO").situacao == "resolvida"
+    from gestao.automacao.models import ConteudoComunicacao
+    ConteudoComunicacao.objects.create(comunicacao=aviso, texto="x",
+                                       expira_em=timezone.now() - timedelta(1))
+    resultado = manutencao.purgar()
+    assert resultado["textos"] == 1
+
+
+def test_limite_por_hora(c, settings):
+    settings.WHATSAPP = {"limite_por_hora": "1"}
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c, dias_prazo=5)
+    _liberar(c, dias_prazo=7)  # duas comunicações (versões diferentes)
+    espiao = Espiao()
+    while entrega.processar_uma(porta=espiao):
+        pass
+    assert len(espiao.envios) == 1
+
+
+def test_comando_do_worker_uma_vez(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    call_command("processar_automacao", "--uma-vez")
+    assert _aviso(c).situacao == S.ENVIADA
+
+
+# ------------------------------------------------------------------ fluxo pelo WhatsApp
+def test_lembrete_pendente_encerrado_pelo_comprovante_do_whatsapp(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c, dias_prazo=2)
+    entrega.processar_uma(porta=Espiao())
+    assert viagens_whatsapp.agendar_lembretes() == 1
+    simulador.simular_resposta(c.usuarios["operador"], _aviso(c).pk, conteudo=PDF,
+                               nome="c.pdf")
+    _processar_entradas()
+    recebimentos.processar_um()
+    lembrete = Comunicacao.objects.get(tipo=viagens_whatsapp.LEMBRETE)
+    assert lembrete.situacao == S.OBSOLETA and "WhatsApp" in lembrete.motivo
+
+
+def test_resposta_ao_aviso_antigo_vai_para_a_prestacao_certa(c):
+    """Duas comunicações abertas para o mesmo contato: a resposta que CITA a mais antiga vai
+    para a prestação dela, não para a mais recente."""
+    _ligar(c, *TODOS)
+    contato = _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    antigo = _aviso(c)
+    outra_ps = (PrestacaoServidor.objects.filter(prestacao=c.ps.prestacao)
+                .exclude(pk=c.ps.pk).first())
+    recente = Comunicacao.objects.create(
+        tipo=viagens_whatsapp.AVISO, fluxo="diarias_liberadas", servidor=outra_ps.servidor,
+        contato=contato, recurso=f"{viagens_whatsapp.RECURSO}:{outra_ps.pk}",
+        contexto={"ps": outra_ps.pk}, chave="teste:recente", situacao=S.ENVIADA,
+        mensagem_id="wamid.RECENTE", aceita_resposta=viagens_whatsapp.COMPROVANTE,
+        resposta_ate=timezone.now() + timedelta(days=5),
+        enviada_em=timezone.now() + timedelta(minutes=1), criada_por=c.usuarios["operador"])
+    simulador.simular_resposta(c.usuarios["operador"], antigo.pk, conteudo=PDF, nome="c.pdf")
+    _processar_entradas()
+    recebimentos.processar_um()
+    r = Recebimento.objects.get()
+    assert r.comunicacao_id == antigo.pk != recente.pk
+    assert AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()
+    assert not AnexoPrestacao.objects.filter(servidor=outra_ps, tipo="comprovante").exists()
+
+
+def test_arquivo_grande_e_comprovante_repetido(c, settings):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF + b"0" * 4096,
+                               nome="g.pdf")
+    settings.WHATSAPP = {"tamanho_maximo_midia": str(1024)}
+    _processar_entradas()
+    recebimentos.processar_um()
+    assert Recebimento.objects.get().situacao == Recebimento.Situacao.RECUSADO
+    settings.WHATSAPP = {}
+    for _ in range(2):  # o mesmo comprovante duas vezes: um anexo só
+        simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF, nome="c.pdf")
+        _processar_entradas()
+        while recebimentos.processar_um():
+            pass
+    assert AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante",
+                                         removido_em=None).count() == 1
+
+
+REAL = {"modo": "cloud_api", "phone_number_id": "123", "access_token": "tok",
+        "app_secret": "segredo-de-teste", "verify_token": "verifica"}
+
+
+@override_settings(WHATSAPP=REAL)
+def test_webhook_corpo_reserializado_e_grande(client):
+    from gestao.automacao.models import EntradaWebhook
+
+    corpo = webhook.montar_status(mensagem_id="wamid.Z", status="sent", destinatario=E164)
+    assinatura = webhook.assinar(corpo, "segredo-de-teste")
+    reserializado = json.dumps(json.loads(corpo), indent=2).encode()
+    assert client.post("/integracoes/whatsapp/webhook/", reserializado,
+                       content_type="application/json",
+                       HTTP_X_HUB_SIGNATURE_256=assinatura).status_code == 401
+    grande = b" " * (webhook.TAMANHO_MAXIMO + 10)
+    r = client.post("/integracoes/whatsapp/webhook/", grande, content_type="application/json",
+                    HTTP_X_HUB_SIGNATURE_256=webhook.assinar(grande, "segredo-de-teste"))
+    assert r.status_code in (400, 413)
+    assert not EntradaWebhook.objects.exists()
+
+
+def test_check_de_cloud_api_incompleta():
+    from gestao.automacao.checks import verificar_canal
+
+    with override_settings(APP_ENV="lab", WHATSAPP={"modo": "cloud_api"}):
+        assert any(e.id == "automacao.E003" for e in verificar_canal(None))
+    with override_settings(APP_ENV="lab", WHATSAPP=REAL):
+        assert not verificar_canal(None)
+
+
+# ------------------------------------------------------------------ revisão de UX (P1)
+def test_painel_avisa_cada_fluxo_desligado(c):
+    op = _cliente(c.usuarios["operador"])
+    assert "Nada sai agora: a automação está desligada" in op.get("/automacao/").content.decode()
+    _ligar(c, "diarias_liberadas")
+    html = op.get("/automacao/").content.decode()
+    assert "Nada sai agora" not in html
+    assert "fluxos desligados" in html and "Lembretes de comprovante" in html
+
+
+def test_aprovacao_em_lote_na_aba_aguardando(c):
+    _ligar(c, *TODOS, modo="assistido")
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGUARDANDO_APROVACAO
+    op = _cliente(c.usuarios["operador"])
+    assert "Para aprovar" in op.get("/automacao/").content.decode()
+    html = op.get("/automacao/comunicacoes/?aba=aprovar").content.decode()
+    assert f'name="ids" value="{aviso.pk}"' in html and "data-confirmar=" in html
+    # Outra unidade não aprova pelo lote (a regra é a da aprovação individual).
+    _cliente(c.usuarios["outra"]).post("/automacao/comunicacoes/aprovar/", {"ids": [aviso.pk]})
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGUARDANDO_APROVACAO
+    r = op.post("/automacao/comunicacoes/aprovar/", {"ids": [aviso.pk, 999999]})
+    assert r.status_code == 302 and r["Location"].endswith("?aba=aprovar")
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGENDADA and aviso.aprovada_por == c.usuarios["operador"]
+
+
+def test_revogacao_em_massa_mostra_quantos_e_exige_motivo(c):
+    from gestao.automacao import links
+
+    links.criar(escopo="km", recurso="viagens.diario:1", servidor_id=c.ps.servidor_id)
+    admin = _cliente(c.usuarios["admin"])
+    html = admin.get("/automacao/links/").content.decode()
+    assert "<strong>1</strong> link vigente" in html and "data-confirmar-perigo" in html
+    admin.post("/automacao/links/revogar-em-massa/", {"horas": "24"})  # sem motivo: nada
+    assert LinkAcesso.objects.get().revogado_em is None
+    admin.post("/automacao/links/revogar-em-massa/", {"horas": "24", "motivo": "vazamento"})
+    link = LinkAcesso.objects.get()
+    assert link.revogado_em is not None and link.motivo_revogacao == "vazamento"
+
+
+def test_tela_de_aprovacoes_confirma_e_recusa_com_motivo(c):
+    _ligar(c, *TODOS, "ferramentas")
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = _aviso(c)
+    pedido = ferramentas.executar("comunicacoes.cancelar", {"comunicacao": aviso.pk},
+                                  usuario=c.usuarios["gestor"], origem="tela").aprovacao
+    op = _cliente(c.usuarios["operador"])
+    html = op.get("/automacao/aprovacoes/").content.decode()
+    assert "data-confirmar=" in html and "data-pedir-motivo=" in html
+    assert 'id="dialogo-motivo"' in html
+    op.post(f"/automacao/aprovacoes/{pedido.pk}/recusar/", {"motivo": "Não era para cancelar"})
+    pedido.refresh_from_db()
+    aviso.refresh_from_db()
+    assert pedido.situacao == PedidoAprovacao.Situacao.RECUSADO
+    assert pedido.motivo == "Não era para cancelar" and aviso.situacao != S.CANCELADA
+
+
+def _validador_do_contrato():
+    """O validador stdlib do protótipo (docs/automacao/prototipo/validar_esquema.py)."""
+    import importlib.util
+    from pathlib import Path
+
+    raiz = Path(__file__).resolve().parents[3] / "docs" / "automacao"
+    spec = importlib.util.spec_from_file_location(
+        "validar_esquema_contrato", raiz / "prototipo" / "validar_esquema.py")
+    assert spec and spec.loader
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    esquema = json.loads((raiz / "contratos" / "evento-integracao.schema.json")
+                         .read_text(encoding="utf-8"))
+    return modulo.validar, esquema
+
+
+@override_settings(N8N_EVENTOS_URL="http://n8n.invalid/webhook/pcpr-eventos",
+                   N8N_EVENTOS_SEGREDO="segredo-de-teste")
+def test_envelopes_emitidos_seguem_o_esquema_do_contrato(c):
+    """D1 da bateria contra a API real: fluxo em [a-z0-9-], tipo_comunicacao do enum e
+    automacao.religada/desligada só com `fluxo` (nulo = chave geral)."""
+    validar, esquema = _validador_do_contrato()
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    chaves.desligar_tudo(c.usuarios["admin"], "teste")
+    corpos = list(EventoIntegracao.objects.values_list("corpo", flat=True))
+    assert {"comunicacao.agendada", "automacao.religada", "automacao.desligada"} <= {
+        e["tipo"] for e in corpos}
+    for corpo in corpos:
+        assert validar(corpo, esquema) == [], corpo["tipo"]
+    agendado = next(e for e in corpos if e["tipo"] == "comunicacao.agendada")
+    assert agendado["dados"]["tipo_comunicacao"] == "mensagem_saque"
+    assert agendado["dados"]["fluxo"] == "diarias-liberadas"
+
+
+def test_todo_tipo_registrado_tem_par_no_enum_do_contrato():
+    from gestao.automacao import contrato, ganchos
+
+    _, esquema = _validador_do_contrato()
+    enum = set(esquema["$defs"]["dados.comunicacao.agendada"]["properties"]
+               ["tipo_comunicacao"]["enum"])
+    for t in ganchos.tipos():
+        assert t.chave in contrato.TIPOS_CONTRATO, t.chave
+        assert contrato.TIPOS_CONTRATO[t.chave] in enum, t.chave
+
+
+# ------------------------------------------------------------------ bateria contra a API real
+def _v1(n8n, conteudo, mid="wamid.V1", indice=0, chave=None):
+    from gestao.automacao import dominio
+
+    return Client().post("/api/automacao/v1/recebimentos", {
+        "arquivo": _arquivo(conteudo), "canal": "whatsapp", "mensagem_id_canal": mid,
+        "anexo_indice": str(indice), "total_anexos": "1", "remetente": E164,
+        "recebido_em": timezone.now().isoformat(),
+        "sha256": hashlib.sha256(conteudo).hexdigest()},
+        HTTP_AUTHORIZATION=f"Bearer {n8n}",
+        HTTP_IDEMPOTENCY_KEY=chave or dominio.chave_recebimento("whatsapp", mid, indice))
+
+
+def _com_recebimentos(n8n):
+    from gestao.automacao.models_api import CredencialIntegracao
+
+    cred = CredencialIntegracao.objects.get(nome="n8n")
+    cred.escopos = [*cred.escopos, "recebimentos:criar"]
+    cred.save(update_fields=["escopos"])
+
+
+def test_mesma_chave_com_outro_arquivo_e_409_e_canal_bloqueado_e_409(c, n8n):
+    """D4 e D3: o contrato pede 409 conflito_de_versao (não o 422 genérico) e 409
+    canal_bloqueado com o canal de entrada bloqueado; desligado é 423 (o canal reentrega)."""
+    _com_recebimentos(n8n)
+    assert _v1(n8n, PDF).status_code == 202
+    assert _v1(n8n, PDF).status_code == 202  # a mesma: repetição sem efeito
+    outro = _v1(n8n, PDF + b"%%mudou")
+    assert outro.status_code == 409 and outro.json()["codigo"] == "conflito_de_versao"
+    assert Recebimento.objects.filter(mensagem_id="wamid.V1").count() == 1
+    admin = c.usuarios["admin"]
+    chaves.alterar(admin, chaves.nome_canal("whatsapp"), estado="bloqueada")
+    r = _v1(n8n, PDF, mid="wamid.V1B")
+    assert r.status_code == 409 and r.json()["codigo"] == "canal_bloqueado"
+    chaves.alterar(admin, chaves.nome_canal("whatsapp"), estado="desligada")
+    assert _v1(n8n, PDF, mid="wamid.V1C").status_code == 423
+    assert not Recebimento.objects.filter(mensagem_id__in=("wamid.V1B", "wamid.V1C")).exists()
+
+
+def test_id_longo_do_canal_nao_e_truncado(c, n8n):
+    """Dois ids de 290 caracteres com o mesmo começo são dois recebimentos (antes, cortados
+    em 128, viravam o mesmo)."""
+    _com_recebimentos(n8n)
+    base = "wamid." + "L" * 270
+    for fim in ("AAAAAAAAAAAAAA", "BBBBBBBBBBBBBB"):
+        assert _v1(n8n, PDF + fim.encode(), mid=base + fim).status_code == 202
+    assert Recebimento.objects.filter(mensagem_id__startswith=base).count() == 2
+
+
+def test_status_repetido_com_outro_horario_nao_e_422(c, n8n):
+    """D2: o provedor repete o mesmo status com outro horário; a chave do contrato
+    (entrega:<id>:<wamid>:<status>) é a mesma → 200 sem efeito, nunca 422."""
+    aviso = _aviso(c)
+    Comunicacao.objects.filter(pk=aviso.pk).update(situacao=S.ENVIADA,
+                                                   mensagem_id="wamid.D2")
+    chave = f"entrega:{aviso.pk}:wamid.D2:lida"
+    for minutos in (0, 3):
+        r = _post(n8n, f"/comunicacoes/{aviso.pk}/entrega",
+                  {"provedor_mensagem_id": "wamid.D2", "status": "lida",
+                   "ocorrido_em": (timezone.now() - timedelta(minutes=minutos)).isoformat()},
+                  chave)
+        assert r.status_code == 200, r.content
+    aviso.refresh_from_db()
+    assert aviso.entrega == "lida"

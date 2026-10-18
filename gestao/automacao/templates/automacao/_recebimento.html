@@ -1,0 +1,15 @@
+{% comment %}Uma linha de recebimento. Requer `r`.{% endcomment %}
+<li class="registro{% if r.situacao == 'descartado' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Rec</span><span class="placa__numero">#{{ r.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'automacao:recebimento' r.pk %}"><span class="sr-only">Recebimento #{{ r.pk }} · </span>{{ r.get_tipo_display }} de {% if r.servidor %}{{ r.servidor }}{% else %}número desconhecido (final {{ r.remetente_final|default:"?" }}){% endif %}</a>
+      <span class="selo selo--{{ r.tom }} selo--sem-ponto">{{ r.get_situacao_display }}</span>
+    </div>
+    {% if r.motivo %}<p class="registro__texto">{{ r.motivo }}</p>{% endif %}
+    <div class="registro__meta">
+      <span class="registro__meta-item"><span class="sr-only">Recebido em: </span>{% icone "clock" classe="icone--sm" %}{{ r.recebido_em|default:r.registrado_em|date:"d/m H:i" }}</span>
+      {% if r.nome_arquivo %}<span class="registro__meta-item"><span class="sr-only">Arquivo: </span>{% icone "file-text" classe="icone--sm" %}{{ r.nome_arquivo }}</span>{% endif %}
+    </div>
+  </div>
+</li>

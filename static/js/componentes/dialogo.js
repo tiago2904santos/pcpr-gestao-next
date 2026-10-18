@@ -138,6 +138,7 @@ document.addEventListener("click", (e) => {
   contexto.textContent = d.motivoContexto || "";
   contexto.hidden = !d.motivoContexto;
   texto.removeAttribute("aria-invalid");
+  texto.setAttribute("aria-describedby", "dialogo-motivo-ajuda");  // erro escondido não descreve
   // O menu de onde veio não fica aberto por baixo da janela.
   const menu = /** @type {any} */ (botao.closest("pc-menu"));
   if (menu && typeof menu.fechar === "function") menu.fechar(false);
@@ -159,6 +160,7 @@ document.addEventListener("submit", (e) => {
   e.preventDefault();
   /** @type {HTMLElement} */ (form.querySelector("#dialogo-motivo-erro")).hidden = false;
   texto.setAttribute("aria-invalid", "true");
+  texto.setAttribute("aria-describedby", "dialogo-motivo-ajuda dialogo-motivo-erro");
   texto.focus();
 }, true);
 

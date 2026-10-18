@@ -4,9 +4,16 @@ Fonte única dos fluxos do protótipo: o teste importa o que este script gera; d
 do próprio n8n (com `"active": false`) para `docs/automacao/n8n/`.
 
     python construir_workflows.py <pasta-destino> [--pcpr URL] [--canal URL] [--whatsapp]
+    python construir_workflows.py <pasta-destino> --alvo pcpr [--pcpr URL] [--graph URL]
 
 W1–W5: suíte principal (`testar_prototipo.py`). W6–W8: WhatsApp oficial (frente WA-3), só
 contra o simulador da Graph API (`testar_whatsapp.py`); exportados DESLIGADOS.
+
+`--alvo pcpr` (18/10/2026): os mesmos fluxos ajustados à API de automação REAL do PCPR
+(`/api/automacao/v1`, `testar_pcpr_real.py`, export em `docs/automacao/n8n/pcpr/`): W1, W2, W3,
+W5, W6 (lê a reserva do contrato — `mensagem.modelo`/`texto`/`variaveis`, sem a extensão
+`mensagem.whatsapp` do simulador), W7 e W8 (`biz_opaque_callback_data` no formato do PCPR,
+`com:<id>:t<n>`). Sem W4: o canal genérico (e-mail) não existe na API real (501).
 
 URLs-base não são segredo e ficam num nó "Configuração" no começo de cada fluxo (o acesso a
 variáveis de ambiente em nós vem bloqueado no n8n 2.x — `N8N_BLOCK_ENV_ACCESS_IN_NODE=true` —
@@ -17,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import uuid
 from pathlib import Path
 from typing import Any
@@ -31,6 +39,13 @@ NUMERO_ID_PADRAO = "100000000000001"
 # Code node não lê credenciais e o Webhook não autentica por query; assim o valor esperado nunca
 # fica em texto no workflow (achado do WA-3).
 VERIFY_TOKEN_MENSAGEM = "pcpr-whatsapp-verify-token-v1"  # noqa: S105 (rótulo público, não segredo)
+
+# Alvo "pcpr": a API REAL (testar_pcpr_real.py). No teste, o n8n fala com um espião HTTP
+# transparente (porta 8775) que repassa ao runserver do PCPR e registra status/rotas; a Graph API
+# continua simulada (porta 8777). Na instância de verdade, trocar no nó "Configuração".
+ALVOS = ("simuladores", "pcpr")
+PCPR_REAL_PADRAO = "http://host.docker.internal:8775/api/automacao/v1"
+GRAPH_REAL_PADRAO = "http://host.docker.internal:8777/v21.0"
 
 # Execuções que carregam destino, link-credencial, token de reserva ou arquivo não ficam guardadas
 # no n8n (revisão de segurança; conferido pelo T13).
@@ -72,6 +87,8 @@ ARQUIVOS_WHATSAPP = {
     W7: "w7-webhook-whatsapp.json",
     W8: "w8-status-whatsapp.json",
 }
+# alvo "pcpr": sem W4 (canal genérico/e-mail não existe na API real → 501)
+ARQUIVOS_PCPR = {w: n for w, n in {**ARQUIVOS, **ARQUIVOS_WHATSAPP}.items() if w != W4}
 
 CRED_API = {"id": "pcprApiToken0001", "name": "PCPR · token da API de automação"}
 CRED_HMAC = {"id": "pcprHmacEventos1", "name": "PCPR · segredo HMAC dos eventos"}
@@ -343,7 +360,7 @@ return [{ json: { valido, motivo, evento: valido ? ev : null } }];
 """
 
 
-def w1() -> dict:
+def w1(alvo: str = "simuladores") -> dict:
     f = Fluxo(W1)
     f.no(
         "Webhook de eventos",
@@ -453,18 +470,16 @@ def w1() -> dict:
         "new Date($json.evento.dados.enviar_em).getTime() <= Date.now() + 120000 }}",
         (1760, 100),
     )
-    definir(
-        f,
-        "Pedido de entrega",
-        [
-            ("comunicacao_id", "={{ $json.evento.dados.comunicacao_id }}", "number"),
-            ("versao", "={{ $json.evento.recurso.versao }}", "number"),
-            ("correlacao_id", "={{ $json.evento.correlacao_id }}", "string"),
-            ("evento_id", "={{ $json.evento.id }}", "string"),
-            ("origem", "evento", "string"),
-        ],
-        (1980, 0),
-    )
+    pedido = [
+        ("comunicacao_id", "={{ $json.evento.dados.comunicacao_id }}", "number"),
+        ("versao", "={{ $json.evento.recurso.versao }}", "number"),
+        ("correlacao_id", "={{ $json.evento.correlacao_id }}", "string"),
+        ("evento_id", "={{ $json.evento.id }}", "string"),
+        ("origem", "evento", "string"),
+    ]
+    if alvo == "pcpr":  # o W2 confere a chave DO fluxo da comunicação em /estado.fluxos
+        pedido.append(("fluxo", "={{ $json.evento.dados.fluxo || '' }}", "string"))
+    definir(f, "Pedido de entrega", pedido, (1980, 0))
     chamar_w2(f, "Entregar comunicação (W2)", (2200, 0))
     nada(f, "Ainda não é hora (reconciliação envia)", (1980, 200))
     nada(f, "Outros tipos: só registro", (1760, 340))
@@ -553,8 +568,19 @@ def _nome_tentativa(base: str, k: int) -> str:
     return f"{base} ({k}ª tentativa)"
 
 
-def w2() -> dict:
+JS_SEM_TRANSPORTE = r"""
+// API real do PCPR: o único canal com transporte no n8n é o WhatsApp (W6). Qualquer outro canal
+// na reserva não é enviado: falha definitiva + exceção (nunca envio por um canal não previsto).
+const ctx = $('Contexto do envio').first().json;
+return [{ json: { resultado: 'falha_definitiva', provedor_mensagem_id: '',
+  erro: 'canal ' + String(ctx.canal || '?') + ' sem transporte no n8n',
+  motivo_excecao: 'outro' } }];
+"""
+
+
+def w2(alvo: str = "simuladores") -> dict:
     f = Fluxo(W2)
+    real = alvo == "pcpr"
     cfg = "$('Configuração').first().json"
     ctx = "$('Contexto do envio').first().json"
     f.no(
@@ -569,8 +595,10 @@ def w2() -> dict:
         "Configuração",
         [
             ("cfg_pcpr", PCPR_PADRAO, "string"),
-            ("cfg_canal", CANAL_PADRAO, "string"),
-            ("fluxo", "km-vespera", "string"),
+            *([] if real else [("cfg_canal", CANAL_PADRAO, "string")]),
+            # API real: a chave do fluxo DA comunicação (vem do evento/devidas); no protótipo,
+            # um fluxo fixo do simulador
+            ("fluxo", "={{ $json.fluxo || '' }}" if real else "km-vespera", "string"),
         ],
         (220, 300),
         manter=True,
@@ -676,9 +704,10 @@ def w2() -> dict:
             ("mensagem", "={{ $json.body.mensagem }}", "object"),
             ("anexos", "={{ $json.body.anexos || [] }}", "array"),
             ("idempotencia_canal", "={{ $json.body.idempotencia_canal }}", "string"),
+            *([("responder_a", "={{ $json.body.responder_a || '' }}", "string")] if real else []),
             ("correlacao_id", f"={{{{ {cfg}.correlacao_id }}}}", "string"),
             ("cfg_pcpr", f"={{{{ {cfg}.cfg_pcpr }}}}", "string"),
-            ("cfg_canal", f"={{{{ {cfg}.cfg_canal }}}}", "string"),
+            *([] if real else [("cfg_canal", f"={{{{ {cfg}.cfg_canal }}}}", "string")]),
         ],
         (1320, 100),
     )
@@ -690,7 +719,11 @@ def w2() -> dict:
     # Tentativas no canal desenroladas (sem retryOnFail): cada uma tem a resposta HTTP completa
     # como dado (neverError) e a falha de rede na saída de erro; o classificador decide se repete.
     x0 = 1540
-    for k in range(1, TENTATIVAS_CANAL + 1):
+    if real:
+        codigo(f, "Canal sem transporte", JS_SEM_TRANSPORTE, (x0, 100))
+        f.liga("Canal sem transporte", "Resultado do envio")
+        x0 += 660
+    for k in range(1, 0 if real else TENTATIVAS_CANAL + 1):
         enviar = _nome_tentativa("Enviar ao canal", k)
         classificar = _nome_tentativa("Classificar envio", k)
         http(
@@ -778,8 +811,9 @@ def w2() -> dict:
                 f"=excecao:com{{{{ {ctx}.comunicacao_id }}}}:{{{{ {ctx}.reserva_token }}}}",
             ),
         ],
-        corpo_json=f"={{{{ JSON.stringify({{ fluxo: {cfg}.fluxo, "
-        f"correlacao_id: {ctx}.correlacao_id, "
+        corpo_json="={{ JSON.stringify({ fluxo: "
+        + (f"({cfg}.fluxo || 'n8n')" if real else f"{cfg}.fluxo")
+        + f", correlacao_id: {ctx}.correlacao_id, "
         f"motivo: {res}.motivo_excecao, "
         "detalhe: 'comunicacao ' + " + ctx + ".comunicacao_id + ': ' + "
         f"{res}.erro, "
@@ -804,7 +838,11 @@ def w2() -> dict:
     f.liga("Resultado da reserva", "Fim: desligada no meio do caminho (423)", 2)
     f.liga("Resultado da reserva", "Erro: reserva inesperada", 3)
     f.liga("Canal é WhatsApp?", "Enviar por WhatsApp (W6)", 0)
-    f.liga("Canal é WhatsApp?", _nome_tentativa("Enviar ao canal", 1), 1)
+    f.liga(
+        "Canal é WhatsApp?",
+        "Canal sem transporte" if real else _nome_tentativa("Enviar ao canal", 1),
+        1,
+    )
     f.liga("Abrir exceção?", "Abrir exceção", 0)
     f.liga("Abrir exceção?", "Fim: registrado", 1)
     # mensagem com destino e link-credencial: nada fica guardado no n8n (diagnóstico só pelo W5)
@@ -814,7 +852,7 @@ def w2() -> dict:
 # ------------------------------------------------------------------ W3
 
 
-def w3() -> dict:
+def w3(alvo: str = "simuladores") -> dict:
     f = Fluxo(W3)
     f.no(
         "A cada 15 minutos",
@@ -864,17 +902,15 @@ def w3() -> dict:
         {"batchSize": 1, "options": {}},
         (1100, 200),
     )
-    definir(
-        f,
-        "Pedido de entrega",
-        [
-            ("comunicacao_id", "={{ $json.id }}", "number"),
-            ("versao", "={{ $json.versao }}", "number"),
-            ("correlacao_id", "={{ $json.correlacao_id }}", "string"),
-            ("origem", "reconciliacao", "string"),
-        ],
-        (1320, 300),
-    )
+    pedido = [
+        ("comunicacao_id", "={{ $json.id }}", "number"),
+        ("versao", "={{ $json.versao }}", "number"),
+        ("correlacao_id", "={{ $json.correlacao_id }}", "string"),
+        ("origem", "reconciliacao", "string"),
+    ]
+    if alvo == "pcpr":
+        pedido.append(("fluxo", "={{ $json.fluxo || '' }}", "string"))
+    definir(f, "Pedido de entrega", pedido, (1320, 300))
     chamar_w2(f, "Entregar comunicação (W2)", (1540, 300))
     codigo(
         f,
@@ -1169,6 +1205,16 @@ def w5() -> dict:
     f.liga("Quando um fluxo falhar", "Configuração")
     f.liga("Configuração", "Abrir exceção")
     return f.json({})
+
+
+def w5_pcpr() -> dict:
+    """W5 sem guardar execução: o diagnóstico já vai ao PCPR (`/excecoes`, com o texto mascarado
+    lá). Achado do TW13 contra o PCPR real: com o padrão, cada execução do W5 ficava salva com o
+    erro do fluxo que falhou — e o erro de um nó HTTP carrega dados da requisição (ex.: o wamid
+    num `POST /entrega` recusado), que sobreviviam à poda de 1 min."""
+    wf = w5()
+    wf["settings"].update(SEM_RETENCAO)
+    return wf
 
 
 # ------------------------------------------------------------------ W6 · WhatsApp oficial: envio
@@ -1550,6 +1596,158 @@ def w6() -> dict:
     f.liga("Abrir exceção?", "Abrir exceção", 0)
     f.liga("Abrir exceção?", "Fim: registrado", 1)
     # destino, link-credencial, token de reserva e documento: nada fica guardado no n8n
+    return f.json({"errorWorkflow": W5, "callerPolicy": "workflowsFromSameOwner", **SEM_RETENCAO})
+
+
+# ------------------------------------------------------------------ W6 · alvo "pcpr" (API real)
+
+JS_MONTAR_PCPR = r"""
+// Reserva da API REAL (contrato `ComunicacaoReservada`): quem decide a forma é o PCPR, pela janela
+// de 24 h que ELE conhece. `mensagem.modelo` preenchido = fora da janela → modelo aprovado, com
+// `variaveis` p1..pN na ordem; vazio = dentro da janela → texto livre (`mensagem.texto`).
+// Sem documento: a reserva real não traz `anexos`/`url_assinada`.
+// O idioma do modelo NÃO vem na reserva (lacuna do contrato): usa cfg_idioma_modelo.
+// biz_opaque_callback_data = idempotencia_canal ('com:<id>:t<n>'), o formato que o webhook do PCPR
+// (V2) e o W8 reconhecem para achar a comunicação mesmo antes do resultado registrado.
+const ctx = $('Quando chamado pelo W2').first().json;
+const cfg = $('Configuração').first().json;
+const m = (ctx.mensagem && typeof ctx.mensagem === 'object') ? ctx.mensagem : {};
+const para = String(ctx.destino || '').replace(/[^0-9]/g, '');
+const ref = String(ctx.idempotencia_canal || ('com:' + ctx.comunicacao_id)).slice(0, 512);
+const nome = String(m.modelo || '');
+if (nome) {
+  const vars = (m.variaveis && typeof m.variaveis === 'object') ? m.variaveis : {};
+  const chaves = Object.keys(vars).filter((k) => /^p\d+$/.test(k))
+    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+  const componentes = chaves.length ? [{ type: 'body',
+    parameters: chaves.map((k) => ({ type: 'text', text: String(vars[k]) })) }] : [];
+  return [{ json: { forma: 'modelo', payload: {
+    messaging_product: 'whatsapp', recipient_type: 'individual', to: para, type: 'template',
+    template: { name: nome, language: { code: String(cfg.cfg_idioma_modelo || 'pt_BR') },
+      components: componentes },
+    biz_opaque_callback_data: ref,
+  } } }];
+}
+const texto = String(m.texto || '');
+if (!texto) return [{ json: { forma: 'impossivel' } }];
+const payload = {
+  messaging_product: 'whatsapp', recipient_type: 'individual', to: para, type: 'text',
+  text: { body: texto.slice(0, 4096), preview_url: false }, biz_opaque_callback_data: ref,
+};
+if (ctx.responder_a) payload.context = { message_id: String(ctx.responder_a) };
+return [{ json: { forma: 'texto', payload } }];
+"""
+
+JS_IMPOSSIVEL_PCPR = r"""
+return [{ json: { fallback: false, resultado: 'falha_definitiva', provedor_mensagem_id: '',
+  erro: 'reserva sem modelo e sem texto: nada enviado', motivo_excecao: 'outro' } }];
+"""
+
+
+def w6_pcpr() -> dict:
+    """W6 para a API real: sem documento e sem troca por modelo após 131047 (o PCPR só manda o
+    modelo quando ELE acha a janela fechada; dentro da janela a reserva não traz modelo)."""
+    f = Fluxo(W6)
+    f.no(
+        "Quando chamado pelo W2",
+        "n8n-nodes-base.executeWorkflowTrigger",
+        1.1,
+        {"inputSource": "passthrough"},
+        (0, 300),
+    )
+    definir(
+        f,
+        "Configuração",
+        [
+            ("cfg_graph", GRAPH_PADRAO, "string"),
+            ("cfg_numero_id", NUMERO_ID_PADRAO, "string"),
+            ("cfg_idioma_modelo", "pt_BR", "string"),
+        ],
+        (220, 300),
+    )
+    codigo(f, "Montar mensagem", JS_MONTAR_PCPR, (440, 300))
+    se(f, "Há o que enviar?", "={{ $json.forma !== 'impossivel' }}", (660, 300))
+    codigo(f, "Sem forma possível", JS_IMPOSSIVEL_PCPR, (880, 460))
+    _http_whatsapp(f, "Enviar ao WhatsApp", (880, 240))
+    codigo(f, "Classificar resposta", JS_CLASSIFICAR_WA % "false", (1100, 180))
+    codigo(f, "Falha de rede", JS_REDE_WA, (1100, 380))
+    definir(
+        f,
+        "Normalizar resultado",
+        [
+            ("resultado", "={{ $json.resultado }}", "string"),
+            ("provedor_mensagem_id", "={{ $json.provedor_mensagem_id || '' }}", "string"),
+            ("erro", "={{ $json.erro || '' }}", "string"),
+            ("motivo_excecao", "={{ $json.motivo_excecao || '' }}", "string"),
+        ],
+        (1320, 300),
+    )
+    http(
+        f,
+        "Registrar resultado",
+        "POST",
+        f"={{{{ {CTX6}.cfg_pcpr }}}}/comunicacoes/{{{{ {CTX6}.comunicacao_id }}}}/resultado",
+        (1540, 300),
+        tentativas=3,
+        espera_ms=1000,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                f"=resultado:{{{{ {CTX6}.comunicacao_id }}}}:{{{{ {CTX6}.reserva_token }}}}",
+            ),
+            ("X-PCPR-Correlacao", f"={{{{ {CTX6}.correlacao_id }}}}"),
+        ],
+        corpo_json=f"={{{{ JSON.stringify({{ reserva_token: {CTX6}.reserva_token, "
+        "resultado: $json.resultado, provedor: 'whatsapp_cloud', "
+        "provedor_mensagem_id: $json.provedor_mensagem_id || undefined, "
+        "erro: $json.erro || undefined }) }}",
+    )
+    se(
+        f,
+        "Abrir exceção?",
+        "={{ Boolean($('Normalizar resultado').first().json.motivo_excecao) }}",
+        (1760, 300),
+    )
+    nada(f, "Fim: registrado", (1980, 200))
+    http(
+        f,
+        "Abrir exceção",
+        "POST",
+        f"={{{{ {CTX6}.cfg_pcpr }}}}/excecoes",
+        (1980, 400),
+        tentativas=3,
+        espera_ms=1000,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                f"=excecao:com{{{{ {CTX6}.comunicacao_id }}}}:{{{{ {CTX6}.reserva_token }}}}",
+            ),
+        ],
+        corpo_json="={{ JSON.stringify({ fluxo: 'whatsapp', "
+        f"correlacao_id: {CTX6}.correlacao_id, "
+        "motivo: $('Normalizar resultado').first().json.motivo_excecao, "
+        f"detalhe: 'comunicacao ' + {CTX6}.comunicacao_id + ': ' + "
+        "$('Normalizar resultado').first().json.erro, "
+        "execucao_orquestrador: String($execution.id), "
+        f"recurso: {{ tipo: 'comunicacao', id: {CTX6}.comunicacao_id }} }}) }}}}",
+    )
+    for a, b in [
+        ("Quando chamado pelo W2", "Configuração"),
+        ("Configuração", "Montar mensagem"),
+        ("Montar mensagem", "Há o que enviar?"),
+        ("Sem forma possível", "Normalizar resultado"),
+        ("Classificar resposta", "Normalizar resultado"),
+        ("Falha de rede", "Normalizar resultado"),
+        ("Normalizar resultado", "Registrar resultado"),
+        ("Registrar resultado", "Abrir exceção?"),
+    ]:
+        f.liga(a, b)
+    f.liga("Há o que enviar?", "Enviar ao WhatsApp", 0)
+    f.liga("Há o que enviar?", "Sem forma possível", 1)
+    f.liga("Enviar ao WhatsApp", "Classificar resposta", 0)
+    f.liga("Enviar ao WhatsApp", "Falha de rede", 1)
+    f.liga("Abrir exceção?", "Abrir exceção", 0)
+    f.liga("Abrir exceção?", "Fim: registrado", 1)
     return f.json({"errorWorkflow": W5, "callerPolicy": "workflowsFromSameOwner", **SEM_RETENCAO})
 
 
@@ -2064,7 +2262,7 @@ return [{ json: { adiar: adiados > 0, adiados, registrados: itens.length - adiad
 """
 
 
-def w8() -> dict:
+def w8(alvo: str = "simuladores") -> dict:
     f = Fluxo(W8)
     f.no(
         "Quando chamado pelo W7",
@@ -2074,7 +2272,12 @@ def w8() -> dict:
         (0, 300),
     )
     definir(f, "Configuração", [("cfg_pcpr", PCPR_PADRAO, "string")], (220, 300))
-    codigo(f, "Mapear status", JS_MAPEAR_STATUS, (440, 300))
+    js = JS_MAPEAR_STATUS
+    if alvo == "pcpr":  # o PCPR real manda 'com:<id>:t<n>' (idempotencia_canal) no envio
+        js = js.replace("('com:<id>')", "('com:<id>:t<n>', o formato do PCPR real)").replace(
+            r"/^com:(\d+)$/", r"/^com:(\d+)(?::t\d+)?$/"
+        )
+    codigo(f, "Mapear status", js, (440, 300))
     se(f, "Tem comunicação?", "={{ $json.comunicacao_id !== null }}", (660, 300))
     http(
         f,
@@ -2149,21 +2352,128 @@ def w8() -> dict:
     return f.json({"errorWorkflow": W5, "callerPolicy": "workflowsFromSameOwner", **SEM_RETENCAO})
 
 
+LIMITE_CHAVE = 200  # o PCPR recusa Idempotency-Key com mais de 200 caracteres (422)
+
+
+def _concat_js(texto: str) -> str:
+    """`a:{{ x }}:b` → `"a:" + String(x) + ":b"` (expressão JS do n8n)."""
+    partes: list[str] = []
+    resto = texto
+    while resto:
+        ini = resto.find("{{")
+        if ini < 0:
+            partes.append(json.dumps(resto, ensure_ascii=False))
+            break
+        if ini:
+            partes.append(json.dumps(resto[:ini], ensure_ascii=False))
+        fim = resto.index("}}", ini)
+        partes.append(f"String({resto[ini + 2 : fim].strip()})")
+        resto = resto[fim + 2 :]
+    return "(" + (" + ".join(partes) or "''") + ")"
+
+
+def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str:
+    """Chave do recebimento (contrato v1; `gestao.automacao.dominio.chave_recebimento` no
+    PCPR): `receb:<canal>:<mensagem_id_canal>:<anexo_indice>` até 200 caracteres; acima,
+    `receb#sha256:<canal>:<hex do sha256 do mensagem_id_canal>:<anexo_indice>` (o `#` no 1º
+    segmento impede que um id curto parecido com `sha256:<hex>` colida com a forma com hash)."""
+    c, m, i = f"String({canal_js})", f"String({mensagem_js})", f"String({indice_js})"
+    bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
+    return (
+        # bruta só se ASCII imprimível: `.length` (UTF-16) e o `len` do Python medem igual
+        f"={{{{ {bruta}.length <= {LIMITE_CHAVE} && /^[ -~]*$/.test({bruta}) ? {bruta} : "
+        f"'receb#sha256:' + {c} + ':' + {m}.hash('sha256') + ':' + {i} }}}}"
+    )
+
+
+_RE_RECEB = re.compile(r"^=receb:([a-z]+):\{\{(.+?)\}\}:(\d+)$")
+
+
+def _chave_limitada(modelo: str) -> str:
+    """Idempotency-Key que cabe no limite do PCPR (16 a 200 caracteres; acima → 422).
+
+    - recebimento (`receb:<canal>:{{ id }}:<n>`): a regra do contrato, `chave_recebimento_js`;
+    - as demais (exceção, entrega, resultado…): até 200 sai como sempre foi; acima,
+      `<1º segmento>#sha256:<resto do prefixo><hex>` da parte variável (prefixo = texto fixo
+      antes do 1º `{{`; ex. `excecao#sha256:whatsapp-sha256:<hex>`) — estável entre reentregas.
+    `String.hash('sha256')` é extensão de expressão do n8n (string-extensions.js da 2.43.7)."""
+    if m := _RE_RECEB.match(modelo):
+        return chave_recebimento_js(f"'{m.group(1)}'", m.group(2).strip(), m.group(3))
+    corpo = modelo[1:] if modelo.startswith("=") else modelo
+    corte = corpo.find("{{")
+    prefixo, variavel = (corpo, "") if corte < 0 else (corpo[:corte], corpo[corte:])
+    v = _concat_js(variavel)
+    p = json.dumps(prefixo, ensure_ascii=False)
+    # forma com hash: `<1º segmento>#sha256:<resto do prefixo><hex>` (o `#` marca o 1º segmento)
+    primeiro, _, resto_prefixo = prefixo.partition(":")
+    h = json.dumps(f"{primeiro}#sha256:{resto_prefixo}", ensure_ascii=False)
+    cabe = f"({p} + {v}).length <= {LIMITE_CHAVE} && /^[ -~]*$/.test({p} + {v})"
+    return f"={{{{ {cabe} ? {p} + {v} : {h} + {v}.hash('sha256') }}}}"
+
+
+def corpo_puro_da_chave(wf: dict) -> None:
+    """Exceção cuja chave vem do canal (wamid) pode chegar de novo em OUTRA execução (a Meta
+    reentrega): o corpo tem de ser função só da chave, senão a repetição vira 422 (chave reusada
+    com outra requisição). Tira `execucao_orquestrador` desses corpos (alvo pcpr)."""
+    for no in wf["nodes"]:
+        cabs = (no["parameters"].get("headerParameters") or {}).get("parameters", [])
+        chave = next((c["value"] for c in cabs if c.get("name") == "Idempotency-Key"), "")
+        corpo = no["parameters"].get("jsonBody") or ""
+        if "excecao" in chave and "wamid" in chave and "execucao_orquestrador" in corpo:
+            no["parameters"]["jsonBody"] = corpo.replace(
+                ", execucao_orquestrador: String($execution.id)", ""
+            )
+
+
+def limitar_chaves(wf: dict) -> int:
+    """Alvo pcpr: toda `Idempotency-Key` dos nós HTTP passa por `_chave_limitada`."""
+    n = 0
+    for no in wf["nodes"]:
+        for cab in (no["parameters"].get("headerParameters") or {}).get("parameters", []):
+            if cab.get("name") == "Idempotency-Key":
+                cab["value"] = _chave_limitada(cab["value"])
+                n += 1
+    return n
+
+
 def construir(
     destino: Path,
-    pcpr: str = PCPR_PADRAO,
+    pcpr: str | None = None,
     canal: str = CANAL_PADRAO,
     whatsapp: bool = False,
-    graph: str = GRAPH_PADRAO,
+    graph: str | None = None,
+    alvo: str = "simuladores",
 ) -> list[Path]:
+    """`alvo="pcpr"`: fluxos para a API REAL (W1–W3, W5–W8; sempre com o WhatsApp)."""
+    if alvo not in ALVOS:
+        raise ValueError(f"alvo desconhecido: {alvo}")
+    real = alvo == "pcpr"
+    pcpr = pcpr or (PCPR_REAL_PADRAO if real else PCPR_PADRAO)
+    graph = graph or (GRAPH_REAL_PADRAO if real else GRAPH_PADRAO)
     destino.mkdir(parents=True, exist_ok=True)
     saida = []
-    fabricas = [(W1, w1), (W2, w2), (W3, w3), (W4, w4), (W5, w5)]
-    if whatsapp:
-        fabricas += [(W6, w6), (W7, w7), (W8, w8)]
+    fabricas: list[tuple[str, Any]]
+    if real:
+        fabricas = [
+            (W1, lambda: w1(alvo)),
+            (W2, lambda: w2(alvo)),
+            (W3, lambda: w3(alvo)),
+            (W5, w5_pcpr),
+            (W6, w6_pcpr),
+            (W7, w7),
+            (W8, lambda: w8(alvo)),
+        ]
+    else:
+        fabricas = [(W1, w1), (W2, w2), (W3, w3), (W4, w4), (W5, w5)]
+        if whatsapp:
+            fabricas += [(W6, w6), (W7, w7), (W8, w8)]
     nomes = {**ARQUIVOS, **ARQUIVOS_WHATSAPP}
     for wid, fabrica in fabricas:
-        texto = json.dumps(fabrica(), ensure_ascii=False, indent=2)
+        wf = fabrica()
+        if real:
+            limitar_chaves(wf)
+            corpo_puro_da_chave(wf)
+        texto = json.dumps(wf, ensure_ascii=False, indent=2)
         texto = texto.replace(PCPR_PADRAO, pcpr).replace(CANAL_PADRAO, canal)
         texto = texto.replace(GRAPH_PADRAO, graph)
         p = destino / nomes[wid]
@@ -2175,9 +2485,18 @@ def construir(
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("destino", type=Path)
-    ap.add_argument("--pcpr", default=PCPR_PADRAO)
+    ap.add_argument("--pcpr", default=None, help="URL-base da API (padrão conforme o alvo)")
     ap.add_argument("--canal", default=CANAL_PADRAO)
+    ap.add_argument("--graph", default=None, help="URL-base da Graph API (padrão: simulador)")
     ap.add_argument("--whatsapp", action="store_true", help="inclui W6–W8 (WA-3)")
+    ap.add_argument(
+        "--alvo",
+        choices=ALVOS,
+        default="simuladores",
+        help="'pcpr' = fluxos para a API de automação REAL do PCPR (W1–W3, W5–W8)",
+    )
     args = ap.parse_args()
-    for caminho in construir(args.destino, args.pcpr, args.canal, args.whatsapp):
+    for caminho in construir(
+        args.destino, args.pcpr, args.canal, args.whatsapp, args.graph, args.alvo
+    ):
         print(caminho)

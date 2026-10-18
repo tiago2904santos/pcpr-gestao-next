@@ -1,0 +1,154 @@
+{
+  "updatedAt": "2026-10-18T12:36:15.000Z",
+  "createdAt": "2026-10-18T12:30:39.138Z",
+  "id": "pcprErros0000001",
+  "name": "PCPR · Erros",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "908deb9b-ff57-5475-8a5f-5217c009c757",
+      "name": "Quando um fluxo falhar",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eeb66a5a-40ec-58e2-979c-327e327e3f29",
+              "name": "cfg_pcpr",
+              "value": "http://host.docker.internal:8775/api/automacao/v1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "aab89731-e0b9-5cf4-bc0e-0f05709e6169",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))).length <= 200 && /^[ -~]*$/.test(\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))) ? \"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())) : \"erro-n8n#sha256:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())).hash('sha256') }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'n8n:' + $json.workflow.name, correlacao_id: 'n8n:execucao:' + ($json.execution.id ?? 'sem-id'), motivo: 'outro', detalhe: (String(($json.execution.error || {}).message || 'erro sem mensagem') + ' (nó: ' + ($json.execution.lastNodeExecuted || '?') + ')').slice(0, 2000), execucao_orquestrador: String($json.execution.id ?? '') }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "805fc867-59b3-5c0d-ac0f-5ef7722d382c",
+      "name": "Abrir exceção",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Quando um fluxo falhar": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Abrir exceção",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "05a35764-3637-4a45-8061-ed522c178c91",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T12:30:39.141Z",
+      "createdAt": "2026-10-18T12:30:39.141Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprErros0000001",
+      "projectId": "n5ei4JiqNqKfr82t",
+      "project": {
+        "updatedAt": "2026-10-18T12:30:31.150Z",
+        "createdAt": "2026-10-18T12:30:31.150Z",
+        "id": "n5ei4JiqNqKfr82t",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "2adc8501-40c6-45e5-bf84-8b229c47e2d1"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

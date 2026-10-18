@@ -146,6 +146,55 @@ def _linha_de_registro() -> dict:
     }
 
 
+def _sugestao_ia_exemplo() -> dict:
+    """O cartão de sugestão de IA (assistencia/_painel_uso.html) em cada estado, sintético."""
+    uso = {"chave": "ui-lab.exemplo", "codigo": "AUT-50",
+           "rotulo": "Rascunho do relatório técnico",
+           "descricao": "Descrição, objetivo e conclusão a partir da viagem e do plano.",
+           "acao": "Pedir rascunho do relato",
+           "opcoes": [{"nome": "relato", "rotulo": "Relato da equipe (opcional)",
+                       "ajuda": "Em poucas linhas. Não escreva nomes, CPF nem dados de saúde.",
+                       "max_caracteres": 800, "obrigatorio": False}]}
+    ia, regra = {"ligado": True, "modo": "ia"}, {"ligado": True, "modo": "regra"}
+
+    def sugestao(estado: str, rotulo: str, tom: str) -> dict:
+        return {"pk": 1, "estado": estado, "get_estado_display": rotulo, "tom": tom,
+                "decidida_por": "Operador de Exemplo" if estado == "aceita" else ""}
+
+    estados = [
+        ("Sem pedido (modo regra)", regra, None, None, False, False, False, True),
+        ("Redigindo (na fila do worker)", ia, {"pk": 1, "get_estado_display": "Redigindo"},
+         None, False, True, False, False),
+        ("Sugestão pronta", ia, {"pk": 1}, sugestao("pronta", "Pronta para revisão", "info"),
+         False, False, True, True),
+        ("Obsoleta (os dados mudaram)", ia, {"pk": 1},
+         sugestao("pronta", "Pronta para revisão", "info"), True, False, False, True),
+        ("Decidida", regra, {"pk": 1}, sugestao("aceita", "Aceita", "sucesso"), False, False,
+         False, True),
+        ("Desligado", {"ligado": False, "modo": "regra"}, None, None, False, False, False,
+         False),
+    ]
+    return {
+        "uso": uso,
+        "relacionados": [{"chave": "ui-lab.leitura", "acao": "Ler a programação",
+                          "codigo": "AUT-76"}],
+        "estados": [{"rotulo": r, "config": c, "pedido": p, "sugestao": s, "obsoleta": o,
+                     "pendente": pe, "pronta": pr, "pode_pedir": pp, "ident": f"ia-lab-{n}"}
+                    for n, (r, c, p, s, o, pe, pr, pp) in enumerate(estados, 1)],
+        "itens": [
+            {"rotulo": "Descrição do evento", "valor": "Apoio à Feira de Exemplo, em "
+             "Arapongas/PR, de 08/11 a 10/11/2026.",
+             "fontes": ["Ofício · motivo da viagem", "Ofício · destinos dos trechos",
+                        "Ofício · período dos trechos"],
+             "nota": "O campo já tem texto: aceitar substitui só com a sua confirmação."},
+            {"rotulo": "Parada 1", "valor": "Maringá/PR · 21/11/2026 · 07:30",
+             "fontes": ["Programação (texto colado no pedido)"],
+             "nota": "Município conferido no cadastro (IBGE)."},
+        ],
+        "lacunas": ["Lance os resultados no plano de trabalho para a conclusão citar números."],
+    }
+
+
 def indice(request: HttpRequest) -> HttpResponse:
     # Explorações sintéticas de composição: nenhuma operação ou regra de negócio.
     direcao = request.GET.get("oficio-direcao")
@@ -220,6 +269,7 @@ def indice(request: HttpRequest) -> HttpResponse:
                       "titulo": "Importar processo (exemplo)",
                       "descricao": "Ação rara da página, só para quem pode"}],
         **_itinerario_exemplo(),
+        "lab_ia": _sugestao_ia_exemplo(),
         "lab_resumo": _resumo_exemplo(),
         # Seletor de função da equipe na OS (viagens/widgets/_funcao_escolha.html).
         "lab_funcoes": [

@@ -3,15 +3,15 @@
 # emita o certificado (ex.: certbot --nginx -d DOMINIO) e rode `nginx -t` ANTES do reload.
 
 # Os tokens do feed ICS da agenda (/agenda/ics/<token>.ics) e do link do fornecedor
-# (/fornecedor/<token>/) são credenciais: o log de
+# (/fornecedor/<token>/) e dos links pessoais da automação (/p/<token>/) são credenciais: o log de
 # acesso registra a URI com ele trocado por [token]. map/log_format valem para o http{} todo —
 # o sufixo PORTA mantém os nomes únicos quando há mais de uma instância.
 map $request_uri $pcpr_uri_PORTA {
-    "~^(?<pcpr_ini_PORTA>.*/(?:agenda/ics|fornecedor)/)[^/?]+(?<pcpr_fim_PORTA>.*)$" "${pcpr_ini_PORTA}[token]${pcpr_fim_PORTA}";
+    "~^(?<pcpr_ini_PORTA>.*/(?:agenda/ics|fornecedor|p)/)[^/?]+(?<pcpr_fim_PORTA>.*)$" "${pcpr_ini_PORTA}[token]${pcpr_fim_PORTA}";
     default $request_uri;
 }
 map $http_referer $pcpr_ref_PORTA {
-    "~^(?<pcpr_rini_PORTA>.*/(?:agenda/ics|fornecedor)/)[^/?]+(?<pcpr_rfim_PORTA>.*)$" "${pcpr_rini_PORTA}[token]${pcpr_rfim_PORTA}";
+    "~^(?<pcpr_rini_PORTA>.*/(?:agenda/ics|fornecedor|p)/)[^/?]+(?<pcpr_rfim_PORTA>.*)$" "${pcpr_rini_PORTA}[token]${pcpr_rfim_PORTA}";
     default $http_referer;
 }
 log_format pcpr_PORTA '$remote_addr - $remote_user [$time_local] '

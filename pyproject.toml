@@ -87,7 +87,8 @@ type = "forbidden"
 source_modules = ["gestao.plataforma"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
                      "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
-                     "gestao.eventos", "gestao.coffee"]
+                     "gestao.eventos", "gestao.coffee", "gestao.automacao",
+                     "gestao.assistencia"]
 ignore_imports = ["gestao.plataforma.tests.** -> gestao.**"]
 
 [[tool.importlinter.contracts]]
@@ -101,7 +102,7 @@ allow_indirect_imports = true
 name = "Cadastros não dependem de Viagens"
 type = "forbidden"
 source_modules = ["gestao.cadastros"]
-forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.palestras"]
+forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.palestras", "gestao.automacao"]
 # Testes de integração montam o cenário completo (usuários, unidades, ofícios) de Viagens;
 # o código de Cadastros continua proibido de importar Viagens.
 ignore_imports = ["gestao.cadastros.tests.** -> gestao.viagens.**"]
@@ -112,7 +113,8 @@ type = "forbidden"
 source_modules = ["gestao.integracoes"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
                      "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
-                     "gestao.eventos", "gestao.coffee"]
+                     "gestao.eventos", "gestao.coffee", "gestao.automacao",
+                     "gestao.assistencia"]
 
 [[tool.importlinter.contracts]]
 name = "Domínio puro não conhece integrações externas (ADR 0019)"
@@ -189,6 +191,36 @@ allow_indirect_imports = true
 name = "Regras de Eventos Sociais são puras (sem Django)"
 type = "forbidden"
 source_modules = ["gestao.eventos.dominio"]
+forbidden_modules = ["django"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Automação não conhece os contextos de negócio: eles entram por ganchos (ADR 0047)"
+type = "forbidden"
+source_modules = ["gestao.automacao"]
+forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gestao.publicacoes",
+                     "gestao.palestras", "gestao.eventos", "gestao.coffee"]
+
+[[tool.importlinter.contracts]]
+name = "Regras da automação são puras (sem Django)"
+type = "forbidden"
+source_modules = ["gestao.automacao.dominio"]
+forbidden_modules = ["django"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Assistência por IA não conhece os contextos de negócio: eles entram por ganchos (ADR 0048)"
+type = "forbidden"
+source_modules = ["gestao.assistencia"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.imprensa",
+                     "gestao.publicacoes", "gestao.palestras", "gestao.eventos", "gestao.coffee",
+                     "gestao.automacao"]
+ignore_imports = ["gestao.assistencia.tests.** -> gestao.**"]
+
+[[tool.importlinter.contracts]]
+name = "Regras da assistência são puras (sem Django)"
+type = "forbidden"
+source_modules = ["gestao.assistencia.dominio"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Testadores autorizados · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Testadores autorizados</h1>
+    <p class="pagina-cabecalho__descricao">A lista fechada do LAB: {% if lista_fechada %}fora de produção, só estes números recebem mensagens — qualquer outro dá zero chamada à Meta{% else %}a lista está desligada neste ambiente (produção){% endif %}.</p>
+  </div>
+</header>
+<div class="layout-detalhe mt-4">
+  <section class="cartao" aria-labelledby="t-lista">
+    <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lista">Na lista</h2></div>
+    {% if linhas %}
+    <ul class="registros">
+      {% for d, mascarado, vigente in linhas %}
+      <li class="registro{% if not vigente %} registro--inativo{% endif %}">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Lab</span><span class="placa__numero">{{ d.endereco|slice:"-4:" }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link">{{ d.descricao }}</span>{% if not vigente %}<span class="selo selo--neutro selo--sem-ponto">Vencido</span>{% elif d.valido_ate and d.valido_ate <= vencendo %}<span class="selo selo--aviso selo--sem-ponto">Vence em {{ d.valido_ate|date:"d/m" }}</span>{% endif %}</div>
+          <div class="registro__meta"><span class="registro__meta-item">{% icone "phone" classe="icone--sm" %}{{ mascarado }}</span><span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ d.adicionado_por }} · {{ d.adicionado_em|date:"d/m/Y" }}</span></div>
+        </div>
+        <div class="registro__acoes registro__acoes--fixas">
+          <form method="post" action="{% url 'automacao:remover_testador' d.pk %}" data-confirmar="{{ d.descricao }} sai da lista: nada mais é enviado para esse número até alguém incluí-lo de novo." data-confirmar-titulo="Remover da lista de testadores?" data-confirmar-rotulo="Remover" data-confirmar-perigo>{% csrf_token %}<button class="botao botao--sm botao--perigo-sutil" type="submit" aria-label="Remover {{ d.descricao }} da lista">{% icone "trash-2" %}Remover</button></form>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}{% include "componentes/vazio.html" with icone="shield-check" titulo="Ninguém na lista" texto="Enquanto a lista estiver vazia, nenhuma mensagem sai para a Meta. Inclua os números dos testadores ao lado." %}{% endif %}
+  </section>
+  <aside class="layout-detalhe__lateral" aria-label="Incluir testador">
+    <section class="cartao" aria-labelledby="t-novo">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">Incluir testador</h2></div>
+      <form method="post" class="cartao__corpo pilha" novalidate>{% csrf_token %}
+        {% include "componentes/resumo_erros.html" with form=form %}
+        {% include "componentes/campo.html" with campo=form.telefone %}
+        {% include "componentes/campo.html" with campo=form.descricao %}
+        {% include "componentes/campo.html" with campo=form.valido_ate %}
+        <p class="texto-secundario texto-sm">Inclua só quem autorizou receber mensagens do teste.</p>
+        <div><button class="botao botao--primario" type="submit">{% icone "plus" %}Incluir</button></div>
+      </form>
+    </section>
+  </aside>
+</div>
+{% endblock %}
