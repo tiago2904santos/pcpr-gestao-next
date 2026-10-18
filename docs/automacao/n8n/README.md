@@ -11,10 +11,12 @@ protótipo (`docs/automacao/prototipo/`). Todos têm `"active": false`. Só roda
 **simuladores locais** (PCPR, canal fictício e Graph API do WhatsApp, dados sintéticos): a API de
 automação do PCPR ainda não existe, então nada aqui foi testado contra o sistema real.
 
-- W1, W3, W4 e W5: exportados pela suíte principal (`testar_prototipo.py`, 18/10/2026 03:33,
-  rodada com T11, T20 + 18 cenários passando).
-- W2, W6, W7 e W8: exportados pela suíte do WhatsApp oficial (`testar_whatsapp.py`, 18/10/2026
-  03:44, TW0–TW16 passando). O W2 tem o desvio por canal (WhatsApp → W6). W6–W8 são a
+- W1, W3, W4 e W5: exportados pela suíte principal (`testar_prototipo.py`, rodada de
+  **18/10/2026 10:28–10:34** (−03:00), T1–T20 passando — é a rodada registrada em
+  `prototipo/resultados/resultados.json`, campos `inicio`/`fim`).
+- W2, W6, W7 e W8: exportados pela suíte do WhatsApp oficial (`testar_whatsapp.py`, rodada de
+  **18/10/2026 09:23–09:28** (−03:00), TW0–TW16 passando — a de
+  `prototipo/resultados/resultados-whatsapp.json`). O W2 tem o desvio por canal (WhatsApp → W6). W6–W8 são a
   frente **WA-3 — prontos e DESLIGADOS** (seção própria no fim): não publicar nem cadastrar
   credencial real antes do portão de ativação.
 - Revisão do PR #23 (18/10/2026): W2, W4, W6, W7 e W8 mudaram de comportamento em retentativa e

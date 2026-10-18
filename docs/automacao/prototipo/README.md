@@ -126,10 +126,12 @@ Arquivos:
 
 ## Resultados da suíte principal
 
-**Rodada final: 18/10/2026, 03:17–03:33 (horário de Brasília) — T11, T20 + 18 cenários, todos
-passaram, saída 0** (`resultados/resultados.json`; export de W1–W5 com `"active": false`, sem
-segredo no relatório, contêiner removido e portas 5678/8765/8766 livres no fim). É a rodada da
-[terceira verificação](#terceira-verificação--o-que-mudou): T19 com os casos (f) recusa que muda
+**Rodada final: 18/10/2026, 10:28–10:34 (horário de Brasília) — T1–T20, todos passaram, saída
+0** (é a registrada em `resultados/resultados.json`, campos `inicio`/`fim`; export de W1–W5 com
+`"active": false`, sem segredo no relatório, contêiner removido e portas livres no fim). Inclui
+as verificações seguintes do Codex: chaves de exceção e de recebimento limitadas a 200 e só
+ASCII (T19h–T19k) e 4xx definitivo no download do W4 (T19 e2/e3). O parágrafo abaixo descreve a
+rodada da [terceira verificação](#terceira-verificação--o-que-mudou): T19 com os casos (f) recusa que muda
 entre entregas e (g) falha transitória persistente → `fila_parada`. A máquina continuava
 carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaixo).
 
@@ -144,7 +146,9 @@ carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaix
 | 18/10 00:46–00:52 | T11 + 17/17 | rodada final da 1ª rodada da revisão; a 2ª verificação reprovou o C9 (recusa permanente → 503 sem exceção) e, numa repetição dela, o T13 falhou no W5 (token de reserva retido) |
 | 18/10 01:52–02:01 | T11, T20 + 18/18, saída 0 | 2ª verificação. Antes, numa rodada parcial (T9, T12, T16, T17, T19), o **T19 falhou**: a 2ª entrega da mesma mensagem com recusa permanente voltava a dar 503 (corpo de `/excecoes` com o id da execução sob chave estável → 422 "chave reutilizada"); corrigido e repetido. Nesta rodada a medição de latência não fechou: 1 envio da série ficou sem resposta do canal em 10 s (`timeout of 10000ms exceeded`) → `resultado_desconhecido` + exceção, sem reenvio — o desenho funcionou, mas a métrica ficou sem número; por isso a rodada foi repetida |
 | 18/10 02:13–02:28 | T11, T20 + 18/18, saída 0 | rodada final da 2ª verificação (métricas completas) |
-| **18/10 03:17–03:33** | **T11, T20 + 18/18, saída 0** | 3ª verificação: W4 com chave de exceção por classe de recusa e exceção `fila_parada` (T19f, T19g) |
+| 18/10 03:17–03:33 | T11, T20 + 18/18, saída 0 | 3ª verificação: W4 com chave de exceção por classe de recusa e exceção `fila_parada` (T19f, T19g) |
+| 18/10, manhã (rodadas intermediárias) | T1–T20 passaram (uma rodada intermediária teve T15 e outra T19(g) falhando por tempo, com a máquina carregada por outra bateria; ambos passaram isolados e na rodada seguinte) | chaves ≤ 200 e só ASCII (`#sha256`), corpo estável do órfão, inteiros grandes no validador |
+| **18/10 10:28–10:34** | **T1–T20, saída 0** (`resultados.json`) | W4: 4xx estável no download é definitivo (T19 e2/e3); contrato com a regra ASCII da chave |
 
 **T13 nesta rodada:** a 1ª varredura, logo depois dos cenários, achou **21** ocorrências do
 telefone sintético (`destino`) em execuções de webhook do W4 com status `running` (marcadas como
@@ -478,8 +482,9 @@ principal **03:17–03:33** e suíte WA-3 **03:33–03:44**, saída 0 nas duas.
 
 Frente WA-3 do [plano de implantação](../plano-implantacao.md), executada em 17/10/2026
 (rodada de 23:21–23:27), refeita com a revisão do PR #23 em 18/10/2026 (00:52–00:57) e com a
-segunda verificação (02:02–02:13) e com a terceira (**rodada final 03:33–03:44, TW0–TW16
-passaram**, `resultados/resultados-whatsapp.json`, saída 0). A política oficial
+segunda verificação (02:02–02:13), com a terceira (03:33–03:44) e com as verificações
+seguintes do Codex (**rodada final 09:23–09:28, TW0–TW16 passaram**, a registrada em
+`resultados/resultados-whatsapp.json`, saída 0). A política oficial
 proíbe órgãos policiais na WhatsApp Business Platform ([viabilidade](../whatsapp-viabilidade.md),
 seção 1): o objetivo foi deixar a integração **pronta e comprovada contra um simulador**, exportada
 **desligada**. Nenhuma chamada à Meta (Graph API simulada em `127.0.0.1:8767`; dentro do contêiner,
