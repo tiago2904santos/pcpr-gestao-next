@@ -971,6 +971,22 @@ def tw14(variante: str) -> dict:
     sd = graph("/_sim/status", {**corpo_c, "wamid": wamid_d, "timestamp": int(time.time())})
     std = sd["entregas"][0]["status"]
     checar(std is not None and not 200 <= std < 300, f"(c) status recente deveria adiar: {std}")
+    # (e) órfão antigo com wamid LONGO (190 caracteres; a consulta aceita até 300): a chave da
+    # exceção passaria de 200 → o cabeçalho usa sha256 e o status é confirmado (Codex 4306152916)
+    wamid_e = "wamid.SIMLONGO" + secrets.token_hex(8) + "Q" * 160
+    se_ = graph("/_sim/status", {**corpo_c, "wamid": wamid_e})
+    ste = se_["entregas"][0]["status"]
+    assentar(1)
+    e = est()
+    chaves_e = [
+        str(p["chave"])
+        for p in chamadas(e, r"/excecoes")
+        if str(p["chave"]).startswith("excecao:whatsapp-status:sha256:")
+    ]
+    ex_e = [x for x in e["excecoes"] if wamid_e[-12:] in str(x.get("correlacao_id"))]
+    checar(ste == 200, f"(e) órfão com wamid longo deveria ser confirmado (200): {ste}")
+    checar(len(chaves_e) == 1 and len(chaves_e[0]) <= 200, f"(e) chaves {chaves_e}")
+    checar(len(ex_e) == 1, f"(e) exceções: {ex_e}")
     return {
         "a_sem_callback_data": {
             "primeira_entrega": st1,
@@ -989,6 +1005,12 @@ def tw14(variante: str) -> dict:
             "reentrega": rc["entregas"][0]["status"],
             "excecoes": 1,
             "status_recente_de_controle": std,
+        },
+        "e_orfao_com_wamid_longo": {
+            "tamanho_do_wamid": len(wamid_e),
+            "primeira_entrega": ste,
+            "tamanho_da_chave_da_excecao": len(chaves_e[0]),
+            "excecoes": 1,
         },
     }
 
@@ -1706,7 +1728,9 @@ def exportar_workflows(tmp: Path) -> dict:
 
 
 def portas_abertas() -> list[str]:
-    r = subprocess.run(["netstat", "-ano"], capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        ["netstat", "-ano"], capture_output=True, text=True, errors="replace", check=False
+    )
     return [
         linha.strip()
         for linha in r.stdout.splitlines()

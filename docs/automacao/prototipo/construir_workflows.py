@@ -161,6 +161,20 @@ def _cond(expr: str, cid: str) -> dict:
     }
 
 
+def chave_limitada(prefixo: str, logica_js: str) -> str:
+    """Expressão n8n de uma Idempotency-Key que cabe no limite do contrato (16 a 200 caracteres).
+
+    `logica_js` é a expressão JS da parte variável (ids do canal podem ter até 300 caracteres).
+    Chave curta sai como sempre foi (legível, igual às já gravadas); se passar de 200, vira
+    `<prefixo>sha256:<hex>` do valor inteiro — estável entre reentregas e sem colisão prática.
+    """
+    v = f"(String({logica_js}))"
+    return (
+        f"={{{{ ('{prefixo}' + {v}).length <= 200 ? '{prefixo}' + {v} : "
+        f"'{prefixo}sha256:' + {v}.hash('sha256') }}}}"
+    )
+
+
 def se(f: Fluxo, nome: str, expr: str, pos: tuple[int, int]) -> str:
     return f.no(
         nome,
@@ -986,8 +1000,9 @@ const motivoSem = OP === 'sem_arquivo' ? $('Pedido sem arquivo').first().json.mo
 const classe = [OP, 'http' + sc, codigo, motivoSem].filter(Boolean).join('-');
 const motivo_excecao = codigo === 'canal_bloqueado' ? 'canal_indisponivel' : 'outro';
 return [{ json: { ...base, passo: 'excecao', motivo_excecao,
-  // contrato: excecao:<fluxo>:<recebimento>:<motivo>
-  chave_excecao: 'excecao:recebimento-canais:receb:' + ctx.canal + ':' + ctx.mensagem_id + ':' +
+  // contrato: excecao:<fluxo>:<recebimento>:<motivo>; o prefixo excecao:recebimento-canais: vem no
+  // cabeçalho, que troca o resto por sha256 quando passaria de 200 caracteres (id longo do canal)
+  chave_excecao: 'receb:' + ctx.canal + ':' + ctx.mensagem_id + ':' +
     ctx.anexo_indice + ':' + classe + ':' + motivo_excecao,
   detalhe: ('PCPR recusou ' + OP + ' de forma permanente (' + descr + '); canal ' + ctx.canal +
     ', anexo ' + (Number(ctx.anexo_indice) + 1) + ' de ' + ctx.total_anexos +
@@ -1288,7 +1303,12 @@ def w4() -> dict:
         tentativas=3,
         espera_ms=1000,
         saida_erro=True,
-        cabecalhos=[("Idempotency-Key", "={{ $json.chave_excecao }}")],
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                chave_limitada("excecao:recebimento-canais:", "$json.chave_excecao"),
+            )
+        ],
         # corpo idêntico em toda reentrega da MESMA recusa: sem id da execução nem texto livre do
         # PCPR (mesma chave com outro corpo = 422 "chave reutilizada" → 503 em laço; T19a e T19f)
         corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
@@ -2208,7 +2228,7 @@ def w7() -> dict:
         (3300, 400),
         tentativas=3,
         espera_ms=1000,
-        cabecalhos=[("Idempotency-Key", "=excecao:whatsapp-sha256:{{ $json.wamid }}")],
+        cabecalhos=[("Idempotency-Key", chave_limitada("excecao:whatsapp-sha256:", "$json.wamid"))],
         corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
         "correlacao_id: 'whatsapp:' + String($json.wamid).slice(-12), motivo: 'outro', "
         "detalhe: 'SHA-256 da mídia baixada diverge do informado pela Meta; nada importado.' "
@@ -2413,7 +2433,10 @@ def w8() -> dict:
         tentativas=3,
         espera_ms=1000,
         cabecalhos=[
-            ("Idempotency-Key", "=excecao:whatsapp-status:{{ $json.wamid }}:{{ $json.status }}"),
+            (
+                "Idempotency-Key",
+                chave_limitada("excecao:whatsapp-status:", "$json.wamid + ':' + $json.status"),
+            ),
         ],
         corpo_json="={{ JSON.stringify({ fluxo: 'whatsapp', "
         "correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', "

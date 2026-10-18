@@ -1381,6 +1381,36 @@ def t19() -> dict:
         },
         "entrada_religada": {"entregas_do_canal": rl["entregas"], "recebimentos": 1},
     }
+    # (h) id de mensagem do canal LONGO (150 caracteres; o contrato aceita até 300): a chave do
+    # recebimento ainda cabe em 200, a da exceção não caberia → o cabeçalho usa sha256 do resto.
+    # Sem isso o /excecoes dava 400 e o W4 respondia 503 para sempre (Codex 4306152913).
+    resetar()
+    sim("/_sim/config", {"recusar_recebimentos": 99})
+    mid = "msg.sim.T19h." + secrets.token_hex(3) + "x" * 131
+    checar(len(mid) == 150, f"(h) tamanho do id {len(mid)}")
+    rh = [receber(mid)["entregas"], receber(mid)["entregas"]]  # a 2ª: o canal entrega de novo
+    e = est()
+    xh = da_msg(e, mid)
+    posts_h = [
+        (p["status"], bool(p.get("replay")), len(str(p["chave"])))
+        for p in chamadas(e, r"/excecoes")
+        if str(p["chave"]).startswith("excecao:recebimento-canais:sha256:")
+    ]
+    checar(rh == [[200], [200]], f"(h) entregas {rh}")
+    checar(xh["posts"] == [422, 422], f"(h) POST /recebimentos {xh['posts']}")
+    checar(
+        [(st, rep) for st, rep, _ in posts_h] == [(201, False), (201, True)]
+        and all(n <= 200 for _, _, n in posts_h),
+        f"(h) POST /excecoes {posts_h}",
+    )
+    checar(len(xh["excecoes"]) == 1, f"(h) exceções {xh['excecoes']}")
+    saida["h_id_do_canal_longo"] = {
+        "tamanho_do_id": len(mid),
+        "entregas_do_canal": rh,
+        "tamanho_da_chave_da_excecao": posts_h[0][2],
+        "post_excecoes": ["201", "201 (repetição)"],
+        "excecoes": 1,
+    }
     return saida
 
 
@@ -1749,6 +1779,7 @@ def portas_abertas() -> list[str]:
         ["netstat", "-ano"],
         capture_output=True,
         text=True,
+        errors="replace",  # saída na página de código do console (com PYTHONUTF8=1 quebrava)
         check=False,
     )
     return [

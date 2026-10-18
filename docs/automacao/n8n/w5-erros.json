@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T06:31:45.000Z",
-  "createdAt": "2026-10-18T06:19:10.821Z",
+  "updatedAt": "2026-10-18T10:27:40.000Z",
+  "createdAt": "2026-10-18T10:18:59.341Z",
   "id": "pcprErros0000001",
   "name": "PCPR · Erros",
   "description": null,
@@ -121,7 +121,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "941bc6cd-5102-48dd-ad0b-bdb952a6384a",
+  "versionId": "718906fa-34f1-4452-93e0-1931593c1b43",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -129,21 +129,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T06:19:10.838Z",
-      "createdAt": "2026-10-18T06:19:10.838Z",
+      "updatedAt": "2026-10-18T10:18:59.343Z",
+      "createdAt": "2026-10-18T10:18:59.343Z",
       "role": "workflow:owner",
       "workflowId": "pcprErros0000001",
-      "projectId": "kdXYnwnvJFdtahnM",
+      "projectId": "9mwgCLs7naWtGHBh",
       "project": {
-        "updatedAt": "2026-10-18T06:18:13.239Z",
-        "createdAt": "2026-10-18T06:18:13.239Z",
-        "id": "kdXYnwnvJFdtahnM",
+        "updatedAt": "2026-10-18T10:18:46.454Z",
+        "createdAt": "2026-10-18T10:18:46.454Z",
+        "id": "9mwgCLs7naWtGHBh",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "8ba0b2af-dc60-48f0-a71f-9ee8d97c3167"
+        "creatorId": "28e6dcde-e43f-41e7-939f-b589500ccf9d"
       }
     }
   ],

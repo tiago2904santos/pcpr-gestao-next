@@ -42,6 +42,14 @@ mensagem com mais de 4 h abre exceção `fila_parada` sem largar a mensagem (T19
 teste de reentrega da exceção de SHA-256 divergente (TW8b). Ver
 [Terceira verificação](#terceira-verificação--o-que-mudou).
 
+**Quarta verificação (18/10/2026, manhã).** Dois apontamentos novos do Codex: a
+`Idempotency-Key` das exceções passava de 200 caracteres quando o id do canal era longo (o
+contrato aceita ids de até 300), o `/excecoes` respondia 400 e o W4 (recusa permanente) e o W8
+(status órfão) ficavam presos em não-2xx. As três chaves de exceção (W4 recusa permanente, W7
+SHA-256 divergente, W8 status órfão) agora saem como sempre até 200 caracteres e, acima disso,
+como `<prefixo>sha256:<hex>` do resto (`chave_limitada` em `construir_workflows.py`). Testes
+novos: T19h (id de 150 caracteres) e TW14e (wamid de 190); as duas baterias passaram inteiras.
+
 ## Executado de fato × só desenhado
 
 | Item | Situação |

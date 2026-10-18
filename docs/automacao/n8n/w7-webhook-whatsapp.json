@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T06:43:37.000Z",
-  "createdAt": "2026-10-18T06:34:35.480Z",
+  "updatedAt": "2026-10-18T10:34:10.000Z",
+  "createdAt": "2026-10-18T10:28:24.533Z",
   "id": "pcprWhatsWebhk01",
   "name": "PCPR · Webhook WhatsApp",
   "description": null,
@@ -693,7 +693,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "=excecao:whatsapp-sha256:{{ $json.wamid }}"
+              "value": "={{ ('excecao:whatsapp-sha256:' + (String($json.wamid))).length <= 200 ? 'excecao:whatsapp-sha256:' + (String($json.wamid)) : 'excecao:whatsapp-sha256:sha256:' + (String($json.wamid)).hash('sha256') }}"
             }
           ]
         },
@@ -1263,7 +1263,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "56d5c31e-06fd-4bd9-9f26-706c67b9d8cc",
+  "versionId": "6d372e82-f4dd-480d-8224-ca7f4e69c822",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 1,
@@ -1271,21 +1271,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T06:34:35.499Z",
-      "createdAt": "2026-10-18T06:34:35.499Z",
+      "updatedAt": "2026-10-18T10:28:24.538Z",
+      "createdAt": "2026-10-18T10:28:24.538Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsWebhk01",
-      "projectId": "0CS3vavw6UwQeMAZ",
+      "projectId": "jxqqEKa6wcQm2eEj",
       "project": {
-        "updatedAt": "2026-10-18T06:33:47.174Z",
-        "createdAt": "2026-10-18T06:33:47.174Z",
-        "id": "0CS3vavw6UwQeMAZ",
+        "updatedAt": "2026-10-18T10:28:13.057Z",
+        "createdAt": "2026-10-18T10:28:13.057Z",
+        "id": "jxqqEKa6wcQm2eEj",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "73f432c8-09aa-4153-b5dc-0601a17f8f3b"
+        "creatorId": "da9c8742-2037-487d-937b-0fa0d5d4ebf8"
       }
     }
   ],
