@@ -106,7 +106,7 @@ def montar(contrato: Contrato, hoje: date) -> Relatorio:
         m.os += 1
         m.quantidade += s.quantidade_efetiva
         m.valor += s.valor or Decimal("0.00")
-        mu = municipios.setdefault(s.municipio.nome, Municipio(s.municipio.nome))
+        mu = municipios.setdefault(s.municipio_nome, Municipio(s.municipio_nome))
         mu.os += 1
         mu.quantidade += s.quantidade_efetiva
         if s.lote_id in ativos:

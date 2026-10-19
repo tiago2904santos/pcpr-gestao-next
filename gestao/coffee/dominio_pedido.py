@@ -10,6 +10,9 @@ from dataclasses import dataclass, field
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
+# Pedido antigo sem município (o sistema anterior não o exigia): o que as telas mostram.
+SEM_MUNICIPIO = "município não informado"
+MSG_MUNICIPIO = "Informe o município do evento."
 MSG_SEM_LOTE = ("Nenhum lote ativo atende {municipio}. Inclua o município na lista de um lote "
                 "em Cadastros › Lotes.")
 MSG_SALDO = "Quantidade acima do saldo do lote: restam {restante} de {total} unidades."

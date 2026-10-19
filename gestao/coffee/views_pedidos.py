@@ -133,7 +133,7 @@ def _linha(s: Solicitacao, hoje: date) -> dict:
         tempo = ("Previsto", "neutro")
     fatos = [("calendar", "Evento", f"{s.data_evento:%d/%m/%Y}" if s.data_evento
               else "Sem data do evento", s.data_evento is None),
-             ("map-pin", "Município", s.municipio.nome, False),
+             ("map-pin", "Município", s.municipio_nome, not s.municipio_id),
              ("layers", "Lote", f"{s.lote} · {s.lote.contrato.fornecedor}", False)]
     if s.local_entrega:
         fatos.append(("building-2", "Local de entrega", s.local_entrega, False))
@@ -324,7 +324,8 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     hoje = timezone.localdate()
     ctx: dict = {"form": form, "s": s, "form_id": FORM_ID, "duplicada": duplicada, "origem": None,
                  "leitura": leitura, "locais_usados": _locais_usados(),
-                 "proximo_numero": queries.proximo_numero(hoje.year),
+                 "proximo_numero": (queries.proximo_numero(hoje.year, s.lote_id) if s is not None
+                                    else ""),
                  "msg_travados": MSG_TRAVADOS if form.travado else "",
                  "numero_ano": f"/ {(s.data_solicitacao if s else hoje).year}"}
     if s is not None:

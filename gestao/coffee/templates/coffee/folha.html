@@ -60,8 +60,8 @@ o protocolo e o pagamento, a do protocolo; a página central (coffee/solicitacao
       <div class="pilha">
         <div class="campos-folha campos-folha--tres">
           <div class="campo{% if form.municipio.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-            <input class="entrada" type="text" id="{{ form.municipio.id_for_label }}" name="municipio" value="{{ form.municipio.value|default_if_none:'' }}" placeholder="Cidade/PR" autocomplete="off" maxlength="80" data-municipio form="{{ form_id }}"{% if form.municipio.field.disabled %} disabled{% endif %} required aria-describedby="ajuda-municipio{% if form.municipio.errors %} erro-municipio{% endif %}"{% if form.municipio.errors %} aria-invalid="true"{% endif %}
+            <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}{% if form.municipio.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% endif %}</label>
+            <input class="entrada" type="text" id="{{ form.municipio.id_for_label }}" name="municipio" value="{{ form.municipio.value|default_if_none:'' }}" placeholder="Cidade/PR" autocomplete="off" maxlength="80" data-municipio form="{{ form_id }}"{% if form.municipio.field.disabled %} disabled{% endif %}{% if form.municipio.field.required %} required{% endif %} aria-describedby="ajuda-municipio{% if form.municipio.errors %} erro-municipio{% endif %}"{% if form.municipio.errors %} aria-invalid="true"{% endif %}
                    hx-get="{% url 'coffee:lote_do_municipio' %}" hx-trigger="change, keyup changed delay:600ms" hx-target="#lote-do-municipio" hx-include="[name=data_evento],[name=data_solicitacao]">
             <p class="campo__ajuda" id="ajuda-municipio">{{ form.municipio.help_text }}</p>
             {% if form.municipio.errors %}<p class="campo__erro" id="erro-municipio">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.municipio.errors|join:" " }}</span></p>{% endif %}

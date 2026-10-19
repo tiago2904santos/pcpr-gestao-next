@@ -52,7 +52,7 @@ def _ordens(usuario, inicio: date, fim: date) -> list[Compromisso]:
             meu=s.criado_por_id == getattr(usuario, "pk", None),
             detalhes=tuple((r, v) for r, v in (
                 ("Evento", descricao), ("Local", s.local_entrega), ("Endereço", _endereco(s)),
-                ("Município", f"{s.municipio.nome}/{s.municipio.uf}"),
+                ("Município", s.municipio_rotulo),
                 ("Quantidade", f"{s.quantidade} pessoas"), ("Número", s.numero),
                 ("Lote", str(s.lote)),
                 ("Cancelada", s.motivo_cancelamento if s.cancelada else "")) if v)))

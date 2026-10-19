@@ -24,7 +24,7 @@ ofício e o protocolo de pagamento, cada uma com os documentos que já tem e o b
     <dl class="metadados grade grade--2">
       <div class="metadado"><dt>Evento</dt><dd>{{ s.descricao }}</dd></div>
       <div class="metadado"><dt>Data e horário</dt><dd>{% if s.data_evento %}{{ s.data_evento|date:"d/m/Y" }}{% if s.horario %} às {{ s.horario|time:"H:i" }}{% endif %}{% else %}<span class="vazio-inline">Sem data do evento</span>{% endif %}</dd></div>
-      <div class="metadado"><dt>Município e lote</dt><dd>{{ s.municipio.nome }} · {{ s.lote }} · {{ s.lote.contrato.fornecedor }}</dd></div>
+      <div class="metadado"><dt>Município e lote</dt><dd>{% if s.municipio_id %}{{ s.municipio.nome }}{% else %}<span class="vazio-inline">{{ s.municipio_nome|capfirst }}</span>{% endif %} · {{ s.lote }} · {{ s.lote.contrato.fornecedor }}</dd></div>
       <div class="metadado"><dt>Pessoas</dt><dd>{{ s.quantidade }}{% if s.quantidade_faturada and s.quantidade_faturada != s.quantidade %} <span class="texto-secundario texto-sm">({{ s.quantidade_faturada }} faturadas)</span>{% endif %}{% if s.valor %} · {{ s.valor|moeda }}{% endif %}</dd></div>
       <div class="metadado"><dt>Entrega</dt><dd>{% if s.local_entrega or s.endereco_completo %}{{ s.local_entrega }}{% if s.local_entrega and s.endereco_completo %} — {% endif %}{{ s.endereco_completo }}{% else %}<span class="vazio-inline">Local a informar</span>{% endif %}</dd></div>
       <div class="metadado"><dt>Quem recebe</dt><dd>{% if s.responsavel %}{{ s.responsavel }}{% else %}<span class="vazio-inline">A informar</span>{% endif %}</dd></div>

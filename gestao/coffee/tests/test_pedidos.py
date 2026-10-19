@@ -12,12 +12,14 @@ from decimal import Decimal
 
 import pytest
 from django.contrib.auth.models import Group
+from django.db import IntegrityError, transaction
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
 from gestao.cadastros.models import Municipio
 from gestao.coffee import pedidos, queries
+from gestao.coffee.forms_pedido import FormularioSolicitacao
 from gestao.coffee.models import Contrato, Fornecedor, Lote, Movimento, Solicitacao
 from gestao.identidade.models import Usuario
 
@@ -115,11 +117,80 @@ def test_vigencia_retroativo_e_antecedencia(cenario):
 def test_numero_da_os_digitado_repetido_e_proximo(cenario):
     u, ano = cenario["u"], cenario["hoje"].year
     a = pedidos.salvar(u, _dados(cenario, numero="41")).solicitacao
-    assert a.numero == f"41/{ano}" and queries.proximo_numero(ano) == f"42/{ano}"
-    with pytest.raises(pedidos.PedidoInvalido, match=f"A OS 41/{ano} já existe"):
+    assert a.numero == f"41/{ano}" and queries.proximo_numero(ano, a.lote) == f"42/{ano}"
+    with pytest.raises(pedidos.PedidoInvalido, match=f"A OS 41/{ano} já existe no Lote 1"):
         pedidos.salvar(u, _dados(cenario, numero="41"))
     with pytest.raises(pedidos.PedidoInvalido, match="1 ou mais"):
         pedidos.salvar(u, _dados(cenario, numero="0"))
+
+
+def _outro_lote(cen, numero: int = 2) -> Lote:
+    """Outro lote do mesmo contrato, que atende Pinhais."""
+    lote = Lote.objects.create(contrato=cen["contrato"], numero=numero,
+                               exercicio=str(cen["hoje"].year), quantidade_total=100)
+    lote.municipios.set([cen["pinhais"]])
+    return lote
+
+
+def test_numero_da_os_e_por_lote(cenario):
+    """G1 da migração: cada lote tem a sua sequência no ano; o mesmo número existe em dois
+    lotes, nunca duas vezes no mesmo lote."""
+    u, ano = cenario["u"], cenario["hoje"].year
+    outro = _outro_lote(cenario)
+    a = pedidos.salvar(u, _dados(cenario)).solicitacao
+    b = pedidos.salvar(u, _dados(cenario, municipio=cenario["pinhais"])).solicitacao
+    assert (a.lote, b.lote) == (cenario["lote"], outro)
+    assert a.numero == b.numero == f"1/{ano}"            # cada lote começa do 1
+    c = pedidos.salvar(u, _dados(cenario, municipio=cenario["pinhais"], numero="7")).solicitacao
+    assert c.numero == f"7/{ano}"
+    assert queries.proximo_numero(ano, outro) == f"8/{ano}"
+    assert queries.proximo_numero(ano, cenario["lote"]) == f"2/{ano}"
+    assert queries.proximo_numero(ano, cenario["lote"].pk) == f"2/{ano}"   # aceita o id
+    # O 7 é livre no primeiro lote (é de outro lote) e repetido no segundo.
+    d = pedidos.salvar(u, _dados(cenario, numero="7")).solicitacao
+    assert d.numero == f"7/{ano}" and d.lote == cenario["lote"]
+    with pytest.raises(pedidos.PedidoInvalido, match=f"A OS 7/{ano} já existe no Lote 2"):
+        pedidos.salvar(u, _dados(cenario, municipio=cenario["pinhais"], numero="7"))
+    # O banco garante o mesmo: (lote, número) único.
+    with pytest.raises(IntegrityError), transaction.atomic():
+        Solicitacao.objects.filter(pk=a.pk).update(numero=f"7/{ano}")
+    # A busca pelo número impresso acha as duas OS.
+    achadas = queries.filtrar(Solicitacao.objects.all(), q=f"7/{ano}")
+    assert set(achadas.values_list("pk", flat=True)) == {c.pk, d.pk}
+
+
+def test_pedido_antigo_sem_municipio(cenario):
+    """G2 da migração: o pedido trazido do sistema anterior pode não ter município (as telas
+    dizem "município não informado"); o novo continua exigindo."""
+    u, hoje = cenario["u"], cenario["hoje"]
+    with pytest.raises(pedidos.PedidoInvalido, match="Informe o município do evento"):
+        pedidos.salvar(u, _dados(cenario, municipio=None))
+    antigo = Solicitacao.objects.create(
+        lote=cenario["lote"], municipio=None, data_solicitacao=hoje, numero=f"3/{hoje.year}",
+        descricao="Pedido antigo", quantidade=10, criado_por=u)
+    assert antigo.municipio_nome == "município não informado"
+    assert antigo.municipio_rotulo == "município não informado"
+    s = pedidos.salvar(u, _dados(cenario, municipio=None, descricao="Pedido antigo editado",
+                                 numero="3"), antigo).solicitacao
+    assert s.municipio_id is None and s.descricao == "Pedido antigo editado"
+    # Completar o município depois não troca o lote (veio do sistema anterior).
+    outro = _outro_lote(cenario)
+    s = pedidos.salvar(u, _dados(cenario, municipio=cenario["pinhais"], numero="3"),
+                       s).solicitacao
+    assert s.municipio == cenario["pinhais"] and s.lote == cenario["lote"] != outro
+    # Telas e documentos com o pedido sem município.
+    Solicitacao.objects.filter(pk=s.pk).update(municipio=None)
+    c = Client()
+    c.force_login(u)
+    for nome in ("coffee:solicitacao", "coffee:ordem_servico"):
+        r = c.get(reverse(nome, args=[s.pk]))
+        assert r.status_code == 200
+        assert "município não informado" in r.content.decode().lower()
+    r = c.get(reverse("coffee:solicitacoes"))
+    assert r.status_code == 200 and "município não informado" in r.content.decode().lower()
+    form = FormularioSolicitacao(solicitacao=Solicitacao.objects.get(pk=s.pk))
+    assert form.fields["municipio"].required is False
+    assert FormularioSolicitacao().fields["municipio"].required is True
 
 
 def test_excluir_so_antes_do_financeiro_e_bloqueio(cenario):

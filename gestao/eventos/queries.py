@@ -256,7 +256,8 @@ ACAO_NA_LINHA_DO_TEMPO = {"criacao": "criado", "envio": "emitido", "decisao": "e
                           "conclusao": "emitido", "devolucao": "reaberto",
                           "reenvio": "reaberto", "cancelamento": "cancelado",
                           "anexo": "documento", "transferencia": "viajante",
-                          "ajuste_dg": "viajante", "viagem": "documento"}
+                          "ajuste_dg": "viajante", "viagem": "documento",
+                          "importacao": "criado"}
 
 
 def _campo(coluna: str) -> Field:
