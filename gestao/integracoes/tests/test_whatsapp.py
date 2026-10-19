@@ -251,6 +251,20 @@ def test_url_vencida_pede_outra_uma_vez():
     assert AdaptadorCloudApi(REAL, t).baixar_midia(Anexo("M1", "document"), 2**20).conteudo == PDF
 
 
+def test_download_recusado_por_problema_da_conta_bloqueia_o_canal():
+    """Token ou conta recusados entre a consulta dos metadados e o download: o código no corpo
+    da Graph API vira CanalBloqueado (o worker bloqueia o canal), não falha temporária."""
+    for code, status in ((190, 401), (131031, 403)):
+        meta, _ = _midia()
+        with pytest.raises(erros.CanalBloqueado):
+            AdaptadorCloudApi(REAL, TransporteGravado([meta, _erro(code, status)])).baixar_midia(
+                Anexo("M1", "document"), 2**20)
+    meta, _ = _midia()
+    with pytest.raises(erros.FalhaTemporaria):  # sem código de conta: continua passageira
+        AdaptadorCloudApi(REAL, TransporteGravado([meta, Resposta(500, b"")])).baixar_midia(
+            Anexo("M1", "document"), 2**20)
+
+
 def test_sha256_em_hex_ou_base64():
     hexa = hashlib.sha256(PDF).hexdigest()
     assert conferir_sha256(PDF, hexa) == hexa

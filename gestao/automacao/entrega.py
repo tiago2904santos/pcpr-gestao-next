@@ -94,6 +94,15 @@ def _na_lista(endereco: str) -> bool:
     return False
 
 
+def na_lista_de_testadores(enderecos) -> set[str]:
+    """Quais destes endereços passam pela lista de testadores — o mesmo critério de
+    `_na_lista` (vigência e as formas com e sem o 9º dígito), numa consulta só (telas)."""
+    hoje = timezone.localdate()
+    vigentes = [d.endereco for d in DestinatarioAutorizado.objects.filter(
+        removido_em__isnull=True) if d.vigente(hoje)]
+    return {e for e in enderecos if any(v in dominio.variantes(e) for v in vigentes)}
+
+
 def _fluxos_ligados(canal: str) -> set[str] | None:
     """None = geral ou canal desligado (não há o que reservar)."""
     estados = {c.nome: c for c in ChaveAutomacao.objects.filter(

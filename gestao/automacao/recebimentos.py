@@ -366,6 +366,12 @@ def _hex(digest: str) -> str:
         return d
 
 
+def _o_mesmo_arquivo(existente: Recebimento, sha: str) -> Recebimento:
+    if existente.sha256 and _hex(existente.sha256) != sha:
+        raise ConflitoDeArquivo("Mesma mensagem e anexo com outro conteúdo.")
+    return existente
+
+
 def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: bytes,
                     nome: str, recebido_em, em_resposta_a: str = "",
                     sha256_informado: str = "") -> tuple[Recebimento, bool]:
@@ -383,9 +389,7 @@ def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: 
     sha = hashlib.sha256(conteudo).hexdigest()
     existente = Recebimento.objects.filter(chave=chave).first()
     if existente is not None:
-        if existente.sha256 and _hex(existente.sha256) != sha:
-            raise ConflitoDeArquivo("Mesma mensagem e anexo com outro conteúdo.")
-        return existente, False
+        return _o_mesmo_arquivo(existente, sha), False
     # A transação abaixo é a de fora (a API não abre outra; ATOMIC_REQUESTS desligado): se
     # ela desfizer o registro — erro no meio ou no commit —, o arquivo pessoal já gravado não
     # pode ficar no storage sem ninguém que o aponte (a retenção só enxerga o que tem registro).
@@ -400,7 +404,9 @@ def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: 
                                                   sha256=sha256_informado, nome=nome))
             r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice)
             if r is None:
-                return Recebimento.objects.get(chave=chave), False
+                # Outra entrega (ex.: a outra credencial, na sobreposição da rotação) gravou
+                # antes: a mesma conferência do arquivo vale para ela — outro conteúdo é 409.
+                return _o_mesmo_arquivo(Recebimento.objects.get(chave=chave), sha), False
             if r.situacao != RS.IDENTIFICADO:
                 return r, True  # quarentena: o arquivo de desconhecido nem é guardado
             configuracao = whatsapp_config.carregar()
@@ -446,8 +452,12 @@ def registrar_sem_arquivo(*, mensagem_id: str, indice: int, remetente: str, moti
     # de tipo não tratado e mandaria uma 2ª resposta além da orientação do arquivo recusado.
     m = MensagemRecebida(mensagem_id=mensagem_id, tipo="document", recebida_em=recebido_em,
                          remetente=dominio.somente_digitos(remetente))
-    r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice) or \
-        Recebimento.objects.get(chave=chave)
+    r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice)
+    if r is None:
+        # Outra entrega da mesma mensagem gravou antes (ex.: pelo /recebimentos, com o arquivo):
+        # devolve o que existe — nunca rebaixa um recebimento aceito para recusado nem manda a
+        # orientação de arquivo recusado sobre um arquivo que entrou.
+        return Recebimento.objects.get(chave=chave)
     textos = {"acima_do_limite": "Arquivo acima do limite de 10 MB.",
               "sem_anexo": "A mensagem chegou sem o anexo.",
               "nao_baixado": "Não foi possível baixar o anexo."}

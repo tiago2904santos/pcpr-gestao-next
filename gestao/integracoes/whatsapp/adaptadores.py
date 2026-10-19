@@ -273,6 +273,14 @@ class AdaptadorCloudApi:
                     self.config.timeout_midia, limite)
             except (NaoEnviado, TalvezEnviado) as erro:
                 raise FalhaTemporaria("A mídia não chegou da Meta.", "rede") from erro
+            if resposta.status >= 400:
+                # Token ou conta recusados entre a consulta e o download (190, 131031…): o
+                # corpo diz o código, e o canal tem de bloquear como no envio.
+                dados = _json(resposta.corpo)
+                if "error" in dados:
+                    erro_meta = classificar(resposta.status, dados)
+                    if isinstance(erro_meta, CanalBloqueado):
+                        raise erro_meta
             if resposta.status == 404 and tentativa == 1:  # URL vencida (vale 5 min): pede outra
                 url, sha, tamanho = self._url_de_midia(anexo)
                 continue
