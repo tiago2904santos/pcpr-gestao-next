@@ -232,9 +232,12 @@ class AdaptadorCloudApi:
         mensagem_id = str(primeira.get("id") or "")
         if not mensagem_id:
             raise ResultadoIncerto("A Meta respondeu sem o id da mensagem.", "sem_id")
+        if len(mensagem_id) > 300:  # o teto dos modelos e do contrato; cortar casaria errado
+            raise ResultadoIncerto("A Meta respondeu um id de mensagem fora do formato.",
+                                   "id_longo")
         contatos = dados.get("contacts") if isinstance(dados.get("contacts"), list) else []
         contato = contatos[0] if contatos and isinstance(contatos[0], dict) else {}
-        return Envio(mensagem_id=mensagem_id[:128], wa_id=str(contato.get("wa_id") or "")[:20],
+        return Envio(mensagem_id=mensagem_id, wa_id=str(contato.get("wa_id") or "")[:20],
                      usuario_id=str(contato.get("user_id") or "")[:140],
                      situacao=str(primeira.get("message_status") or "accepted")[:40],
                      origem=Origem.CLOUD_API)

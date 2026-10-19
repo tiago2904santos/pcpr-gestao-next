@@ -62,6 +62,7 @@ def reservar() -> int | None:
         excecoes.abrir(T.ARQUIVO_RECUSADO, f"arquivo:receb:{esgotado.pk}",
                        f"O arquivo de {esgotado.servidor or 'um contato'} não pôde ser baixado.",
                        recebimento=esgotado, unidade_id=esgotado.unidade_id)
+        _avisar_recusa(esgotado)  # quem mandou fica sabendo e pode mandar de novo
     r = base.filter(tentativas__lt=MAX_TENTATIVAS).order_by("registrado_em", "id").first()
     if r is None:
         return None
@@ -163,12 +164,18 @@ def _recusar(pk: int, motivo: str) -> None:
     excecoes.abrir(T.ARQUIVO_RECUSADO, f"arquivo:receb:{r.pk}",
                    f"Arquivo de {r.servidor or 'um contato'} recusado: {motivo}",
                    recebimento=r, unidade_id=r.unidade_id)
+    _avisar_recusa(r)
+
+
+def _avisar_recusa(r: Recebimento) -> None:
+    """A orientação de arquivo recusado ao remetente identificado (uma por recebimento)."""
+    if not r.contato_id:
+        return
     from .comunicacoes import agendar
 
-    if r.contato_id:
-        agendar(tipo="automacao.arquivo_recusado", servidor_id=r.servidor_id,
-                recurso=f"automacao.recebimento:{r.pk}", chave=f"recusado:{r.pk}",
-                unidade_id=r.unidade_id, contexto={"recebimento": r.pk}, em_resposta_a=r)
+    agendar(tipo="automacao.arquivo_recusado", servidor_id=r.servidor_id,
+            recurso=f"automacao.recebimento:{r.pk}", chave=f"recusado:{r.pk}",
+            unidade_id=r.unidade_id, contexto={"recebimento": r.pk}, em_resposta_a=r)
 
 
 # ------------------------------------------------------------------ associação

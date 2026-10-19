@@ -65,6 +65,16 @@ def _texto(valor: Any, limite: int = 4096) -> str:
     return str(valor)[:limite]
 
 
+#: Id de mensagem do provedor: o mesmo teto dos modelos e do contrato V1. Mais longo não é
+#: cortado (dois ids com o mesmo começo virariam um só): o item é inválido.
+MAX_ID = 300
+
+
+def _id(valor: Any, limite: int = MAX_ID) -> str:
+    texto = _texto(valor, limite + 1)
+    return "" if len(texto) > limite else texto
+
+
 def _quando(valor: Any) -> datetime | None:
     texto = _texto(valor, 20)
     if not texto.isdigit():
@@ -94,7 +104,7 @@ def _erro(itens: Any) -> tuple[str, str]:
 
 
 def _status(s: dict[str, Any]) -> StatusRecebido | None:
-    mensagem_id, status = _texto(s.get("id"), 128), _texto(s.get("status"), 20).lower()
+    mensagem_id, status = _id(s.get("id")), _texto(s.get("status"), 20).lower()
     if not mensagem_id or not status:
         return None
     preco = None
@@ -113,7 +123,7 @@ def _status(s: dict[str, Any]) -> StatusRecebido | None:
 
 
 def _mensagem(m: dict[str, Any], perfis: dict[str, str]) -> MensagemRecebida | None:
-    mensagem_id, tipo = _texto(m.get("id"), 128), _texto(m.get("type"), 20).lower()
+    mensagem_id, tipo = _id(m.get("id")), _texto(m.get("type"), 20).lower()
     if not mensagem_id or not tipo:
         return None
     remetente = _texto(m.get("from"), 20)
@@ -124,7 +134,7 @@ def _mensagem(m: dict[str, Any], perfis: dict[str, str]) -> MensagemRecebida | N
     elif tipo in TIPOS_DE_MIDIA:
         bruto = _dict(m.get(tipo))
         texto = _texto(bruto.get("caption"), 1024)
-        midia_id = _texto(bruto.get("id"), 128)
+        midia_id = _id(bruto.get("id"), 128)  # o campo do recebimento tem 128
         if not midia_id:
             return None  # mídia sem id: malformada (contada em `ignorados`), nada a baixar
         anexo = Anexo(midia_id=midia_id, tipo=tipo, mime=_texto(bruto.get("mime_type"), 100),
@@ -146,7 +156,7 @@ def _mensagem(m: dict[str, Any], perfis: dict[str, str]) -> MensagemRecebida | N
         mensagem_id=mensagem_id, tipo=tipo, recebida_em=_quando(m.get("timestamp")),
         remetente=remetente, remetente_usuario=remetente_usuario,
         nome_perfil=perfis.get(chave_perfil, ""), texto=texto, resposta_id=resposta_id,
-        em_resposta_a=_texto(_dict(m.get("context")).get("id"), 128), anexo=anexo,
+        em_resposta_a=_id(_dict(m.get("context")).get("id")), anexo=anexo,
         erro_codigo=codigo)
 
 

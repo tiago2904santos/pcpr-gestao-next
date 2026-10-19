@@ -265,6 +265,26 @@ def test_download_recusado_por_problema_da_conta_bloqueia_o_canal():
             Anexo("M1", "document"), 2**20)
 
 
+def test_ids_do_provedor_ficam_inteiros_ate_300_e_acima_sao_invalidos():
+    longo, demais = "wamid." + "A" * 244, "wamid." + "B" * 295  # 250 e 301 caracteres
+    lote = webhook.ler(webhook.montar_status(mensagem_id=longo, status="delivered",
+                                             destinatario="5541999990001"))
+    assert [s.mensagem_id for s in lote.status] == [longo]
+    lote = webhook.ler(webhook.montar_mensagem(mensagem_id=longo, remetente="5541999990001",
+                                               texto="oi", em_resposta_a=longo))
+    assert lote.mensagens[0].mensagem_id == longo and lote.mensagens[0].em_resposta_a == longo
+    lote = webhook.ler(webhook.montar_status(mensagem_id=demais, status="delivered",
+                                             destinatario="5541999990001"))
+    assert not lote.status and lote.ignorados == 1  # nada de casar só pelo começo
+    lote = webhook.ler(webhook.montar_mensagem(mensagem_id="wamid.C", remetente="5541999990001",
+                                               texto="oi", em_resposta_a=demais))
+    assert lote.mensagens[0].em_resposta_a == ""
+    assert AdaptadorCloudApi(REAL, TransporteGravado([_ok(wamid=longo)])).enviar(
+        MSG).mensagem_id == longo
+    with pytest.raises(erros.ResultadoIncerto):
+        AdaptadorCloudApi(REAL, TransporteGravado([_ok(wamid=demais)])).enviar(MSG)
+
+
 def test_sha256_em_hex_ou_base64():
     hexa = hashlib.sha256(PDF).hexdigest()
     assert conferir_sha256(PDF, hexa) == hexa

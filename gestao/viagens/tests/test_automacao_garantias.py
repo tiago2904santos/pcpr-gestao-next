@@ -1160,3 +1160,34 @@ def test_selo_de_testador_usa_o_criterio_do_envio(c):
     assert "Fora da lista de testadores" in lista and "Testador autorizado" not in lista
     detalhe = cliente.get(reverse("automacao:contato", args=[contato.pk])).content.decode()
     assert "não está na lista de testadores" in detalhe
+
+
+# ------------------------------------------------------------------ 15ª revisão
+def test_download_esgotado_avisa_quem_mandou(c):
+    r = _arquivo_recebido(c)
+    Recebimento.objects.filter(pk=r.pk).update(tentativas=recebimentos.MAX_TENTATIVAS,
+                                                reservado_ate=None)
+    assert recebimentos.reservar() is None
+    r.refresh_from_db()
+    assert r.situacao == Recebimento.Situacao.RECUSADO
+    aviso = Comunicacao.objects.get(tipo="automacao.arquivo_recusado")
+    assert aviso.servidor_id == c.ps.servidor_id and aviso.recurso.endswith(f":{r.pk}")
+
+
+def test_resposta_de_numero_que_nao_vale_mais_nao_entra_na_unidade(c):
+    """O telefone do cadastro mudou e o número antigo responde ao aviso: o recebimento não se
+    liga ao aviso nem à unidade dele — fica em quarentena, só para quem administra."""
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    assert aviso.mensagem_id and aviso.unidade_id
+    servidor = c.ps.servidor
+    servidor.telefone = "41988887777"
+    servidor.save(update_fields=["telefone"])
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, texto="Segue o comprovante")
+    _processar_entradas()
+    r = Recebimento.objects.get()
+    assert r.contato_id is None and r.situacao == Recebimento.Situacao.QUARENTENA
+    assert r.comunicacao_id is None and r.unidade_id is None

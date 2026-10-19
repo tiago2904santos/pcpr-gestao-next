@@ -363,8 +363,6 @@ def aplicar(link, lancamentos: list, *, ip: str | None = None) -> list[Resultado
         if usuario is None:
             raise Bloqueio("sem_responsavel", "O setor de viagens precisa enviar um link "
                            "novo para este diário.")
-        with auditoria.contexto(usuario.pk, ip, f"km:{diario.pk}:sincronizar"):
-            servico_diario.sincronizar(diario)  # no POST, nunca no GET
         try:  # uma vez por lote: prestação aberta e permissão de quem o link representa
             servico_diario.conferir_edicao(usuario, diario)
             recusa = ""
@@ -372,6 +370,9 @@ def aplicar(link, lancamentos: list, *, ip: str | None = None) -> list[Resultado
             recusa = str(erro)
         except PermissionDenied:
             recusa = "O setor de viagens precisa enviar um link novo para este diário."
+        if not recusa:  # sincronizar MUDA as linhas: só para quem ainda pode editar
+            with auditoria.contexto(usuario.pk, ip, f"km:{diario.pk}:sincronizar"):
+                servico_diario.sincronizar(diario)  # no POST, nunca no GET
         resultados = [_aplicar_um(diario, usuario, item if isinstance(item, dict) else {}, ip,
                                   recusa) for item in lancamentos]
         if any(r.situacao == "gravado" for r in resultados):
