@@ -18,6 +18,14 @@ substituída para o piloto aqui descrito. Não se exige autorização da PCPR ou
 órgão policial para desenvolver este sistema de testes. Também não se declara que a Meta
 aprovou a conta: o cadastro do responsável real e os requisitos normais da plataforma continuam.
 
+## Saída manual vigente
+
+A decisão posterior do usuário adota [pendências manuais](envios-manuais.md) para a saída:
+WhatsApp Business do operador, mensagem única por servidor/prestação e PDFs baixados para
+anexar à mão. Somente KM é um link pessoal. `AUTOMACAO_TRANSPORTE=manual` é o padrão;
+não usa a API nem IA para enviar. O piloto da API abaixo permanece como alternativa
+explícita para outro cenário; não é necessário para este fluxo manual.
+
 ## Canal e experiência
 
 1. **Principal:** WhatsApp Business Platform, pela API oficial Cloud API. O aplicativo

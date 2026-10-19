@@ -333,8 +333,9 @@ WHATSAPP = {
     "modelos": env("WHATSAPP_MODELOS"),
 }
 AUTOMACAO_RETENCAO_DIAS = int(env("AUTOMACAO_RETENCAO_DIAS", "30"))
-# Quem leva as mensagens ao canal: o worker do PCPR ("interno", padrão) ou o n8n pela API v1.
-AUTOMACAO_TRANSPORTE = env("AUTOMACAO_TRANSPORTE", "interno")
+# Saída manual por padrão (ADR 0049). Recebimento continua independente.
+# Modos do piloto automatizado: interno ou n8n, somente com configuração explícita.
+AUTOMACAO_TRANSPORTE = env("AUTOMACAO_TRANSPORTE", "manual")
 AUTOMACAO_API_LIGADA = env_bool("AUTOMACAO_API_LIGADA", True)
 # Eventos PCPR → n8n (rede interna; HMAC). Sem URL, nenhum evento sai.
 N8N_EVENTOS_URL = env("N8N_EVENTOS_URL")

@@ -24,3 +24,6 @@ SECURE_CSP = {**SECURE_CSP, "img-src": _SEM_MOSAICO}  # noqa: F405
 # orçamentos de consultas de quem calhar de ser a primeira requisição do processo. Os testes
 # delas chamam as funções direto.
 ROTINAS_DIARIAS_NO_ACESSO = False
+
+# Exercita o piloto automatizado legado. Os testes manuais selecionam manual explicitamente.
+AUTOMACAO_TRANSPORTE = "interno"

@@ -262,6 +262,9 @@ def anexar(usuario, alvo: Alvo, *, nome: str, conteudo: bytes) -> ViaAssinada:
             _revogar(anterior, usuario, "Substituída por uma via nova.")
         via.save()
         _registrar(alvo, "anexada", usuario, via)
+        if isinstance(alvo.dono, Oficio):
+            from . import envios_manuais
+            envios_manuais.atualizar_do_oficio(alvo.dono.pk, usuario)
     except Exception:
         via.arquivo.delete(save=False)
         raise

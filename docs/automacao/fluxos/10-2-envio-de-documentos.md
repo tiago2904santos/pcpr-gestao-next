@@ -1,5 +1,13 @@
 # 10.2 — Envio dos documentos da viagem aos servidores e destinatários
 
+> **Fluxo manual vigente (18/10/2026):** por decisão posterior do usuário, a saída gera
+> pendências no sino e em `/viagens/envios/`, agrupadas por servidor/prestação. Mensagem
+> única com explicações; baixar ofício + RT próprio em PDF único ou ZIP e anexar manualmente.
+> Somente KM vai como link pessoal. Abrir a conversa na mesma aba evita abas acumuladas;
+> copiar permite usar uma conversa já aberta. Não há envio nem anexação automática.
+> Ver [regra vigente](../../product/envios-manuais.md) e [ADR 0049](../../adr/0049-preparar-envios-manuais-agrupados.md).
+> O desenho de envio automático abaixo permanece como alternativa futura, sem ativação.
+
 > **Escopo revisado em 18/10/2026:** [regra vigente do piloto](../../product/automacao-whatsapp-testes.md). Este site é um sistema
 > de testes independente, não oficial da polícia e sem operação com policiais. WhatsApp Business
 > Cloud API é o canal principal planejado; portal é apoio e e-mail opcional. As classificações e

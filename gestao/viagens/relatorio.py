@@ -308,7 +308,10 @@ def salvar(usuario, rt_pk: int, campos: dict[str, str]) -> dict[str, str]:
             mudou.append(campo)
     if mudou:
         rt.save(update_fields=[*mudou, "atualizado_em"])
-    return _salvar_recebidas(rt, campos)
+    erros = _salvar_recebidas(rt, campos)
+    from . import envios_manuais
+    envios_manuais.atualizar_do_oficio(rt.prestacao.oficio_id, usuario)
+    return erros
 
 
 def _salvar_recebidas(rt: RelatorioTecnico, campos: dict[str, str]) -> dict[str, str]:

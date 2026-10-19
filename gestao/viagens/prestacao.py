@@ -281,7 +281,7 @@ def salvar_solicitacao(usuario, ps_pk: int, *, numero: str, liberacao: date | No
     ps.save()
     if liberou_agora:
         _avisar_diarias_liberadas(ps, usuario)
-    if ps.data_liberacao_diarias:  # o servidor recebe pelo WhatsApp (se o fluxo estiver ligado)
+    if ps.data_liberacao_diarias:  # pendência manual ou aviso do piloto, conforme o transporte
         from . import comunicacoes
 
         comunicacoes.diarias_liberadas(ps, usuario)

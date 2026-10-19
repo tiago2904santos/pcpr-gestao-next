@@ -227,7 +227,8 @@ ABAS_COMUNICACAO = (
 
 
 def _linha(c: Comunicacao) -> dict:
-    return {"c": c, "rotulo": _rotulo_tipo(c.tipo),
+    return {"c": c, "rotulo": ("Envio manual de documentos" if c.contexto.get("manual")
+                                else _rotulo_tipo(c.tipo)),
             "quem": str(c.servidor) if c.servidor_id else "Sem destinatário"}
 
 
@@ -298,6 +299,8 @@ def _comunicacao_visivel(request: HttpRequest, pk: int) -> Comunicacao:
 def comunicacao(request: HttpRequest, pk: int) -> HttpResponse:
     _exigir(policies.pode_ver(request.user))
     c = _comunicacao_visivel(request, pk)
+    if c.contexto.get("manual"):
+        return redirect("viagens:envio_manual", ps_pk=c.contexto["ps"])
     conteudo = _conteudo(c)
     pode_operar = policies.pode_operar_objeto(request.user, c)
     return render(request, "automacao/comunicacao.html", {
