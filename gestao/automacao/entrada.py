@@ -211,16 +211,28 @@ def aplicar_status(c: Comunicacao, s: StatusEntrega) -> None:
 
 
 # ------------------------------------------------------------------ mensagens
+def _ainda_vale(contato: ContatoVerificado | None) -> ContatoVerificado | None:
+    """O contato só identifica quem escreve se o servidor continua ativo e o número dele ainda
+    é o do cadastro (como no envio): telefone trocado ou servidor desativado → quarentena."""
+    if contato is None:
+        return None
+    s = contato.servidor
+    atual = dominio.e164_do_brasil(getattr(s, "telefone", "") or "")
+    if s is None or not s.ativo or not dominio.mesmo_numero(contato.endereco, atual):
+        return None
+    return contato
+
+
 def identificar(m: MensagemRecebida) -> ContatoVerificado | None:
     vigentes = ContatoVerificado.objects.select_for_update().filter(
         canal=CANAL_WHATSAPP, revogado_em__isnull=True).select_related("servidor")
     if m.remetente_usuario:
         contato = vigentes.filter(usuario_canal=m.remetente_usuario).first()
         if contato:
-            return contato
+            return _ainda_vale(contato)
     if m.remetente:
         formas = dominio.variantes(m.remetente)
-        return vigentes.filter(Q(endereco__in=formas) | Q(wa_id__in=formas)).first()
+        return _ainda_vale(vigentes.filter(Q(endereco__in=formas) | Q(wa_id__in=formas)).first())
     return None
 
 

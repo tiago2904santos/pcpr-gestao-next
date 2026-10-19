@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import transaction
+from django.db import connection, transaction
 from django.urls import reverse
 from django.utils import timezone
 
@@ -83,6 +83,10 @@ def criar(*, escopo: str, recurso: str, servidor_id: int, criado_por=None,
         raise LinkInvalido("Escopo de link desconhecido.")
     agora = timezone.now()
     if revogar_anteriores:
+        with connection.cursor() as cursor:  # dois envios simultâneos não deixam 2 vigentes
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)", [int.from_bytes(
+                hashlib.sha256(f"link:{escopo}:{recurso}:{servidor_id}".encode()).digest()[:8],
+                "big", signed=True)])
         LinkAcesso.objects.filter(escopo=escopo, recurso=recurso, servidor_id=servidor_id,
                                   revogado_em__isnull=True).update(
             revogado_em=agora, motivo_revogacao=LinkAcesso.Motivo.LINK_NOVO)

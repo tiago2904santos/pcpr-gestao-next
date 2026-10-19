@@ -812,3 +812,46 @@ def test_lembrete_reservado_fica_obsoleto_quando_o_assunto_resolve(c):
         com_mod.encerrar_relacionadas(aviso.recurso, (aviso.tipo,), "O comprovante chegou.")
     aviso.refresh_from_db()
     assert aviso.situacao == S.OBSOLETA and aviso.reservada_ate is None
+
+
+def test_contato_nao_identifica_servidor_desativado_ou_com_outro_telefone(c):
+    from django.db import transaction as tx
+
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import MensagemRecebida
+
+    contato = _contato_ativo(c)
+    m = MensagemRecebida(mensagem_id="wamid.ID1", tipo="text", recebida_em=timezone.now(),
+                         remetente=E164)
+    with tx.atomic():
+        assert entrada_mod.identificar(m).pk == contato.pk
+    servidor = contato.servidor
+    servidor.telefone = "41988887777"  # o cadastro mudou: o número antigo não fala por ele
+    servidor.save(update_fields=["telefone"])
+    with tx.atomic():
+        assert entrada_mod.identificar(m) is None
+    servidor.telefone, servidor.ativo = E164[2:], False
+    servidor.save(update_fields=["telefone", "ativo"])
+    with tx.atomic():
+        assert entrada_mod.identificar(m) is None
+
+
+def test_arquivo_gravado_e_apagado_se_a_associacao_falhar(c, monkeypatch):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF, nome="c.pdf")
+    _processar_entradas()
+    gravados: list[tuple] = []
+
+    def falha(r):
+        gravados.append((r.arquivo.storage, r.arquivo.name))
+        raise RuntimeError("falha simulada depois de gravar")
+
+    monkeypatch.setattr(recebimentos, "tentar_associar", falha)
+    recebimentos.processar_um()
+    (storage, nome), = gravados
+    assert nome and not storage.exists(nome)
+    assert not Recebimento.objects.get().arquivo  # a transação desfez o registro

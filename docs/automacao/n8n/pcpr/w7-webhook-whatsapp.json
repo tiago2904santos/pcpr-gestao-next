@@ -263,7 +263,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Um POST da Meta pode trazer várias mensagens e status. Um item por evento.\nconst corpo = $('Webhook WhatsApp').first().json.body || {};\nconst itens = [];\nfor (const en of corpo.entry || []) {\n  for (const ch of en.changes || []) {\n    const v = ch.value || {};\n    for (const m of v.messages || []) {\n      const tipo = String(m.type || '');\n      const midia = (tipo === 'document' || tipo === 'image') ? (m[tipo] || {}) : null;\n      const base = {\n        wamid: String(m.id || ''),\n        remetente: '+' + String(m.from || '').replace(/[^0-9]/g, ''),\n        recebido_em: new Date(Number(m.timestamp || 0) * 1000).toISOString(),\n        em_resposta_a: String((m.context || {}).id || ''),\n      };\n      if (midia && midia.id) {\n        itens.push({ json: { evento: 'midia', ...base, media_id: String(midia.id),\n          sha256_meta: String(midia.sha256 || ''), mime: String(midia.mime_type || ''),\n          nome_arquivo: String(midia.filename || (tipo + '.bin')) } });\n      } else {\n        itens.push({ json: { evento: 'sem_arquivo', ...base, tipo_mensagem: tipo } });\n      }\n    }\n    for (const s of v.statuses || []) itens.push({ json: { evento: 'status', ...s } });\n  }\n}\nif (!itens.length) itens.push({ json: { evento: 'nada' } });\nreturn itens;"
+        "jsCode": "const SO_MIDIA = true;\n\n// Um POST da Meta pode trazer várias mensagens e status. Um item por evento.\nconst corpo = $('Webhook WhatsApp').first().json.body || {};\nconst itens = [];\nfor (const en of corpo.entry || []) {\n  for (const ch of en.changes || []) {\n    const v = ch.value || {};\n    for (const m of v.messages || []) {\n      const tipo = String(m.type || '');\n      const midia = (tipo === 'document' || tipo === 'image') ? (m[tipo] || {}) : null;\n      const base = {\n        wamid: String(m.id || ''),\n        remetente: '+' + String(m.from || '').replace(/[^0-9]/g, ''),\n        recebido_em: new Date(Number(m.timestamp || 0) * 1000).toISOString(),\n        em_resposta_a: String((m.context || {}).id || ''),\n      };\n      if (midia && midia.id) {\n        itens.push({ json: { evento: 'midia', ...base, media_id: String(midia.id),\n          sha256_meta: String(midia.sha256 || ''), mime: String(midia.mime_type || ''),\n          nome_arquivo: String(midia.filename || (tipo + '.bin')) } });\n      } else if (midia || !SO_MIDIA) {\n        itens.push({ json: { evento: 'sem_arquivo', ...base, tipo_mensagem: tipo } });\n      }  // SO_MIDIA (PCPR real, V1): texto, botão, \"ACEITO\"/\"SAIR\" ficam para a V2\n    }\n    for (const s of v.statuses || []) itens.push({ json: { evento: 'status', ...s } });\n  }\n}\nif (!itens.length) itens.push({ json: { evento: 'nada' } });\nreturn itens;"
       },
       "id": "e13dd30e-6ce3-5f07-957e-ffada9d0e1be",
       "name": "Separar eventos",
@@ -600,7 +600,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length >= 16 && ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },
@@ -693,7 +693,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"excecao:whatsapp-sha256:\" + (String($json.wamid))).length <= 200 && /^[ -~]*$/.test(\"excecao:whatsapp-sha256:\" + (String($json.wamid))) ? \"excecao:whatsapp-sha256:\" + (String($json.wamid)) : \"excecao#sha256:whatsapp-sha256:\" + (String($json.wamid)).hash('sha256') }}"
+              "value": "={{ (\"excecao:whatsapp-sha256:\" + (String($json.wamid))).length >= 16 && (\"excecao:whatsapp-sha256:\" + (String($json.wamid))).length <= 200 && /^[ -~]*$/.test(\"excecao:whatsapp-sha256:\" + (String($json.wamid))) ? \"excecao:whatsapp-sha256:\" + (String($json.wamid)) : \"excecao#sha256:whatsapp-sha256:\" + (String($json.wamid)).hash('sha256') }}"
             }
           ]
         },
@@ -733,7 +733,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
+              "value": "={{ ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length >= 16 && ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)).length <= 200 && /^[ -~]*$/.test(('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0))) ? ('receb:' + String('whatsapp') + ':' + String($json.wamid) + ':' + String(0)) : 'receb#sha256:' + String('whatsapp') + ':' + String($json.wamid).hash('sha256') + ':' + String(0) }}"
             }
           ]
         },

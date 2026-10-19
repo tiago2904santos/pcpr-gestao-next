@@ -1806,9 +1806,9 @@ for (const en of corpo.entry || []) {
         itens.push({ json: { evento: 'midia', ...base, media_id: String(midia.id),
           sha256_meta: String(midia.sha256 || ''), mime: String(midia.mime_type || ''),
           nome_arquivo: String(midia.filename || (tipo + '.bin')) } });
-      } else {
+      } else if (midia || !SO_MIDIA) {
         itens.push({ json: { evento: 'sem_arquivo', ...base, tipo_mensagem: tipo } });
-      }
+      }  // SO_MIDIA (PCPR real, V1): texto, botão, "ACEITO"/"SAIR" ficam para a V2
     }
     for (const s of v.statuses || []) itens.push({ json: { evento: 'status', ...s } });
   }
@@ -1859,7 +1859,7 @@ def _regra_evento(valor: str) -> dict:
     }
 
 
-def w7() -> dict:
+def w7(alvo: str = "simuladores") -> dict:
     f = Fluxo(W7)
     cfg = "$('Configuração').first().json"
     f.no(
@@ -1955,7 +1955,9 @@ def w7() -> dict:
         [("cfg_pcpr", PCPR_PADRAO, "string"), ("cfg_graph", GRAPH_PADRAO, "string")],
         (880, 560),
     )
-    codigo(f, "Separar eventos", JS_SEPARAR_EVENTOS, (1100, 560))
+    so_midia = "true" if alvo == "pcpr" else "false"  # V1 no PCPR real: só mídia
+    codigo(f, "Separar eventos", f"const SO_MIDIA = {so_midia};\n" + JS_SEPARAR_EVENTOS,
+           (1100, 560))
     f.no(
         "Tipo de evento",
         "n8n-nodes-base.switch",
@@ -2274,9 +2276,12 @@ def w8(alvo: str = "simuladores") -> dict:
     definir(f, "Configuração", [("cfg_pcpr", PCPR_PADRAO, "string")], (220, 300))
     js = JS_MAPEAR_STATUS
     if alvo == "pcpr":  # o PCPR real manda 'com:<id>:t<n>' (idempotencia_canal) no envio
-        js = js.replace("('com:<id>')", "('com:<id>:t<n>', o formato do PCPR real)").replace(
-            r"/^com:(\d+)$/", r"/^com:(\d+)(?::t\d+)?$/"
-        )
+        js = (js.replace("('com:<id>')", "('com:<id>:t<n>', o formato do PCPR real)")
+              .replace(r"/^com:(\d+)$/", r"/^com:(\d+)(?::t(\d+))?$/")
+              # a tentativa segue até o /entrega: status de tentativa antiga não confirma a atual
+              .replace("    comunicacao_id: m ? Number(m[1]) : null,\n",
+                       "    comunicacao_id: m ? Number(m[1]) : null,\n"
+                       "    tentativa: m && m[2] ? Number(m[2]) : null,\n"))
     codigo(f, "Mapear status", js, (440, 300))
     se(f, "Tem comunicação?", "={{ $json.comunicacao_id !== null }}", (660, 300))
     http(
@@ -2321,7 +2326,8 @@ def w8(alvo: str = "simuladores") -> dict:
             )
         ],
         corpo_json="={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, "
-        "ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined }) }}",
+        "ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined, "
+        "tentativa: $json.tentativa || undefined }) }}",
     )
     definir(f, "Marcar registrado", [("adiar", False, "boolean")], (1980, 200))
     f.no(
@@ -2462,7 +2468,7 @@ def construir(
             (W3, lambda: w3(alvo)),
             (W5, w5_pcpr),
             (W6, w6_pcpr),
-            (W7, w7),
+            (W7, lambda: w7(alvo)),
             (W8, lambda: w8(alvo)),
         ]
     else:

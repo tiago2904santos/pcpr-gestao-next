@@ -94,11 +94,19 @@ def baixar(pk: int, porta=None) -> Recebimento:
             return r  # outro worker já gravou
         extensao = EXTENSOES[midia.mime]
         r.arquivo.save(f"receb-{r.pk}{extensao}", ContentFile(midia.conteudo), save=False)
-        r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
-        r.nome_arquivo = f"recebido-{r.pk}{extensao}"
-        r.reservado_ate, r.motivo = None, ""
-        r.save()
-        tentar_associar(r)
+        gravado = r.arquivo.name
+        try:
+            r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
+            r.nome_arquivo = f"recebido-{r.pk}{extensao}"
+            r.reservado_ate, r.motivo = None, ""
+            r.save()
+            tentar_associar(r)
+        except Exception:
+            # A transação vai desfazer o registro: o arquivo pessoal não pode ficar no storage
+            # sem ninguém que o aponte (a limpeza por retenção só enxerga o que tem registro).
+            if gravado:
+                r.arquivo.storage.delete(gravado)
+            raise
     return r
 
 

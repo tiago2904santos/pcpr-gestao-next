@@ -232,7 +232,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
+              "value": "={{ (\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length >= 16 && (\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
             },
             {
               "name": "X-PCPR-Correlacao",
@@ -321,7 +321,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
+              "value": "={{ (\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length >= 16 && (\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
             }
           ]
         },

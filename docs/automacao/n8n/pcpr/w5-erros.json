@@ -54,7 +54,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))).length <= 200 && /^[ -~]*$/.test(\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))) ? \"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())) : \"erro-n8n#sha256:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())).hash('sha256') }}"
+              "value": "={{ (\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))).length >= 16 && (\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))).length <= 200 && /^[ -~]*$/.test(\"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis()))) ? \"erro-n8n:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())) : \"erro-n8n#sha256:\" + (String($json.workflow.id) + \":\" + String($json.execution.id ?? $now.toMillis())).hash('sha256') }}"
             }
           ]
         },

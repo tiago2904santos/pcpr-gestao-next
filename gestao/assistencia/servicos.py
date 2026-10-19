@@ -217,12 +217,16 @@ def _sem_nomes(texto: str, nomes) -> str:
 def _pedido_ia(uso: ganchos.UsoIA, ctx: ganchos.Contexto, deterministico: dict,
                config: ConfiguracaoUso, simular: str = "") -> PedidoIA:
     nomes = ctx.extras.get("nomes", ())
+
+    def limpo(texto: str) -> str:  # valores E rótulos/origens dos blocos (ex.: título livre)
+        return mascarar(_sem_nomes(texto, nomes))
+
     fatos = [dataclasses.replace(f, valor=_sem_nomes(f.valor, nomes)) for f in ctx.fatos]
     blocos = [BlocoDeDados("fatos", serializar_fatos(f for f in fatos if not f.do_pedido),
-                           ctx.recurso_rotulo)]
+                           limpo(ctx.recurso_rotulo))]
     for f in fatos:
         if f.do_pedido:
-            blocos.append(BlocoDeDados(f.chave, f.valor, f.rotulo))
+            blocos.append(BlocoDeDados(f.chave, f.valor, limpo(f.rotulo)))
     blocos.append(BlocoDeDados("lacunas_permitidas", ", ".join(uso.lacunas_conhecidas) or "—",
                                "lista fechada"))
     return PedidoIA(uso=uso.chave, instrucoes=INSTRUCOES_COMUNS + "\n\n" + uso.instrucoes,

@@ -494,3 +494,21 @@ def test_recebimento_v1_exige_a_hora_da_chegada(c):
         "total_anexos": 1, "remetente": E164, "motivo": "sem_anexo"},
         "receb:whatsapp:wamid.SEMHORA:0")
     assert r.status_code == 422
+
+
+def test_entrega_confere_a_tentativa_do_callback(c):
+    for invalida in ("1", 0, True):
+        r = _post(c, f"/comunicacoes/{c.com.pk}/entrega",
+                  {"provedor_mensagem_id": "wamid.T", "status": "entregue",
+                   "ocorrido_em": timezone.now().isoformat(), "tentativa": invalida},
+                  f"entrega:{c.com.pk}:wamid.T:inv-{invalida!r}")
+        assert r.status_code == 422, invalida
+    Comunicacao.objects.filter(pk=c.com.pk).update(situacao="reservada", tentativas=2,
+                                                   mensagem_id="")
+    r = _post(c, f"/comunicacoes/{c.com.pk}/entrega",
+              {"provedor_mensagem_id": "wamid.T1", "status": "entregue",
+               "ocorrido_em": timezone.now().isoformat(), "tentativa": 1},
+              f"entrega:{c.com.pk}:wamid.T1:entregue")
+    assert r.status_code == 200, r.content
+    c.com.refresh_from_db()
+    assert c.com.mensagem_id == "" and c.com.situacao == "reservada"  # a 1 não confirma a 2

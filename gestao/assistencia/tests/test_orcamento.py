@@ -200,3 +200,22 @@ def test_nomes_da_equipe_saem_antes_do_provedor():
     limpo = servicos._sem_nomes(texto, ["Ana Paula Ribeiro"])
     assert "Ribeiro" not in limpo and "Paula" not in limpo
     assert limpo.count("[pessoa]") >= 2 and "sede" in limpo
+
+
+def test_rotulos_dos_blocos_tambem_saem_sem_nomes():
+    """O rótulo do recurso e o dos blocos do pedido (ex.: um título livre) também vão ao
+    provedor: passam pelo mesmo filtro de nomes que os valores."""
+    from types import SimpleNamespace
+
+    from gestao.assistencia import ganchos, servicos
+
+    ctx = ganchos.Contexto(
+        recurso_rotulo="Evento de Ana Paula Ribeiro",
+        fatos=(ganchos.Fato("relato", "Relato de Ribeiro", "texto", do_pedido=True),),
+        extras={"nomes": ["Ana Paula Ribeiro"]})
+    uso = SimpleNamespace(chave="teste", instrucoes="", versao_prompt="1", esquema={},
+                          envolve_documento=False, lacunas_conhecidas=())
+    config = SimpleNamespace(max_tokens_saida=100, tempo_limite_s=5)
+    pedido = servicos._pedido_ia(uso, ctx, {}, config)
+    origens = " ".join(b.origem for b in pedido.dados)
+    assert "Ribeiro" not in origens and "Paula" not in origens and "[pessoa]" in origens

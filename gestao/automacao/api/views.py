@@ -296,13 +296,20 @@ def entrega_status(ch: Chamada, pk: int) -> JsonResponse:
     ocorrido_em = _data(d.get("ocorrido_em"))
     if ocorrido_em is None:  # contrato: obrigatório; sem ele o status ganharia a hora errada
         return erro(422, "entrada_invalida", "ocorrido_em (data e hora ISO 8601) é obrigatório.")
+    tentativa = d.get("tentativa")
+    if tentativa is not None and not (isinstance(tentativa, int)
+                                      and not isinstance(tentativa, bool) and tentativa >= 1):
+        return erro(422, "entrada_invalida", "tentativa é um inteiro ≥ 1 (o t<n> do callback).")
     c = _comunicacao(pk)
     if c.mensagem_id and c.mensagem_id != mensagem_id:
         return erro(409, "conflito_de_versao", "Esta comunicação tem outro id no provedor.")
     with transaction.atomic():
         entrada.registrar_status(StatusRecebido(
             mensagem_id=mensagem_id, status=status, ocorrido_em=ocorrido_em,
-            referencia=f"com:{c.pk}:t{c.tentativas}", erro_detalhe=mascarar(d.get("erro") or ""),
+            # A tentativa informada pelo n8n (o t<n> do callback) é conferida em
+            # registrar_status: status de tentativa anterior não confirma a atual.
+            referencia=f"com:{c.pk}:t{tentativa or c.tentativas}",
+            erro_detalhe=mascarar(d.get("erro") or ""),
             erro_codigo="n8n" if status == "failed" else ""), c.canal)
     c.refresh_from_db()
     return JsonResponse({"id": c.pk, "entrega": c.entrega})

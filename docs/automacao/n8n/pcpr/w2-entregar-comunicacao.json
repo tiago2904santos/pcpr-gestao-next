@@ -144,7 +144,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))).length <= 200 && /^[ -~]*$/.test(\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))) ? \"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)) : \"reserva#sha256:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)).hash('sha256') }}"
+              "value": "={{ (\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))).length >= 16 && (\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))).length <= 200 && /^[ -~]*$/.test(\"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id))) ? \"reserva:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)) : \"reserva#sha256:\" + (String($('Configuração').first().json.comunicacao_id) + \":v\" + String($('Configuração').first().json.versao) + \":exec\" + String($execution.id)).hash('sha256') }}"
             },
             {
               "name": "X-PCPR-Versao-Esperada",
@@ -532,7 +532,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
+              "value": "={{ (\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length >= 16 && (\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"resultado:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
             },
             {
               "name": "X-PCPR-Correlacao",
@@ -621,7 +621,7 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
+              "value": "={{ (\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length >= 16 && (\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token))) ? \"excecao:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Contexto do envio').first().json.comunicacao_id) + \":\" + String($('Contexto do envio').first().json.reserva_token)).hash('sha256') }}"
             }
           ]
         },

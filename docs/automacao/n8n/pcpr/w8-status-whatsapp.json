@@ -47,7 +47,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// sent → nada (o resultado já registrou o aceite); delivered → entregue; read → lida;\n// failed → falhou. A comunicação vem de biz_opaque_callback_data ('com:<id>:t<n>', o formato do PCPR real) quando houver.\nconst MAPA = { delivered: 'entregue', read: 'lida', failed: 'falhou' };\nconst cfg = $('Configuração').first().json;\nconst saida = [];\nfor (const it of $('Quando chamado pelo W7').all()) {\n  const s = it.json;\n  const status = MAPA[s.status];\n  if (!status) continue;\n  const m = /^com:(\\d+)(?::t\\d+)?$/.exec(String(s.biz_opaque_callback_data || ''));\n  const e = (s.errors || [])[0] || null;\n  saida.push({ json: {\n    cfg_pcpr: cfg.cfg_pcpr,\n    comunicacao_id: m ? Number(m[1]) : null,\n    wamid: String(s.id || ''),\n    status,\n    ocorrido_em: new Date(Number(s.timestamp || 0) * 1000).toISOString(),\n    erro: e ? ('código ' + e.code + ': ' + String(e.title || e.message || '')).slice(0, 300) : '',\n  } });\n}\nreturn saida;"
+        "jsCode": "// sent → nada (o resultado já registrou o aceite); delivered → entregue; read → lida;\n// failed → falhou. A comunicação vem de biz_opaque_callback_data ('com:<id>:t<n>', o formato do PCPR real) quando houver.\nconst MAPA = { delivered: 'entregue', read: 'lida', failed: 'falhou' };\nconst cfg = $('Configuração').first().json;\nconst saida = [];\nfor (const it of $('Quando chamado pelo W7').all()) {\n  const s = it.json;\n  const status = MAPA[s.status];\n  if (!status) continue;\n  const m = /^com:(\\d+)(?::t(\\d+))?$/.exec(String(s.biz_opaque_callback_data || ''));\n  const e = (s.errors || [])[0] || null;\n  saida.push({ json: {\n    cfg_pcpr: cfg.cfg_pcpr,\n    comunicacao_id: m ? Number(m[1]) : null,\n    tentativa: m && m[2] ? Number(m[2]) : null,\n    wamid: String(s.id || ''),\n    status,\n    ocorrido_em: new Date(Number(s.timestamp || 0) * 1000).toISOString(),\n    erro: e ? ('código ' + e.code + ': ' + String(e.title || e.message || '')).slice(0, 300) : '',\n  } });\n}\nreturn saida;"
       },
       "id": "adb64935-9034-5470-a69d-f3b471d37765",
       "name": "Mapear status",
@@ -218,13 +218,13 @@
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ (\"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status))).length <= 200 && /^[ -~]*$/.test(\"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status))) ? \"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status)) : \"entrega#sha256:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status)).hash('sha256') }}"
+              "value": "={{ (\"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status))).length >= 16 && (\"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status))).length <= 200 && /^[ -~]*$/.test(\"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status))) ? \"entrega:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status)) : \"entrega#sha256:\" + (String($json.comunicacao_id) + \":\" + String($json.wamid) + \":\" + String($json.status)).hash('sha256') }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined }) }}",
+        "jsonBody": "={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined, tentativa: $json.tentativa || undefined }) }}",
         "options": {
           "timeout": 10000
         }
