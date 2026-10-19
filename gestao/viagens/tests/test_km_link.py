@@ -574,6 +574,67 @@ def test_ativar_o_service_worker_guarda_os_estaticos_de_outro_link_valido(c, tmp
     assert any(n.startswith(f"pcpr-km-pagina:{link.pk}:") for n in caches)
 
 
+HARNESS_404 = """
+globalThis.caches = {
+  keys: async () => [], open: async () => ({ put: async () => {}, add: async () => {},
+                                              match: async () => undefined }),
+  delete: async () => true, match: async () => undefined,
+};
+globalThis.fetch = async () => new Response("Link indisponível", { status: 404 });
+const ouvintes = {};
+globalThis.self = { addEventListener: (t, f) => { ouvintes[t] = f; },
+                    skipWaiting: async () => {}, clients: { claim: async () => {} },
+                    location: { origin: "http://teste" } };
+/*SW*/
+let promessa;
+ouvintes.fetch({ request: { method: "GET", url: "http://teste" + PAGINA },
+                 respondWith: (p) => { promessa = p; } });
+const r = await promessa;
+const corpo = await r.text();
+console.log(JSON.stringify({ status: r.status, vencido: corpo.includes("data-km-vencido") }));
+"""
+
+
+@pytest.mark.skipif(NODE is None, reason="Node indisponível")
+@pytest.mark.parametrize("venceu", [True, False])
+def test_link_vencido_com_rede_tambem_mostra_a_pagina_de_recuperacao(c, tmp_path, venceu):
+    """Com rede, o servidor responde 404/410 ao link vencido: o service worker serve a página
+    local que mostra e copia os km pendentes (antes só sem rede). Revogado antes de vencer:
+    continua a resposta do servidor."""
+    path, _, _ = _enviar_link(c)
+    sw = Client().get(path + "sw/").content.decode()
+    if venceu:
+        sw = re.sub(r"const EXPIRA = \d+;", "const EXPIRA = 1;", sw)
+    arquivo = tmp_path / "sw_404.mjs"
+    arquivo.write_text(HARNESS_404.replace("/*SW*/", sw), encoding="utf-8")
+    r = subprocess.run([NODE, str(arquivo)], capture_output=True, text=True, timeout=60)  # noqa: S603  # nosec
+    assert r.returncode == 0, r.stderr[-800:]
+    saida = json.loads(r.stdout.strip().splitlines()[-1])
+    assert saida == ({"status": 410, "vencido": True} if venceu
+                     else {"status": 404, "vencido": False})
+
+
+def test_sem_permissao_o_envio_do_aparelho_nao_sincroniza_as_linhas(c, monkeypatch):
+    """Quem o link representa perdeu a permissão de editar o diário: o POST público recusa
+    os lançamentos SEM antes sincronizar (que cria, reatribui e apaga linhas)."""
+    from django.core.exceptions import PermissionDenied
+
+    path, _, _ = _enviar_link(c)
+    ida, _ = _linhas(c)
+    sincronizadas: list[int] = []
+    monkeypatch.setattr(servico_diario, "sincronizar", lambda d: sincronizadas.append(d.pk))
+
+    def sem_permissao(usuario, diario):
+        raise PermissionDenied("perdeu a permissão")
+
+    monkeypatch.setattr(servico_diario, "conferir_edicao", sem_permissao)
+    corpo = _postar(Client(), path, [_item("aparelho-perm1", ida, {"km_inicial": 100})])
+    assert [r["situacao"] for r in corpo["resultados"]] == ["recusado"]
+    assert sincronizadas == []
+    ida.refresh_from_db()
+    assert ida.km_inicial is None
+
+
 def test_limite_de_gravacoes_do_link_e_contado_no_banco(c, monkeypatch):
     """O limite vale para todos os workers: a contagem é do banco, não do cache do processo."""
     from gestao.automacao.models import ContadorDeLimite

@@ -37,6 +37,7 @@ from .models import (
     ExcecaoAutomacao,
     Recebimento,
     StatusEntrega,
+    TentativaEntrega,
     registrar_evento_contato,
 )
 
@@ -156,6 +157,7 @@ def registrar_status(s: StatusRecebido, canal: str = CANAL_WHATSAPP) -> StatusEn
         return None
     comunicacao = (Comunicacao.objects.select_for_update()
                    .filter(canal=canal, mensagem_id=s.mensagem_id).first())
+    tentativa: int | None = None
     if comunicacao is None and (ref := _da_referencia(s.referencia)):
         pk, tentativa = ref
         comunicacao = Comunicacao.objects.select_for_update().filter(
@@ -165,6 +167,7 @@ def registrar_status(s: StatusRecebido, canal: str = CANAL_WHATSAPP) -> StatusEn
             # Status de uma tentativa ANTERIOR (a pessoa já tentou de novo): não confirma a
             # atual. Fica órfão e a reconciliação abre exceção para uma pessoa conferir.
             comunicacao = None
+            tentativa = None
     preco = s.preco
     registro, criado = StatusEntrega.objects.get_or_create(
         canal=canal, mensagem_id=s.mensagem_id, status=status, defaults={
@@ -179,11 +182,11 @@ def registrar_status(s: StatusRecebido, canal: str = CANAL_WHATSAPP) -> StatusEn
         if not criado:
             registro.comunicacao = comunicacao
             registro.save(update_fields=["comunicacao"])
-        aplicar_status(comunicacao, registro)
+        aplicar_status(comunicacao, registro, tentativa=tentativa)
     return registro
 
 
-def aplicar_status(c: Comunicacao, s: StatusEntrega) -> None:
+def aplicar_status(c: Comunicacao, s: StatusEntrega, *, tentativa: int | None = None) -> None:
     """O status muda a entrega sem regredir; `failed` depois de `entregue` não desfaz nada."""
     quando = s.ocorrido_em or timezone.now()
     if not c.mensagem_id and c.situacao in (S.INCERTA, S.RESERVADA, S.AGENDADA):
@@ -193,6 +196,14 @@ def aplicar_status(c: Comunicacao, s: StatusEntrega) -> None:
         c.enviada_em = c.enviada_em or quando
         c.motivo = "Envio confirmado pela Meta depois do resultado desconhecido."
         excecoes.encerrar_do_assunto(comunicacao=c, resolucao="A Meta confirmou o envio.")
+        # A tentativa que saiu também termina (o resultado dela se perdeu): aceita, como
+        # `registrar_resultado` faria. Repetir não muda nada (só a em curso ou incerta).
+        R = TentativaEntrega.Resultado
+        TentativaEntrega.objects.filter(
+            comunicacao=c, numero=tentativa or c.tentativas,
+            resultado__in=(R.EM_CURSO, R.INCERTA)).update(
+            resultado=R.ACEITA, terminada_em=timezone.now(), codigo_erro="",
+            detalhe="Confirmada pelo status da Meta (o resultado do envio se perdeu).")
     nova = dominio.proxima_entrega(c.entrega or "", s.status)
     if s.status == "entregue" and (not c.entregue_em or quando < c.entregue_em):
         # A leitura que chega antes preenche entregue_em com a hora dela; a entrega explícita
@@ -243,12 +254,15 @@ def identificar(m: MensagemRecebida) -> ContatoVerificado | None:
 
 
 def _comunicacao_respondida(m: MensagemRecebida, contato: ContatoVerificado | None):
+    if contato is None:
+        # Remetente sem contato que vale (número trocado, servidor desativado, desconhecido):
+        # citar uma mensagem nossa não liga o recebimento a ela — nem à unidade dela. Fica em
+        # quarentena sem unidade, só para quem administra.
+        return None
     if m.em_resposta_a:
         c = Comunicacao.objects.filter(canal=CANAL_WHATSAPP, mensagem_id=m.em_resposta_a).first()
-        if c and (contato is None or c.contato_id == contato.pk):
+        if c and c.contato_id == contato.pk:
             return c
-    if contato is None:
-        return None
     return (Comunicacao.objects.filter(contato=contato, situacao__in=(S.ENVIADA, S.MANUAL))
             .exclude(aceita_resposta="").filter(resposta_ate__gt=timezone.now())
             .order_by("-enviada_em", "-id").first())

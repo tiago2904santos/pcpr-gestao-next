@@ -44,6 +44,9 @@ VERIFY_TOKEN_MENSAGEM = "pcpr-whatsapp-verify-token-v1"  # noqa: S105 (rótulo p
 # transparente (porta 8775) que repassa ao runserver do PCPR e registra status/rotas; a Graph API
 # continua simulada (porta 8777). Na instância de verdade, trocar no nó "Configuração".
 ALVOS = ("simuladores", "pcpr")
+#: Limite de mídia recebida (bytes): o mesmo `TAMANHO_MAXIMO_MIDIA` do PCPR (10 MB). O W7 V1
+#: confere o `file_size` dos metadados ANTES de baixar; acima disso, nada é baixado.
+LIMITE_MIDIA_PADRAO = 10 * 1024 * 1024
 PCPR_REAL_PADRAO = "http://host.docker.internal:8775/api/automacao/v1"
 GRAPH_REAL_PADRAO = "http://host.docker.internal:8777/v21.0"
 
@@ -1859,7 +1862,7 @@ def _regra_evento(valor: str) -> dict:
     }
 
 
-def w7(alvo: str = "simuladores") -> dict:
+def w7(alvo: str = "simuladores", limite_midia: int = LIMITE_MIDIA_PADRAO) -> dict:
     f = Fluxo(W7)
     cfg = "$('Configuração').first().json"
     f.no(
@@ -1985,6 +1988,32 @@ def w7(alvo: str = "simuladores") -> dict:
         tentativas=3,
         espera_ms=1000,
         timeout=15000,
+    )
+    # Acima do limite do PCPR, o /recebimentos responderia 413 depois de o n8n baixar o arquivo
+    # inteiro — o fluxo falharia e a Meta reentregaria, baixando tudo de novo. Pelo
+    # `file_size` dos metadados, o anexo grande vai direto para /recebimentos/sem-arquivo.
+    se(
+        f,
+        "Cabe no limite?",
+        f"={{{{ !(Number($json.file_size) > {int(limite_midia)}) }}}}",
+        (1650, 200),
+    )
+    http(
+        f,
+        "Registrar mídia acima do limite",
+        "POST",
+        f"={{{{ {cfg}.cfg_pcpr }}}}/recebimentos/sem-arquivo",
+        (1760, 60),
+        tentativas=3,
+        espera_ms=1000,
+        cabecalhos=[
+            ("Idempotency-Key", "=receb:whatsapp:{{ $('Separar eventos').item.json.wamid }}:0")
+        ],
+        corpo_json="={{ JSON.stringify({ canal: 'whatsapp', "
+        "mensagem_id_canal: $('Separar eventos').item.json.wamid, anexo_indice: 0, "
+        "total_anexos: 1, remetente: $('Separar eventos').item.json.remetente, "
+        "recebido_em: $('Separar eventos').item.json.recebido_em, "
+        "motivo: 'acima_do_limite' }) }}",
     )
     arquivo_completo = {
         "options": {
@@ -2184,7 +2213,7 @@ def w7(alvo: str = "simuladores") -> dict:
         ("Validar assinatura", "Assinatura válida?"),
         ("Configuração", "Separar eventos"),
         ("Separar eventos", "Tipo de evento"),
-        ("Obter URL da mídia", "Baixar mídia"),
+        ("Obter URL da mídia", "Cabe no limite?"),
         ("Baixar mídia", "Download OK?"),
         ("Obter nova URL", "Baixar mídia (nova URL)"),
         ("Baixar mídia (nova URL)", "SHA-256 da mídia"),
@@ -2206,6 +2235,8 @@ def w7(alvo: str = "simuladores") -> dict:
     f.liga("Tipo de evento", "Registrar mensagem sem anexo", 1)
     f.liga("Tipo de evento", "Status → W8", 2)
     f.liga("Tipo de evento", "Ignorar evento", 3)
+    f.liga("Cabe no limite?", "Baixar mídia", 0)
+    f.liga("Cabe no limite?", "Registrar mídia acima do limite", 1)
     f.liga("Download OK?", "SHA-256 da mídia", 0)
     f.liga("Download OK?", "Obter nova URL", 1)
     f.liga("SHA-256 confere?", "Entregar ao PCPR", 0)
@@ -2214,6 +2245,7 @@ def w7(alvo: str = "simuladores") -> dict:
         ("Entregar ao PCPR", 0),
         ("Exceção: SHA-256 divergente", 0),
         ("Registrar mensagem sem anexo", 1),
+        ("Registrar mídia acima do limite", 1),
         ("Status → W8", 2),
         ("Ignorar evento", 3),
     ]:
@@ -2451,6 +2483,7 @@ def construir(
     whatsapp: bool = False,
     graph: str | None = None,
     alvo: str = "simuladores",
+    limite_midia: int = LIMITE_MIDIA_PADRAO,
 ) -> list[Path]:
     """`alvo="pcpr"`: fluxos para a API REAL (W1–W3, W5–W8; sempre com o WhatsApp)."""
     if alvo not in ALVOS:
@@ -2468,13 +2501,13 @@ def construir(
             (W3, lambda: w3(alvo)),
             (W5, w5_pcpr),
             (W6, w6_pcpr),
-            (W7, lambda: w7(alvo)),
+            (W7, lambda: w7(alvo, limite_midia)),
             (W8, lambda: w8(alvo)),
         ]
     else:
         fabricas = [(W1, w1), (W2, w2), (W3, w3), (W4, w4), (W5, w5)]
         if whatsapp:
-            fabricas += [(W6, w6), (W7, w7), (W8, w8)]
+            fabricas += [(W6, w6), (W7, lambda: w7(limite_midia=limite_midia)), (W8, w8)]
     nomes = {**ARQUIVOS, **ARQUIVOS_WHATSAPP}
     for wid, fabrica in fabricas:
         wf = fabrica()
@@ -2503,8 +2536,15 @@ if __name__ == "__main__":
         default="simuladores",
         help="'pcpr' = fluxos para a API de automação REAL do PCPR (W1–W3, W5–W8)",
     )
+    ap.add_argument(
+        "--limite-midia",
+        type=int,
+        default=LIMITE_MIDIA_PADRAO,
+        help="bytes; mídia maior não é baixada pelo W7 (padrão: o limite do PCPR, 10 MB)",
+    )
     args = ap.parse_args()
     for caminho in construir(
-        args.destino, args.pcpr, args.canal, args.whatsapp, args.graph, args.alvo
+        args.destino, args.pcpr, args.canal, args.whatsapp, args.graph, args.alvo,
+        args.limite_midia,
     ):
         print(caminho)

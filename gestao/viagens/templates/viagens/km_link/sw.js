@@ -80,26 +80,38 @@ function paginaVencida(nome) {
   return Number.isFinite(vence) && vence > 0 && Date.now() > vence;
 }
 
+function vencido() {
+  return new Response(VENCIDO, { status: 410, headers: {
+    "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
+    "Content-Security-Policy": CSP_VENCIDO, "Referrer-Policy": "no-referrer",
+    "X-Robots-Tag": "noindex" } });
+}
+
 async function pagina(pedido) {
+  let resposta;
   try {
-    const resposta = await fetch(pedido);
-    const cache = await caches.open(CACHE);
-    if (resposta.ok) await Promise.all([cache.put(PAGINA, resposta.clone()), marcar(cache)]);
-    else if (resposta.status === 404 || resposta.status === 410) await caches.delete(CACHE);
-    return resposta;
+    resposta = await fetch(pedido);
   } catch {
     if (EXPIRA && Date.now() > EXPIRA) {
       // Sem rede e o link já venceu: a cópia da página sai, e a página local deixa ver e
       // copiar os km que ficaram só neste aparelho (sem ela, ficariam inacessíveis).
       await caches.delete(CACHE);
-      return new Response(VENCIDO, { status: 410, headers: {
-        "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
-        "Content-Security-Policy": CSP_VENCIDO, "Referrer-Policy": "no-referrer",
-        "X-Robots-Tag": "noindex" } });
+      return vencido();
     }
     const copia = await (await caches.open(CACHE)).match(PAGINA);
     return copia || Response.error();
   }
+  const cache = await caches.open(CACHE);
+  if (resposta.ok) {
+    await Promise.all([cache.put(PAGINA, resposta.clone()), marcar(cache)]);
+  } else if (resposta.status === 404 || resposta.status === 410) {
+    await caches.delete(CACHE);
+    // Com rede, o servidor diz que o link não vale mais. Se já passou do vencimento, a mesma
+    // página local do caso sem rede (os km que ficaram no aparelho, para copiar); revogado
+    // antes de vencer continua com a página do servidor.
+    if (EXPIRA && Date.now() > EXPIRA) return vencido();
+  }
+  return resposta;
 }
 
 async function estatico(pedido) {

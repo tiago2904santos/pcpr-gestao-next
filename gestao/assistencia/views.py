@@ -20,7 +20,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from gestao.integracoes.ia import servico as servico_ia
 from gestao.integracoes.ia.porta import Origem
@@ -349,11 +349,14 @@ def pedido(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 # ------------------------------------------------------------------ Central de ajuda
-@require_GET
+@require_http_methods(["GET", "POST"])
 def central(request: HttpRequest) -> HttpResponse:
     _exigir(policies.pode_usar_central(request.user))
     q = " ".join((request.GET.get("q") or "").split())[:200]
-    pergunta = " ".join((request.GET.get("pergunta") or "").split())[:1000]
+    # A dúvida chega só no corpo de um POST (com CSRF) e a resposta sai na hora: nunca na URL,
+    # onde iria para o log de acesso, o histórico do navegador e o Referer.
+    pergunta = (" ".join((request.POST.get("pergunta") or "").split())[:1000]
+                if request.method == "POST" else "")
     artigos = ([a for a, _ in conhecimento.buscar(q, publico="usuario", limite=20, minimo=0.5)]
                if q else conhecimento.aprovados("usuario"))
     resposta = assistente.responder(pergunta, None, publico="usuario") if pergunta else None

@@ -41,6 +41,10 @@ if (raiz instanceof HTMLElement) iniciar(raiz);
 function iniciar(raiz) {
   const prefixo = `pcpr-km:v1:${raiz.dataset.link || ""}:`;
   const urlSalvar = raiz.dataset.salvar || "";
+  /** A página deste link (online): de onde vem um token CSRF novo. */
+  const urlPagina = raiz.dataset.escopo || urlSalvar.replace(/salvar\/$/, "");
+  const SEM_TOKEN = "Não foi possível enviar os km agora. Abra este link de novo com internet; "
+    + "o que você salvou continua guardado neste aparelho.";
   const somenteLeitura = raiz.hasAttribute("data-somente-leitura");
   /** @type {Map<string, Lancamento>} chave de armazenamento -> lançamento (cópia em memória) */
   const memoria = new Map();
@@ -363,6 +367,46 @@ function iniciar(raiz) {
     return meta?.getAttribute("content") || "";
   }
 
+  /**
+   * O cookie CSRF mudou ou sumiu (a cópia offline da página guardava o token antigo): busca a
+   * página do link de novo — a resposta traz o token e renova o cookie — e troca o <meta>.
+   * @returns {Promise<boolean>}
+   */
+  async function renovarToken() {
+    try {
+      const resposta = await fetch(urlPagina, { credentials: "same-origin", cache: "no-store",
+                                                headers: { Accept: "text/html" } });
+      if (!resposta.ok) return false;
+      const doc = new DOMParser().parseFromString(await resposta.text(), "text/html");
+      const novo = doc.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
+      const meta = document.querySelector("meta[name='csrf-token']");
+      if (!novo || !meta) return false;
+      meta.setAttribute("content", novo);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** @param {Lancamento[]} lote */
+  function postar(lote) {
+    return fetch(urlSalvar, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", Accept: "application/json",
+                 "X-CSRFToken": tokenCsrf(), "X-Requested-With": "fetch" },
+      body: JSON.stringify({ lancamentos: lote.map(({ id, linha, chave: c, campos, base }) => (
+        { id, linha, chave: c, campos, base })) }),
+    });
+  }
+
+  /** @param {string} mensagem */
+  function avisarRede(mensagem) {
+    const texto = raiz.querySelector("[data-km-rede-texto]");
+    const aviso = raiz.querySelector("[data-km-rede]");
+    if (texto && aviso instanceof HTMLElement) { texto.textContent = mensagem; aviso.hidden = false; }
+  }
+
   async function sincronizar() {
     if (emVoo || somenteLeitura || !urlSalvar) return;
     const lote = todos().filter((i) => i.estado === "pendente").slice(0, LOTE);
@@ -370,22 +414,22 @@ function iniciar(raiz) {
     emVoo = new Set(lote.map((i) => i.id));
     pintarTudo();
     try {
-      const resposta = await fetch(urlSalvar, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json", Accept: "application/json",
-                   "X-CSRFToken": tokenCsrf(), "X-Requested-With": "fetch" },
-        body: JSON.stringify({ lancamentos: lote.map(({ id, linha, chave: c, campos, base }) => (
-          { id, linha, chave: c, campos, base })) }),
-      });
+      let resposta = await postar(lote);
+      // 403 = token CSRF recusado (cookie trocado ou apagado): renova e tenta UMA vez; se não
+      // der, a pessoa fica sabendo — nada de repetir em silêncio para sempre.
+      if (resposta.status === 403 && await renovarToken()) resposta = await postar(lote);
+      if (resposta.status === 403) {
+        avisarRede(SEM_TOKEN);
+        emVoo = null;
+        for (const linha of formularios.keys()) pintar(linha);
+        return;
+      }
       const corpo = await resposta.json().catch(() => null);
       if (resposta.ok && corpo && Array.isArray(corpo.resultados)) {
         aplicar(/** @type {Resultado[]} */ (corpo.resultados));
       } else if (corpo && typeof corpo.mensagem === "string") {
         // Travado, suspenso ou link indisponível: fica tudo guardado aqui.
-        const texto = raiz.querySelector("[data-km-rede-texto]");
-        const aviso = raiz.querySelector("[data-km-rede]");
-        if (texto && aviso instanceof HTMLElement) { texto.textContent = corpo.mensagem; aviso.hidden = false; }
+        avisarRede(corpo.mensagem);
         emVoo = null;
         for (const linha of formularios.keys()) pintar(linha);
         return;

@@ -648,3 +648,28 @@ def test_delegacao_so_e_gasta_junto_do_efeito(c, monkeypatch):
     de_novo = _post(c, url, {"ps": c.ps.pk}, "ferramenta:delegacao-outra-chave", token=token,
                     HTTP_X_PCPR_DELEGACAO=dlg)
     assert de_novo.status_code == 403  # continua de uso único
+
+
+def test_status_pela_referencia_termina_a_tentativa_sem_resultado(c):
+    """O /resultado se perdeu; o status da Meta chega com a nossa referência: a comunicação
+    se resolve E a tentativa dela termina aceita (não fica "em curso" para sempre)."""
+    from gestao.automacao import entrada
+    from gestao.automacao.models import TentativaEntrega
+    from gestao.integracoes.whatsapp import webhook
+
+    com = c.com
+    t1 = TentativaEntrega.objects.create(comunicacao=com, numero=1, chave="t-r15-1",
+                                         adaptador="n8n")
+    Comunicacao.objects.filter(pk=com.pk).update(
+        situacao="reservada", tentativas=1, mensagem_id="",
+        reservada_ate=timezone.now() + timedelta(minutes=5))
+    for _ in range(2):  # a Meta reentrega: repetir não muda nada
+        entrada.registrar_entrada(webhook.montar_status(
+            mensagem_id="wamid.R15", status="delivered", destinatario=E164,
+            referencia=f"com:{com.pk}:t1"), origem="simulador")
+        while entrada.processar_uma_entrada():
+            pass
+    com.refresh_from_db()
+    t1.refresh_from_db()
+    assert com.situacao == "enviada" and com.mensagem_id == "wamid.R15"
+    assert t1.resultado == TentativaEntrega.Resultado.ACEITA and t1.terminada_em

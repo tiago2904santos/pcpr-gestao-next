@@ -1091,3 +1091,103 @@ def test_servidor_desativado_depois_do_agendamento_nao_recebe(c):
     aviso = _aviso(c)
     assert aviso.situacao == S.RECUSADA and "inativo" in aviso.motivo
     assert espiao.envios == []
+
+
+# ------------------------------------------------------------------ 14ª revisão
+def _outra_entrega_grava_antes(monkeypatch, mid: str, **campos):
+    """Simula a outra entrega (ex.: a outra credencial) gravando entre a consulta e o insert."""
+    from gestao.automacao import dominio
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.automacao.models import CANAL_WHATSAPP
+
+    chave = dominio.chave_recebimento(CANAL_WHATSAPP, mid, 0)
+
+    def grava_e_perde(m, *args, **kwargs):
+        Recebimento.objects.create(mensagem_id=m.mensagem_id, tipo=Recebimento.Tipo.DOCUMENTO,
+                                   chave=chave, **campos)
+        return None
+
+    monkeypatch.setattr(entrada_mod, "registrar_mensagem", grava_e_perde)
+    return chave
+
+
+def test_v1_corrida_entre_credenciais_confere_o_arquivo_da_vencedora(c, monkeypatch):
+    _contato_ativo(c)
+    _outra_entrega_grava_antes(monkeypatch, "wamid.CORRIDA.V1",
+                               sha256=hashlib.sha256(PDF + b"%%outro").hexdigest())
+    with pytest.raises(recebimentos.ConflitoDeArquivo):
+        recebimentos.receber_arquivo(mensagem_id="wamid.CORRIDA.V1", indice=0, remetente=E164,
+                                     conteudo=PDF, nome="c.pdf", recebido_em=timezone.now())
+    chave = _outra_entrega_grava_antes(monkeypatch, "wamid.CORRIDA.V1B",
+                                       sha256=hashlib.sha256(PDF).hexdigest())
+    r, novo = recebimentos.receber_arquivo(mensagem_id="wamid.CORRIDA.V1B", indice=0,
+                                           remetente=E164, conteudo=PDF, nome="c.pdf",
+                                           recebido_em=timezone.now())
+    assert not novo and r.chave == chave  # o mesmo arquivo: repetição
+
+
+def test_sem_arquivo_nao_rebaixa_o_recebimento_que_ja_entrou(c, monkeypatch):
+    _contato_ativo(c)
+    chave = _outra_entrega_grava_antes(monkeypatch, "wamid.JA.ENTROU",
+                                       situacao=Recebimento.Situacao.ASSOCIADO,
+                                       sha256=hashlib.sha256(PDF).hexdigest())
+    r = recebimentos.registrar_sem_arquivo(mensagem_id="wamid.JA.ENTROU", indice=0,
+                                           remetente=E164, motivo="nao_baixado",
+                                           recebido_em=timezone.now())
+    assert r.chave == chave and r.situacao == Recebimento.Situacao.ASSOCIADO
+    assert not Comunicacao.objects.filter(tipo="automacao.arquivo_recusado").exists()
+
+
+def test_selo_de_testador_usa_o_criterio_do_envio(c):
+    """O selo da lista de contatos mostra o que acontece no envio: a autorização na outra
+    forma do celular (sem o 9º dígito) vale; a vencida não."""
+    from django.urls import reverse
+
+    from gestao.automacao import contatos
+    from gestao.automacao.models import DestinatarioAutorizado
+
+    contato = _contato_ativo(c, testador=False)
+    contatos.autorizar_testador(c.usuarios["admin"], "554199990001", "Forma sem o 9")
+    assert entrega._na_lista(contato.endereco)
+    cliente = _cliente(c.usuarios["admin"])
+    lista = cliente.get(reverse("automacao:contatos")).content.decode()
+    assert "Testador autorizado" in lista and "Fora da lista de testadores" not in lista
+    detalhe = cliente.get(reverse("automacao:contato", args=[contato.pk])).content.decode()
+    assert "não está na lista de testadores" not in detalhe
+    DestinatarioAutorizado.objects.update(valido_ate=timezone.localdate() - timedelta(days=1))
+    assert not entrega._na_lista(contato.endereco)
+    lista = cliente.get(reverse("automacao:contatos")).content.decode()
+    assert "Fora da lista de testadores" in lista and "Testador autorizado" not in lista
+    detalhe = cliente.get(reverse("automacao:contato", args=[contato.pk])).content.decode()
+    assert "não está na lista de testadores" in detalhe
+
+
+# ------------------------------------------------------------------ 15ª revisão
+def test_download_esgotado_avisa_quem_mandou(c):
+    r = _arquivo_recebido(c)
+    Recebimento.objects.filter(pk=r.pk).update(tentativas=recebimentos.MAX_TENTATIVAS,
+                                                reservado_ate=None)
+    assert recebimentos.reservar() is None
+    r.refresh_from_db()
+    assert r.situacao == Recebimento.Situacao.RECUSADO
+    aviso = Comunicacao.objects.get(tipo="automacao.arquivo_recusado")
+    assert aviso.servidor_id == c.ps.servidor_id and aviso.recurso.endswith(f":{r.pk}")
+
+
+def test_resposta_de_numero_que_nao_vale_mais_nao_entra_na_unidade(c):
+    """O telefone do cadastro mudou e o número antigo responde ao aviso: o recebimento não se
+    liga ao aviso nem à unidade dele — fica em quarentena, só para quem administra."""
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    assert aviso.mensagem_id and aviso.unidade_id
+    servidor = c.ps.servidor
+    servidor.telefone = "41988887777"
+    servidor.save(update_fields=["telefone"])
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, texto="Segue o comprovante")
+    _processar_entradas()
+    r = Recebimento.objects.get()
+    assert r.contato_id is None and r.situacao == Recebimento.Situacao.QUARENTENA
+    assert r.comunicacao_id is None and r.unidade_id is None

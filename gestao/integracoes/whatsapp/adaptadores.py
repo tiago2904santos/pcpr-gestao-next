@@ -232,9 +232,12 @@ class AdaptadorCloudApi:
         mensagem_id = str(primeira.get("id") or "")
         if not mensagem_id:
             raise ResultadoIncerto("A Meta respondeu sem o id da mensagem.", "sem_id")
+        if len(mensagem_id) > 300:  # o teto dos modelos e do contrato; cortar casaria errado
+            raise ResultadoIncerto("A Meta respondeu um id de mensagem fora do formato.",
+                                   "id_longo")
         contatos = dados.get("contacts") if isinstance(dados.get("contacts"), list) else []
         contato = contatos[0] if contatos and isinstance(contatos[0], dict) else {}
-        return Envio(mensagem_id=mensagem_id[:128], wa_id=str(contato.get("wa_id") or "")[:20],
+        return Envio(mensagem_id=mensagem_id, wa_id=str(contato.get("wa_id") or "")[:20],
                      usuario_id=str(contato.get("user_id") or "")[:140],
                      situacao=str(primeira.get("message_status") or "accepted")[:40],
                      origem=Origem.CLOUD_API)
@@ -273,6 +276,14 @@ class AdaptadorCloudApi:
                     self.config.timeout_midia, limite)
             except (NaoEnviado, TalvezEnviado) as erro:
                 raise FalhaTemporaria("A mídia não chegou da Meta.", "rede") from erro
+            if resposta.status >= 400:
+                # Token ou conta recusados entre a consulta e o download (190, 131031…): o
+                # corpo diz o código, e o canal tem de bloquear como no envio.
+                dados = _json(resposta.corpo)
+                if "error" in dados:
+                    erro_meta = classificar(resposta.status, dados)
+                    if isinstance(erro_meta, CanalBloqueado):
+                        raise erro_meta
             if resposta.status == 404 and tentativa == 1:  # URL vencida (vale 5 min): pede outra
                 url, sha, tamanho = self._url_de_midia(anexo)
                 continue

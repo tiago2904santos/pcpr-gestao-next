@@ -22,7 +22,7 @@ não sabe. A reformulação em linguagem simples, com IA, é opcional e tem chav
     <section class="cartao" aria-labelledby="t-pergunta">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pergunta">Pergunte ao assistente</h2></div>
       <div class="cartao__corpo pilha">
-        <form method="get" action="{% url 'ajuda:central' %}#resposta" class="pilha">
+        <form method="post" action="{% url 'ajuda:central' %}#resposta" class="pilha">{% csrf_token %}
           <div class="campo campo--lg"><label class="campo__rotulo" for="pergunta">Sua dúvida</label>
             <textarea class="area-texto" id="pergunta" name="pergunta" rows="2" maxlength="1000" aria-describedby="pergunta-ajuda">{{ pergunta }}</textarea>
             <p class="campo__ajuda" id="pergunta-ajuda">Ex.: “Quantos dias tenho para prestar contas?”. Não escreva CPF, telefone, dados de saúde, de vítimas ou de ocorrências.</p></div>

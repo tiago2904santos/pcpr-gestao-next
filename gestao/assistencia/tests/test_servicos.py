@@ -203,6 +203,39 @@ def test_modo_ia_valido_registra_modelo_tokens_e_custo_estimado(c):
         assert linha.chamadas == 1 and linha.tokens_entrada == 1200
 
 
+@pytest.mark.parametrize("onde", ["liquidar", "registrar"])
+def test_erro_interno_depois_da_chamada_continua_contado(c, monkeypatch, onde):
+    """A chamada ao provedor aconteceu e depois algo interno falhou (liquidar o orçamento ou
+    gravar a sugestão): ela continua nas vagas do dia e no gasto — como a do worker que morre
+    no meio —, em vez de sumir e deixar novos pedidos passarem do teto."""
+    p = _p(c)
+    relatorio.obter(p)
+    _modo(RT)
+    pedido = servicos.pedir(c.usuarios["operador"], RT, p.pk)
+
+    def falha(*args, **kwargs):
+        raise RuntimeError("erro interno depois da chamada")
+
+    if onde == "liquidar":
+        monkeypatch.setattr(orcamento, "liquidar", falha)
+    else:
+        monkeypatch.setattr(servicos, "_registrar", falha)
+    assert servicos.processar_fila(porta=AdaptadorGravado([_valida()])) == 1
+    pedido.refresh_from_db()
+    assert pedido.estado == PedidoSugestao.Estado.FALHOU
+    assert pedido.chamadas_sem_registro == 1 and pedido.tentativas_admitidas == 0
+    assert pedido.reserva_usd == 0
+    assert servicos.chamadas_hoje(RT) == 1
+    assert not Sugestao.objects.filter(pedido=pedido).exists()
+    for escopo in (orcamento.GLOBAL, RT):
+        linha = OrcamentoIA.objects.get(escopo=escopo)
+        assert linha.reservado_usd == 0
+        if onde == "liquidar":  # ninguém liquidou: a reserva virou gasto (pior caso)
+            assert linha.gasto_estimado_usd >= cfg.custo_estimado("claude-opus-5-5", 1200, 400)
+        else:  # liquidado antes da falha: o estimado da chamada
+            assert linha.gasto_estimado_usd == cfg.custo_estimado("claude-opus-5-5", 1200, 400)
+
+
 @pytest.mark.parametrize("saida,motivo,codigo", [
     (_valida("Foram 350 atendimentos em Arapongas/PR."), "validacao", "numero_sem_fonte"),
     (_valida("Apoio em Londrina, sem intercorrências."), "validacao", "entidade_fora"),

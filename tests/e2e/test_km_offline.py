@@ -117,3 +117,68 @@ def test_km_enter_salva_e_erro_longo_nao_vaza_a_360(pagina, dados_e2e):
     assert (linha.km_inicial, linha.km_final) == (1000, 1200)
     expect(pg.locator("[data-km-anuncio]")).to_contain_text("Salvo no sistema")
     assert pg.locator("[data-km-estado][role=status], p[role=status] [data-km-estado]").count() == 0
+
+
+def _sem_service_worker(navegador, live_server):
+    """Contexto próprio, sem service worker: o que se testa é o km-offline.js e o servidor."""
+    contexto = navegador.new_context(viewport={"width": 1440, "height": 900}, locale="pt-BR",
+                                     timezone_id="America/Sao_Paulo", base_url=live_server.url,
+                                     service_workers="block")
+    return contexto, contexto.new_page()
+
+
+def _guardar_sem_rede(pg, linha) -> None:
+    pg.context.set_offline(True)
+    form = _trecho(pg, linha)
+    form.get_by_label("Km na saída").fill("45600")
+    form.get_by_label("Km na chegada").fill("45980")
+    form.get_by_role("button", name="Salvar este trecho").click()
+    expect(form.locator("[data-km-estado]")).to_have_text(SALVO_AQUI)
+
+
+def _cookie_trocado(pg, live_server) -> None:
+    """Outro login na mesma origem trocou o cookie CSRF: o token da página não vale mais."""
+    pg.context.add_cookies([{"name": "pcpr_csrf", "value": "x" * 32, "url": live_server.url}])
+
+
+def test_km_403_de_csrf_renova_o_token_e_envia(navegador, live_server, dados_e2e):
+    from gestao.viagens.models import DiarioBordoTrecho
+
+    caminho, linhas = _link(dados_e2e)
+    contexto, pg = _sem_service_worker(navegador, live_server)
+    try:
+        pg.goto(caminho)
+        _guardar_sem_rede(pg, linhas[1])
+        _cookie_trocado(pg, live_server)
+        respostas: list[int] = []
+        pg.on("response", lambda r: r.url.endswith("/salvar/") and respostas.append(r.status))
+        pg.context.set_offline(False)
+        form = _trecho(pg, linhas[1])
+        expect(form.locator("[data-km-estado]")).to_have_text(SALVO_NO_SISTEMA, timeout=15_000)
+        assert respostas[:2] == [403, 200], respostas  # recusou, renovou o token, enviou
+        linha = DiarioBordoTrecho.objects.get(pk=linhas[1].pk)
+        assert (linha.km_inicial, linha.km_final) == (45600, 45980)
+    finally:
+        contexto.close()
+
+
+def test_km_403_que_persiste_avisa_e_guarda_o_que_foi_salvo(navegador, live_server, dados_e2e):
+    from gestao.viagens.models import DiarioBordoTrecho
+
+    caminho, linhas = _link(dados_e2e)
+    contexto, pg = _sem_service_worker(navegador, live_server)
+    try:
+        pg.goto(caminho)
+        _guardar_sem_rede(pg, linhas[1])
+        pg.route("**/salvar/", lambda rota: rota.fulfill(
+            status=403, content_type="text/html", body="<h1>Forbidden (CSRF)</h1>"))
+        pg.context.set_offline(False)
+        expect(pg.locator("[data-km-rede-texto]")).to_contain_text(
+            "Abra este link de novo com internet", timeout=15_000)
+        expect(pg.locator("[data-km-rede]")).to_be_visible()
+        assert pg.evaluate("""() => Object.keys(localStorage)
+            .filter(k => k.startsWith('pcpr-km:v1:')).length""") == 1
+        linha = DiarioBordoTrecho.objects.get(pk=linhas[1].pk)
+        assert linha.km_inicial is None and linha.km_final is None
+    finally:
+        contexto.close()

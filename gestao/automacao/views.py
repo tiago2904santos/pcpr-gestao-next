@@ -27,6 +27,7 @@ from . import (
     chaves,
     comunicacoes,
     contatos,
+    entrega,
     excecoes,
     forms,
     ganchos,
@@ -582,12 +583,14 @@ def contatos_lista(request: HttpRequest) -> HttpResponse:
     if request.GET.get("revogados") != "1":
         qs = qs.filter(revogado_em__isnull=True)
     pagina, querystring = _paginar(request, qs)
+    linhas = list(pagina)
     return render(request, "automacao/contatos.html", {
-        "linhas": list(pagina), "page_obj": pagina, "querystring_base": querystring,
+        "linhas": linhas, "page_obj": pagina, "querystring_base": querystring,
         "revogados": request.GET.get("revogados") == "1",
         "lista_fechada": whatsapp_config.carregar().lista_fechada,
-        "na_lista": set(DestinatarioAutorizado.objects.filter(removido_em__isnull=True)
-                        .values_list("endereco", flat=True)),
+        # O mesmo critério do envio: autorização vencida não conta; a outra forma do celular,
+        # sim (o selo mostra o que de fato acontece com a mensagem).
+        "na_lista": entrega.na_lista_de_testadores(ct.endereco for ct in linhas),
         "migalhas": _migalhas(("Contatos e opt-in", "")),
     })
 
@@ -624,8 +627,7 @@ def contato(request: HttpRequest, pk: int) -> HttpResponse:
     _exigir(policies.pode_operar(request.user))
     ct = _contato_visivel(request, pk)
     c = whatsapp_config.carregar()
-    na_lista = DestinatarioAutorizado.objects.filter(
-        endereco=ct.endereco, removido_em__isnull=True).exists()
+    na_lista = bool(entrega.na_lista_de_testadores([ct.endereco]))
     return render(request, "automacao/contato.html", {
         "ct": ct, "mascarado": whatsapp_config.mascarar_telefone(ct.endereco),
         "na_lista": na_lista, "lista_fechada": c.lista_fechada,

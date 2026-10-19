@@ -142,23 +142,39 @@ def test_central_de_ajuda_e_assistente(c):
     cliente = _cliente(c.usuarios["consulta"])
     r = cliente.get(reverse("ajuda:central"))
     assert r.status_code == 200 and "Prazo para prestar contas" in r.content.decode()
-    r = cliente.get(reverse("ajuda:central"), {"pergunta": "Como envio o comprovante do saque?"})
+    r = cliente.post(reverse("ajuda:central"), {"pergunta": "Como envio o comprovante do saque?"})
     texto = r.content.decode()
     assert "Fontes:" in texto and reverse("ajuda:artigo", args=["comprovante-saque"]) in texto
-    r = cliente.get(reverse("ajuda:central"), {"pergunta": "Cancele minha viagem"})
+    r = cliente.post(reverse("ajuda:central"), {"pergunta": "Cancele minha viagem"})
     assert "não altera" in r.content.decode()
     assert cliente.get(reverse("ajuda:artigo", args=["prazo-prestacao"])).status_code == 200
     assert cliente.get(reverse("ajuda:artigo", args=["nao-existe"])).status_code == 404
     assert Client().get(reverse("ajuda:central")).status_code in (302, 403)
 
 
+def test_pergunta_ao_assistente_nunca_vai_na_url(c):
+    """A dúvida pode ter dado pessoal: vai no corpo de um POST com CSRF, nunca na URL (log de
+    acesso, histórico, Referer). Uma URL antiga com ?pergunta= não responde nada."""
+    cliente = _cliente(c.usuarios["consulta"])
+    texto = cliente.get(reverse("ajuda:central")).content.decode()
+    formulario = texto[texto.index('id="t-pergunta"'):]
+    assert '<form method="post"' in formulario[:600]
+    assert 'name="csrfmiddlewaretoken"' in formulario[:800]
+    pela_url = cliente.get(reverse("ajuda:central"),
+                           {"pergunta": "Como envio o comprovante do saque?"})
+    assert "Fontes:" not in pela_url.content.decode()
+    com_csrf = Client(enforce_csrf_checks=True)
+    com_csrf.force_login(c.usuarios["consulta"])
+    assert com_csrf.post(reverse("ajuda:central"), {"pergunta": "x"}).status_code == 403
+
+
 def test_reformular_so_aparece_no_modo_ia(c):
     cliente = _cliente(c.usuarios["consulta"])
     pergunta = "Como envio o comprovante do saque?"
-    assert "linguagem simples" not in cliente.get(reverse("ajuda:central"),
-                                                  {"pergunta": pergunta}).content.decode()
+    assert "linguagem simples" not in cliente.post(reverse("ajuda:central"),
+                                                   {"pergunta": pergunta}).content.decode()
     ConfiguracaoUso.objects.create(uso="assistencia.reformular_resposta", modo="ia")
-    texto = cliente.get(reverse("ajuda:central"), {"pergunta": pergunta}).content.decode()
+    texto = cliente.post(reverse("ajuda:central"), {"pergunta": pergunta}).content.decode()
     assert "Explicar em linguagem simples (IA)" in texto
     assert recurso_da_pessoa(c.usuarios["consulta"], pergunta) in texto
 
