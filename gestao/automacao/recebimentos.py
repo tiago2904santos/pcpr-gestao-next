@@ -28,7 +28,7 @@ from gestao.integracoes.whatsapp.porta import Anexo
 from gestao.plataforma import auditoria
 
 from . import chaves, dominio, excecoes, ganchos, policies
-from .models import CANAL_WHATSAPP, Comunicacao, ExcecaoAutomacao, Recebimento
+from .models import CANAL_WHATSAPP, ChaveAutomacao, Comunicacao, ExcecaoAutomacao, Recebimento
 
 log = logging.getLogger("gestao.automacao")
 RS = Recebimento.Situacao
@@ -49,6 +49,9 @@ class RecebimentoInvalido(Exception):
 @transaction.atomic
 def reservar() -> int | None:
     agora = timezone.now()
+    if ChaveAutomacao.objects.filter(nome=chaves.nome_canal(CANAL_WHATSAPP),
+                                     estado=ChaveAutomacao.Estado.BLOQUEADA).exists():
+        return None  # conta/credencial com problema: nada se baixa até alguém religar
     base = (Recebimento.objects.select_for_update(skip_locked=True)
             .filter(situacao=RS.IDENTIFICADO, arquivo="").exclude(midia_id="")
             .filter(Q(reservado_ate__isnull=True) | Q(reservado_ate__lt=agora)))
@@ -82,6 +85,10 @@ def baixar(pk: int, porta=None) -> Recebimento:
         midia = porta.baixar_midia(anexo, configuracao.tamanho_maximo_midia)
     except erros_canal.MidiaInvalida as erro:
         _recusar(r.pk, str(erro))
+        _descartar_origem(porta, anexo)  # recusado de vez: ninguém vai buscar de novo
+        return Recebimento.objects.get(pk=pk)
+    except erros_canal.CanalBloqueado as erro:
+        _bloquear_canal(pk, erro)
         return Recebimento.objects.get(pk=pk)
     except erros_canal.ErroWhatsapp as erro:
         log.info("download da mídia do recebimento %s falhou (%s); o lease permite repetir",
@@ -107,7 +114,40 @@ def baixar(pk: int, porta=None) -> Recebimento:
             if gravado:
                 r.arquivo.storage.delete(gravado)
             raise
+    _descartar_origem(porta, anexo)
     return r
+
+
+def _descartar_origem(porta, anexo: Anexo) -> None:
+    """A cópia de origem que o adaptador ainda guarda (só o simulado guarda alguma, no
+    armazenamento) sai depois de transferida ou recusada de vez."""
+    descartar = getattr(porta, "descartar_midia", None)
+    if descartar is None:
+        return
+    try:
+        descartar(anexo)
+    except Exception:  # a retenção apaga o que sobrar
+        log.warning("não foi possível apagar a mídia de origem %s", anexo.midia_id,
+                    exc_info=True)
+
+
+@transaction.atomic
+def _bloquear_canal(pk: int, erro: erros_canal.ErroWhatsapp) -> None:
+    """Conta ou credencial com problema (token vencido, conta restrita) ao buscar a mídia: o
+    mesmo tratamento do envio (`entrega.registrar_resultado`) — o canal bloqueia e uma exceção
+    avisa quem administra. O arquivo não gasta tentativa e espera o canal ser religado."""
+    codigo = erro.codigo or "conta"
+    chaves.bloquear_canal(CANAL_WHATSAPP, f"Bloqueado pelo erro {codigo} da Cloud API "
+                                          "(download de mídia).")
+    r = Recebimento.objects.select_for_update().get(pk=pk)
+    r.tentativas = max(r.tentativas - 1, 0)
+    r.reservado_ate = None
+    r.motivo = "O canal foi bloqueado por um problema da conta; o arquivo espera o desbloqueio."
+    r.save(update_fields=["tentativas", "reservado_ate", "motivo"])
+    excecoes.abrir(T.CANAL, f"canal:{CANAL_WHATSAPP}:{codigo}",
+                   f"Canal WhatsApp bloqueado (erro {codigo}) ao baixar um arquivo recebido: "
+                   "confira token, conta e pagamento antes de religar.", recebimento=r,
+                   unidade_id=None)
 
 
 @transaction.atomic

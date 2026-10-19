@@ -180,6 +180,7 @@ def test_nova_tentativa_recusada_nao_derruba_o_link_entregue(c):
     path, com, _ = _enviar_link(c)
     # Outro envio do link ao mesmo motorista, que o worker recusa (o telefone do cadastro
     # mudou): não pode criar link nem revogar o que a pessoa já tem.
+    antigo = c.motorista.telefone
     c.motorista.telefone = "41988887777"
     c.motorista.save(update_fields=["telefone"])
     de_novo = automacao.agendar(tipo=cv.LINK_KM, servidor_id=c.motorista.pk,
@@ -192,6 +193,12 @@ def test_nova_tentativa_recusada_nao_derruba_o_link_entregue(c):
     assert de_novo.situacao == S.RECUSADA and espiao.envios == []
     link = LinkAcesso.objects.get()
     assert link.revogado_em is None and link.comunicacao_id == com.pk
+    # O link não foi revogado, mas o número antigo não o abre mais (como no envio e na
+    # entrada); com o telefone do cadastro de volta, ele volta a abrir.
+    assert Client().get(path).status_code == 404
+    assert links.do_token(path.strip("/").split("/")[-1]) is None
+    c.motorista.telefone = antigo
+    c.motorista.save(update_fields=["telefone"])
     assert Client().get(path).status_code == 200
 
 
@@ -466,12 +473,56 @@ def test_service_worker_leva_o_vencimento_do_link(c):
     assert "pcpr-km-pagina:" in corpo and "status: 410" in corpo
 
 
+def test_link_vencido_sem_rede_mostra_os_km_pendentes_do_aparelho(c):
+    """Sem rede e com o link vencido, o service worker apaga a cópia da página e serve uma
+    página local (dentro do próprio sw.js) que lê e copia o que ficou no localStorage — sem
+    nada da viagem e sem script ou estilo inline."""
+    from django.template.loader import render_to_string
+
+    path, _, _ = _enviar_link(c)
+    corpo = Client().get(path + "sw/").content.decode()
+    link = LinkAcesso.objects.get()
+    html = render_to_string("viagens/km_link/vencido.html", {"link_id": link.pk})
+    assert f'const VENCIDO = "{escapejs(html)}";' in corpo
+    assert "text/plain" not in corpo and "km-vencido.js" in corpo
+    assert f'data-km-vencido data-link="{link.pk}"' in html and "Copiar lançamentos" in html
+    assert not re.search(r"<script(?![^>]*\bsrc=)[^>]*>", html) and "style=" not in html
+    for proibido in ("Arapongas", "Curitiba", c.motorista.nome, c.oficio.numero_formatado):
+        assert proibido not in html, proibido
+
+
+def test_reemissao_que_traz_a_saida_para_perto_agenda_o_link_da_versao_nova(c):
+    """A rotina da véspera agendou o link; a reemissão (v2) muda a saída para daqui a pouco:
+    o link agendado fica obsoleto pela versão nova e a rotina não veria mais a viagem — a
+    própria reemissão agenda o da versão nova, uma vez só."""
+    from gestao.viagens.models import Documento
+
+    _ligar(c)
+    _contatos(c)
+    cv.agendar_links_km()
+    antiga = Comunicacao.objects.get(tipo=cv.LINK_KM)
+    # A v2 adianta a saída para daqui a uma hora (depois da rotina da véspera).
+    primeiro = c.oficio.trechos.order_by("ordem").first()
+    delta = timezone.now() + timedelta(hours=1) - primeiro.saida_em
+    Trecho.objects.filter(oficio=c.oficio).update(saida_em=F("saida_em") + delta,
+                                                  chegada_em=F("chegada_em") + delta)
+    v1 = Documento.objects.filter(oficio=c.oficio, tipo=Documento.Tipo.OFICIO).latest("versao")
+    v2 = Documento.objects.create(oficio=c.oficio, tipo=v1.tipo, versao=v1.versao + 1,
+                                  dados=v1.dados, emitido_por=c.usuarios["operador"])
+    cv.oficio_emitido(Oficio.objects.get(pk=c.oficio.pk), c.usuarios["operador"], v2)
+    novas = Comunicacao.objects.filter(tipo=cv.LINK_KM).exclude(pk=antiga.pk)
+    assert novas.count() == 1 and novas.get().versao != antiga.versao
+    cv.oficio_emitido(Oficio.objects.get(pk=c.oficio.pk), c.usuarios["operador"], v2)
+    cv.agendar_links_km()
+    assert novas.count() == 1  # nem a emissão de novo nem a rotina duplicam
+
+
 def test_primeira_emissao_depois_da_rotina_agenda_o_link(c):
     """Ofício emitido pela 1ª vez depois da rotina da véspera, saindo amanhã: a emissão agenda
     o link (a rotina do dia seguinte já não o veria); rodar a rotina depois não duplica."""
     _ligar(c)
     _contatos(c)
-    cv._link_na_primeira_emissao(c.oficio, c.usuarios["operador"])
+    cv._link_de_saida_proxima(c.oficio, c.usuarios["operador"])
     assert Comunicacao.objects.filter(tipo=cv.LINK_KM).count() == 1
     cv.agendar_links_km()
     assert Comunicacao.objects.filter(tipo=cv.LINK_KM).count() == 1

@@ -7,7 +7,9 @@ Segurança (mesmo padrão do link do fornecedor do Coffee Break, ADR 0047):
 - validade curta, revogação individual e em massa (roteiro de incidente), e o link novo do
   mesmo escopo/recurso/pessoa revoga o anterior;
 - desconhecido, vencido, revogado, de contato revogado ou de outro escopo dão a mesma
-  resposta (nada de dizer qual foi);
+  resposta (nada de dizer qual foi) — e também o de um contato cujo número deixou de ser o
+  do cadastro do servidor (como no envio e na entrada: quem ficou com o número antigo não
+  usa o link);
 - o token nunca vai para log (filtro `MascararSegredos` cobre `/p/`) nem para a trilha.
 
 Cada contexto registra a página do seu escopo (`ganchos_link.registrar_pagina`), e a
@@ -27,7 +29,7 @@ from django.db import connection, transaction
 from django.urls import reverse
 from django.utils import timezone
 
-from . import policies
+from . import dominio, policies
 from .models import LinkAcesso
 
 TAMANHO_MINIMO, TAMANHO_MAXIMO = 32, 128
@@ -119,6 +121,9 @@ def do_token(token: str, escopo: str | None = None) -> LinkAcesso | None:
         return None  # a pessoa saiu (SAIR): os links dela param junto
     if not link.servidor.ativo:
         return None
+    if link.contato_id and link.contato is not None and not dominio.mesmo_numero(
+            link.contato.endereco, dominio.e164_do_brasil(link.servidor.telefone or "")):
+        return None  # o telefone do cadastro mudou: o número antigo não abre mais o link
     return link
 
 

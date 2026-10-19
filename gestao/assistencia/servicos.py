@@ -221,7 +221,11 @@ def _pedido_ia(uso: ganchos.UsoIA, ctx: ganchos.Contexto, deterministico: dict,
     def limpo(texto: str) -> str:  # valores E rótulos/origens dos blocos (ex.: título livre)
         return mascarar(_sem_nomes(texto, nomes))
 
-    fatos = [dataclasses.replace(f, valor=_sem_nomes(f.valor, nomes)) for f in ctx.fatos]
+    # Todo valor vai pela mesma barreira (nomes + CPF/telefone/e-mail/URL/CNPJ): fatos de
+    # campos editáveis (ex.: o título da viagem) podem trazer um identificador. O validador
+    # compara a saída com o contexto original; um valor mascarado só pode levar ao
+    # determinístico, nunca deixar passar o identificador.
+    fatos = [dataclasses.replace(f, valor=limpo(f.valor)) for f in ctx.fatos]
     blocos = [BlocoDeDados("fatos", serializar_fatos(f for f in fatos if not f.do_pedido),
                            limpo(ctx.recurso_rotulo))]
     for f in fatos:

@@ -18,7 +18,7 @@ import logging
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import connection, transaction
+from django.db import IntegrityError, connection, transaction
 from django.db.models import Q
 from django.utils import timezone
 
@@ -263,6 +263,26 @@ def registrar_mensagem(m: MensagemRecebida, entrada: EntradaWebhook | None = Non
     intencao = dominio.intencao(m.texto) if tipo in (Recebimento.Tipo.TEXTO,
                                                     Recebimento.Tipo.BOTAO) else ""
     endereco = m.remetente or m.remetente_usuario
+    try:
+        # Savepoint: duas entregas simultâneas da mesma mensagem (a Meta reentrega em outro
+        # envelope) passam ambas pela consulta acima; a 2ª esbarra na chave única e é
+        # tratada como repetição, sem desfazer o lote inteiro.
+        with transaction.atomic():
+            r = _criar_recebimento(m, entrada, indice, chave, endereco, contato, respondida,
+                                   tipo, intencao, agora)
+    except IntegrityError:
+        if Recebimento.objects.filter(chave=chave).exists():
+            return None  # a outra entrega gravou primeiro
+        raise
+    if contato is None:
+        _quarentena(r, "Mensagem de um número sem contato verificado.")
+        return r
+    return _depois_de_registrar(r, contato, tipo, intencao, origem, agora)
+
+
+def _criar_recebimento(m: MensagemRecebida, entrada: EntradaWebhook | None, indice: int,
+                       chave: str, endereco: str, contato: ContatoVerificado | None,
+                       respondida, tipo: str, intencao: str, agora) -> Recebimento:
     r = Recebimento.objects.create(
         canal=CANAL_WHATSAPP, mensagem_id=m.mensagem_id, indice=indice, chave=chave,
         entrada=entrada,
@@ -279,9 +299,12 @@ def registrar_mensagem(m: MensagemRecebida, entrada: EntradaWebhook | None = Non
                                        nome_perfil=m.nome_perfil[:120],
                                        nome_original=(m.anexo.nome if m.anexo else "")[:255],
                                        expira_em=agora + retencao())
-    if contato is None:
-        _quarentena(r, "Mensagem de um número sem contato verificado.")
-        return r
+    return r
+
+
+def _depois_de_registrar(r: Recebimento, contato: ContatoVerificado, tipo: str,
+                         intencao: str, origem: str, agora) -> Recebimento:
+    """O remetente é um contato que vale: identifica e dá o encaminhamento do tipo."""
     _atualizar_contato(contato, r, agora, origem)
     r.situacao, r.identificado_em = RS.IDENTIFICADO, agora
     r.save(update_fields=["situacao", "identificado_em"])

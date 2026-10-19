@@ -152,8 +152,9 @@ def _linha(lin, resultado, digitado: dict | None) -> dict:
 
 def _service_worker(request: HttpRequest, link) -> HttpResponse:
     base = _base(request, "sw")
+    vencido = render_to_string("viagens/km_link/vencido.html", {"link_id": link.pk})
     corpo = render_to_string("viagens/km_link/sw.js", {
-        "base": base, "link_id": link.pk,
+        "base": base, "link_id": link.pk, "vencido": vencido,
         "expira_ms": int(link.expira_em.timestamp() * 1000)}, request=request)
     return HttpResponse(corpo, content_type="text/javascript; charset=utf-8",
                         headers={"Service-Worker-Allowed": base})

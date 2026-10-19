@@ -219,3 +219,28 @@ def test_rotulos_dos_blocos_tambem_saem_sem_nomes():
     pedido = servicos._pedido_ia(uso, ctx, {}, config)
     origens = " ".join(b.origem for b in pedido.dados)
     assert "Ribeiro" not in origens and "Paula" not in origens and "[pessoa]" in origens
+
+
+def test_valores_dos_fatos_saem_com_a_mascara_de_identificadores():
+    """Fato de campo editável (ex.: o título da viagem) com telefone, e-mail, CPF ou link:
+    o valor vai ao provedor com os marcadores, pela mesma barreira das origens."""
+    from types import SimpleNamespace
+
+    from gestao.assistencia import ganchos, servicos
+
+    ctx = ganchos.Contexto(
+        recurso_rotulo="Viagem",
+        fatos=(ganchos.Fato("titulo", "Viagem · título",
+                            "Ana Paula: (41) 99999-0000, ana@pc.pr.gov.br, 123.456.789-09, "
+                            "https://exemplo.invalid/a"),
+               ganchos.Fato("relato", "Relato", "ligar 41 98888 7777", do_pedido=True)),
+        extras={"nomes": ["Ana Paula Ribeiro"]})
+    uso = SimpleNamespace(chave="teste", instrucoes="", versao_prompt="1", esquema={},
+                          envolve_documento=False, lacunas_conhecidas=())
+    config = SimpleNamespace(max_tokens_saida=100, tempo_limite_s=5)
+    pedido = servicos._pedido_ia(uso, ctx, {}, config)
+    conteudo = " ".join(b.conteudo for b in pedido.dados)
+    for proibido in ("99999-0000", "ana@pc", "123.456.789-09", "https://", "98888", "Paula"):
+        assert proibido not in conteudo, proibido
+    for marca in ("[TELEFONE]", "[E-MAIL]", "[CPF]", "[LINK]", "[pessoa]"):
+        assert marca in conteudo, marca

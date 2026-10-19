@@ -855,3 +855,156 @@ def test_arquivo_gravado_e_apagado_se_a_associacao_falhar(c, monkeypatch):
     (storage, nome), = gravados
     assert nome and not storage.exists(nome)
     assert not Recebimento.objects.get().arquivo  # a transação desfez o registro
+
+
+# ------------------------------------------------------------------ 9ª revisão
+def test_repeticao_da_reserva_recusa_a_versao_antiga(c, n8n):
+    """A resposta da reserva se perdeu e o assunto mudou antes da repetição (outra versão já
+    está na fila): a repetição revalida a versão como a 1ª reserva e não devolve a velha."""
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-versao-velha"
+    assert _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).status_code == 200
+    Comunicacao.objects.filter(pk=aviso.pk).update(versao="versao-anterior")
+    r = _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave)
+    assert r.status_code == 409 and r.json()["codigo"] == "obsoleta", r.content
+    assert "reserva" not in r.json()  # nada de conteúdo novo para a comunicação velha
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.OBSOLETA and aviso.reservada_ate is None
+
+
+def test_repeticao_da_reserva_recusa_contato_que_deixou_de_valer(c, n8n):
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-telefone-novo"
+    assert _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).status_code == 200
+    servidor = c.ps.servidor
+    servidor.telefone = "41988887777"  # o cadastro mudou entre a reserva e a repetição
+    servidor.save(update_fields=["telefone"])
+    r = _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave)
+    assert r.status_code == 409 and r.json()["codigo"] == "regra_violada", r.content
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.RECUSADA and "telefone" in aviso.motivo
+
+
+def test_repeticao_da_reserva_com_a_chave_desligada_e_423(c, n8n):
+    aviso = _aviso(c)
+    chave = f"reserva:{aviso.pk}:v1:exec-desligada"
+    assert _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave).status_code == 200
+    chaves.alterar(c.usuarios["admin"], chaves.nome_fluxo("diarias_liberadas"),
+                   estado="desligada")
+    r = _post(n8n, f"/comunicacoes/{aviso.pk}/reservar", {}, chave)
+    assert r.status_code == 423, r.content
+
+
+def _arquivo_recebido(c):
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    simulador.simular_resposta(c.usuarios["operador"], _aviso(c).pk, conteudo=PDF,
+                               nome="c.pdf")
+    _processar_entradas()
+    return Recebimento.objects.get()
+
+
+def test_credencial_vencida_no_download_bloqueia_o_canal(c):
+    """Token vencido ao buscar a mídia: o mesmo tratamento do envio (canal bloqueado e
+    exceção para quem administra), sem gastar a tentativa do arquivo — e nada mais se baixa
+    até o canal ser religado."""
+    from gestao.automacao.models import ChaveAutomacao
+    from gestao.integracoes.whatsapp import erros as erros_canal
+    from gestao.integracoes.whatsapp.adaptadores import AdaptadorSimulado
+
+    class TokenVencido(AdaptadorSimulado):
+        def baixar_midia(self, anexo, limite):
+            raise erros_canal.CanalBloqueado("Token de acesso vencido.", "190")
+
+    r = _arquivo_recebido(c)
+    assert recebimentos.processar_um(TokenVencido())
+    r.refresh_from_db()
+    assert r.situacao == Recebimento.Situacao.IDENTIFICADO and not r.arquivo
+    assert r.tentativas == 0 and r.reservado_ate is None
+    canal = ChaveAutomacao.objects.get(nome=chaves.nome_canal("whatsapp"))
+    assert canal.estado == ChaveAutomacao.Estado.BLOQUEADA
+    assert ExcecaoAutomacao.objects.filter(tipo=ExcecaoAutomacao.Tipo.CANAL,
+                                           chave="canal:whatsapp:190").exists()
+    assert recebimentos.reservar() is None
+    chaves.alterar(c.usuarios["admin"], chaves.nome_canal("whatsapp"), estado="ligada")
+    assert recebimentos.processar_um()
+    r.refresh_from_db()
+    assert r.arquivo and r.situacao == Recebimento.Situacao.ASSOCIADO, r.motivo
+
+
+def test_midia_do_simulador_sai_depois_de_baixada_e_a_orfa_com_a_retencao(c):
+    import os
+
+    from django.core.files.base import ContentFile
+    from django.core.files.storage import default_storage
+
+    from gestao.integracoes.whatsapp.adaptadores import PREFIXO_SIMULADO
+
+    r = _arquivo_recebido(c)
+    origem = PREFIXO_SIMULADO + r.midia_id
+    assert default_storage.exists(origem)
+    assert recebimentos.processar_um()
+    r.refresh_from_db()
+    assert r.arquivo and not default_storage.exists(origem)
+    # A que nunca foi baixada (quarentena, tentativas esgotadas) sai com a retenção.
+    orfa = default_storage.save(PREFIXO_SIMULADO + "SIMORFA" + r.midia_id, ContentFile(PDF))
+    recente = default_storage.save(PREFIXO_SIMULADO + "SIMNOVA" + r.midia_id, ContentFile(PDF))
+    antiga = (timezone.now() - entrega.retencao() - timedelta(days=1)).timestamp()
+    os.utime(default_storage.path(orfa), (antiga, antiga))
+    try:
+        assert manutencao.purgar()["midia_simulada"] >= 1
+        assert not default_storage.exists(orfa) and default_storage.exists(recente)
+    finally:
+        default_storage.delete(recente)
+
+
+def test_envio_manual_abre_a_janela_de_resposta(c):
+    """Contingência: a pessoa mandou à mão o pedido do comprovante. O arquivo que o servidor
+    devolve (sem citar mensagem, que não existe no canal) acha o pedido pela janela de
+    resposta e entra na prestação, como depois de um envio pelo provedor."""
+    from gestao.automacao import comunicacoes
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    aviso = comunicacoes.registrar_envio_manual(c.usuarios["operador"], _aviso(c).pk)
+    assert aviso.situacao == S.MANUAL and aviso.aceita_resposta
+    assert aviso.resposta_ate and aviso.resposta_ate > timezone.now()
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF, nome="c.pdf")
+    _processar_entradas()
+    r = Recebimento.objects.get()
+    assert r.comunicacao_id == aviso.pk
+    assert recebimentos.processar_um()
+    r.refresh_from_db()
+    assert r.situacao == Recebimento.Situacao.ASSOCIADO, r.motivo
+
+
+def test_mesma_mensagem_gravada_por_outra_entrega_ao_mesmo_tempo_e_repeticao(c, monkeypatch):
+    """Duas entregas da mesma mensagem passam juntas pela consulta de repetição: a que perde
+    a corrida esbarra na chave única e é tratada como repetição — sem desfazer o lote."""
+    from django.db import transaction as tx
+
+    from gestao.automacao import dominio
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.automacao.models import CANAL_WHATSAPP
+    from gestao.integracoes.whatsapp.porta import MensagemRecebida
+
+    _contato_ativo(c)
+    m = MensagemRecebida(mensagem_id="wamid.CORRIDA", tipo="text", recebida_em=timezone.now(),
+                         remetente=E164, texto="Bom dia")
+    identificar = entrada_mod.identificar
+
+    def outra_entrega_grava_antes(msg):
+        contato = identificar(msg)
+        Recebimento.objects.create(
+            mensagem_id=msg.mensagem_id, tipo=Recebimento.Tipo.TEXTO,
+            chave=dominio.chave_recebimento(CANAL_WHATSAPP, msg.mensagem_id, 0))
+        return contato
+
+    monkeypatch.setattr(entrada_mod, "identificar", outra_entrega_grava_antes)
+    with tx.atomic():
+        assert entrada_mod.registrar_mensagem(m) is None
+        # A transação do lote continua usável (o savepoint desfez só o insert repetido).
+        assert Recebimento.objects.filter(mensagem_id="wamid.CORRIDA").count() == 1

@@ -9,9 +9,15 @@
 // - O link vence: a cópia da página deixa de abrir offline depois de `EXPIRA` e é apagada
 //   (num aparelho perdido ou compartilhado, roteiro e km não ficam acessíveis para sempre).
 //   O nome do cache leva o vencimento, e qualquer cache de página vencido é apagado ao ativar.
+//   No lugar dela entra `VENCIDO` (km_link/vencido.html, que vem DENTRO deste arquivo: não
+//   depende de cache): sem nada da viagem, só o `km-vencido.js`, que lê do localStorage o
+//   que ficou pendente neste aparelho para a pessoa copiar e mandar ao setor.
 const EXPIRA = {{ expira_ms|default:0 }};
 const CACHE = `pcpr-km-pagina:{{ link_id|escapejs }}:${EXPIRA}`;
-const VERSAO = "{% static 'js/componentes/km-offline.js' %}";
+const VERSAO = "{% static 'js/componentes/km-offline.js' %}|{% static 'js/componentes/km-vencido.js' %}";
+const VENCIDO = "{{ vencido|escapejs }}";
+const CSP_VENCIDO = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
+  + "font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 const CACHE_ESTATICOS = `pcpr-km-estaticos:${VERSAO}`;
 const PAGINA = "{{ base|escapejs }}";
 const ESTATICOS = "{% get_static_prefix %}";
@@ -23,7 +29,8 @@ const PRECACHE = [
   "{% static 'js/componentes/shell.js' %}", "{% static 'js/componentes/menu.js' %}",
   "{% static 'js/componentes/dialogo.js' %}", "{% static 'js/componentes/toasts.js' %}",
   "{% static 'js/componentes/comandos.js' %}", "{% static 'js/componentes/acao.js' %}",
-  "{% static 'js/componentes/km-offline.js' %}", "{% static 'vendor/htmx.min.js' %}",
+  "{% static 'js/componentes/km-offline.js' %}", "{% static 'js/componentes/km-vencido.js' %}",
+  "{% static 'vendor/htmx.min.js' %}",
   "{% static 'icons/sprite.svg' %}", "{% static 'img/brasao-pcpr-96.webp' %}",
   "{% static 'img/favicon-32.png' %}", "{% static 'fonts/inter-latin-wght-normal.woff2' %}",
 ];
@@ -59,10 +66,14 @@ async function pagina(pedido) {
     else if (resposta.status === 404 || resposta.status === 410) await caches.delete(CACHE);
     return resposta;
   } catch {
-    if (EXPIRA && Date.now() > EXPIRA) {  // sem rede e o link já venceu: apaga e não mostra
+    if (EXPIRA && Date.now() > EXPIRA) {
+      // Sem rede e o link já venceu: a cópia da página sai, e a página local deixa ver e
+      // copiar os km que ficaram só neste aparelho (sem ela, ficariam inacessíveis).
       await caches.delete(CACHE);
-      return new Response("Este link venceu. Peça um novo ao setor de viagens.",
-                          { status: 410, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+      return new Response(VENCIDO, { status: 410, headers: {
+        "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
+        "Content-Security-Policy": CSP_VENCIDO, "Referrer-Policy": "no-referrer",
+        "X-Robots-Tag": "noindex" } });
     }
     const copia = await (await caches.open(CACHE)).match(PAGINA);
     return copia || Response.error();

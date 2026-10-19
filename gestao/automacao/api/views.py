@@ -244,6 +244,8 @@ def repetir(corpo: dict) -> JsonResponse | None:
     if corpo.get("_repetir") != "reserva":
         return None
     resultado = entrega.repetir_reserva(int(corpo["tentativa"]))
+    if resultado.recusa == "desligada":
+        return erro(423, "desligada", resultado.motivo)
     if resultado.recusa:
         return erro(409, resultado.recusa, resultado.motivo, estado_atual=resultado.estado_atual)
     return _resposta_da_reserva(resultado)

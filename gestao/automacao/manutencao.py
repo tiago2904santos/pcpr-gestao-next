@@ -5,7 +5,8 @@
 - `reconciliar`: status que chegaram para mensagem que não conhecemos (depois de 1 h, sem a
   resposta do envio ter aparecido) vão para a fila de exceções;
 - `purgar`: texto das mensagens, nome de perfil, corpo bruto dos webhooks e arquivos em
-  quarentena saem depois do prazo de retenção (`AUTOMACAO_RETENCAO_DIAS`, padrão 30). O
+  quarentena saem depois do prazo de retenção (`AUTOMACAO_RETENCAO_DIAS`, padrão 30) — e a
+  mídia que o simulador guardou e ninguém baixou (o download apaga a que consome). O
   registro de que houve a mensagem fica.
 """
 
@@ -87,7 +88,31 @@ def purgar(agora=None) -> dict[str, int]:
         Recebimento.objects.filter(pk=r.pk).update(arquivo="")
         arquivos += 1
     return {"textos": textos, "recebidos": recebidos, "corpos": corpos, "arquivos": arquivos,
-            "respostas_api": respostas}
+            "respostas_api": respostas, "midia_simulada": _purgar_midia_simulada(limite)}
+
+
+def _purgar_midia_simulada(limite) -> int:
+    """Mídia do simulador que nunca foi baixada (remetente em quarentena, tentativas
+    esgotadas): sai com o mesmo prazo de retenção dos arquivos recebidos."""
+    from django.core.files.storage import default_storage
+
+    from gestao.integracoes.whatsapp.adaptadores import PREFIXO_SIMULADO
+
+    try:
+        _, nomes = default_storage.listdir(PREFIXO_SIMULADO)
+    except (FileNotFoundError, NotImplementedError):
+        return 0
+    total = 0
+    for nome in nomes:
+        caminho = PREFIXO_SIMULADO + nome
+        try:
+            if default_storage.get_modified_time(caminho) > limite:
+                continue
+        except (NotImplementedError, OSError):
+            continue
+        default_storage.delete(caminho)
+        total += 1
+    return total
 
 
 def diaria(hoje=None) -> str:

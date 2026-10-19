@@ -158,6 +158,40 @@ def _reservar_uma(canal: str = "whatsapp") -> tuple[bool, Reserva | None]:
     return tratou, reserva
 
 
+def _recusa_do_contato(c: Comunicacao, contato: ContatoVerificado | None, exige_optin: bool,
+                       configuracao) -> bool:
+    """As travas do destinatário, iguais na reserva e na repetição dela: se o contato não pode
+    receber, encerra a comunicação como recusada (com exceção) e devolve True."""
+    if contato is None:
+        _encerrar(c, S.RECUSADA, "O servidor não tem WhatsApp verificado.",
+                  excecao=T.CONTATO,
+                  resumo=f"{c.servidor or 'Destinatário'} sem WhatsApp verificado: avise "
+                         "por outro meio ou cadastre o contato.")
+        return True
+    if not contato.verificado_em or (exige_optin and not contato.ativo):
+        _encerrar(c, S.RECUSADA, "Contato sem verificação ou sem opt-in vigente.",
+                  excecao=T.CONTATO,
+                  resumo=f"{c.servidor or 'Destinatário'}: contato sem verificação ou sem "
+                         "opt-in; nada foi enviado.")
+        return True
+    if configuracao.real and ContatoVerificado.Metodo.SIMULADO in (
+            contato.metodo, contato.optin_origem):
+        _encerrar(c, S.RECUSADA, "Verificação ou opt-in feitos no simulador não valem no canal "
+                  "real: confirme de novo com a pessoa.", excecao=T.CONTATO)
+        return True
+    if c.servidor_id and not dominio.mesmo_numero(contato.endereco, _endereco_do_cadastro(c)):
+        _encerrar(c, S.RECUSADA, "O telefone do cadastro mudou: verifique o contato de novo.",
+                  excecao=T.CONTATO)
+        return True
+    if configuracao.lista_fechada and not _na_lista(contato.endereco):
+        _encerrar(c, S.RECUSADA, "Número fora da lista de testadores autorizados.",
+                  excecao=T.CONTATO,
+                  resumo=f"{c.servidor or 'Destinatário'}: número fora da lista de "
+                         "testadores; nada foi enviado.")
+        return True
+    return False
+
+
 def _preparar(c: Comunicacao, agora, *, prazo: timedelta = PRAZO_DA_RESERVA,
               chave_execucao: str = "", token_hash: str = ""
               ) -> tuple[bool, Reserva | None, str]:
@@ -201,32 +235,7 @@ def _preparar(c: Comunicacao, agora, *, prazo: timedelta = PRAZO_DA_RESERVA,
         from .comunicacoes import contato_vigente
 
         contato = contato_vigente(c.servidor_id, canal)
-    if contato is None:
-        _encerrar(c, S.RECUSADA, "O servidor não tem WhatsApp verificado.",
-                  excecao=T.CONTATO,
-                  resumo=f"{c.servidor or 'Destinatário'} sem WhatsApp verificado: avise "
-                         "por outro meio ou cadastre o contato.")
-        return True, None, "regra_violada"
-    if not contato.verificado_em or (exige_optin and not contato.ativo):
-        _encerrar(c, S.RECUSADA, "Contato sem verificação ou sem opt-in vigente.",
-                  excecao=T.CONTATO,
-                  resumo=f"{c.servidor or 'Destinatário'}: contato sem verificação ou sem "
-                         "opt-in; nada foi enviado.")
-        return True, None, "regra_violada"
-    if configuracao.real and ContatoVerificado.Metodo.SIMULADO in (
-            contato.metodo, contato.optin_origem):
-        _encerrar(c, S.RECUSADA, "Verificação ou opt-in feitos no simulador não valem no canal "
-                  "real: confirme de novo com a pessoa.", excecao=T.CONTATO)
-        return True, None, "regra_violada"
-    if c.servidor_id and not dominio.mesmo_numero(contato.endereco, _endereco_do_cadastro(c)):
-        _encerrar(c, S.RECUSADA, "O telefone do cadastro mudou: verifique o contato de novo.",
-                  excecao=T.CONTATO)
-        return True, None, "regra_violada"
-    if configuracao.lista_fechada and not _na_lista(contato.endereco):
-        _encerrar(c, S.RECUSADA, "Número fora da lista de testadores autorizados.",
-                  excecao=T.CONTATO,
-                  resumo=f"{c.servidor or 'Destinatário'}: número fora da lista de "
-                         "testadores; nada foi enviado.")
+    if _recusa_do_contato(c, contato, exige_optin, configuracao) or contato is None:
         return True, None, "regra_violada"
     hora = agora - timedelta(hours=1)
     # Conta e cria a tentativa sob a mesma trava por canal (até o fim desta transação): duas
@@ -372,13 +381,36 @@ def repetir_reserva(tentativa_id: int) -> ResultadoReserva:
             or not c.reservada_ate or c.reservada_ate <= agora):
         return ResultadoReserva(recusa="ja_processada", estado_atual=c.situacao,
                                 motivo="A reserva desta chave já terminou.")
+    # As mesmas revalidações da primeira reserva (`reservar_pela_api` + `_preparar`): entre a
+    # resposta perdida e esta repetição, o canal pode ter sido bloqueado, a chave desligada,
+    # o assunto mudado (outra versão já na fila) ou o contato deixado de valer.
+    canal = ChaveAutomacao.objects.filter(nome=chaves.nome_canal(c.canal)).first()
+    if canal is not None and canal.estado == ChaveAutomacao.Estado.BLOQUEADA:
+        return ResultadoReserva(recusa="canal_bloqueado", estado_atual=c.situacao,
+                                motivo="O canal está bloqueado: nada sai até alguém olhar.")
+    permissao = chaves.permissao_de_efeito(c.canal, c.fluxo)
+    if not permissao.permitido:
+        return ResultadoReserva(recusa="desligada", motivo=permissao.motivo,
+                                estado_atual=c.situacao)
     definicao = ganchos.tipo(c.tipo)
     preparo = definicao.preparar({**(c.contexto or {}), "_comunicacao": c.pk}) \
         if definicao else None
+    situacao, motivo = S.OBSOLETA, ""
     if preparo is None or not preparo.valida:
-        return ResultadoReserva(recusa="obsoleta", estado_atual=c.situacao,
-                                motivo="O assunto mudou desde a reserva.")
+        motivo = (preparo.motivo if preparo else "") or "O assunto mudou desde a reserva."
+    elif c.expira_em and c.expira_em <= agora:
+        situacao, motivo = S.EXPIRADA, "Passou do prazo em que a mensagem fazia sentido."
+    elif c.versao and preparo.versao and preparo.versao != c.versao:
+        motivo = "O assunto mudou depois do agendamento (outra versão)."
+    if preparo is None or motivo:
+        # Como na reserva: a comunicação velha não sai (a tentativa fica em curso para um
+        # resultado tardio ainda ser registrado — e virar exceção se tiver saído).
+        _encerrar(c, situacao, motivo or "O assunto mudou desde a reserva.")
+        return ResultadoReserva(recusa="obsoleta", estado_atual=c.situacao, motivo=c.motivo)
     configuracao = whatsapp_config.carregar()
+    if _recusa_do_contato(c, c.contato, getattr(definicao, "exige_optin", True), configuracao):
+        return ResultadoReserva(recusa="regra_violada", estado_atual=c.situacao,
+                                motivo=c.motivo)
     conteudo = ConteudoComunicacao.objects.filter(comunicacao=c).first()
     # Um link a mais para a mesma pessoa, sem revogar o da primeira resposta (que o n8n pode
     # ter usado); e o token da primeira reserva continua aceito no resultado.

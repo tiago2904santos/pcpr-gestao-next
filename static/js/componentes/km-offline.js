@@ -19,7 +19,9 @@
 /**
  * @typedef {{id: string, linha: number, chave: string, campos: Valores, base: Valores,
  *   digitado_em: string, estado: "pendente" | "conflito" | "recusado", mensagem?: string,
- *   servidor?: Valores}} Lancamento
+ *   servidor?: Valores, rotulo?: string}} Lancamento
+ * `rotulo` (o trecho, "Curitiba → Londrina") fica só no aparelho: é o que a página do link
+ * vencido (`km-vencido.js`) mostra para a pessoa copiar.
  */
 /**
  * @typedef {{id: string, situacao: string, mensagem: string, linha: number | null,
@@ -281,8 +283,10 @@ function iniciar(raiz) {
       pintar(linha);
       return;
     }
+    const rotulo = (form.closest("section")?.querySelector("h2")?.textContent || "")
+      .replace(/\s+/g, " ").trim().replace(/^\d+\s*/, "");
     gravar(linha, { id: novoId(), linha, chave: form.dataset.chave || "", campos, base,
-                    digitado_em: new Date().toISOString(), estado: "pendente" });
+                    digitado_em: new Date().toISOString(), estado: "pendente", rotulo });
     pintar(linha);
     pintarRede();
     void sincronizar();

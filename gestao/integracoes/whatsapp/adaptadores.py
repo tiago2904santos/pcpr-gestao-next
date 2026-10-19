@@ -118,6 +118,15 @@ class AdaptadorSimulado:
             conteudo = arquivo.read(limite + 1)
         return _validar_midia(conteudo, limite, anexo.sha256)
 
+    def descartar_midia(self, anexo: Anexo) -> None:
+        """A mídia simulada é lida uma vez: transferida (ou recusada de vez), sai do
+        armazenamento — senão cada simulação deixava o original para sempre."""
+        from django.core.files.storage import default_storage
+
+        caminho = PREFIXO_SIMULADO + "".join(c for c in anexo.midia_id if c.isalnum())
+        if anexo.midia_id and default_storage.exists(caminho):
+            default_storage.delete(caminho)
+
     def marcar_lida(self, mensagem_id: str) -> None:
         return None
 
