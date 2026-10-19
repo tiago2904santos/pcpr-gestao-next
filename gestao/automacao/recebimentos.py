@@ -91,9 +91,14 @@ def baixar(pk: int, porta=None) -> Recebimento:
         _bloquear_canal(pk, erro)
         return Recebimento.objects.get(pk=pk)
     except erros_canal.ErroWhatsapp as erro:
-        log.info("download da mídia do recebimento %s falhou (%s); o lease permite repetir",
-                 pk, erro.codigo)
-        Recebimento.objects.filter(pk=pk).update(reservado_ate=None, motivo=str(erro)[:255])
+        # Falha passageira (Meta ou rede): a próxima tentativa só depois de uma espera
+        # crescente (2, 8, 32 min — ou o que a Meta pediu). Liberar na hora deixava o worker
+        # gastar as 4 tentativas em segundos e recusar o arquivo numa queda breve.
+        espera = dominio.espera(r.tentativas, getattr(erro, "espera_segundos", None))
+        log.info("download da mídia do recebimento %s falhou (%s); nova tentativa em %s",
+                 pk, erro.codigo, espera)
+        Recebimento.objects.filter(pk=pk).update(reservado_ate=timezone.now() + espera,
+                                                 motivo=str(erro)[:255])
         return Recebimento.objects.get(pk=pk)
     with transaction.atomic():
         r = Recebimento.objects.select_for_update().get(pk=pk)
@@ -381,35 +386,47 @@ def receber_arquivo(*, mensagem_id: str, indice: int, remetente: str, conteudo: 
         if existente.sha256 and _hex(existente.sha256) != sha:
             raise ConflitoDeArquivo("Mesma mensagem e anexo com outro conteúdo.")
         return existente, False
-    with transaction.atomic():
-        m = MensagemRecebida(mensagem_id=mensagem_id, tipo="document", recebida_em=recebido_em,
-                             remetente=dominio.somente_digitos(remetente),
-                             em_resposta_a=em_resposta_a,
-                             anexo=AnexoCanal(midia_id="api", tipo="document",
-                                              sha256=sha256_informado, nome=nome))
-        r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice)
-        if r is None:
-            return Recebimento.objects.get(chave=chave), False
-        if r.situacao != RS.IDENTIFICADO:
-            return r, True  # quarentena: o arquivo de desconhecido nem é guardado
-        configuracao = whatsapp_config.carregar()
-        try:
-            midia = _validar_midia(conteudo, configuracao.tamanho_maximo_midia, sha)
-        except erros_canal.MidiaInvalida as erro:
+    # A transação abaixo é a de fora (a API não abre outra; ATOMIC_REQUESTS desligado): se
+    # ela desfizer o registro — erro no meio ou no commit —, o arquivo pessoal já gravado não
+    # pode ficar no storage sem ninguém que o aponte (a retenção só enxerga o que tem registro).
+    gravado: list[tuple] = []  # (storage, nome)
+    try:
+        with transaction.atomic():
+            m = MensagemRecebida(mensagem_id=mensagem_id, tipo="document",
+                                 recebida_em=recebido_em,
+                                 remetente=dominio.somente_digitos(remetente),
+                                 em_resposta_a=em_resposta_a,
+                                 anexo=AnexoCanal(midia_id="api", tipo="document",
+                                                  sha256=sha256_informado, nome=nome))
+            r = entrada_canal.registrar_mensagem(m, None, origem="api", indice=indice)
+            if r is None:
+                return Recebimento.objects.get(chave=chave), False
+            if r.situacao != RS.IDENTIFICADO:
+                return r, True  # quarentena: o arquivo de desconhecido nem é guardado
+            configuracao = whatsapp_config.carregar()
+            try:
+                midia = _validar_midia(conteudo, configuracao.tamanho_maximo_midia, sha)
+            except erros_canal.MidiaInvalida as erro:
+                r.midia_id = ""
+                r.save(update_fields=["midia_id"])
+                motivo, pk = str(erro), r.pk
+                transaction.on_commit(lambda: _recusar(pk, motivo))
+                return r, True
+            extensao = EXTENSOES[midia.mime]
+            r.arquivo.save(f"receb-{r.pk}{extensao}", ContentFile(midia.conteudo), save=False)
+            gravado.append((r.arquivo.storage, r.arquivo.name))
+            r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
+            r.nome_arquivo = f"recebido-{r.pk}{extensao}"
             r.midia_id = ""
-            r.save(update_fields=["midia_id"])
-            motivo, pk = str(erro), r.pk
-            transaction.on_commit(lambda: _recusar(pk, motivo))
-            return r, True
-        extensao = EXTENSOES[midia.mime]
-        r.arquivo.save(f"receb-{r.pk}{extensao}", ContentFile(midia.conteudo), save=False)
-        r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
-        r.nome_arquivo = f"recebido-{r.pk}{extensao}"
-        r.midia_id = ""
-        r.save()
-        # Sem a assinatura do provedor, o remetente é só o que o n8n disse: uma pessoa confere.
-        _pedir_destino(r, "Arquivo entregue pela API (sem assinatura do provedor): confira o "
-                          "remetente e escolha o destino.")
+            r.save()
+            # Sem a assinatura do provedor, o remetente é só o que o n8n disse: uma pessoa
+            # confere.
+            _pedir_destino(r, "Arquivo entregue pela API (sem assinatura do provedor): confira "
+                              "o remetente e escolha o destino.")
+    except Exception:
+        for storage, nome in gravado:
+            storage.delete(nome)
+        raise
     return r, True
 
 

@@ -512,3 +512,60 @@ def test_entrega_confere_a_tentativa_do_callback(c):
     assert r.status_code == 200, r.content
     c.com.refresh_from_db()
     assert c.com.mensagem_id == "" and c.com.situacao == "reservada"  # a 1 não confirma a 2
+
+
+def test_resultado_tardio_com_tentativa_mais_nova_em_curso_e_provavel_duplicado(c):
+    """A 1 confirma enquanto a 2 ainda está reservada: vale o envio da 1 e já abre o provável
+    duplicado; quando a 2 também sai, não troca o id da 1 e abre o seu; uma 3ª que falha
+    depois disso não reagenda o que já saiu."""
+    from gestao.automacao.models import TentativaEntrega
+    from gestao.integracoes.whatsapp import erros as erros_canal
+    from gestao.integracoes.whatsapp.porta import Envio, Origem
+
+    com = c.com
+    t1 = TentativaEntrega.objects.create(comunicacao=com, numero=1, chave="t-r10-1",
+                                         adaptador="n8n", resultado="incerta")
+    t2 = TentativaEntrega.objects.create(comunicacao=com, numero=2, chave="t-r10-2",
+                                         adaptador="n8n")
+    Comunicacao.objects.filter(pk=com.pk).update(
+        situacao="reservada", tentativas=2, reservada_ate=timezone.now() + timedelta(minutes=5))
+    entrega.registrar_resultado(t1.pk, envio=Envio(mensagem_id="wamid.R10.1",
+                                                   origem=Origem.CLOUD_API), origem="n8n")
+    com.refresh_from_db()
+    assert com.situacao == "enviada" and com.mensagem_id == "wamid.R10.1"
+    assert ExcecaoAutomacao.objects.get(chave=f"duplicado:{com.pk}:t1").situacao == "aberta"
+    entrega.registrar_resultado(t2.pk, envio=Envio(mensagem_id="wamid.R10.2",
+                                                   origem=Origem.CLOUD_API), origem="n8n")
+    com.refresh_from_db()
+    assert com.mensagem_id == "wamid.R10.1"
+    assert ExcecaoAutomacao.objects.filter(chave=f"duplicado:{com.pk}:t2").exists()
+    t3 = TentativaEntrega.objects.create(comunicacao=com, numero=3, chave="t-r10-3",
+                                         adaptador="n8n")
+    entrega.registrar_resultado(t3.pk, erro=erros_canal.FalhaTemporaria("limite", "130429"))
+    com.refresh_from_db()
+    t3.refresh_from_db()
+    assert t3.resultado == "temporaria" and com.situacao == "enviada"
+
+
+def test_aprovacao_que_falha_na_execucao_termina_a_execucao_com_erro(c):
+    from gestao.automacao.ferramentas import Campo, Ferramenta, FerramentaInvalida, registrar
+
+    def falha(u, e):
+        raise FerramentaInvalida("A comunicação já tinha saído.")
+
+    registrar(Ferramenta(
+        nome="teste.falha_ao_executar", descricao="falha", risco="irreversivel",
+        entrada={"comunicacao": Campo("inteiro")}, executar=falha,
+        permitido=lambda u, e: u.has_perm("automacao.operar_automacao")))
+    _, token = credenciais.emitir(c.usuarios["operador"], nome="meu cliente 4", tipo="pessoal")
+    r = _post(c, "/ferramentas/teste.falha_ao_executar/executar", {"comunicacao": 1},
+              "ferramenta:falha-na-execucao-1", token=token)
+    assert r.status_code == 202, r.content
+    pedido = PedidoAprovacao.objects.get(pk=r.json()["pedido"])
+    assert pedido.execucao.resultado == "pendente"
+    ferramentas.aprovar(c.usuarios["gestor"], pedido.pk)
+    pedido.refresh_from_db()
+    pedido.execucao.refresh_from_db()
+    assert pedido.situacao == "falhou" and "já tinha saído" in pedido.motivo
+    assert pedido.execucao.resultado == ExecucaoFerramenta.Resultado.ERRO
+    assert "falhou" in pedido.execucao.detalhe

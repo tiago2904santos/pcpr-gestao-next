@@ -293,10 +293,17 @@ def chamadas_hoje(uso: str) -> int:
 
 
 def chamadas_hoje_por_uso() -> dict[str, int]:
-    """As chamadas de IA de hoje de todos os usos, numa consulta só (tela de usos)."""
-    return {linha["uso"]: linha["n"] or 0 for linha in
-            Sugestao.objects.filter(criada_em__gte=_inicio_do_dia())
-            .values("uso").annotate(n=Sum("tentativas_ia"))}
+    """As chamadas de IA de hoje de todos os usos (tela de usos), contadas como em
+    `chamadas_hoje`: as das sugestões e as que podem ter sido feitas sem registro."""
+    totais: dict[str, int] = {}
+    for consulta in (Sugestao.objects.filter(criada_em__gte=_inicio_do_dia())
+                     .values("uso").annotate(n=Sum("tentativas_ia")),
+                     PedidoSugestao.objects.filter(atualizado_em__gte=_inicio_do_dia(),
+                                                   chamadas_sem_registro__gt=0)
+                     .values("uso").annotate(n=Sum("chamadas_sem_registro"))):
+        for linha in consulta:
+            totais[linha["uso"]] = totais.get(linha["uso"], 0) + (linha["n"] or 0)
+    return totais
 
 
 def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Sugestao | None:

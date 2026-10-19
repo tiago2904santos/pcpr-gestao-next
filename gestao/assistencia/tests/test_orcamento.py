@@ -244,3 +244,16 @@ def test_valores_dos_fatos_saem_com_a_mascara_de_identificadores():
         assert proibido not in conteudo, proibido
     for marca in ("[TELEFONE]", "[E-MAIL]", "[CPF]", "[LINK]", "[pessoa]"):
         assert marca in conteudo, marca
+
+
+@pytest.mark.django_db
+def test_chamadas_de_hoje_por_uso_contam_as_feitas_sem_registro(django_user_model):
+    """A tela de usos mostra o mesmo que o teto diário usa: um worker que morreu no meio da
+    chamada deixa `chamadas_sem_registro`, que conta nos dois."""
+    from gestao.assistencia import servicos
+    from gestao.assistencia.models import PedidoSugestao
+
+    p = _pedido(django_user_model, 7)
+    PedidoSugestao.objects.filter(pk=p.pk).update(chamadas_sem_registro=3)
+    assert servicos.chamadas_hoje(USO) == 3
+    assert servicos.chamadas_hoje_por_uso().get(USO) == 3

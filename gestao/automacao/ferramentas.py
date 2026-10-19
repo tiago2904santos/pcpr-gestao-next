@@ -254,6 +254,9 @@ def _aprovar(usuario, pk: int) -> PedidoAprovacao:
             f.executar(usuario, p.entrada)
     except (FerramentaRecusada, FerramentaInvalida) as erro:
         p.situacao, p.motivo = PedidoAprovacao.Situacao.FALHOU, str(erro)[:255]
+        p.execucao.resultado = ExecucaoFerramenta.Resultado.ERRO
+        p.execucao.detalhe = f"Aprovada por {usuario}, mas falhou: {erro}"[:255]
+        p.execucao.save(update_fields=["resultado", "detalhe"])
     else:
         p.situacao = PedidoAprovacao.Situacao.APROVADO
         p.execucao.resultado = ExecucaoFerramenta.Resultado.OK

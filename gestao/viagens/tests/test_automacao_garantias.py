@@ -1008,3 +1008,69 @@ def test_mesma_mensagem_gravada_por_outra_entrega_ao_mesmo_tempo_e_repeticao(c, 
         assert entrada_mod.registrar_mensagem(m) is None
         # A transação do lote continua usável (o savepoint desfez só o insert repetido).
         assert Recebimento.objects.filter(mensagem_id="wamid.CORRIDA").count() == 1
+
+
+# ------------------------------------------------------------------ 10ª revisão
+def test_falha_passageira_no_download_espera_antes_de_tentar_de_novo(c):
+    """Queda breve da Meta: o arquivo não volta a ser elegível na hora (o worker gastaria as
+    4 tentativas em segundos e recusaria o arquivo) — espera e depois baixa."""
+    from gestao.integracoes.whatsapp import erros as erros_canal
+    from gestao.integracoes.whatsapp.adaptadores import AdaptadorSimulado
+
+    class MetaFora(AdaptadorSimulado):
+        def baixar_midia(self, anexo, limite):
+            raise erros_canal.FalhaTemporaria("Sem conexão com a Meta.", "rede")
+
+    r = _arquivo_recebido(c)
+    assert recebimentos.processar_um(MetaFora())
+    r.refresh_from_db()
+    assert r.tentativas == 1 and r.reservado_ate > timezone.now() + timedelta(minutes=1)
+    assert not recebimentos.processar_um(MetaFora())  # ainda esperando: nada é tentado
+    r.refresh_from_db()
+    assert r.tentativas == 1 and r.situacao == Recebimento.Situacao.IDENTIFICADO
+    Recebimento.objects.filter(pk=r.pk).update(reservado_ate=timezone.now() - timedelta(1))
+    assert recebimentos.processar_um()
+    r.refresh_from_db()
+    assert r.arquivo and r.tentativas == 2
+
+
+def test_arquivo_da_v1_sai_do_storage_se_a_transacao_desfizer_o_registro(c, monkeypatch):
+    _contato_ativo(c)
+    gravados: list[tuple] = []
+
+    def falha(r, motivo, **_):
+        gravados.append((r.arquivo.storage, r.arquivo.name))
+        raise RuntimeError("falha simulada depois de gravar")
+
+    monkeypatch.setattr(recebimentos, "_pedir_destino", falha)
+    with pytest.raises(RuntimeError):
+        recebimentos.receber_arquivo(mensagem_id="wamid.V1FALHA", indice=0, remetente=E164,
+                                     conteudo=PDF, nome="c.pdf", recebido_em=timezone.now())
+    (storage, nome), = gravados
+    assert nome and not storage.exists(nome)
+    assert not Recebimento.objects.filter(mensagem_id="wamid.V1FALHA").exists()
+
+
+def test_falha_de_conta_so_no_erro_do_status_bloqueia_o_canal(c):
+    """Envio assíncrono que falhou por problema da conta (token vencido, 190): a Meta avisa
+    só no `statuses[].errors` — o canal bloqueia como no envio síncrono."""
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.automacao.models import ChaveAutomacao
+
+    _ligar(c, *TODOS)
+    entrada_mod.registrar_entrada(webhook.montar_status(
+        mensagem_id="wamid.CONTA", status="failed", destinatario=E164, erro_codigo="190"),
+        origem="simulador")
+    _processar_entradas()
+    canal = ChaveAutomacao.objects.get(nome=chaves.nome_canal("whatsapp"))
+    assert canal.estado == ChaveAutomacao.Estado.BLOQUEADA
+    assert ExcecaoAutomacao.objects.filter(tipo=ExcecaoAutomacao.Tipo.CANAL,
+                                           chave="canal:whatsapp:190").exists()
+    # Falha de uma mensagem só (número sem WhatsApp) não bloqueia nada.
+    chaves.alterar(c.usuarios["admin"], chaves.nome_canal("whatsapp"), estado="ligada")
+    entrada_mod.registrar_entrada(webhook.montar_status(
+        mensagem_id="wamid.UMA", status="failed", destinatario=E164, erro_codigo="131026"),
+        origem="simulador")
+    _processar_entradas()
+    canal.refresh_from_db()
+    assert canal.estado == ChaveAutomacao.Estado.LIGADA

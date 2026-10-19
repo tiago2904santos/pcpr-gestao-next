@@ -119,10 +119,16 @@ def processar_entrada(pk: int) -> EntradaWebhook:
             registrar_status(s, entrada.canal)
         novos = [registrar_mensagem(m, entrada, origem=entrada.origem)
                  for m in lote.mensagens]
-        for codigo in lote.erros:
+        # Problema da conta/credencial avisado pela Meta — no lote ou só no erro de um status
+        # (envio assíncrono que falhou): bloqueia o canal como o envio síncrono faz.
+        codigos = [*lote.erros, *(s.erro_codigo for s in lote.status if s.erro_codigo)]
+        for codigo in dict.fromkeys(codigos):
             if codigo in BLOQUEIO_DE_CONTA:
+                chaves.bloquear_canal(entrada.canal,
+                                      f"Bloqueado pelo erro {codigo} informado pela Meta.")
                 excecoes.abrir(T.CANAL, f"canal:{entrada.canal}:{codigo}",
-                               f"A Meta avisou um problema da conta (erro {codigo}).")
+                               f"A Meta avisou um problema da conta (erro {codigo}): confira "
+                               "token, conta e pagamento antes de religar.")
         entrada.situacao = EntradaWebhook.Situacao.PROCESSADA
         entrada.processada_em = timezone.now()
         entrada.erro = ""

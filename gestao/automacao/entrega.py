@@ -499,13 +499,13 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
     t.terminada_em, t.duracao_ms = agora, duracao_ms
     # Cancelada (opt-out) ou obsoleta (o assunto se resolveu) com o envio já reservado.
     cancelada = c.situacao in (S.CANCELADA, S.OBSOLETA)
+    outras = TentativaEntrega.objects.filter(comunicacao=c).exclude(pk=t.pk)
     if envio is not None:
         t.resultado = R.ACEITA
         t.save()
-        mais_nova = (TentativaEntrega.objects.filter(comunicacao=c, numero__gt=t.numero,
-                                                     resultado=R.ACEITA)
-                     .exclude(pk=t.pk).exists())
-        if mais_nova:
+        mais_nova = outras.filter(numero__gt=t.numero, resultado=R.ACEITA).exists()
+        ja_saiu = outras.filter(numero__lt=t.numero, resultado=R.ACEITA).exists()
+        if mais_nova or ja_saiu:
             # A pessoa já tinha tentado de novo e a nova saiu: a velha também saiu (resultado
             # tardio). Não troca o id do provedor da comunicação; avisa do provável duplicado.
             excecoes.abrir(T.RESULTADO_INCERTO, f"duplicado:{c.pk}:t{t.numero}",
@@ -513,7 +513,17 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
                            "também saiu — a pessoa pode ter recebido a mensagem duas vezes.",
                            comunicacao=c)
             return t
+        # Uma tentativa mais nova já começou (reservada, em curso ou incerta): esta saiu, e a
+        # outra também pode sair. Vale o envio desta, e uma pessoa confere o provável
+        # duplicado (a exceção nasce depois de `_aceita`, que encerra as do assunto).
+        em_voo = outras.filter(numero__gt=t.numero,
+                               resultado__in=(R.EM_CURSO, R.INCERTA)).exists()
         _aceita(c, envio, origem, agora)
+        if em_voo:
+            excecoes.abrir(T.RESULTADO_INCERTO, f"duplicado:{c.pk}:t{t.numero}",
+                           f"Comunicação #{c.pk}: a tentativa {t.numero} saiu depois que uma "
+                           "tentativa mais nova já tinha começado — a pessoa pode receber a "
+                           "mensagem duas vezes.", comunicacao=c)
         if cancelada:  # saiu mesmo assim: o registro diz a verdade e uma pessoa confere
             excecoes.abrir(T.CONTATO, f"depois-do-cancelamento:{c.pk}",
                            f"Comunicação #{c.pk} saiu depois de cancelada (o transporte já "
@@ -527,6 +537,16 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         erro.args = (sem_credencial(str(erro)),)
     if t.resultado == R.INCERTA:  # o prazo já tinha vencido e agora veio uma falha: fica
         t.save()
+        return t
+    if outras.filter(resultado=R.ACEITA).exists():
+        # Outra tentativa já saiu (o resultado tardio dela chegou antes): a falha desta fica
+        # registrada, mas não reagenda nem muda a comunicação.
+        t.resultado = (R.TEMPORARIA if isinstance(erro, erros_canal.FalhaTemporaria)
+                       else R.DEFINITIVA if isinstance(erro, erros_canal.FalhaDefinitiva)
+                       else R.INCERTA)
+        t.save()
+        if isinstance(erro, erros_canal.CanalBloqueado):
+            chaves.bloquear_canal(c.canal, f"Bloqueado pelo erro {codigo} da Cloud API.")
         return t
     if cancelada:  # não saiu e foi cancelada no meio: continua cancelada, nunca reagenda
         t.resultado = (R.INCERTA if not isinstance(
