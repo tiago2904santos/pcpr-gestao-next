@@ -1169,6 +1169,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     automacao_demo.semear(gerador.demo, gerador.hoje)
     from . import demonstracao_whatsapp  # link de km, aviso de cancelamento, pedido pendente
     demonstracao_whatsapp.semear(gerador.demo, gerador.hoje)
+    envios_manuais_para_avaliar(gerador.demo)
     from gestao.assistencia import demonstracao as assistencia_demo
     assistencia_demo.semear()
     return resumo(len(oficios))
@@ -1187,6 +1188,19 @@ def _coffee_pedido_do_evento() -> None:
     if evento is not None and ordem is not None:
         OrdemCoffee.objects.filter(pk=ordem.pk).update(origem_tipo="evento",
                                                        origem_id=evento.pk)
+
+
+def envios_manuais_para_avaliar(demo) -> None:
+    """Pendências de envio manual (aba Pendências da Agenda, ADR 0049): o pacote de alguns
+    servidores com as diárias liberadas. No PREVIEW a saída é a simulada, então liberar as
+    diárias não cria a pendência sozinho; o pacote é o real (aviso, ofício, RT e KM do que
+    existir) e a conferência funciona como em produção — nada sai pelo WhatsApp."""
+    from . import envios_manuais
+
+    elegiveis = (envios_manuais.elegiveis().filter(data_liberacao_diarias__isnull=False)
+                 .order_by("-prestacao__oficio__ano", "-prestacao__oficio__numero", "pk"))
+    for ps in elegiveis[:4]:
+        envios_manuais.enfileirar(ps, demo)
 
 
 def acertar_datas_dos_documentos() -> None:

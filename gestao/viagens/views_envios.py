@@ -6,12 +6,16 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from . import envios_manuais as envios
 from . import policies
 from .dominio.envios import url_whatsapp
+
+# A entrada é a aba Pendências da Agenda (seção dos envios); esta lista guarda o histórico.
+PENDENCIAS = "painel:pendencias"
 
 
 @require_GET
@@ -26,7 +30,8 @@ def lista(request):
         "page_obj": pagina, "historico": historico, "modo_manual": envios.manual(),
         "querystring_base": "aba=historico&" if historico else "",
         "pode_atualizar": policies.altera_prestacoes(request.user),
-        "migalhas": [("Viagens", reverse("viagens:painel")), ("Envios manuais", "")]})
+        "migalhas": [("Agenda", reverse("painel:agenda")), ("Pendências", reverse(PENDENCIAS)),
+                     ("Envios manuais", "")]})
 
 
 @require_POST
@@ -35,6 +40,11 @@ def atualizar(request):
         raise PermissionDenied
     total = envios.sincronizar(request.user)
     messages.success(request, f"Pendências atualizadas: {total} novo(s) pacote(s).")
+    # Volta para onde o botão estava (a aba Pendências da Agenda ou esta lista).
+    proximo = request.POST.get("proximo", "")
+    if proximo.startswith("/") and url_has_allowed_host_and_scheme(
+            proximo, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(proximo)
     return redirect("viagens:envios_manuais")
 
 
@@ -72,7 +82,7 @@ def detalhe(request, ps_pk):
                 envios.confirmar(request.user, ps.pk, request.POST.get("ticket", ""))
                 messages.success(request, "Envio manual registrado. "
                                  "A entrega não é verificada pelo sistema.")
-                return redirect("viagens:envios_manuais")
+                return redirect(PENDENCIAS)
             if request.POST.get("acao") != "preparar":
                 return HttpResponse(status=400)
             c, ticket, pacote = envios.preparar(request.user, ps.pk)
@@ -91,8 +101,8 @@ def detalhe(request, ps_pk):
         "pode_editar": policies.pode_editar_prestacao(request.user, ps),
         "confirmado": c is not None and c.situacao == "manual",
         "arquivos_atuais": c is not None and c.versao == pacote.versao,
-        "migalhas": [("Viagens", reverse("viagens:painel")),
-                     ("Envios manuais", reverse("viagens:envios_manuais")),
+        "pendencias": reverse(PENDENCIAS),
+        "migalhas": [("Agenda", reverse("painel:agenda")), ("Pendências", reverse(PENDENCIAS)),
                      (ps.servidor.nome, "")]})
 
 

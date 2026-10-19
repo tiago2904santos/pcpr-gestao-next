@@ -8,6 +8,10 @@ usando o próprio WhatsApp Business, sem API de envio nem IA. O recebimento exis
   e link de KM (somente para quem responde pelo diário). Itens indisponíveis são informados.
 - Mudança do conteúdo substitui a pendência anterior ainda não enviada. O sino leva à
   conferência; a lista mostra pendentes e histórico. Pode atualizar as pendências pelo botão.
+- Entrada (19/10/2026): a aba **Agenda › Pendências** (`/agenda/pendencias/`, seção "Envios
+  aos servidores"), ao lado do Calendário — não há mais item "Envios manuais" no menu de
+  Viagens. A conferência continua em `/viagens/envios/<id>/` e volta para as Pendências; a
+  lista `/viagens/envios/` fica como histórico ("Enviados"). A rotina diária também atualiza.
 - A mensagem explica cada anexo. O usuário baixa PDF único ou PDFs separados (ZIP) e
   anexa manualmente no WhatsApp, conforme sua escolha expressa. Somente KM é link pessoal.
 - O ofício usa a versão corrente; RT só aparece se já existe e está preenchido. Documentos

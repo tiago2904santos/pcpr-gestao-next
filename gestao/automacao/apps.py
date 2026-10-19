@@ -13,3 +13,5 @@ class AutomacaoConfig(AppConfig):
         tipos.registrar()
         ferramentas_padrao.registrar()
         registrar()
+        from . import pendencias
+        pendencias.registrar()  # aba Pendências da Agenda

@@ -9,9 +9,11 @@ registrar_modulo(
         rotulo="Agenda",
         icone="calendar-days",
         url_name="painel:agenda",
-        descricao="O mês de todos os módulos: viagens, prazos de saque das diárias e feriados.",
+        descricao="O mês de todos os módulos: viagens, prazos de saque das diárias e feriados; "
+                  "e as pendências: envios aos servidores, rascunhos e prestação de contas.",
         ordem=20,
-        grupos=(Grupo("Agenda", (Item("Calendário", "painel:agenda", "calendar-days"),)),),
+        grupos=(Grupo("Agenda", (Item("Calendário", "painel:agenda", "calendar-days"),
+                                 Item("Pendências", "painel:pendencias", "inbox"))),),
     )
 )
 

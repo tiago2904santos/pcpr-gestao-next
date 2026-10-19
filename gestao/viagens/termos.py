@@ -25,7 +25,8 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from django.db import transaction
-from django.db.models import Prefetch, prefetch_related_objects
+from django.db.models import DateField, Min, OuterRef, Prefetch, Subquery, prefetch_related_objects
+from django.db.models.functions import Coalesce, TruncDate
 from django.utils import timezone
 
 from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor, Viatura
@@ -72,6 +73,15 @@ def com_dados(qs):
     return qs.select_related("oficio__sede", "oficio__viatura__combustivel",
                              "viatura__combustivel", "viatura__unidade",
                              "unidade").prefetch_related(*PREFETCH_TERMOS)
+
+
+def com_inicio(qs):
+    """Anota `inicio_efetivo`: a data do termo ou, herdando, a saída do ofício (a lista
+    de termos e as Pendências ordenam e recortam por ela)."""
+    saida = (Trecho.objects.filter(oficio=OuterRef("oficio_id")).order_by()
+             .values("oficio").annotate(m=Min("saida_em")).values("m"))
+    return qs.annotate(inicio_efetivo=Coalesce(
+        "data_inicio", TruncDate(Subquery(saida)), output_field=DateField()))
 
 
 # ---------------------------------------------------------------- valores efetivos

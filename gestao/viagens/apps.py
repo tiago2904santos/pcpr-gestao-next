@@ -30,10 +30,13 @@ class ViagensConfig(AppConfig):
         registrar_rotina("lembretes de comprovante (WhatsApp)", comunicacoes.agendar_lembretes)
 
         from . import envios_manuais
-        registrar_rotina("pendências de envio manual", envios_manuais.sincronizar)
+        # A rotina recebe o dia; `sincronizar` recebe quem pede (None = todas as unidades).
+        registrar_rotina("pendências de envio manual",
+                         lambda hoje: envios_manuais.sincronizar())
 
-        from . import agenda, busca, conflitos, de_eventos
+        from . import agenda, busca, conflitos, de_eventos, pendencias
         agenda.registrar()
+        pendencias.registrar()
         busca.registrar()
         conflitos.registrar()
         de_eventos.registrar()  # a viagem que nasce da solicitação de evento (E4)

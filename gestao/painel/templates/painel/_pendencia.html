@@ -1,0 +1,20 @@
+{% comment %}
+Uma pendência (plataforma.pendencias.Item) na linha operacional — o mesmo desenho do "O que
+fazer hoje" do Coffee Break: placa, o título que leva ao registro, os fatos e, à direita, o
+botão do que se faz ao chegar. Espera `item`.
+{% endcomment %}
+<li class="registro registro-operacional">
+  <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo=item.rotulo numero=item.numero|default:"—" compacta=True only %}</div>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{{ item.url }}"><span class="sr-only">{{ item.rotulo }} {{ item.numero }} · </span><span class="registro__link-texto">{{ item.titulo }}</span></a>
+      {% if item.selo %}<span class="registro__selos"><span class="selo selo--{{ item.tom }} selo--sem-ponto">{{ item.selo }}</span></span>{% endif %}
+    </div>
+    <div class="registro__agenda">
+      {% for ic, texto in item.fatos %}<span class="registro__meta-item">{% icone ic classe="icone--sm" %}<span class="registro__meta-texto">{{ texto }}</span></span>{% endfor %}
+    </div>
+  </div>
+  <div class="registro-operacional__conferencia">
+    <a class="botao botao--sm" href="{{ item.url }}">{{ item.acao }}<span class="sr-only"> — {{ item.rotulo }} {{ item.numero }}, {{ item.titulo }}</span></a>
+  </div>
+</li>

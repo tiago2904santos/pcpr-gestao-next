@@ -172,9 +172,23 @@ def test_avisos_de_exemplo_no_sino_do_demo(dataset):
 
     demonstracao.notificacoes_para_avaliar()
     demo = Usuario.objects.get(login=LOGIN_DEMO)
-    avisos = Notificacao.objects.filter(usuario=demo)
+    # Os envios manuais de exemplo também avisam no sino (levam à conferência do envio).
+    envios = Notificacao.objects.filter(usuario=demo, link__startswith="/viagens/envios/")
+    assert envios.exists() and all(a.titulo.startswith("Envio pendente") for a in envios)
+    avisos = Notificacao.objects.filter(usuario=demo).exclude(pk__in=envios)
     assert avisos.count() == 3 and avisos.filter(lida=False).count() == 2
     assert all("(DEMO)" in a.titulo for a in avisos)
+
+
+def test_envios_manuais_de_exemplo_na_aba_pendencias(dataset):
+    from gestao.plataforma import pendencias
+
+    demo = Usuario.objects.get(login=LOGIN_DEMO)
+    secoes = {m.secao.slug: m for m in pendencias.montar(demo, HOJE)}
+    envios = secoes["envios"].grupos
+    assert envios and envios[0].itens  # a aba mostra o pacote de algum servidor no PREVIEW
+    assert envios[0].itens[0].url.startswith("/viagens/envios/")
+    assert secoes["documentos"].grupos and secoes["prestacao"].grupos
 
 
 def test_viagens_de_exemplo(dataset):

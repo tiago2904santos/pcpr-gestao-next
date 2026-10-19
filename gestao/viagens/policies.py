@@ -80,6 +80,19 @@ def pode_gerir_numeracao(usuario) -> bool:
     return usuario.has_perm("viagens.gerir_numeracao")
 
 
+def edita_ordens(usuario) -> bool:
+    """Altera OS (as Pendências só listam as não geradas a quem pode terminá-las)."""
+    return usuario.has_perm("viagens.change_ordemservico")
+
+
+def edita_termos(usuario) -> bool:
+    return usuario.has_perm("viagens.change_termoautorizacao")
+
+
+def edita_planos(usuario) -> bool:
+    return usuario.has_perm("viagens.change_planotrabalho")
+
+
 def pode_editar(usuario, oficio: Oficio) -> bool:
     return oficio.editavel and usuario.has_perm("viagens.change_oficio") and pode_ver(
         usuario, oficio)

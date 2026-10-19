@@ -48,6 +48,13 @@ class Pacote:
         return bool(self.aviso or self.oficio or self.dados_rt or self.diario)
 
 
+def itens(pacote: Pacote) -> list[str]:
+    """O que vai no pacote, em palavras curtas (a lista de Pendências mostra sem reler)."""
+    return [rotulo for rotulo, tem in (("Aviso de saque", pacote.aviso),
+                                       ("Ofício", pacote.oficio), ("RT", pacote.dados_rt),
+                                       ("Link de KM", pacote.diario)) if tem]
+
+
 def manual() -> bool:
     return settings.AUTOMACAO_TRANSPORTE == "manual"
 
@@ -147,7 +154,8 @@ def _registrar_pacote(pacote: Pacote, autor) -> Comunicacao | None:
             tipo=TIPO, servidor_id=ps.servidor_id, recurso=recurso, chave=chave,
             unidade_id=ps.prestacao.oficio.unidade_id, criada_por=autor,
             contexto={"ps": ps.pk, "manual": True,
-                      "oficio": ps.prestacao.oficio.numero_formatado}, versao=pacote.versao)
+                      "oficio": ps.prestacao.oficio.numero_formatado,
+                      "itens": itens(pacote)}, versao=pacote.versao)
     c.situacao, c.expira_em = S.AGUARDANDO_APROVACAO, None
     c.motivo = "Envio manual pendente: prepare a mensagem e confirme depois de enviá-la."
     c.save()

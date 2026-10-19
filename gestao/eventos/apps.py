@@ -10,6 +10,8 @@ class EventosConfig(AppConfig):
         from . import agenda, conflitos, navegacao  # noqa: F401  (menu)
         agenda.registrar()
         conflitos.registrar()
+        from . import pendencias
+        pendencias.registrar()  # aba Pendências da Agenda
         from . import pedir_coffee
         pedir_coffee.registrar()  # "Pedir coffee break" (CB7b)
         from gestao.plataforma.rotinas import registrar_rotina

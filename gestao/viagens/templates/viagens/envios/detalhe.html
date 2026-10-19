@@ -24,6 +24,6 @@
 {% if confirmado %}<p class="texto-secundario">Envio declarado por {{ comunicacao.aprovada_por }} em {{ comunicacao.enviada_em|date:"d/m/Y H:i" }}.</p>{% elif pode_editar %}<form method="post">{% csrf_token %}<button class="botao" type="submit" name="acao" value="preparar">{% icone "file-text" %}{% if texto %}Preparar novamente{% else %}Preparar mensagem completa{% endif %}</button></form>{% endif %}
 <p class="texto-secundario">Você confirma o envio dentro do WhatsApp. Preparar, copiar ou abrir a conversa mantém a pendência.</p>
 {% if ticket %}<form method="post" class="pilha">{% csrf_token %}<input type="hidden" name="acao" value="confirmar"><input type="hidden" name="ticket" value="{{ ticket }}"><label class="escolha"><input type="checkbox" name="confirmo" value="sim" required><span>Enviei a mensagem e anexei os PDFs disponíveis para este servidor no WhatsApp.</span></label><button class="botao botao--primario" type="submit">{% icone "check" %}Confirmar envio manual</button></form>{% endif %}
-<a class="botao botao--sutil" href="{% url 'viagens:envios_manuais' %}">Voltar às pendências</a>
+<a class="botao botao--sutil" href="{{ pendencias }}?secao=envios">Voltar às pendências</a>
 </div></section>
 {% endblock %}

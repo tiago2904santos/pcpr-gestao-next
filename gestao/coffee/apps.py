@@ -15,3 +15,5 @@ class CoffeeConfig(AppConfig):
 
         agenda.registrar()
         busca.registrar()
+        from . import pendencias
+        pendencias.registrar()  # aba Pendências da Agenda

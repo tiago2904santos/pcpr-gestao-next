@@ -10,8 +10,8 @@ from urllib.parse import urlsplit
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import CharField, Count, DateField, Min, OuterRef, Prefetch, Q, Subquery
-from django.db.models.functions import Cast, Coalesce, TruncDate
+from django.db.models import CharField, Count, Prefetch, Q
+from django.db.models.functions import Cast
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
@@ -55,10 +55,7 @@ ABAS = [("", "Todos", "todos"), ("futuros", "Que vão acontecer", "futuros"),
 
 def _com_inicio(qs):
     """Anota `inicio_efetivo`: a data do termo ou, herdando, a saída do ofício."""
-    saida = (Trecho.objects.filter(oficio=OuterRef("oficio_id")).order_by()
-             .values("oficio").annotate(m=Min("saida_em")).values("m"))
-    return qs.annotate(inicio_efetivo=Coalesce(
-        "data_inicio", TruncDate(Subquery(saida)), output_field=DateField()))
+    return termos.com_inicio(qs)
 
 
 def _filtrar(qs, aba: str):

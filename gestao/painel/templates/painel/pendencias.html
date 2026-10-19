@@ -1,0 +1,69 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Pendências · Agenda{% endblock %}
+{% comment %}
+Pendências (aba da Agenda ao lado do Calendário; arquétipo LIST): o que espera o operador em
+todos os módulos que ele acompanha. Uma aba por seção (com o total); na visão geral, cada
+grupo mostra os mais urgentes e o resto em "Mostrar mais"; as seções em dia ficam num resumo
+no fim. Cada item leva à tela que resolve — esta tela não altera nada sozinha, salvo o
+"Atualizar pendências" dos envios (POST da própria tela de envios).
+{% endcomment %}
+{% block titulo_lista %}Pendências{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">O que está esperando por você: mensagens e documentos para enviar aos servidores, rascunhos para terminar e prazos da prestação de contas.</p>{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" aria-label="Seções das pendências">
+  {% for chave, rotulo, total in abas %}
+  <a class="aba" href="{% url 'painel:pendencias' %}{% if chave %}?secao={{ chave }}{% endif %}"{% if chave == secao %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{{ titulo_resultados }}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ total|pluralizar:"pendência,pendências" }}</span>
+</div>
+<div class="cartao__corpo pilha-lg">
+{% for m in com_pendencias %}
+<section class="colecao-operacional pilha" id="secao-{{ m.secao.slug }}" aria-labelledby="t-{{ m.secao.slug }}">
+  <div class="linha linha--entre">
+    <h3 class="cartao__titulo" id="t-{{ m.secao.slug }}">{% icone m.secao.icone %}{{ m.secao.titulo }} <span class="selo selo--neutro selo--sem-ponto">{{ m.total }}</span></h3>
+    {% if m.acoes %}<div class="cartao__acoes grupo-botoes">
+      {% for a in m.acoes %}{% if a.post %}<form method="post" action="{{ a.url }}">{% csrf_token %}<input type="hidden" name="proximo" value="{{ voltar }}"><button class="botao botao--sm" type="submit">{% if a.icone %}{% icone a.icone %}{% endif %}{{ a.rotulo }}</button></form>{% else %}<a class="botao botao--sm botao--sutil" href="{{ a.url }}">{% if a.icone %}{% icone a.icone %}{% endif %}{{ a.rotulo }}{% if a.contagem is not None %} <span class="selo selo--neutro selo--sem-ponto">{{ a.contagem }}</span>{% endif %}</a>{% endif %}{% endfor %}
+    </div>{% endif %}
+  </div>
+  <p class="texto-secundario texto-sm">{{ m.secao.descricao }}</p>
+  {% if m.erro %}
+  <div class="alerta alerta--perigo" role="alert">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">Não deu para carregar esta seção</p><p>As outras continuam valendo. Recarregue a página; se continuar, avise o responsável pelo sistema.</p></div></div>
+  {% elif not m.grupos %}
+  {% include "componentes/vazio.html" with compacto=True icone="check-circle-2" titulo="Em dia" texto=m.secao.vazio %}
+  {% else %}
+  {% for g in m.grupos %}
+  <div class="pilha-sm">
+    <h4 class="peso-semi">{{ g.titulo }} <span class="selo selo--neutro selo--sem-ponto">{{ g.total }}</span></h4>
+    {% if g.ajuda %}<p class="texto-secundario texto-sm">{{ g.ajuda }}</p>{% endif %}
+    {% if g.itens %}
+    <ul class="registros registros--operacionais">{% if visiveis %}{% for item in g.primeiros %}{% include "painel/_pendencia.html" %}{% endfor %}{% else %}{% for item in g.itens %}{% include "painel/_pendencia.html" %}{% endfor %}{% endif %}</ul>
+    {% if visiveis and g.demais %}
+    <details>
+      <summary class="botao botao--sm botao--sutil">{% icone "chevron-down" %}Mostrar mais {{ g.demais|length }}<span class="sr-only"> — {{ g.titulo }}</span></summary>
+      <ul class="registros registros--operacionais mt-2">{% for item in g.demais %}{% include "painel/_pendencia.html" %}{% endfor %}</ul>
+    </details>
+    {% endif %}
+    {% endif %}
+    {% if g.ver_todos %}<p class="texto-sm"><a href="{{ g.ver_todos }}">{% if g.faltam %}Ver todos os {{ g.total }} na lista{% else %}Abrir a lista{% endif %}<span class="sr-only"> — {{ g.titulo }}</span></a></p>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</section>
+{% empty %}
+{% if not em_dia %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nada pendente" texto="Nenhum módulo que você acompanha tem algo esperando por você." %}{% endif %}
+{% endfor %}
+{% if em_dia %}
+<section class="pilha-sm" aria-labelledby="t-em-dia">
+  <h3 class="cartao__titulo" id="t-em-dia">{% icone "check-circle-2" %}Em dia</h3>
+  <ul class="lista-simples">
+    {% for m in em_dia %}<li><a href="{% url 'painel:pendencias' %}?secao={{ m.secao.slug }}">{{ m.secao.titulo }}</a><span class="texto-secundario texto-sm"> — {{ m.secao.vazio }}</span></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+</div>
+{% endblock %}

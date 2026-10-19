@@ -1,6 +1,14 @@
 from django.urls import path
 
-from . import escala, pauta, views, views_agenda, views_notificacoes, views_relatorios
+from . import (
+    escala,
+    pauta,
+    views,
+    views_agenda,
+    views_notificacoes,
+    views_pendencias,
+    views_relatorios,
+)
 
 app_name = "painel"
 
@@ -12,6 +20,7 @@ urlpatterns = [
     path("notificacoes/<int:pk>/abrir/", views_notificacoes.abrir, name="abrir_notificacao"),
     path("busca/", views.busca, name="busca"),
     path("agenda/", views_agenda.agenda_view, name="agenda"),
+    path("agenda/pendencias/", views_pendencias.pendencias_view, name="pendencias"),
     path("agenda/pauta/", pauta.baixar, name="pauta"),
     path("agenda/escala/", escala.escala, name="escala"),
     path("agenda/assinatura/", views_agenda.assinar, name="assinar_agenda"),
