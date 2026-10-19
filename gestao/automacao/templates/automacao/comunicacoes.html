@@ -1,0 +1,41 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Comunicações · Automação{% endblock %}
+{% block titulo_lista %}Comunicações{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada aviso que o sistema decidiu mandar pelo WhatsApp: do agendamento à entrega e leitura, com o motivo quando não saiu.</p>{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Recortes">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% if qs_sem_aba %}&amp;{% endif %}{% endif %}{{ qs_sem_aba }}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'automacao:comunicacoes' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-comunicacoes">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-comunicacoes" type="search" name="q" value="{{ q }}" placeholder="Nome do servidor ou número da comunicação" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button>{% if q %}<a class="botao botao--texto" href="{% url 'automacao:comunicacoes' %}{% if aba %}?aba={{ aba }}{% endif %}">Limpar</a>{% endif %}</div>
+</form>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if q %}Resultados para “{{ q }}”{% else %}Comunicações{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"comunicação,comunicações" }}</span>
+  {% if ids_aprovar %}
+  <form method="post" action="{% url 'automacao:aprovar_comunicacoes' %}" data-confirmar="Autorizar o envio de {{ ids_aprovar|length }} mensage{{ ids_aprovar|length|pluralize:"m,ns" }} desta página? Cada uma é conferida de novo na hora de sair (contato, opt-in, chaves e lista de testadores)." data-confirmar-titulo="Aprovar envios?" data-confirmar-rotulo="Aprovar envios">{% csrf_token %}
+    {% for pk in ids_aprovar %}<input type="hidden" name="ids" value="{{ pk }}">{% endfor %}
+    <button class="botao botao--sm botao--primario" type="submit">{% icone "check" %}Aprovar {% if ids_aprovar|length > 1 %}as {{ ids_aprovar|length }} desta página{% else %}este envio{% endif %}</button>
+  </form>
+  {% endif %}
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">{% for l in linhas %}{% include "automacao/_comunicacao.html" %}{% endfor %}</ul>
+{% elif q or aba %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma comunicação neste recorte" texto="Troque de aba ou ajuste a busca." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="send" titulo="Nenhuma comunicação ainda" texto="Quando uma prestação tiver as diárias liberadas, o aviso ao servidor aparece aqui." %}
+{% endif %}
+{% endblock %}
+{% block depois_lista %}{% include "componentes/barra_paginacao.html" %}{% endblock %}

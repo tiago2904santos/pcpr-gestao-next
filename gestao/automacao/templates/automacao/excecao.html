@@ -1,0 +1,60 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Exceção #{{ e.pk }} · Automação{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block cabecalho_detalhe %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">Exceção #{{ e.pk }}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ e.get_tipo_display }}</h1>
+    <p class="pagina-cabecalho__descricao"><span class="selo selo--{% if aberta %}aviso{% else %}neutro{% endif %} selo--sem-ponto">{{ e.get_situacao_display }}</span> {{ e.resumo }}</p>
+  </div>
+</header>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-assunto">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-assunto">Assunto</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if e.comunicacao %}
+      <p>Comunicação <a href="{% url 'automacao:comunicacao' e.comunicacao_id %}">#{{ e.comunicacao_id }}</a>{% if e.comunicacao.servidor %} para {{ e.comunicacao.servidor }}{% endif %} — {{ e.comunicacao.get_situacao_display|lower }}.</p>
+      <p class="texto-secundario">As ações sobre a mensagem (tentar de novo, confirmar a chegada, avisar por fora, cancelar) ficam na própria comunicação.</p>
+      <a class="botao" href="{% url 'automacao:comunicacao' e.comunicacao_id %}">{% icone "send" %}Abrir a comunicação</a>
+    {% endif %}
+    {% if e.recebimento %}
+      <p>Recebimento <a href="{% url 'automacao:recebimento' e.recebimento_id %}">#{{ e.recebimento_id }}</a>{% if e.recebimento.servidor %} de {{ e.recebimento.servidor }}{% endif %} — {{ e.recebimento.get_situacao_display|lower }}.</p>
+      <p class="texto-secundario">Escolher o destino do arquivo, responder ou descartar fica no próprio recebimento.</p>
+      <a class="botao" href="{% url 'automacao:recebimento' e.recebimento_id %}">{% icone "inbox" %}Abrir o recebimento</a>
+    {% endif %}
+    {% if not e.comunicacao and not e.recebimento %}<p class="texto-secundario">Exceção do canal (conta, credencial ou status sem mensagem conhecida). Confira em Canal e chaves.</p>{% endif %}
+  </div>
+</section>
+{% if e.resolucao %}
+<section class="cartao" aria-labelledby="t-resolucao">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-resolucao">O que foi feito</h2></div>
+  <div class="cartao__corpo"><p>{{ e.resolucao }}</p><p class="texto-secundario texto-sm">{{ e.resolvida_por|default:"Automação" }} · {{ e.resolvida_em|date:"d/m/Y H:i" }}</p></div>
+</section>
+{% endif %}
+{% endblock %}
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-dados">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados">Dados</h2></div>
+  <div class="cartao__corpo">
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Aberta em" valor=e.criada_em|date:"d/m/Y H:i" %}
+      {% include "componentes/metadado.html" with rotulo="Responsável" valor=e.responsavel ausente="Ninguém assumiu" %}
+      {% include "componentes/metadado.html" with rotulo="Assumida em" valor=e.assumida_em|date:"d/m H:i" ausente="—" %}
+    </dl>
+  </div>
+</section>
+{% if pode_operar and aberta %}
+<section class="cartao" aria-labelledby="t-acoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-acoes">Tratar</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if e.responsavel_id != request.user.pk %}<form method="post" action="{% url 'automacao:acao_excecao' e.pk 'assumir' %}">{% csrf_token %}<button class="botao" type="submit">{% icone "user" %}Assumir</button></form>{% endif %}
+    <form method="post" action="{% url 'automacao:acao_excecao' e.pk 'resolver' %}" class="pilha">{% csrf_token %}
+      <div class="campo"><label class="campo__rotulo" for="resolucao">O que foi feito<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="resolucao" name="resolucao" rows="3" maxlength="255" required></textarea></div>
+      <div class="grupo-botoes"><button class="botao botao--primario" type="submit">{% icone "check" %}Resolver</button><button class="botao botao--sutil" type="submit" formaction="{% url 'automacao:acao_excecao' e.pk 'descartar' %}">Descartar</button></div>
+    </form>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titulo %}Central de ajuda{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Central de ajuda (AUT-97) e assistente de dúvidas (AUT-88), sem IA: os artigos são
+procedimentos aprovados e regras do sistema, versionados com o código; o assistente responde
+com eles (e com os dados do próprio servidor, quando identificado pelo sistema) e diz o que
+não sabe. A reformulação em linguagem simples, com IA, é opcional e tem chave própria.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "book-open-text" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Central de ajuda</h1>
+    <p class="pagina-cabecalho__descricao">Procedimentos e regras do sistema de testes (dados fictícios). As respostas citam a fonte; o que não está aqui, a equipe de viagens responde.</p>
+  </div>
+</header>
+<p class="alerta alerta--aviso mt-4" role="note" id="aviso-rascunho">{% icone "alert-triangle" classe="icone--sm" %}<span><strong>Rascunho para o sistema de testes.</strong> Os artigos são conteúdo inicial do piloto, com a revisão do responsável ainda pendente: servem para ensaiar a Central e o assistente, com dados fictícios, e não valem como norma nem como orientação oficial.</span></p>
+<div class="layout-detalhe mt-4">
+  <div class="pilha-lg">
+    <section class="cartao" aria-labelledby="t-pergunta">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pergunta">Pergunte ao assistente</h2></div>
+      <div class="cartao__corpo pilha">
+        <form method="get" action="{% url 'ajuda:central' %}#resposta" class="pilha">
+          <div class="campo campo--lg"><label class="campo__rotulo" for="pergunta">Sua dúvida</label>
+            <textarea class="area-texto" id="pergunta" name="pergunta" rows="2" maxlength="1000" aria-describedby="pergunta-ajuda">{{ pergunta }}</textarea>
+            <p class="campo__ajuda" id="pergunta-ajuda">Ex.: “Quantos dias tenho para prestar contas?”. Não escreva CPF, telefone, dados de saúde, de vítimas ou de ocorrências.</p></div>
+          <div><button class="botao botao--primario" type="submit">{% icone "messages-square" %}Perguntar</button></div>
+        </form>
+        {% if resposta %}
+        <div class="pilha" id="resposta" tabindex="-1">
+          <p class="alerta alerta--{% if resposta.categoria == 'orientacao' or resposta.categoria == 'dados' %}info{% else %}aviso{% endif %}">{% icone "messages-square" classe="icone--sm" %}<span>{{ resposta.texto }}</span></p>
+          {% if resposta.fontes %}<p class="texto-sm">Fontes: {% for f in resposta.fontes %}{% if f.tipo == 'artigo' %}<a href="{% url 'ajuda:artigo' f.referencia %}">{{ f.rotulo }}</a>{% if f.natureza %} <span class="selo selo--neutro selo--sem-ponto">{{ f.natureza }}</span>{% endif %}{% else %}{{ f.rotulo }}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% else %}<p class="texto-sm texto-secundario">Sem fonte aprovada para esta pergunta.</p>{% endif %}
+          {% if resposta.sugerir_equipe %}<p class="texto-sm">Para isso, fale com a equipe de viagens da sua unidade.</p>{% endif %}
+          {% if pode_reformular %}
+          <form method="post" action="{% url 'assistencia:pedir' 'assistencia.reformular_resposta' recurso_reformular %}">{% csrf_token %}
+            <input type="hidden" name="pergunta" value="{{ pergunta }}"><input type="hidden" name="voltar" value="{{ request.get_full_path }}">
+            <button class="botao botao--sm botao--sutil" type="submit">{% icone "text-quote" %}Explicar em linguagem simples (IA)</button>
+          </form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    <section class="cartao" aria-labelledby="t-artigos">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-artigos">{% if q %}Artigos para “{{ q }}”{% else %}Artigos{% endif %}</h2></div>
+      <form class="filtros" role="search" method="get" action="{% url 'ajuda:central' %}">
+        <div class="campo filtros__busca"><label class="campo__rotulo" for="busca-ajuda">Buscar na Central</label>
+          <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-ajuda" type="search" name="q" value="{{ q }}" placeholder="prazo, comprovante, relatório técnico…" autocomplete="off"></div></div>
+        <div class="filtros__acoes"><button class="botao" type="submit">{% icone "search" %}Buscar</button>{% if q %}<a class="botao botao--texto" href="{% url 'ajuda:central' %}">Limpar</a>{% endif %}</div>
+      </form>
+      {% if artigos %}
+      <ul class="registros">
+        {% for a in artigos %}
+        <li class="registro">
+          <div class="registro__corpo">
+            <div class="registro__titulo"><a class="registro__link" href="{% url 'ajuda:artigo' a.slug %}">{{ a.titulo }}</a><span class="selo selo--{% if a.natureza == 'regra_do_sistema' %}info{% elif a.natureza == 'a_confirmar' %}aviso{% else %}sucesso{% endif %} selo--sem-ponto">{{ a.rotulo_natureza }}</span></div>
+            <p class="registro__texto">{{ a.resumo }}</p>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% elif q %}
+        {% include "componentes/vazio.html" with icone="search" titulo="Nenhum artigo para esta busca" texto="Tente outras palavras ou pergunte ao assistente acima." limpar_url=request.path %}
+      {% else %}
+        {% include "componentes/vazio.html" with icone="book-open-text" titulo="Nenhum artigo aprovado ainda" texto="Os artigos aprovados aparecem aqui." %}
+      {% endif %}
+    </section>
+  </div>
+  <aside class="layout-detalhe__lateral" aria-label="Sobre a Central">
+    <section class="cartao" aria-labelledby="t-sobre">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-sobre">Como o assistente responde</h2></div>
+      <div class="cartao__corpo pilha texto-sm">
+        <p>Só com artigos aprovados desta Central e, para o servidor identificado pelo sistema, com os dados dele (prazos, pendências, diárias).</p>
+        <p>Não altera, cancela nem envia nada; não calcula diárias; não responde sobre outra pessoa.</p>
+        <p>“Regra do sistema” é o que o sistema de testes faz, não a citação de uma norma.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

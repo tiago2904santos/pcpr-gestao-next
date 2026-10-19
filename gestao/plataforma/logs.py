@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 import re
 
-PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/)[^/\s'\"?]+")
+PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/|/p/)[^/\s'\"?]+")
 
 
 def _mascarar(valor):

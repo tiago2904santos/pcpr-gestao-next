@@ -1,0 +1,43 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex">
+  <title>Link vencido · Diário de bordo</title>
+  <link rel="icon" href="{% static 'img/favicon-32.png' %}" type="image/png">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/publica.css' %}">
+  <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
+  <script type="module" src="{% static 'js/componentes/km-vencido.js' %}"></script>
+</head>
+{% comment %}
+Página local do link de km vencido SEM internet: o service worker (sw.js) a serve no lugar
+da cópia da página da viagem, que ele apaga. Não leva nada da viagem (roteiro, nomes): só o
+km-vencido.js, que lê o que ficou pendente no localStorage deste aparelho para a pessoa
+copiar. Montada pelo servidor junto com o sw.js; sem script nem estilo inline.
+{% endcomment %}
+<body class="autenticacao">
+<main id="conteudo" class="autenticacao__palco">
+  <section class="cartao-acesso pilha" aria-labelledby="t-vencido" data-km-vencido data-link="{{ link_id }}">
+    <h1 class="cartao-acesso__titulo" id="t-vencido">Este link venceu</h1>
+    <p class="texto-secundario">Peça um novo ao setor de viagens pelo WhatsApp em que você o recebeu.</p>
+    <div class="pilha-sm" data-km-pendentes hidden>
+      <h2 class="secao__titulo">Km que ficaram neste aparelho</h2>
+      <p class="texto-secundario texto-sm">Eles não chegaram ao sistema. Copie e mande ao setor de viagens, ou digite no link novo.</p>
+      <ul class="pilha-sm" data-km-lista></ul>
+      <label class="campo__rotulo" for="km-vencido-texto">Texto para copiar</label>
+      <textarea class="entrada" id="km-vencido-texto" rows="5" readonly data-km-texto></textarea>
+      <div class="linha"><button type="button" class="botao botao--primario botao--bloco" data-km-copiar>Copiar lançamentos</button></div>
+      <p class="texto-sm" role="status" data-km-copiado></p>
+    </div>
+    <p class="texto-secundario texto-sm" data-km-nenhum hidden>Nenhum km ficou pendente neste aparelho.</p>
+    <p class="texto-secundario texto-sm">Sistema de testes com dados fictícios.</p>
+  </section>
+</main>
+</body>
+</html>

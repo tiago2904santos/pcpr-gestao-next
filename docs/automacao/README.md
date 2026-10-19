@@ -1,5 +1,7 @@
 # Automação com n8n e IA — auditoria e plano (17/10/2026)
 
+> **18/10/2026:** implementação do piloto — [o que está pronto e o que falta](implementacao-piloto.md).
+
 Fase 2 da missão de mudança de hospedagem ([registro da missão](../ops/mudanca-hospedagem/README.md)).
 Objetivo operacional: progressivamente, o usuário **seleciona o evento, informa quem vai e confere uma
 proposta consolidada**, enquanto o sistema organiza o resto — preservando decisões, conferências e

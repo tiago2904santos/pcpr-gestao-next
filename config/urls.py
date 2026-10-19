@@ -13,8 +13,17 @@ urlpatterns = [
     path("coffee/", include("gestao.coffee.urls")),
     # Link do fornecedor (sem login, por token): só a página de envio da nota e certidões.
     path("fornecedor/", include("gestao.coffee.urls_publicas")),
+    path("automacao/", include("gestao.automacao.urls")),
+    # Entrada da Meta (sem login, autenticada pela assinatura do corpo) — ADR 0047.
+    path("integracoes/whatsapp/", include("gestao.automacao.urls_publicas")),
+    # API de automação v1 (n8n e clientes de IA; credencial Bearer, sem sessão) — ADR 0020.
+    path("api/automacao/v1/", include("gestao.automacao.api.urls")),
+    # Links pessoais sem login (km na véspera, documentos…), por token com escopo.
+    path("p/", include("gestao.automacao.urls_links")),
     path("ui-lab/", include("gestao.ui_lab.urls")),
     path("saude/", plataforma.saude, name="saude"),
+    path("assistencia/", include("gestao.assistencia.urls")),
+    path("ajuda/", include("gestao.assistencia.urls_ajuda")),
     path("", include("gestao.painel.urls")),
 ]
 

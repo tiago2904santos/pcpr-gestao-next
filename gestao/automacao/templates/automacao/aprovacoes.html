@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Aprovações · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Aprovações</h1>
+    <p class="pagina-cabecalho__descricao">Ações que a automação só faz com o OK de uma pessoa. Ao aprovar, a ação acontece na hora, em seu nome e com as suas permissões; quem pediu não pode aprovar. Recusar não muda nada.</p>
+  </div>
+</header>
+<section class="cartao mt-4" aria-labelledby="t-lista">
+  <nav class="abas" aria-label="Recortes"><a class="aba" href="{% url 'automacao:aprovacoes' %}"{% if pendentes %} aria-current="page"{% endif %}>Pendentes</a><a class="aba" href="?aba=decididos"{% if not pendentes %} aria-current="page"{% endif %}>Decididos</a></nav>
+  <h2 class="sr-only" id="t-lista">Pedidos</h2>
+  {% if itens %}
+  <ul class="registros">
+    {% for i in itens %}{% with p=i.p %}
+    <li class="registro">
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__link">{{ p.resumo|default:i.acao }}</span><span class="selo selo--{% if p.situacao == 'pendente' %}aviso{% elif p.situacao == 'aprovado' %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{{ p.get_situacao_display }}</span></div>
+        <p class="registro__texto">{{ i.acao }}{% if p.motivo %} — {{ p.motivo }}{% endif %}</p>
+        <div class="registro__meta">
+          <span class="registro__meta-item">{% icone "user" classe="icone--sm" %}pedido por {{ p.pedido_por|default:"automação" }} · {{ p.criado_em|date:"d/m H:i" }}</span>
+          {% if p.decidido_por %}<span class="registro__meta-item">{% icone "badge-check" classe="icone--sm" %}{{ p.decidido_por }} · {{ p.decidido_em|date:"d/m H:i" }}</span>{% else %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}vale até {{ p.expira_em|date:"d/m H:i" }}</span>{% endif %}
+          <span class="registro__meta-item texto-terciario">Pedido #{{ p.pk }}</span>
+        </div>
+      </div>
+      {% if p.situacao == 'pendente' %}
+      <div class="registro__acoes registro__acoes--fixas">
+        <form method="post" action="{% url 'automacao:decidir_aprovacao' p.pk 'aprovar' %}" data-confirmar="{{ i.acao }}{% if p.resumo %}: {{ p.resumo }}{% endif %}. A ação é feita agora, em seu nome e com as suas permissões, e não dá para desfazer." data-confirmar-titulo="Aprovar e executar?" data-confirmar-rotulo="Aprovar e executar">{% csrf_token %}<button class="botao botao--sm botao--primario" type="submit" aria-label="Aprovar o pedido {{ p.pk }}">{% icone "check" %}Aprovar</button></form>
+        <button type="button" class="botao botao--sm botao--perigo-sutil" aria-label="Recusar o pedido {{ p.pk }}" data-pedir-motivo="{% url 'automacao:decidir_aprovacao' p.pk 'recusar' %}" data-motivo-titulo="Recusar o pedido #{{ p.pk }}?" data-motivo-rotulo="Por que recusar" data-motivo-acao="Recusar" data-motivo-ajuda="Nada é feito; o motivo fica no histórico do pedido." data-motivo-perigo>{% icone "x" %}Recusar</button>
+      </div>
+      {% endif %}
+    </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% else %}{% include "componentes/vazio.html" with icone="badge-check" titulo="Nada para aprovar" texto="Quando a automação pedir uma ação irreversível, ela espera aqui por uma pessoa." %}{% endif %}
+</section>
+{% include "componentes/barra_paginacao.html" %}
+{% include "componentes/dialogo_motivo.html" %}
+{% endblock %}

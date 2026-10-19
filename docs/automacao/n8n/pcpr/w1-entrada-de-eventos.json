@@ -1,0 +1,524 @@
+{
+  "updatedAt": "2026-10-18T12:36:15.000Z",
+  "createdAt": "2026-10-18T12:30:39.113Z",
+  "id": "pcprEntradaEvt01",
+  "name": "PCPR · Entrada de eventos",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pcpr-eventos",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "0f824b0a-ce3a-57e0-b70d-2f03add44ec7",
+      "name": "Webhook de eventos",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "e7ce5929-fb69-5f2e-bf3a-02e280e4078f"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Corpo BRUTO (opção \"Raw Body\" do Webhook): a assinatura cobre os bytes exatos enviados pelo\n// PCPR — re-serializar o JSON mudaria espaços/escapes e quebraria (ou falsificaria) a checagem.\nconst AMBIENTE_ESPERADO = 'teste'; // trocar por 'producao' na instância de produção\nconst JANELA_S = 300;               // frescor: ±5 min\nconst item = $input.first();\nconst h = item.json.headers || {};\nlet bruto = '';\nconst bin = item.binary && item.binary.data;\nif (bin) {\n  if (bin.id) {\n    const buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n    bruto = buf.toString('utf8');\n  } else {\n    bruto = Buffer.from(bin.data, 'base64').toString('utf8');\n  }\n}\nconst cab = String(h['x-pcpr-assinatura'] || '');\nconst m = /^t=(\\d+),v1=([a-f0-9]{64})$/.exec(cab);\nlet evento = null;\ntry { evento = JSON.parse(bruto); } catch (e) { evento = null; }\nconst agora = Math.floor(Date.now() / 1000);\nconst t = m ? Number(m[1]) : 0;\nreturn [{ json: {\n  formato_ok: Boolean(m && evento && typeof evento === 'object'),\n  frescor_ok: Boolean(m) && Math.abs(agora - t) <= JANELA_S,\n  v1: m ? m[2] : '',\n  mensagem_assinada: (m ? m[1] : '0') + '.' + bruto,\n  evento_id_cabecalho: String(h['x-pcpr-evento-id'] || ''),\n  ambiente_ok: Boolean(evento) && evento.ambiente === AMBIENTE_ESPERADO,\n  evento,\n} }];"
+      },
+      "id": "8e446869-9ad2-52a0-aac4-6d7751965730",
+      "name": "Preparar verificação",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ $json.mensagem_assinada }}",
+        "dataPropertyName": "hmac_calculado",
+        "encoding": "hex"
+      },
+      "id": "db7d6708-3646-560a-98d2-c9ae756fb851",
+      "name": "Calcular HMAC",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "pcprHmacEventos1",
+          "name": "PCPR · segredo HMAC dos eventos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Comparação em tempo constante do HMAC calculado (nó Crypto, segredo na credencial) com v1.\nconst j = $input.first().json;\nconst a = String(j.hmac_calculado || '');\nconst b = String(j.v1 || '');\nlet dif = (a.length === 64 && b.length === 64) ? 0 : 1;\nfor (let i = 0; i < Math.min(a.length, b.length); i++) dif |= a.charCodeAt(i) ^ b.charCodeAt(i);\nconst ev = j.evento || {};\nlet motivo = 'ok';\nif (!j.formato_ok) motivo = 'formato';\nelse if (!j.frescor_ok) motivo = 'fora_da_janela';\nelse if (dif !== 0) motivo = 'assinatura';\nelse if (!j.ambiente_ok) motivo = 'ambiente';\nelse if (ev.id !== j.evento_id_cabecalho) motivo = 'id_divergente';\nconst valido = motivo === 'ok';\nreturn [{ json: { valido, motivo, evento: valido ? ev : null } }];"
+      },
+      "id": "602f7e40-29a8-518d-96b4-db9902353176",
+      "name": "Validar assinatura e frescor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0a4e897-5991-50e3-abd4-0d1d0d07b618",
+              "leftValue": "={{ $json.valido }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "787f5043-7b3c-5298-a7d6-28c993e677a8",
+      "name": "Assinatura válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ aceito: true, evento_id: $json.evento.id }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "ffcb3c2f-6ec0-57a4-9412-55cef10d23cc",
+      "name": "Responder 202",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"erro\":\"assinatura_invalida\"}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "1574b5f0-26a5-547a-ac78-664f2a0f0eed",
+      "name": "Responder 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.evento.id }}",
+        "options": {
+          "scope": "workflow",
+          "historySize": 10000
+        }
+      },
+      "id": "5b7491bd-8881-5277-8c7a-8b929ed2e3fe",
+      "name": "Deduplicar por id do evento",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0f4b786c-5a10-52f8-9f0d-8d1bf5932f82",
+                    "leftValue": "={{ $json.evento.tipo }}",
+                    "rightValue": "comunicacao.agendada",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "comunicacao.agendada"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "outros tipos"
+        }
+      },
+      "id": "1aa9ebb5-307d-5459-97d5-296dfd62f240",
+      "name": "Rotear por tipo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1540,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "312579cb-e8d0-5926-8e33-6770af6d44b0",
+              "leftValue": "={{ $json.evento.dados.imediato === true || new Date($json.evento.dados.enviar_em).getTime() <= Date.now() + 120000 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f770dac6-f404-5ec9-a414-5e38cb8db990",
+      "name": "Já é hora de enviar? (tolerância 2 min)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03e269d8-6e10-57c7-bf06-d1388bafdeec",
+              "name": "comunicacao_id",
+              "value": "={{ $json.evento.dados.comunicacao_id }}",
+              "type": "number"
+            },
+            {
+              "id": "2b0ed559-61de-5a88-9445-e775c0ee3ee7",
+              "name": "versao",
+              "value": "={{ $json.evento.recurso.versao }}",
+              "type": "number"
+            },
+            {
+              "id": "18881ff1-b78d-5f4b-8b22-d5111b48c8f4",
+              "name": "correlacao_id",
+              "value": "={{ $json.evento.correlacao_id }}",
+              "type": "string"
+            },
+            {
+              "id": "206c86ef-65d5-5f81-91d3-2d5e50ceb3e1",
+              "name": "evento_id",
+              "value": "={{ $json.evento.id }}",
+              "type": "string"
+            },
+            {
+              "id": "dd2ad04f-516f-5a56-8add-f6f06c606188",
+              "name": "origem",
+              "value": "evento",
+              "type": "string"
+            },
+            {
+              "id": "a08b367b-68d3-5fff-8200-675c8547b8ff",
+              "name": "fluxo",
+              "value": "={{ $json.evento.dados.fluxo || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "ec7b36fe-436b-55dd-92cc-3ab2b26a8605",
+      "name": "Pedido de entrega",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1980,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pcprEntregaCom01",
+          "mode": "id",
+          "cachedResultName": "PCPR · Entregar comunicação"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "7e4bfe5f-4ec4-5016-b11b-4d78cd0427ce",
+      "name": "Entregar comunicação (W2)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2200,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "a1342fb6-627e-5f6f-8bc1-b7f513c65825",
+      "name": "Ainda não é hora (reconciliação envia)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "d1dd223b-8f87-5873-8675-8740572e5286",
+      "name": "Outros tipos: só registro",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook de eventos": {
+      "main": [
+        [
+          {
+            "node": "Preparar verificação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar verificação": {
+      "main": [
+        [
+          {
+            "node": "Calcular HMAC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular HMAC": {
+      "main": [
+        [
+          {
+            "node": "Validar assinatura e frescor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar assinatura e frescor": {
+      "main": [
+        [
+          {
+            "node": "Assinatura válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder 202": {
+      "main": [
+        [
+          {
+            "node": "Deduplicar por id do evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicar por id do evento": {
+      "main": [
+        [
+          {
+            "node": "Rotear por tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido de entrega": {
+      "main": [
+        [
+          {
+            "node": "Entregar comunicação (W2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assinatura válida?": {
+      "main": [
+        [
+          {
+            "node": "Responder 202",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rotear por tipo": {
+      "main": [
+        [
+          {
+            "node": "Já é hora de enviar? (tolerância 2 min)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Outros tipos: só registro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Já é hora de enviar? (tolerância 2 min)": {
+      "main": [
+        [
+          {
+            "node": "Pedido de entrega",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ainda não é hora (reconciliação envia)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "saveDataSuccessExecution": "none"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "08fca68e-c3d2-40f2-8078-22af77060af0",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T12:30:39.120Z",
+      "createdAt": "2026-10-18T12:30:39.120Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprEntradaEvt01",
+      "projectId": "n5ei4JiqNqKfr82t",
+      "project": {
+        "updatedAt": "2026-10-18T12:30:31.150Z",
+        "createdAt": "2026-10-18T12:30:31.150Z",
+        "id": "n5ei4JiqNqKfr82t",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "2adc8501-40c6-45e5-bf84-8b229c47e2d1"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

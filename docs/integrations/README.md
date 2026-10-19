@@ -16,3 +16,5 @@ Cada integração tem: cliente (transporte), autenticação, **porta tipada** + 
 retentativa com backoff (via outbox quando é escrita), logs com dados mascarados, métricas
 (duração, status), diagnóstico por comando de gestão e **modo simulado por padrão**.
 Nunca chamar serviço externo de view ou do domínio; nunca segredo fora de variável de ambiente.
+
+- [WhatsApp Cloud API — referência para o adaptador](whatsapp-cloud-api-referencia.md) (consulta de 18/10/2026; adaptador em `gestao/integracoes/whatsapp/`).

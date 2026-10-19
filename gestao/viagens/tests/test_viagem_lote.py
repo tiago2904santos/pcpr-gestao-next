@@ -87,6 +87,22 @@ def test_servidor_ja_em_oficio_da_viagem_e_os_existente(c):
     assert r.ordem is None and any("não foi alterada" in a for a in r.avisos)
 
 
+def test_motorista_de_fora_conta_no_limite_de_servidores_do_oficio(c):
+    """40 escolhidos e o motorista de fora da equipe: seriam 41 no ofício — bloqueia."""
+    v = _viagem(c)
+    limite = viagem_lote.MAX_SERVIDORES_POR_OFICIO
+    equipe = [Servidor(pk=900000 + i, nome=f"Servidor {i}") for i in range(limite)]
+    motorista = Servidor(pk=990000, nome="Motorista de fora")
+    erros = viagem_lote.validar(v, [viagem_lote.Equipe(servidores=equipe, motorista=motorista)])
+    assert any("contando o motorista" in e for e in erros)
+    assert not any("contando o motorista" in e for e in viagem_lote.validar(
+        v, [viagem_lote.Equipe(servidores=equipe[:-1], motorista=motorista)]))
+    with pytest.raises(viagem_lote.LoteInvalido):
+        viagem_lote.gerar(c.usuarios["operador"], v.pk,
+                          [viagem_lote.Equipe(servidores=list(equipe), motorista=motorista)])
+    assert not Oficio.objects.filter(viagem=v).exists()
+
+
 def test_sem_roteiro_avisa(c):
     v = _viagem(c, com_roteiro=False)
     r = viagem_lote.gerar(c.usuarios["operador"], v.pk,

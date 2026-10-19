@@ -14,8 +14,17 @@ from pathlib import Path
 IMAGEM = "docker.n8n.io/n8nio/n8n:2.43.7"
 CONTEINER = "pcpr-prototipo-n8n"
 VOLUME = "pcpr-prototipo-n8n-dados"
-PORTA = 5678
-URL = f"http://127.0.0.1:{PORTA}"
+PORTA = 5678  # porta do n8n DENTRO do contêiner
+PORTA_HOST = PORTA  # porta publicada em 127.0.0.1 no host
+URL = f"http://127.0.0.1:{PORTA_HOST}"
+
+
+def configurar(conteiner: str, volume: str, porta_host: int) -> None:
+    """Outro contêiner/volume/porta (a suíte contra o PCPR real usa os seus, para não colidir
+    com uma execução das suítes dos simuladores na mesma máquina)."""
+    global CONTEINER, VOLUME, PORTA_HOST, URL
+    CONTEINER, VOLUME, PORTA_HOST = conteiner, volume, porta_host
+    URL = f"http://127.0.0.1:{PORTA_HOST}"
 
 
 def variaveis(chave_cripto: str) -> dict[str, str]:
@@ -131,7 +140,7 @@ def subir(
         "--name",
         CONTEINER,
         "-p",
-        f"127.0.0.1:{PORTA}:{PORTA}",
+        f"127.0.0.1:{PORTA_HOST}:{PORTA}",
         "--add-host",
         "host.docker.internal:host-gateway",
         *hosts,

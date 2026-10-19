@@ -1,0 +1,21 @@
+{% comment %}
+Cartão de sugestão de IA (assistencia/_painel_uso.html) em todos os estados, e os itens da
+revisão (assistencia/_item_sugestao.html). Dados sintéticos da view do UI Lab: nada é
+pedido nem gravado (os formulários apontam para um uso que não existe e respondem 404).
+{% endcomment %}
+<section class="cartao" id="sugestao-ia-lab" aria-labelledby="t-sugestao-ia-lab">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-sugestao-ia-lab"><span class="cartao__numero">24</span>Sugestão de IA: cartão e revisão</h2><span class="texto-secundario texto-sm">O cartão que as folhas (RT, ofício, plano, viagem, importação, relatórios) mostram para um uso de assistência: estado da última sugestão, modo (regra ou IA), campos livres opcionais do pedido e o link para a revisão. A sugestão nunca entra direto no documento. Abaixo, os itens da revisão com as fontes (campos do sistema usados) e as lacunas.</span></div>
+  <div class="cartao__corpo pilha-lg">
+    {% for e in lab_ia.estados %}
+    <div class="pilha">
+      <p class="lab__opcao-rotulo">{{ e.rotulo }}</p>
+      {% include "assistencia/_painel_uso.html" with mostrar=True uso=lab_ia.uso recurso_id="0" config=e.config pedido=e.pedido sugestao=e.sugestao obsoleta=e.obsoleta pendente=e.pendente pronta=e.pronta pode_pedir=e.pode_pedir relacionados=lab_ia.relacionados voltar="/ui-lab/" ident=e.ident %}
+    </div>
+    {% endfor %}
+    <div class="pilha">
+      <p class="lab__opcao-rotulo">Itens da revisão: fontes, nota e lacunas</p>
+      <dl class="definicoes">{% for i in lab_ia.itens %}{% include "assistencia/_item_sugestao.html" %}{% endfor %}</dl>
+      <ul class="pilha">{% for pergunta in lab_ia.lacunas %}<li>{% icone "alert-circle" classe="icone--sm" %} {{ pergunta }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</section>

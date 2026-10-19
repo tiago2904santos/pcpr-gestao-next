@@ -1,0 +1,91 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Assistência{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel da assistência: quantas sugestões no mês, quantas aceitas, quantas caíram na regra,
+tokens e custo ESTIMADO contra o teto do mês, e o estado da porta de IA (simulada ou real).
+Não mostra o texto de nenhuma sugestão: para ler, abre-se a sugestão (com a política do
+registro).
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "text-quote" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Assistência</h1>
+    <p class="pagina-cabecalho__descricao">Rascunhos e leituras sugeridos pelo sistema — por regra ou por IA —, sempre revisados por uma pessoa antes de entrar num registro. Custos são estimados (tokens × tabela de preços), não cobrados.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'assistencia:sugestoes' %}">{% icone "list" %}Sugestões</a>
+    <a class="botao" href="{% url 'assistencia:usos' %}">{% icone "sliders-horizontal" %}Usos, limites e orçamento</a>
+  </div>
+</header>
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador" href="{% url 'assistencia:sugestoes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "text-quote" classe="icone--sm" %}Sugestões no mês</span><span class="indicador__valor">{{ numeros.total }}</span><span class="indicador__nota">{{ numeros.com_ia }} com IA · {{ numeros.fallback }} pela regra (alternativa)</span></a>
+  <a class="indicador" href="{% url 'assistencia:sugestoes' %}?estado=aceita"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "check-circle-2" classe="icone--sm" %}Aceitas</span><span class="indicador__valor">{% if taxa is not None %}{{ taxa }}%{% else %}—{% endif %}</span><span class="indicador__nota">{{ numeros.aceitas }} de {{ numeros.decididas }} decididas</span></a>
+  <a class="indicador{% if global.percentual >= 80 %} indicador--atencao{% endif %}" href="{% url 'assistencia:usos' %}#orcamento"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "wallet" classe="icone--sm" %}Custo estimado no mês</span><span class="indicador__valor">US$ {{ global.gasto_estimado_usd|floatformat:4 }}</span><span class="indicador__nota">{% if global.teto_usd is not None %}Teto US$ {{ global.teto_usd|floatformat:2 }} · {{ global.percentual }}% comprometido{% else %}Sem teto{% endif %}</span></a>
+  <a class="indicador{% if pendentes %} indicador--atencao{% endif %}" href="{% url 'assistencia:sugestoes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Na fila</span><span class="indicador__valor">{{ pendentes }}</span><span class="indicador__nota">Pedidos esperando o worker</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-usos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-usos">Usos no mês</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'assistencia:usos' %}">Configurar</a></div></div>
+  {% if usos %}
+  <ul class="registros">
+    {% for l in usos %}
+    <li class="registro{% if not l.config.ligado %} registro--inativo{% endif %}">
+      <span class="placa" aria-hidden="true"><span class="placa__rotulo">AUT</span><span class="placa__numero">{{ l.uso.codigo|slice:"4:" }}</span></span>
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__link">{{ l.uso.rotulo }}</span>
+          <span class="selo selo--{% if not l.config.ligado %}neutro{% elif l.config.modo == 'ia' %}info{% else %}sucesso{% endif %} selo--sem-ponto">{% if not l.config.ligado %}Desligado{% elif l.config.modo == 'ia' %}IA{% else %}Regra{% endif %}</span>
+          {% if l.uso.envolve_documento %}<span class="selo selo--aviso selo--sem-ponto">Documento: provedor real bloqueado</span>{% endif %}
+        </div>
+        <div class="registro__meta">
+          <span class="registro__meta-item">{{ l.numeros.total|default:0 }} sugest{{ l.numeros.total|default:0|pluralize:"ão,ões" }}</span>
+          <span class="registro__meta-item">{{ l.numeros.aceitas|default:0 }} aceita{{ l.numeros.aceitas|default:0|pluralize }}</span>
+          <span class="registro__meta-item">{{ l.numeros.fallback|default:0 }} pela regra</span>
+          <span class="registro__meta-item">US$ {{ l.numeros.custo|default:0|floatformat:4 }} estimado</span>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}{% include "componentes/vazio.html" with icone="text-quote" titulo="Nenhum uso registrado" texto="Os contextos registram os usos no arquivo ia_usos.py." %}{% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Sugestões recentes</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'assistencia:sugestoes' %}">Ver todas</a></div></div>
+  {% if recentes %}<ul class="registros">{% for s in recentes %}{% include "assistencia/_linha_sugestao.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="text-quote" titulo="Nenhuma sugestão ainda" texto="Peça um rascunho no relatório técnico, no ofício ou no plano de trabalho: a sugestão aparece aqui." compacto=True %}{% endif %}
+</section>
+{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-porta">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-porta">Porta de IA</h2></div>
+  <div class="cartao__corpo pilha">
+    <p><span class="selo selo--{% if diagnostico.modo_real %}aviso{% else %}info{% endif %} selo--sem-ponto">{% if diagnostico.modo_real %}Real{% else %}Simulada{% endif %}</span> {{ diagnostico.estado }}</p>
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Modelo configurado" valor=diagnostico.modelo %}
+      {% include "componentes/metadado.html" with rotulo="Preço de referência" valor=diagnostico.preco_estimado %}
+      {% include "componentes/metadado.html" with rotulo="Chave do provedor" valor=diagnostico.api_key %}
+      {% include "componentes/metadado.html" with rotulo="Documentos ao provedor real" valor=diagnostico.documentos_ao_provedor_real %}
+      {% include "componentes/metadado.html" with rotulo="Tokens no mês (entrada/saída)" valor=tokens_mes %}
+    </dl>
+    <p class="texto-secundario texto-sm">Os valores vêm das variáveis IA_* do servidor; nada disso se edita por esta tela. Sem configuração explícita, a porta é simulada.</p>
+  </div>
+</section>
+{% if simulador %}
+<section class="cartao" aria-labelledby="t-simulador">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-simulador">Simulador</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario">A IA está simulada (sem rede, sem custo): processe a fila agora em vez de esperar o worker.</p>
+    <form method="post" action="{% url 'assistencia:processar_agora' %}">{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.path }}"><button class="botao" type="submit">{% icone "refresh-cw" %}Processar a fila agora</button></form>
+  </div>
+</section>
+{% endif %}
+<section class="cartao" aria-labelledby="t-atalhos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-atalhos">Atalhos</h2></div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'ajuda:central' %}">{% icone "book-open-text" %}Central de ajuda{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'assistencia:usos' %}">{% icone "sliders-horizontal" %}Usos, limites e orçamento{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+  </ul>
+</section>
+{% endblock %}

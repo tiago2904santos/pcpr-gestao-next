@@ -1,0 +1,86 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Automação{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel da automação do sistema de testes: estado do canal (simulado ou Cloud API) e das
+chaves, o que está para sair, o que chegou hoje e a fila de exceções. Com o canal
+simulado, quem opera tem o simulador (processar a fila na hora, simular uma mensagem).
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "send" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Automação e WhatsApp</h1>
+    <p class="pagina-cabecalho__descricao">Avisos que o sistema de testes manda pelo WhatsApp, as respostas que chegam e o que precisa de uma pessoa. Dados fictícios.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'automacao:comunicacoes' %}">{% icone "send" %}Comunicações</a>
+    <a class="botao" href="{% url 'automacao:excecoes' %}">{% icone "alert-triangle" %}Exceções</a>
+    {% if pode_administrar %}<a class="botao" href="{% url 'automacao:canal' %}">{% icone "sliders-horizontal" %}Canal e chaves</a>{% endif %}
+  </div>
+</header>
+{% if motivo_geral %}
+<p class="alerta alerta--aviso mt-4" role="status">{% icone "info" classe="icone--sm" %}<span>Nada sai agora: {{ motivo_geral|lower }} {% if pode_administrar %}<a href="{% url 'automacao:canal' %}">Ligar em Canal e chaves</a>.{% else %}Quem administra liga em Canal e chaves.{% endif %}</span></p>
+{% elif fluxos_desligados %}
+<p class="alerta alerta--aviso mt-4" role="status">{% icone "info" classe="icone--sm" %}<span>{{ fluxos_desligados|length }} fluxo{{ fluxos_desligados|length|pluralize }} desligado{{ fluxos_desligados|length|pluralize }}: {{ fluxos_desligados|join:"; " }}. O resto funciona. {% if pode_administrar %}<a href="{% url 'automacao:canal' %}">Ver em Canal e chaves</a>.{% endif %}</span></p>
+{% endif %}
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador{% if numeros.aguardando %} indicador--atencao{% endif %}" href="{% url 'automacao:comunicacoes' %}?aba=aprovar"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "badge-check" classe="icone--sm" %}Para aprovar</span><span class="indicador__valor">{{ numeros.aguardando }}</span><span class="indicador__nota">{{ numeros.pendentes }} na fila para sair</span></a>
+  <a class="indicador" href="{% url 'automacao:comunicacoes' %}?aba=enviadas"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "send" classe="icone--sm" %}Enviadas hoje</span><span class="indicador__valor">{{ numeros.enviadas_hoje }}</span><span class="indicador__nota">{{ numeros.lidas_hoje }} já lida{{ numeros.lidas_hoje|pluralize }}</span></a>
+  <a class="indicador" href="{% url 'automacao:recebimentos' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "inbox" classe="icone--sm" %}Recebidos hoje</span><span class="indicador__valor">{{ recebidos_hoje }}</span><span class="indicador__nota">Mensagens e arquivos</span></a>
+  <a class="indicador{% if excecoes_abertas %} indicador--atencao{% endif %}" href="{% url 'automacao:excecoes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "alert-triangle" classe="icone--sm" %}Exceções abertas</span><span class="indicador__valor">{{ excecoes_abertas }}</span><span class="indicador__nota">Pedem uma pessoa</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Comunicações recentes</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'automacao:comunicacoes' %}">Ver todas</a></div></div>
+  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "automacao/_comunicacao.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="send" titulo="Nenhuma comunicação ainda" texto="Registre a liberação de diárias de uma prestação: o aviso ao servidor aparece aqui." %}{% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-excecoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-excecoes">Exceções abertas</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'automacao:excecoes' %}">Ver fila</a></div></div>
+  {% if excecoes %}<ul class="registros">{% for e in excecoes %}{% include "automacao/_excecao.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nada pendente" texto="Quando a automação não resolver algo sozinha, aparece aqui." compacto=True %}{% endif %}
+</section>
+{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-canal">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-canal">Canal</h2></div>
+  <div class="cartao__corpo pilha">
+    <p><span class="selo selo--{% if canal.real %}aviso{% else %}info{% endif %} selo--sem-ponto">{% if canal.real %}Cloud API{% else %}Simulado{% endif %}</span> {{ canal.descricao }}</p>
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Chave geral" valor=geral.get_estado_display %}
+      {% include "componentes/metadado.html" with rotulo="WhatsApp" valor=chave_canal.get_estado_display %}
+    </dl>
+    {% if pode_administrar and geral.estado == 'ligada' %}
+    <form method="post" action="{% url 'automacao:desligar_tudo' %}">{% csrf_token %}
+      <input type="hidden" name="voltar" value="{{ request.path }}">
+      <button class="botao botao--perigo-sutil" type="submit">{% icone "ban" %}Desligar tudo agora</button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+{% if simulador %}
+<section class="cartao" aria-labelledby="t-simulador">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-simulador">Simulador</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario">Sem a Meta: o worker roda na hora e as mensagens simuladas entram pelo mesmo caminho do webhook real.</p>
+    <form method="post" action="{% url 'automacao:processar_agora' %}">{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.path }}"><button class="botao" type="submit">{% icone "refresh-cw" %}Processar a fila agora</button></form>
+    <form method="post" action="{% url 'automacao:simular_mensagem' %}" class="pilha">{% csrf_token %}
+      <input type="hidden" name="voltar" value="{{ request.path }}">
+      <div class="campo"><label class="campo__rotulo" for="sim-telefone">Mensagem de um número</label><input class="entrada" id="sim-telefone" name="telefone" inputmode="tel" autocomplete="off" placeholder="(41) 99999-0000" required></div>
+      <div class="campo"><label class="campo__rotulo" for="sim-texto">Texto</label><input class="entrada" id="sim-texto" name="texto" maxlength="1000" value="AJUDA"></div>
+      <button class="botao" type="submit">{% icone "messages-square" %}Simular mensagem recebida</button>
+    </form>
+  </div>
+</section>
+{% endif %}
+<section class="cartao" aria-labelledby="t-atalhos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-atalhos">Configuração</h2></div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'automacao:contatos' %}">{% icone "phone" %}Contatos e opt-in{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    {% if pode_administrar %}<li><a class="atalho" href="{% url 'automacao:testadores' %}">{% icone "shield-check" %}Testadores autorizados{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'automacao:canal' %}">{% icone "sliders-horizontal" %}Canal e chaves{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>{% endif %}
+  </ul>
+</section>
+{% endblock %}

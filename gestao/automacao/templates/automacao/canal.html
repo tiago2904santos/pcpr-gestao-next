@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Canal e chaves · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Canal e chaves</h1>
+    <p class="pagina-cabecalho__descricao">Como o WhatsApp está configurado (sem mostrar segredo nenhum) e as chaves que ligam ou desligam cada efeito. Desligar impede envios e associações novas; o que já aconteceu continua sendo registrado.</p>
+  </div>
+</header>
+<div class="layout-detalhe mt-4">
+  <div class="pilha-lg">
+    <section class="cartao" aria-labelledby="chaves">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="chaves">Chaves de liga e desliga</h2></div>
+      <ul class="registros">
+        {% for rotulo, ajuda, nome, chave in chaves %}
+        <li class="registro">
+          <div class="registro__corpo">
+            <div class="registro__titulo"><span class="registro__link">{{ rotulo }}</span><span class="selo selo--{% if chave.estado == 'ligada' %}sucesso{% elif chave.estado == 'bloqueada' %}perigo{% else %}neutro{% endif %} selo--sem-ponto">{{ chave.get_estado_display }}</span>{% if nome|slice:":6" == "fluxo:" %}<span class="selo selo--info selo--sem-ponto">{{ chave.get_modo_display }}</span>{% endif %}</div>
+            {% if ajuda %}<p class="registro__texto">{{ ajuda }}</p>{% endif %}
+            {% if chave.motivo %}<p class="registro__texto">{{ chave.motivo }}{% if chave.alterada_por %} — {{ chave.alterada_por }}, {{ chave.alterada_em|date:"d/m H:i" }}{% endif %}</p>{% endif %}
+            <form method="post" action="{% url 'automacao:alterar_chave' %}" class="linha mt-4">{% csrf_token %}
+              <input type="hidden" name="nome" value="{{ nome }}">
+              <div class="campo"><label class="campo__rotulo" for="estado-{{ forloop.counter }}">Estado</label><pc-select class="seletor"><select class="selecao" id="estado-{{ forloop.counter }}" name="estado">{% for valor, r in estados %}<option value="{{ valor }}"{% if chave.estado == valor %} selected{% endif %}>{{ r }}</option>{% endfor %}</select></pc-select></div>
+              {% if nome|slice:":6" == "fluxo:" %}<div class="campo"><label class="campo__rotulo" for="modo-{{ forloop.counter }}">Modo</label><pc-select class="seletor"><select class="selecao" id="modo-{{ forloop.counter }}" name="modo">{% for valor, r in modos %}<option value="{{ valor }}"{% if chave.modo == valor %} selected{% endif %}>{{ r }}</option>{% endfor %}</select></pc-select></div>{% endif %}
+              <div class="campo"><label class="campo__rotulo" for="motivo-{{ forloop.counter }}">Motivo</label><input class="entrada" id="motivo-{{ forloop.counter }}" name="motivo" maxlength="255" autocomplete="off"></div>
+              <div><button class="botao botao--sm" type="submit" aria-label="Salvar {{ rotulo }}">{% icone "save" %}Salvar</button></div>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  <aside class="layout-detalhe__lateral" aria-label="Configuração do canal">
+    <section class="cartao" aria-labelledby="t-config">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-config">WhatsApp (Cloud API)</h2></div>
+      <div class="cartao__corpo pilha">
+        <p><span class="selo selo--{% if diagnostico.modo_real %}aviso{% else %}info{% endif %} selo--sem-ponto">{% if diagnostico.modo_real %}Real{% else %}Simulado{% endif %}</span> {{ diagnostico.estado }}</p>
+        <dl class="definicoes">
+          {% include "componentes/metadado.html" with rotulo="Versão da API" valor=diagnostico.versao %}
+          {% include "componentes/metadado.html" with rotulo="Phone number ID" valor=diagnostico.phone_number_id %}
+          {% include "componentes/metadado.html" with rotulo="WABA" valor=diagnostico.waba_id %}
+          {% include "componentes/metadado.html" with rotulo="Token de acesso" valor=diagnostico.access_token %}
+          {% include "componentes/metadado.html" with rotulo="App Secret" valor=diagnostico.app_secret %}
+          {% include "componentes/metadado.html" with rotulo="Verify token" valor=diagnostico.verify_token %}
+          {% include "componentes/metadado.html" with rotulo="Lista de testadores" valor=diagnostico.lista_fechada|yesno:"Ligada,Desligada" %}
+          {% include "componentes/metadado.html" with rotulo="Limite por hora" valor=diagnostico.limite_por_hora %}
+          {% include "componentes/metadado.html" with rotulo="Assinatura das mensagens" valor=diagnostico.remetente %}
+        </dl>
+        {% if diagnostico.modelos %}<div><p class="peso-semi">Modelos aprovados configurados</p><ul>{% for tipo, modelo in diagnostico.modelos.items %}<li>{{ tipo }}: {{ modelo }}</li>{% endfor %}</ul></div>{% else %}<p class="texto-secundario texto-sm">Nenhum modelo aprovado configurado: com a Cloud API, fora da janela de 24 h nada sai (e nada é cobrado).</p>{% endif %}
+        <p class="texto-secundario texto-sm">Os valores vêm das variáveis WHATSAPP_* do servidor; nada disso se edita por esta tela.</p>
+        <div><p class="peso-semi">URL do webhook (para o painel da Meta)</p><p class="texto-sm quebra-palavras">{{ url_webhook }}</p></div>
+        {% if diagnostico.faltam_para_real and diagnostico.modo == 'cloud_api' %}<p class="alerta alerta--aviso">Faltam para o modo real: {{ diagnostico.faltam_para_real|join:", " }}.</p>{% endif %}
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

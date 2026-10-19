@@ -1075,6 +1075,8 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
     # A prestação de contas nasce (ou acompanha a equipe) na emissão (módulo 9).
     from . import prestacao
     prestacao.sincronizar(atual)
+    from . import comunicacoes_viagem  # WhatsApp: a reemissão avisa a equipe (ADR 0047)
+    comunicacoes_viagem.oficio_emitido(atual, usuario, documentos[0])
     return documentos[0]
 
 
@@ -1169,6 +1171,8 @@ def cancelar(oficio: Oficio, usuario, motivo: str) -> Oficio:
                               "motivo_cancelamento", "versao", "atualizado_em"])
     _registrar(atual, Historico.Acao.CANCELADO, f"Cancelado: {motivo.strip()}", usuario,
                de=anterior, para=Oficio.Situacao.CANCELADO, motivo=motivo.strip())
+    from . import comunicacoes_viagem  # WhatsApp: links de km caem e a equipe é avisada
+    comunicacoes_viagem.oficio_cancelado(atual, usuario, anterior)
     return atual
 
 

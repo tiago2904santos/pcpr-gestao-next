@@ -1,0 +1,131 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Sugestão #{{ s.pk }} · Assistência{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% comment %}
+Revisão de uma sugestão: o que foi sugerido, de que campos do sistema saiu (fontes), o que
+faltou (lacunas, com a pergunta fixa) e a decisão — aceitar, editar e aceitar, descartar.
+A sugestão nunca sobrescreve texto escrito por pessoa sem a confirmação "Substituir"; se o
+registro mudou desde a sugestão, ela fica obsoleta e não se aplica.
+{% endcomment %}
+{% block cabecalho_detalhe %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "text-quote" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">{{ uso.codigo }} · {{ assunto.rotulo|default:"Registro" }}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ uso.rotulo }}</h1>
+    <p class="pagina-cabecalho__descricao">
+      <span class="selo selo--{{ s.tom }} selo--sem-ponto">{{ s.get_estado_display }}</span>
+      <span class="selo selo--{% if s.com_ia %}info{% else %}neutro{% endif %} selo--sem-ponto">{% if s.fallback %}Regra do sistema (alternativa sem IA){% else %}{{ s.get_origem_display }}{% endif %}</span>
+    </p>
+  </div>
+  <div class="pagina-cabecalho__acoes">{% if assunto.url %}<a class="botao" href="{{ assunto.url }}">{% icone "arrow-left" %}Voltar ao registro</a>{% endif %}</div>
+</header>
+{% endblock %}
+{% block principal %}
+{% if s.estado == 'obsoleta' %}
+<p class="alerta alerta--aviso" role="status">{% icone "alert-triangle" classe="icone--sm" %}<span>Os dados do registro mudaram depois desta sugestão (ou ela foi substituída por outra). Ela não é mais aplicada: peça uma nova com os dados atuais.</span></p>
+{% elif s.fallback %}
+<p class="alerta alerta--info" role="status">{% icone "info" classe="icone--sm" %}<span>{% if s.motivo_fallback == 'modo_regra' %}Este uso está no modo regra: o texto foi montado pelo sistema com os dados do registro, sem IA.{% elif s.motivo_fallback == 'orcamento' %}O orçamento de IA do mês foi atingido: valeu o texto montado pelo sistema, sem IA.{% elif s.motivo_fallback == 'validacao' %}A resposta da IA foi recusada pelo validador de fatos (dado fora do registro): valeu o texto montado pelo sistema.{% elif s.motivo_fallback == 'documento' %}Texto de documento não vai a provedor externo de IA (ADR 0041): valeu a leitura local.{% elif s.motivo_fallback == 'limite_diario' %}O limite diário de chamadas deste uso foi atingido: valeu o texto montado pelo sistema.{% else %}A IA não respondeu como devia ({{ s.motivo_fallback }}): valeu o texto montado pelo sistema.{% endif %}</span></p>
+{% endif %}
+
+<section class="cartao" aria-labelledby="t-sugestao">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-sugestao">{% if aplicavel %}Texto sugerido{% else %}O que foi lido ou explicado{% endif %}</h2></div>
+  <div class="cartao__corpo">
+  {% if not conteudo %}
+    <p class="vazio-inline">O conteúdo desta sugestão já saiu do prazo de retenção. Fica só o registro de que ela existiu.</p>
+  {% elif not itens %}
+    {% include "componentes/vazio.html" with icone="text-quote" titulo="Nada a sugerir com os dados de hoje" texto="Faltam dados no registro: veja as lacunas e complete o cadastro antes de pedir de novo." compacto=True %}
+  {% elif pode_decidir and aplicavel %}
+    <form method="post" action="{% url 'assistencia:aceitar' s.pk %}" class="pilha" id="form-aceitar">{% csrf_token %}
+      {% if com_edicao %}<p class="alerta alerta--info" role="status">{% icone "info" classe="icone--sm" %}<span>Nada foi gravado. Os campos mostram o texto que você editou.</span></p>{% endif %}
+      {% for i in itens %}
+      <div class="campo campo--lg" role="group" aria-labelledby="rotulo-{{ i.campo }}">
+        <p class="campo__rotulo peso-semi" id="rotulo-{{ i.campo }}">{{ i.rotulo }}</p>
+        {% if i.aplicavel %}
+        <div class="grade grade--2">
+          <div class="campo">
+            <p class="campo__rotulo" id="atual-{{ i.campo }}">Atual</p>
+            <p class="texto-pre">{% if i.atual %}{{ i.atual }}{% else %}<span class="vazio-inline">Vazio no registro</span>{% endif %}</p>
+          </div>
+          <div class="campo">
+            <label class="campo__rotulo" for="texto-{{ i.campo }}">Sugerido{% if i.editado is not None %} (com a sua edição){% endif %}</label>
+            <textarea class="area-texto" id="texto-{{ i.campo }}" name="texto-{{ i.campo }}" rows="6" maxlength="4000" aria-describedby="fontes-{{ i.campo }}">{{ i.texto }}</textarea>
+          </div>
+        </div>
+        {% else %}<p class="texto-pre">{{ i.valor }}</p>{% endif %}
+        <p class="campo__ajuda" id="fontes-{{ i.campo }}">Fontes: {% for f in i.fontes %}<span class="selo selo--neutro selo--sem-ponto">{{ f }}</span> {% empty %}nenhuma{% endfor %}{% if i.nota %} — {{ i.nota }}{% endif %}</p>
+      </div>
+      {% endfor %}
+      {% if pede_substituir %}
+      <label class="opcao"><input type="checkbox" name="substituir" value="1"><span>Substituir o texto atual{% if substituiveis %} de {{ substituiveis }}{% endif %} (escrito por uma pessoa)</span></label>
+      {% endif %}
+      <p class="texto-secundario texto-sm">O que vale é o texto da coluna “Sugerido”, com as suas edições. Ao gravar, o sistema confere de novo se o registro mudou; se mudou, nada é gravado e o seu texto continua aqui.</p>
+      <div class="grupo-botoes"><button class="botao botao--primario" type="submit">{% icone "check" %}{{ acao_aplicar }}</button></div>
+    </form>
+  {% else %}
+    <dl class="definicoes">
+      {% for i in itens %}
+      {% include "assistencia/_item_sugestao.html" %}
+      {% if i.editado is not None %}<div class="metadado"><dt>Seu texto editado (não gravado)</dt><dd><p class="texto-pre">{{ i.editado }}</p></dd></div>{% endif %}
+      {% endfor %}
+    </dl>
+    {% if pode_decidir %}
+    <form method="post" action="{% url 'assistencia:aceitar' s.pk %}" class="mt-4">{% csrf_token %}<button class="botao botao--primario" type="submit">{% icone "check" %}Marcar como útil</button></form>
+    {% endif %}
+  {% endif %}
+  </div>
+</section>
+
+{% if lacunas %}
+<section class="cartao" aria-labelledby="t-lacunas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lacunas">O que faltou nos dados</h2></div>
+  <div class="cartao__corpo"><ul class="pilha">{% for codigo, pergunta in lacunas %}<li>{% icone "alert-circle" classe="icone--sm" %} {{ pergunta }}</li>{% endfor %}</ul></div>
+</section>
+{% endif %}
+
+{% if conteudo.avisos %}
+<section class="cartao" aria-labelledby="t-avisos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-avisos">Por que a resposta da IA foi recusada</h2></div>
+  <div class="cartao__corpo"><ul class="pilha">{% for a in conteudo.avisos %}<li class="texto-sm">{{ a }}</li>{% endfor %}</ul><p class="texto-secundario texto-sm mt-4">Códigos do validador de fatos: número, nome, município ou termo que não estão nos dados do registro.</p></div>
+</section>
+{% endif %}
+
+{% if conteudo.texto_aplicado %}
+<section class="cartao" aria-labelledby="t-aplicado">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-aplicado">Texto gravado no registro</h2></div>
+  <div class="cartao__corpo"><dl class="definicoes">{% for campo, texto in conteudo.texto_aplicado.items %}<div class="metadado"><dt>{{ campo }}</dt><dd><p class="texto-pre">{{ texto }}</p></dd></div>{% endfor %}</dl></div>
+</section>
+{% endif %}
+{% endblock %}
+{% block contexto %}
+{% if pode_decidir %}
+<section class="cartao" aria-labelledby="t-descartar">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-descartar">Descartar</h2></div>
+  <div class="cartao__corpo">
+    <form method="post" action="{% url 'assistencia:descartar' s.pk %}" class="pilha">{% csrf_token %}
+      <div class="campo"><label class="campo__rotulo" for="motivo-descarte">Motivo (ajuda a melhorar)</label>
+        <pc-select class="seletor"><select class="selecao" id="motivo-descarte" name="motivo">{% for valor, rotulo in motivos %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
+      <div><button class="botao botao--perigo-sutil" type="submit">{% icone "x" %}Descartar sugestão</button></div>
+    </form>
+  </div>
+</section>
+{% endif %}
+<section class="cartao" aria-labelledby="t-dados">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados">Registro da sugestão</h2></div>
+  <div class="cartao__corpo pilha">
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Pedida por" valor=s.pedido.usuario %}
+      {% include "componentes/metadado.html" with rotulo="Criada em" valor=s.criada_em|date:"d/m/Y H:i" %}
+      {% include "componentes/metadado.html" with rotulo="Modelo" valor=s.modelo ausente="Nenhum (regra do sistema)" %}
+      {% include "componentes/metadado.html" with rotulo="Versão do prompt" valor=s.versao_prompt %}
+      {% include "componentes/metadado.html" with rotulo="Versão da fonte" valor=s.versao_fonte|slice:":12" %}
+      {% include "componentes/metadado.html" with rotulo="Hash do contexto enviado" valor=s.hash_contexto|slice:":12" ausente="Nada foi enviado" %}
+      {% include "componentes/metadado.html" with rotulo="Tokens (entrada + saída)" valor=s.tokens_texto %}
+      {% include "componentes/metadado.html" with rotulo="Custo estimado (não é cobrança)" valor=s.custo_texto %}
+      {% include "componentes/metadado.html" with rotulo="Decisão" valor=s.decisao_texto ausente="Aguardando revisão" %}
+    </dl>
+    {% if s.fontes %}<div><p class="peso-semi">Campos do sistema usados</p><p>{% for f in s.fontes %}<span class="selo selo--neutro selo--sem-ponto">{{ f }}</span> {% endfor %}</p></div>{% endif %}
+    {% if s.estado != 'pronta' %}{% if uso.opcoes %}<a class="botao botao--sm" href="{% url 'assistencia:pedir' uso.chave s.recurso_id %}">{% icone "refresh-cw" %}Pedir outra</a>{% else %}<form method="post" action="{% url 'assistencia:pedir' uso.chave s.recurso_id %}">{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.path }}"><button class="botao botao--sm" type="submit">{% icone "refresh-cw" %}Pedir outra</button></form>{% endif %}{% endif %}
+  </div>
+</section>
+{% endblock %}

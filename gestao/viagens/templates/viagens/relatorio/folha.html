@@ -17,6 +17,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Relatório técnico" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" menu_folha="viagens/relatorio/_menu.html" %}
 {% include "viagens/prestacao/_etapas.html" %}
+{% load assistencia %}{% painel_ia "viagens.rt_rascunho" p.pk %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O relatório é da equipe e trava quando todos estão finalizados.</p></div></div>

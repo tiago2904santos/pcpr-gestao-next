@@ -1,0 +1,177 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Proposta consolidada · Viagens{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}">{% endblock %}
+{% comment %}
+Proposta consolidada (AUT-14; proposta.py). 1) Escolher a viagem e informar quem vai — a pessoa
+escolhe cada servidor, nada é sugerido. 2) "Ver prévia" (GET: nada gravado, nenhum número
+reservado) mostra numa página a viagem, o roteiro, quem vai, as diárias estimadas, os documentos
+que seriam criados, os conflitos de agenda e o que falta. 3) "Criar rascunhos" é um POST com a
+assinatura da prévia: se algo mudou, nada é criado e a prévia nova aparece (409).
+{% endcomment %}
+{% block cabecalho_detalhe %}
+{% include "componentes/pagina_cabecalho.html" with titulo="Proposta consolidada" icone="layers" descricao="Escolha a viagem, informe quem vai e confira tudo numa página antes de criar os rascunhos." %}
+{% endblock %}
+
+{% block principal %}
+{% if erro %}<div class="alerta alerta--perigo" role="alert" tabindex="-1" id="erro-proposta">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Nada foi criado</p><p>{{ erro }}</p></div></div>{% endif %}
+
+{% if not tem_viagens %}
+<section class="cartao" aria-labelledby="t-vazio">
+  <h2 class="sr-only" id="t-vazio">Nenhuma viagem</h2>
+  {% url 'viagens:viagens' as url_viagens %}
+  {% include "componentes/vazio.html" with icone="map" titulo="Nenhuma viagem para preparar" texto="A proposta parte de uma viagem que ainda não foi cancelada. Crie a viagem (ou gere-a da solicitação deferida) e volte aqui." acao_url=url_viagens acao_rotulo="Ir para as viagens" acao_icone="arrow-right" %}
+</section>
+{% elif previa %}
+<section class="cartao" aria-labelledby="t-quem-vai">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-quem-vai">1. Viagem e quem vai</h2><div class="cartao__acoes"><a class="botao botao--sm" href="{{ url_alterar }}">{% icone "pencil" %}Alterar escolhas</a></div></div>
+  <p class="cartao__corpo texto-secundario">A prévia abaixo usa exatamente estas escolhas: {{ previa.titulo }}, {{ previa.equipe|length }} pessoa{{ previa.equipe|length|pluralize }}{% if previa.viatura %}, {{ previa.viatura }}{% endif %}. Para mudar, altere e veja a prévia de novo.</p>
+</section>
+{% else %}
+<section class="cartao" aria-labelledby="t-quem-vai">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-quem-vai">1. Viagem e quem vai</h2></div>
+  <form method="get" action="{% url 'viagens:proposta' %}#previa" class="cartao__corpo pilha" novalidate id="form-proposta">
+    {% include "componentes/resumo_erros.html" %}
+    {% include "componentes/campo.html" with campo=form.viagem classe="campo--lg" %}
+    {% include "viagens/_campo_equipe.html" with campo=form.servidores compacta=True %}
+    {% include "viagens/_campo_equipe.html" with campo=form.motorista compacta=True %}
+    {% include "componentes/campo.html" with campo=form.viatura classe="campo--lg" %}
+    <fieldset class="campo">
+      <legend class="campo__rotulo">Criar também</legend>
+      {% include "componentes/campo.html" with campo=form.termos %}
+      {% include "componentes/campo.html" with campo=form.ordem %}
+      {% include "componentes/campo.html" with campo=form.plano %}
+    </fieldset>
+    <p class="texto-secundario texto-sm">Quem vai é escolha sua: a tela não sugere servidor, motorista nem viatura.</p>
+    <div class="grupo-botoes"><button class="botao botao--primario" type="submit" name="acao" value="previa">{% icone "eye" %}Ver prévia</button></div>
+  </form>
+</section>
+{% endif %}
+
+{% if previa %}
+<p class="alerta alerta--aviso" id="previa" tabindex="-1">{% icone "info" %}<span><strong>Prévia: nada foi gravado e nenhum número foi reservado.</strong> Calculada às {{ previa.calculada_em|time:"H:i" }}.</span></p>
+
+{% if previa.bloqueios %}
+<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">O que impede criar os rascunhos</p><ul>{% for b in previa.bloqueios %}<li>{{ b.mensagem }}</li>{% endfor %}</ul></div></div>
+{% endif %}
+
+<section class="cartao" aria-labelledby="t-viagem">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-viagem">2. Viagem e roteiro</h2></div>
+  <div class="cartao__corpo pilha">
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Viagem" valor=previa.titulo %}
+      {% include "componentes/metadado.html" with rotulo="Período" valor=previa.periodo %}
+      {% include "componentes/metadado.html" with rotulo="Unidade" valor=previa.unidade %}
+      {% include "componentes/metadado.html" with rotulo="Destinos" valor=previa.destinos|join:", " ausente="Nenhum destino na viagem" %}
+      {% if previa.solicitacoes %}<div class="metadado"><dt>Origem</dt><dd>{% for s in previa.solicitacoes %}Solicitação #{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd></div>{% endif %}
+      {% include "componentes/metadado.html" with rotulo="Roteiro" valor=previa.roteiro.titulo ausente="Sem roteiro" %}
+    </dl>
+    {% if previa.roteiro.trechos %}<ul class="lista-simples" aria-label="Trechos do roteiro">{% for t in previa.roteiro.trechos %}<li><span>{{ t }}</span></li>{% endfor %}</ul>{% endif %}
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-equipe">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe">3. Quem vai</h2></div>
+  <div class="cartao__corpo">
+    {% if previa.equipe %}
+    <ul class="lista-simples">{% for p in previa.equipe %}
+      <li><span><strong>{{ p.nome }}</strong>{% if p.unidade %} · {{ p.unidade }}{% endif %}</span>
+        <span class="selo selo--neutro selo--sem-ponto">Informado por você</span>
+        {% if p.motorista %}<span class="selo selo--info selo--sem-ponto">Dirige a {{ previa.viatura }}</span>{% endif %}
+        {% if p.de_fora %}<span class="selo selo--aviso selo--sem-ponto">De outra unidade</span>{% endif %}
+        {% if p.falta_no_cadastro %}<span class="selo selo--aviso selo--sem-ponto">Cadastro sem {{ p.falta_no_cadastro }}</span>{% endif %}
+      </li>{% endfor %}
+    </ul>
+    {% else %}<p class="vazio-inline">Ninguém informado.</p>{% endif %}
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-diarias">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-diarias">4. Diárias</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if previa.diarias %}
+      <p class="texto-secundario texto-sm">{{ previa.diarias.rotulo }}</p>
+      {% if previa.diarias.erro %}
+      <p class="alerta alerta--aviso">{% icone "alert-triangle" %}<span>{{ previa.diarias.erro }}</span></p>
+      {% else %}
+      <dl class="definicoes">
+        {% include "componentes/metadado.html" with rotulo="Por servidor (estimativa)" valor=previa.diarias.por_servidor|moeda %}
+        {% include "componentes/metadado.html" with rotulo="Total do ofício (estimativa)" valor=previa.diarias.total|moeda %}
+        {% include "componentes/metadado.html" with rotulo="Servidores" valor=previa.diarias.servidores %}
+        {% include "componentes/metadado.html" with rotulo="Cálculo" valor=previa.diarias.resumo %}
+        {% include "componentes/metadado.html" with rotulo="Faixa" valor=previa.diarias.tipo_destino %}
+      </dl>
+      {% endif %}
+    {% else %}<p class="vazio-inline">Informe quem vai para estimar as diárias.</p>{% endif %}
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-documentos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-documentos">5. Documentos</h2></div>
+  <div class="cartao__corpo">
+    {% if previa.documentos %}
+    <ul class="lista-simples">{% for d in previa.documentos %}
+      <li><span><strong>{{ d.titulo }}</strong> — {{ d.detalhe }} {% if d.cria %}<span class="selo selo--sucesso selo--sem-ponto">Será criado em rascunho</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">Já existe</span>{% endif %}</span></li>{% endfor %}
+    </ul>
+    <p class="texto-secundario texto-sm">O ofício, a OS e o plano recebem o número oficial no momento em que o rascunho é criado, como em toda criação de rascunho. Termos, roteiro e viagem não têm número.</p>
+    {% else %}<p class="vazio-inline">Nenhum documento a criar com o que foi informado.</p>{% endif %}
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-conflitos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-conflitos">6. Conflitos de agenda</h2></div>
+  <div class="cartao__corpo">
+    {% if previa.conflitos %}
+    <ul class="lista-simples" id="conflitos">{% for c in previa.conflitos %}<li><span>{{ c }}</span></li>{% endfor %}</ul>
+    <p class="texto-secundario texto-sm">Conflito é aviso: você decide seguir ou trocar a equipe.</p>
+    {% else %}<p class="vazio-inline">Nenhum conflito encontrado no período para a equipe e a viatura informadas.</p>{% endif %}
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-pendencias">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pendencias">7. Avisos e o que falta depois</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if previa.avisos %}<ul class="lista-simples" aria-label="Avisos">{% for a in previa.avisos %}<li><span>{{ a.mensagem }}</span></li>{% endfor %}</ul>{% endif %}
+    {% if previa.depois %}
+    <h3 class="texto-lg peso-semi">Depois de criar, antes de emitir</h3>
+    <ul class="lista-simples">{% for a in previa.depois %}<li><span>{{ a.mensagem }}</span></li>{% endfor %}</ul>
+    {% endif %}
+    {% if not previa.avisos and not previa.depois %}<p class="vazio-inline">Nada pendente.</p>{% endif %}
+  </div>
+</section>
+
+<form method="post" action="{% url 'viagens:criar_proposta' %}" class="cartao" aria-labelledby="t-criar">
+  {% csrf_token %}
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-criar">8. Criar</h2></div>
+  <div class="cartao__corpo pilha">
+    <input type="hidden" name="viagem" value="{{ previa.entrada.viagem }}">
+    {% for s in previa.entrada.servidores %}<input type="hidden" name="servidores" value="{{ s }}">{% endfor %}
+    {% if previa.entrada.motorista %}<input type="hidden" name="motorista" value="{{ previa.entrada.motorista }}">{% endif %}
+    {% if previa.entrada.viatura %}<input type="hidden" name="viatura" value="{{ previa.entrada.viatura }}">{% endif %}
+    <input type="hidden" name="termos" value="{% if previa.entrada.termos %}1{% else %}0{% endif %}">
+    <input type="hidden" name="ordem" value="{% if previa.entrada.ordem %}1{% else %}0{% endif %}">
+    <input type="hidden" name="plano" value="{% if previa.entrada.plano %}1{% else %}0{% endif %}">
+    <input type="hidden" name="assinatura" value="{{ previa.assinatura }}">
+    <p class="texto-secundario">Cria exatamente o que está nesta prévia, em rascunho e já vinculado à viagem. Nada é emitido nem protocolado. Se algo mudou desde a prévia, nada é criado e a prévia nova aparece.</p>
+    <div class="grupo-botoes">
+      <button class="botao botao--primario" type="submit"{% if not previa.pode_criar %} disabled aria-describedby="t-criar-bloqueio"{% endif %}>{% icone "files" %}Criar rascunhos</button>
+      <a class="botao botao--texto" href="{% url 'viagens:editar_viagem' previa.viagem_id %}">Voltar à viagem</a>
+    </div>
+    {% if not previa.pode_criar %}<p class="campo__ajuda" id="t-criar-bloqueio">Resolva o que impede criar (acima) e veja a prévia de novo.</p>{% endif %}
+  </div>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-como">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-como">Como funciona</h2></div>
+  <div class="cartao__corpo pilha">
+    <ol class="lista-simples">
+      <li>Escolha a viagem e quem vai.</li>
+      <li>Veja a prévia: nada é gravado, nenhum número é reservado.</li>
+      <li>Criar rascunhos usa o mesmo cálculo da prévia e só segue se nada mudou.</li>
+    </ol>
+    <p class="texto-secundario texto-sm">As diárias da prévia são estimativa para conferência; o valor oficial sai no documento.</p>
+  </div>
+</section>
+{% endblock %}

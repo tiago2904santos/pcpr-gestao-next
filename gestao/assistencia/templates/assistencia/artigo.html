@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titulo %}{{ a.titulo }} · Central de ajuda{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}Artigo aprovado da Central de ajuda, com a natureza (procedimento, regra do sistema ou a confirmar), a versão e a aprovação.{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">Central de ajuda · {{ a.referencia }}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ a.titulo }}</h1>
+    <p class="pagina-cabecalho__descricao"><span class="selo selo--{% if a.natureza == 'regra_do_sistema' %}info{% elif a.natureza == 'a_confirmar' %}aviso{% else %}sucesso{% endif %} selo--sem-ponto">{{ a.rotulo_natureza }}</span>{% if revisao_vencida %} <span class="selo selo--aviso selo--sem-ponto">Revisão pendente</span>{% endif %}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'ajuda:central' %}">{% icone "arrow-left" %}Central de ajuda</a></div>
+</header>
+<p class="alerta alerta--aviso mt-4" role="note">{% icone "alert-triangle" classe="icone--sm" %}<span><strong>Rascunho para o sistema de testes.</strong> Conteúdo inicial do piloto, com a revisão do responsável pendente; não vale como norma nem como orientação oficial.</span></p>
+<div class="layout-detalhe mt-4">
+  <article class="cartao" aria-labelledby="t-artigo">
+    <div class="cartao__corpo pilha">
+      <h2 class="sr-only" id="t-artigo">Conteúdo</h2>
+      {% for b in a.blocos %}{% if b.tipo == 'lista' %}<ul class="pilha">{% for l in b.linhas %}<li>{{ l }}</li>{% endfor %}</ul>{% else %}<p>{{ b.linhas.0 }}</p>{% endif %}{% endfor %}
+    </div>
+  </article>
+  <aside class="layout-detalhe__lateral" aria-label="Sobre este artigo">
+    <section class="cartao" aria-labelledby="t-aprovacao">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-aprovacao">Aprovação</h2></div>
+      <div class="cartao__corpo"><dl class="definicoes">
+        {% include "componentes/metadado.html" with rotulo="Versão" valor=a.versao %}
+        {% include "componentes/metadado.html" with rotulo="Aprovado por" valor=a.aprovado_por %}
+        {% include "componentes/metadado.html" with rotulo="Aprovado em" valor=a.aprovado_em|date:"d/m/Y" %}
+        {% include "componentes/metadado.html" with rotulo="Revisar em" valor=a.revisar_em|date:"d/m/Y" %}
+      </dl></div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

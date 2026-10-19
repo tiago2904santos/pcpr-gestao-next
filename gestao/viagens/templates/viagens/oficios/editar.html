@@ -148,6 +148,7 @@ confirmação — e é ele que escreve no histórico.
   decide é `_mostrar_justificativa` em views.py.
   {% endcomment %}
   {% include "viagens/oficios/_justificativa.html" %}
+  {% load assistencia %}{% painel_ia "viagens.oficio_textos" oficio.pk "viagens.leitura_programacao" %}
 
   {% comment %}
   4. Documentos — o fim da folha conclui, com as peças da janela de resumo: o aviso de

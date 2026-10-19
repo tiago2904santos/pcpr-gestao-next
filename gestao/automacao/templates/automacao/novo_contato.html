@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Novo contato · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Novo contato de WhatsApp</h1>
+    <p class="pagina-cabecalho__descricao">O número é o do cadastro do servidor. Depois de cadastrar, falta verificar o número (a pessoa escreve dele, ou você confirma com ela) e registrar o opt-in.</p>
+  </div>
+</header>
+<section class="cartao mt-4" aria-labelledby="t-form">
+  <h2 class="sr-only" id="t-form">Escolha do servidor</h2>
+  <form method="post" class="cartao__corpo pilha" novalidate>{% csrf_token %}
+    {% include "componentes/resumo_erros.html" with form=form %}
+    {% if form.fields.servidor.queryset.exists %}
+      {% include "componentes/campo.html" with campo=form.servidor %}
+      <div class="grupo-botoes"><button class="botao botao--primario" type="submit">{% icone "plus" %}Cadastrar contato</button><a class="botao botao--texto" href="{% url 'automacao:contatos' %}">Cancelar</a></div>
+    {% else %}
+      {% url 'automacao:contatos' as url_voltar %}
+      {% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor disponível" texto="Todos os servidores com telefone já têm contato, ou nenhum servidor da sua unidade tem telefone no cadastro." acao_url=url_voltar acao_rotulo="Voltar aos contatos" acao_icone="arrow-left" %}
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

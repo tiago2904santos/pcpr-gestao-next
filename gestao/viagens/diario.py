@@ -334,14 +334,39 @@ def troca_de_motorista(de_la: DiarioBordo) -> str:
 
 
 # ---------------------------------------------------------------- escrita
-def _travar(usuario, diario_pk: int) -> DiarioBordo:
-    diario = (DiarioBordo.objects.select_for_update()
-              .select_related("prestacao__oficio").get(pk=diario_pk))
+def conferir_edicao(usuario, diario: DiarioBordo) -> None:
+    """Prestação aberta e permissão de editar a equipe (o diário já travado por quem chama)."""
     if equipe_finalizada(diario.prestacao):
         raise DiarioInvalido("Prestação finalizada — reabra para editar.")
     policies.exigir(policies.pode_editar_equipe_prestacao(usuario, diario.prestacao),
                     "Você não pode alterar este diário.")
+
+
+def _travar(usuario, diario_pk: int) -> DiarioBordo:
+    diario = (DiarioBordo.objects.select_for_update()
+              .select_related("prestacao__oficio").get(pk=diario_pk))
+    conferir_edicao(usuario, diario)
     return diario
+
+
+def gravar_linha(linha: DiarioBordoTrecho, campos: dict[str, object]) -> bool:
+    """Uma linha de um diário JÁ travado e conferido (`conferir_edicao`): os dois km se
+    conferem juntos. Devolve se mudou."""
+    antes = (linha.km_inicial, linha.km_final, linha.abastecimento)
+    if "km_inicial" in campos:
+        linha.km_inicial = dominio.numero_do_km(campos["km_inicial"])
+    if "km_final" in campos:
+        linha.km_final = dominio.numero_do_km(campos["km_final"])
+    if "abastecimento" in campos:
+        linha.abastecimento = str(campos["abastecimento"] or "") != "nao"
+    if (linha.km_inicial, linha.km_final, linha.abastecimento) == antes:
+        return False
+    try:
+        linha.validate_constraints()
+    except ValidationError as exc:
+        raise DiarioInvalido(f"{rota(linha)}: {' '.join(exc.messages)}") from exc
+    linha.save(update_fields=["km_inicial", "km_final", "abastecimento", "atualizado_em"])
+    return True
 
 
 @transaction.atomic
@@ -354,23 +379,8 @@ def salvar_linhas(usuario, diario_pk: int,
     mudaram = 0
     for pk, campos in valores.items():
         linha = por_pk.get(pk)
-        if linha is None:
-            continue
-        antes = (linha.km_inicial, linha.km_final, linha.abastecimento)
-        if "km_inicial" in campos:
-            linha.km_inicial = dominio.numero_do_km(campos["km_inicial"])
-        if "km_final" in campos:
-            linha.km_final = dominio.numero_do_km(campos["km_final"])
-        if "abastecimento" in campos:
-            linha.abastecimento = str(campos["abastecimento"] or "") != "nao"
-        if (linha.km_inicial, linha.km_final, linha.abastecimento) == antes:
-            continue
-        try:
-            linha.validate_constraints()
-        except ValidationError as exc:
-            raise DiarioInvalido(f"{rota(linha)}: {' '.join(exc.messages)}") from exc
-        linha.save(update_fields=["km_inicial", "km_final", "abastecimento", "atualizado_em"])
-        mudaram += 1
+        if linha is not None and gravar_linha(linha, campos):
+            mudaram += 1
     if mudaram:
         diario.save(update_fields=["atualizado_em"])
     return mudaram
@@ -453,6 +463,8 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
     diario.viatura_combustivel = (" ".join((viatura_combustivel or "").split())[:60]
                                   if manual else "")
     diario.save()
+    from . import comunicacoes_viagem  # WhatsApp: outro motorista, outro link de km
+    comunicacoes_viagem.responsavel_do_diario(diario, usuario)
     from . import relatorio  # a troca explica-se no RT (só se o campo estiver vazio)
     relatorio.preencher_informacoes_complementares(diario.prestacao)
     return diario

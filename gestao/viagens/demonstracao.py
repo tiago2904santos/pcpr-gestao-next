@@ -29,6 +29,7 @@ from django.db import connection, transaction
 from django.urls import reverse
 from django.utils import timezone
 
+from gestao.automacao.demonstracao import TABELAS as TABELAS_AUTOMACAO
 from gestao.cadastros.carga import garantir_catalogos_do_plano, garantir_municipios
 from gestao.cadastros.models import (
     Cargo,
@@ -69,6 +70,7 @@ MOTIVO_OPERACAO = ("Acompanhar a operação policial, prestando assessoria de im
                    "aos veículos de comunicação e suporte de comunicação.")
 
 TABELAS = (
+    *TABELAS_AUTOMACAO,
     "coffee_certidao", "coffee_via", "coffee_movimento", "coffee_solicitacao",
     "coffee_lote_municipios", "coffee_lote",
     "coffee_termoaditivo", "coffee_contrato",
@@ -1161,6 +1163,14 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     from gestao.eventos import demonstracao as eventos_demo
     eventos_demo.semear(gerador.demo, gerador.hoje, tuple(gerador.operadores.values())[:3])
     _coffee_pedido_do_evento()
+    # WhatsApp simulado (contatos, avisos, comprovante devolvido, exceções) e a assistência
+    # por IA simulada — depois de tudo, porque usam as prestações e os ofícios acima.
+    from gestao.automacao import demonstracao as automacao_demo
+    automacao_demo.semear(gerador.demo, gerador.hoje)
+    from . import demonstracao_whatsapp  # link de km, aviso de cancelamento, pedido pendente
+    demonstracao_whatsapp.semear(gerador.demo, gerador.hoje)
+    from gestao.assistencia import demonstracao as assistencia_demo
+    assistencia_demo.semear()
     return resumo(len(oficios))
 
 
