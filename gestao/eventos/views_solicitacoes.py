@@ -284,13 +284,9 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
     elif s is None and (tipo := form.initial.get("_tipo_modelo")) is not None:
         escolhidos = {x.pk: "" for x in tipo.servicos_sugeridos.all()}
         equipes_atuais = {x.equipe_id: x.quantidade for x in tipo.equipes_padrao.all()}
-<<<<<<< HEAD
-    servicos = atividades_e_servicos(incluir=escolhidos)
-=======
     elif s is None and leitura is not None:
         escolhidos = dict.fromkeys(leitura.servicos, "")
-    servicos = Servico.objects.filter(ativo=True) | Servico.objects.filter(pk__in=escolhidos)
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
+    servicos = atividades_e_servicos(incluir=escolhidos)
     equipes = Equipe.objects.filter(ativo=True) | Equipe.objects.filter(pk__in=equipes_atuais)
     ctx = {
         "form": form, "form_id": FORM_ID, "s": s, "editavel": editavel, "reabrir": reabrir,

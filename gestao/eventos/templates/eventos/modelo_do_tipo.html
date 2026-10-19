@@ -3,7 +3,6 @@
 {% block titulo %}Modelo — {{ tipo.nome }} · Cadastros de Eventos{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
-{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% comment %}
 Modelo da solicitação do tipo de evento (paridade com a referência): o que a solicitação
 nova desse tipo já traz — solicitante, cargo/unidade e órgão padrão, serviços sugeridos e
@@ -11,12 +10,8 @@ equipes com a quantidade de servidores. Só os ativos aparecem, mais os já esco
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<<<<<<< HEAD
-{% with titulo="Modelo da solicitação — "|add:tipo.nome %}{% include "componentes/registro_hero.html" with pagina=True contexto="Eventos Sociais · Tipos de evento" titulo=titulo complemento="Dados iniciais das novas solicitações deste tipo. Quem preenche pode ajustar cada informação." %}{% endwith %}
-=======
 {% with titulo_modelo="Modelo da solicitação — "|add:tipo.nome %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Eventos sociais · Tipo de evento" titulo=titulo_modelo complemento="O que uma solicitação nova deste tipo já traz preenchido. Quem preenche pode trocar tudo." %}
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
 {% if erros %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
 <form method="post" class="documento documento--preparacao" novalidate>
   {% csrf_token %}

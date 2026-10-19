@@ -9,6 +9,7 @@ from django.views.decorators.http import require_GET
 from gestao.cadastros.fontes import fonte_local
 
 from . import policies
+from .forms import QUEM_DIRIGE
 
 
 @require_GET
@@ -22,7 +23,7 @@ def buscar(request: HttpRequest) -> JsonResponse:
     if not policies.pode_buscar_motoristas(request.user, solicitacao):
         raise PermissionDenied("Você não pode selecionar o motorista desta solicitação.")
     termo = " ".join((request.GET.get("q") or "").split())[:120]
-    consulta = fonte_local.consultar("servidor")
+    consulta = fonte_local.consultar("servidor").filter(QUEM_DIRIGE).distinct()
     if termo:
         consulta = consulta.filter(Q(nome__unaccent__icontains=termo)
                                    | Q(cargo__nome__unaccent__icontains=termo)
