@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
+import subprocess
 from datetime import datetime, time, timedelta
 from urllib.parse import urlsplit
 
@@ -515,6 +517,61 @@ def test_reemissao_que_traz_a_saida_para_perto_agenda_o_link_da_versao_nova(c):
     cv.oficio_emitido(Oficio.objects.get(pk=c.oficio.pk), c.usuarios["operador"], v2)
     cv.agendar_links_km()
     assert novas.count() == 1  # nem a emissão de novo nem a rotina duplicam
+
+
+NODE = shutil.which("node")
+HARNESS = """
+const store = new Map();
+const caixa = (m) => ({
+  put: async (k, r) => { m.set(String(k), await r.text()); },
+  add: async (k) => { m.set(String(k), "html"); },
+  match: async (k) => (m.has(String(k)) ? new Response(m.get(String(k))) : undefined),
+});
+globalThis.caches = {
+  keys: async () => [...store.keys()],
+  open: async (n) => { if (!store.has(n)) store.set(n, new Map()); return caixa(store.get(n)); },
+  delete: async (n) => store.delete(n),
+  match: async () => undefined,
+};
+const ouvintes = {};
+globalThis.self = { addEventListener: (t, f) => { ouvintes[t] = f; },
+                    skipWaiting: async () => {}, clients: { claim: async () => {} },
+                    location: { origin: "http://teste" } };
+const futuro = Date.now() + 1e8, passado = Date.now() - 1e3;
+// Outro link, ainda válido, aberto antes da publicação: usa os estáticos VELHOS.
+store.set(`pcpr-km-pagina:999:${futuro}`,
+          new Map([["/__pcpr-km-estaticos", "pcpr-km-estaticos:VELHOS"]]));
+store.set("pcpr-km-estaticos:VELHOS", new Map());
+// Um link vencido usava outra versão, que ninguém mais usa.
+store.set(`pcpr-km-pagina:998:${passado}`,
+          new Map([["/__pcpr-km-estaticos", "pcpr-km-estaticos:ORFAOS"]]));
+store.set("pcpr-km-estaticos:ORFAOS", new Map());
+/*SW*/
+const etapa = (nome) => new Promise((ok) => ouvintes[nome]({ waitUntil: (p) => p.then(ok) }));
+await etapa("install");
+await etapa("activate");
+console.log(JSON.stringify({ caches: [...store.keys()], atual: CACHE_ESTATICOS }));
+"""
+
+
+@pytest.mark.skipif(NODE is None, reason="Node indisponível")
+def test_ativar_o_service_worker_guarda_os_estaticos_de_outro_link_valido(c, tmp_path):
+    """O Cache Storage é um só para a origem: ativar o service worker de um link (depois de
+    uma publicação) não apaga os estáticos que a cópia de OUTRO link ainda válido usa; só a
+    versão que nenhuma página válida usa sai."""
+    path, _, _ = _enviar_link(c)
+    sw = Client().get(path + "sw/").content.decode()
+    arquivo = tmp_path / "sw_teste.mjs"
+    arquivo.write_text(HARNESS.replace("/*SW*/", sw), encoding="utf-8")
+    r = subprocess.run([NODE, str(arquivo)], capture_output=True, text=True, timeout=60)  # noqa: S603  # nosec
+    assert r.returncode == 0, r.stderr[-800:]
+    saida = json.loads(r.stdout.strip().splitlines()[-1])
+    caches = set(saida["caches"])
+    assert "pcpr-km-estaticos:VELHOS" in caches and saida["atual"] in caches
+    assert "pcpr-km-estaticos:ORFAOS" not in caches
+    assert not any(n.startswith("pcpr-km-pagina:998:") for n in caches)
+    link = LinkAcesso.objects.get()
+    assert any(n.startswith(f"pcpr-km-pagina:{link.pk}:") for n in caches)
 
 
 def test_limite_de_gravacoes_do_link_e_contado_no_banco(c, monkeypatch):

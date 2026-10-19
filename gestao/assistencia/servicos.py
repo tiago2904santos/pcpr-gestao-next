@@ -122,6 +122,10 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
         with connection.cursor() as cursor:
             cursor.execute("SELECT pg_advisory_xact_lock(%s)",
                            [_trava(f"ia-cota:{usuario.pk}:{uso.chave}")])
+            # O pedido é do registro, não da pessoa (a chave única é global): o mesmo pedido
+            # de duas pessoas ao mesmo tempo também se serializa — a 2ª recebe o da 1ª (cada
+            # uma já passou pela própria policy acima). Sempre nesta ordem: cota, depois base.
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)", [_trava(f"ia-pedido:{base}")])
         anteriores = list(PedidoSugestao.objects.select_for_update()
                           .filter(chave__startswith=base).order_by("-id"))
         for p in anteriores:
@@ -395,6 +399,12 @@ def _registrar(pedido: PedidoSugestao, uso: ganchos.UsoIA, ctx: ganchos.Contexto
                if c in uso.lacunas_conhecidas]
     fontes = sorted({r for i in itens for r in i.fontes})
     with transaction.atomic():
+        # Uma sugestão pronta por uso e registro: dois pedidos diferentes do mesmo registro
+        # concluindo juntos se serializam aqui (cada um só trava o próprio pedido), e o
+        # segundo torna obsoleta a do primeiro em vez de deixar duas para aceitar.
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)",
+                           [_trava(f"ia-sugestao:{uso.chave}:{pedido.recurso_id}")])
         atual = PedidoSugestao.objects.select_for_update().get(pk=pedido.pk)
         if atual.estado not in (E.PENDENTE, E.PROCESSANDO):
             return Sugestao.objects.filter(pedido=atual).first()

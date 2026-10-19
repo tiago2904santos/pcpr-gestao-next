@@ -57,13 +57,32 @@ def emitir(usuario, credencial: CredencialIntegracao, *, ferramentas: list[str],
     return d, token
 
 
+def conferir(token: str | None, credencial: CredencialIntegracao, ferramenta: str,
+             recurso: str) -> Delegacao:
+    """As mesmas regras de `consumir`, sem marcar o uso (antes do efeito, sem transação)."""
+    return _conferir(token, credencial, ferramenta, recurso, travar=False)
+
+
 def consumir(token: str | None, credencial: CredencialIntegracao, ferramenta: str,
              recurso: str) -> Delegacao:
-    """Dentro da transação da execução: confere e marca como usada (uso único)."""
+    """Dentro da transação do EFEITO (execução, pedido de aprovação ou registro em sombra):
+    confere de novo e marca como usada (uso único). Se o processo cair antes do efeito, nada
+    foi consumido e a repetição da mesma Idempotency-Key ainda pode agir; se o efeito for
+    desfeito, o uso também é."""
+    d = _conferir(token, credencial, ferramenta, recurso, travar=True)
+    d.usada_em = timezone.now()
+    d.save(update_fields=["usada_em"])
+    return d
+
+
+def _conferir(token: str | None, credencial: CredencialIntegracao, ferramenta: str,
+              recurso: str, *, travar: bool) -> Delegacao:
     if not token or not token.startswith("dlg_") or len(token) > 80:
         raise DelegacaoNegada("Delegação ausente: esta credencial só age com delegação.")
-    d = (Delegacao.objects.select_for_update(of=("self",)).select_related("usuario")
-         .filter(token_hash=_hash(token)).first())
+    consulta = Delegacao.objects.select_related("usuario")
+    if travar:
+        consulta = consulta.select_for_update(of=("self",))
+    d = consulta.filter(token_hash=_hash(token)).first()
     if d is None or d.credencial_id != credencial.pk:
         raise DelegacaoNegada("Delegação desconhecida ou emitida para outra credencial.")
     if d.usada_em is not None:
@@ -76,6 +95,4 @@ def consumir(token: str | None, credencial: CredencialIntegracao, ferramenta: st
         raise DelegacaoNegada("A delegação é de outro recurso.")
     if not d.usuario.is_active or _administrativo(d.usuario):
         raise DelegacaoNegada("O usuário da delegação não pode ser representado.")
-    d.usada_em = timezone.now()
-    d.save(update_fields=["usada_em"])
     return d

@@ -469,39 +469,45 @@ def executar_ferramenta(ch: Chamada, nome: str) -> JsonResponse:
         return erro(403, "negado", "Ferramenta fora da lista desta credencial.")
     cabecalho = ch.request.headers.get("X-PCPR-Delegacao")
     delegacao = None
+    delegacao_dados: dict = {}
     if c.tipo == CredencialIntegracao.Tipo.PESSOAL:
         if cabecalho:
             return erro(403, "negado", "Token pessoal não aceita delegação.")
         usuario = c.usuario
     else:
         try:
-            dados = ferramentas.validar(f, ch.dados)
+            dados = delegacao_dados = ferramentas.validar(f, ch.dados)
         except ferramentas.FerramentaInvalida as e:
             return erro(422, "entrada_invalida", str(e))
         try:
             ferramentas.conferir_portao(f)  # 423 sem consumir a delegação de uso único
         except ferramentas.AutomacaoDesligada as e:
             return erro(423, "desligada", str(e))
-        try:
-            with transaction.atomic():
-                delegacao = delegacoes.consumir(cabecalho, c, nome, f.recurso(dados))
+        try:  # confere aqui; o uso único é marcado na transação do efeito (abaixo)
+            delegacao = delegacoes.conferir(cabecalho, c, nome, f.recurso(dados))
         except delegacoes.DelegacaoNegada as e:
             return erro(403, "negado", str(e))
         usuario = delegacao.usuario
     chave = (ch.request.headers.get("Idempotency-Key") or "").strip()
 
-    def guardar_resposta(r: ferramentas.Resultado) -> None:
-        # Na transação do efeito: se o processo cair antes de responder, a repetição da chave
-        # devolve esta resposta em vez de executar (ou pedir aprovação) de novo.
-        corpo, status = _corpo_da_ferramenta(r)
-        RegistroIdempotencia.objects.filter(credencial=c, chave=chave,
-                                            status=EM_ANDAMENTO).update(status=status,
-                                                                        corpo=corpo)
+    def concluir(r: ferramentas.Resultado) -> None:
+        # Na transação do efeito: a delegação é consumida e a resposta da chave gravada junto
+        # dele. O processo que cai antes do efeito não gasta a delegação (a repetição age); o
+        # que cai depois deixa a resposta para a repetição devolver, sem agir de novo.
+        if delegacao is not None:
+            delegacoes.consumir(cabecalho, c, nome, f.recurso(delegacao_dados))
+        if chave:
+            corpo, status = _corpo_da_ferramenta(r)
+            RegistroIdempotencia.objects.filter(credencial=c, chave=chave,
+                                                status=EM_ANDAMENTO).update(status=status,
+                                                                            corpo=corpo)
 
     try:
         r = ferramentas.executar(nome, ch.dados, usuario=usuario, credencial=c,
                                  delegacao=delegacao, origem="api", correlacao=ch.correlacao,
-                                 ao_concluir=guardar_resposta if chave else None)
+                                 ao_concluir=concluir)
+    except delegacoes.DelegacaoNegada as e:  # usada por outra chamada no meio do caminho
+        return erro(403, "negado", str(e))
     except ferramentas.FerramentaInvalida as e:
         return erro(422, "entrada_invalida", str(e))
     except ferramentas.FerramentaRecusada as e:

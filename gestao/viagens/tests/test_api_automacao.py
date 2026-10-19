@@ -617,3 +617,34 @@ def test_ferramenta_com_processo_caido_depois_do_efeito_nao_executa_de_novo(c, m
     assert r.status_code == 202 and r["Idempotency-Replayed"] == "true", r.content
     assert PedidoAprovacao.objects.filter(entrada={"comunicacao": 77}).count() == 1
     assert ExecucaoFerramenta.objects.filter(entrada={"comunicacao": 77}).count() == 1
+
+
+def test_delegacao_so_e_gasta_junto_do_efeito(c, monkeypatch):
+    """O processo cai depois de conferir a delegação e antes do efeito: ela não foi gasta, e
+    a repetição da mesma chave ainda age (antes, o uso único já estava gravado e a ação
+    autorizada se perdia com um 403)."""
+    _ferramentas_de_teste()
+    admin, op = c.usuarios["admin"], c.usuarios["operador"]
+    cred, token = credenciais.emitir(admin, nome="IA delegada", tipo="ia",
+                                     ferramentas=["teste.ler_prestacao"])
+    d, dlg = delegacoes.emitir(op, cred, ferramentas=["teste.ler_prestacao"],
+                               recurso=f"viagens.prestacaoservidor:{c.ps.pk}", motivo="teste")
+    url, chave = "/ferramentas/teste.ler_prestacao/executar", "ferramenta:delegacao-cai-antes"
+    original = ferramentas.executar
+
+    def cai_antes(*args, **kwargs):
+        raise RuntimeError("o processo caiu antes do efeito")
+
+    monkeypatch.setattr(ferramentas, "executar", cai_antes)
+    with pytest.raises(RuntimeError):
+        _post(c, url, {"ps": c.ps.pk}, chave, token=token, HTTP_X_PCPR_DELEGACAO=dlg)
+    d.refresh_from_db()
+    assert d.usada_em is None
+    monkeypatch.setattr(ferramentas, "executar", original)
+    r = _post(c, url, {"ps": c.ps.pk}, chave, token=token, HTTP_X_PCPR_DELEGACAO=dlg)
+    assert r.status_code == 200 and r.json()["saida"] == {"ps": c.ps.pk}, r.content
+    d.refresh_from_db()
+    assert d.usada_em is not None
+    de_novo = _post(c, url, {"ps": c.ps.pk}, "ferramenta:delegacao-outra-chave", token=token,
+                    HTTP_X_PCPR_DELEGACAO=dlg)
+    assert de_novo.status_code == 403  # continua de uso único
