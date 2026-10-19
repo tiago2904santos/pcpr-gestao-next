@@ -358,19 +358,44 @@ def processar(pk: int, porta: PortaIA | None = None, *, simular: str = "") -> Su
     if reserva is None:
         return regra("orcamento")
     _fora_de_transacao(profundidade)
-    execucao = servico_ia.executar(pedido_ia, porta, servico_ia.Limites(
-        max_entrada_caracteres=config.max_entrada_caracteres,
-        max_tokens_saida=config.max_tokens_saida,
-        tempo_limite_s=float(config.tempo_limite_s), max_tentativas=tentativas))
-    orcamento.liquidar(reserva, execucao.custo_estimado, execucao.tokens_entrada,
-                       execucao.tokens_saida)
-    if not execucao.ok:
-        return regra(execucao.erro_codigo or "falha", execucao=execucao)
-    erros = list(uso.validar(execucao.dados or {}, ctx)) + _sem_dado_pessoal(execucao.dados)
-    if erros:
-        return regra("validacao", erros=erros, execucao=execucao)
-    return _registrar(pedido, uso, ctx, execucao.dados or {}, origem=execucao.origem,
-                      execucao=execucao)
+    execucao = None
+    try:  # daqui em diante a chamada ao provedor pode ter acontecido (e sido cobrada)
+        execucao = servico_ia.executar(pedido_ia, porta, servico_ia.Limites(
+            max_entrada_caracteres=config.max_entrada_caracteres,
+            max_tokens_saida=config.max_tokens_saida,
+            tempo_limite_s=float(config.tempo_limite_s), max_tentativas=tentativas))
+        orcamento.liquidar(reserva, execucao.custo_estimado, execucao.tokens_entrada,
+                           execucao.tokens_saida)
+        if not execucao.ok:
+            return regra(execucao.erro_codigo or "falha", execucao=execucao)
+        erros = list(uso.validar(execucao.dados or {}, ctx)) + _sem_dado_pessoal(
+            execucao.dados)
+        if erros:
+            return regra("validacao", erros=erros, execucao=execucao)
+        return _registrar(pedido, uso, ctx, execucao.dados or {}, origem=execucao.origem,
+                          execucao=execucao)
+    except Exception:
+        log.exception("Pedido de IA %s falhou depois de admitir a chamada", pedido.pk)
+        _falhou_depois_da_chamada(pedido, execucao.tentativas if execucao else tentativas)
+        return None
+
+
+def _falhou_depois_da_chamada(pedido: PedidoSugestao, chamadas: int) -> None:
+    """Erro interno (liquidar, validar, registrar) com a chamada já admitida: ela conta, como
+    a do worker que morre no meio — nas vagas do dia (`chamadas_sem_registro`) e no gasto (a
+    reserva que ninguém liquidou vira gasto no pior caso, nunca volta ao orçamento). Sem
+    isso, o erro apagava a chamada do teto diário e do mensal."""
+    with transaction.atomic():
+        atual = PedidoSugestao.objects.select_for_update().filter(pk=pedido.pk).first()
+        if atual is None:
+            return
+        orcamento.cobrar_reserva_presa(atual)
+        atual.chamadas_sem_registro += max(chamadas, 0)
+        atual.tentativas_admitidas = 0
+        atual.estado, atual.reservado_ate = E.FALHOU, None
+        atual.motivo = "erro_interno_depois_da_chamada"
+        atual.save(update_fields=["chamadas_sem_registro", "tentativas_admitidas", "estado",
+                                  "reservado_ate", "motivo", "atualizado_em"])
 
 
 def _encerrar(pedido: PedidoSugestao, estado: str, motivo: str) -> None:
