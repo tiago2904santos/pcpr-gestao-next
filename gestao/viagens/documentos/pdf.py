@@ -63,13 +63,38 @@ def buscar_recurso():
     return _so_recursos_dos_documentos()
 
 
+# Documentos que devem caber numa página (o ofício, como no sistema modelo): quantos degraus
+# de compactação o CSS do modelo define (`.doc-compacto-1`, `.doc-compacto-2` no <body>). Se o
+# PDF passar de uma página é refeito com o degrau seguinte; esgotados, sai como couber.
+CABER_EM_UMA_PAGINA = {"oficio": 2}
+_BODY = re.compile(r"<body\b")
+
+
 def _recursos(folha: bool) -> dict[str, Any]:
     if folha:
         return {"brasao": static("documentos/brasao-pcpr.png"),
+                "marca": static("documentos/marca-pcpr.png"),
                 "fontes": {k: static(f"documentos/fontes/{v}") for k, v in FONTES.items()}}
     base = ASSETS.as_uri()
-    return {"brasao": f"{base}/brasao-pcpr.png",
+    return {"brasao": f"{base}/brasao-pcpr.png", "marca": f"{base}/marca-pcpr.png",
             "fontes": {k: f"{base}/fontes/{v}" for k, v in FONTES.items()}}
+
+
+def renderizar(tipo: str, html: str):
+    """O documento paginado pelo WeasyPrint. Um tipo que deve caber numa página é refeito
+    com os degraus de compactação do seu CSS enquanto passar de uma."""
+    from weasyprint import HTML
+
+    def paginar(texto: str):
+        return HTML(string=texto, base_url=str(ASSETS), url_fetcher=buscar_recurso()).render(
+            presentational_hints=True)
+
+    documento = paginar(html)
+    for degrau in range(1, CABER_EM_UMA_PAGINA.get(tipo, 0) + 1):
+        if len(documento.pages) <= 1:
+            break
+        documento = paginar(_BODY.sub(f'<body class="doc-compacto-{degrau}"', html, count=1))
+    return documento
 
 
 def valores_dos_campos(tipo: str, dados: dict[str, Any]) -> dict[str, str]:
@@ -115,18 +140,15 @@ def html_do_documento(tipo: str, dados: dict[str, Any], *, previa: bool = False,
 
 def gerar_pdf(tipo: str, dados: dict[str, Any]) -> tuple[bytes, str]:
     """Retorna (bytes do PDF/A-2a, sha256 hexadecimal)."""
-    from weasyprint import HTML
-
     html = html_do_documento(tipo, dados)
     identificador = hashlib.sha256(
         f"{tipo}:{dados['numero']}:{dados['emitido_em']}".encode()
     ).digest()[:16]
-    pdf = HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf(
+    pdf = renderizar(tipo, html).write_pdf(
         pdf_variant="pdf/a-2a",
         pdf_identifier=identificador,
         pdf_tags=True,
         custom_metadata=True,
-        presentational_hints=True,
         optimize_images=True,
     )
     return pdf, hashlib.sha256(pdf).hexdigest()
@@ -137,12 +159,11 @@ _BLOCO = re.compile(r'<([a-z0-9]+)\b([^>]*\bdata-bloco="([a-z0-9_-]+)"[^>]*)>')
 
 def paginas_do_documento(tipo: str, dados: dict[str, Any],
                          regioes: dict[str, str] | None = None) -> dict[str, Any]:
-    """Quantas páginas o documento tem e em qual página cada bloco começa."""
-    from weasyprint import HTML
-
+    """Quantas páginas o documento tem e em qual página cada bloco começa (com a mesma
+    compactação do PDF: a contagem é a do arquivo que sai)."""
     html = html_do_documento(tipo, dados, previa=True, regioes=regioes)
     html = _BLOCO.sub(lambda m: f'<{m.group(1)} id="b-{m.group(3)}"{m.group(2)}>', html)
-    doc = HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).render()
+    doc = renderizar(tipo, html)
     blocos: dict[str, int] = {}
     for numero, pagina in enumerate(doc.pages, start=1):
         for ancora in pagina.anchors:
