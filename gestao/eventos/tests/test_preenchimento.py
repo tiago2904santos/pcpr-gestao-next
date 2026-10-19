@@ -79,7 +79,7 @@ def test_tela_preenche_sem_gravar():
     html = r.content.decode()
     assert r.status_code == 200 and "Preenchido com o e-mail" in html
     assert 'value="Ponta Grossa/PR"' in html and 'value="Colégio Estadual Central"' in html
-    cin = Servico.objects.get(nome="Emissão de CIN")
+    cin = Servico.objects.get(codigo="CIN")  # a atividade do catálogo compartilhado
     assert f'name="servico_{cin.pk}" value="1" form="form-solicitacao" checked' in html
     assert not Solicitacao.objects.exists()
     eml = SimpleUploadedFile("pedido.eml", (

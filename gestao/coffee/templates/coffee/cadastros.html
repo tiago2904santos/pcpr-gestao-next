@@ -1,7 +1,5 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}{{ t.titulo }} · Cadastros do Coffee Break{% endblock %}
-{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
-{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee Break · Cadastros" titulo=t.titulo complemento=t.descricao acoes_template="coffee/_cadastros_criar.html" %}{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Coffee break · Cadastros" titulo=t.titulo complemento=t.descricao acoes_template="coffee/_cadastros_acoes.html" %}{% endblock %}
@@ -86,10 +84,6 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
 {% endblock %}
 
 {% block depois_lista %}
-<<<<<<< HEAD
-{% include "componentes/barra_paginacao.html" %}
-<dialog id="dialogo-cadastro" class="dialogo dialogo--cadastro dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
-=======
 <div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
   <div class="barra-acoes__conteudo">
     <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count }} {% if page_obj.paginator.count == 1 %}registro{% else %}registros{% endif %}{% if termo %} na busca{% endif %}</p>
@@ -97,8 +91,7 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
   </div>
   {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}<span>{{ novo_rotulo|capfirst }}</span></a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}<span>{{ novo_rotulo|capfirst }}</span></button>{% endif %}
 </div>
-<dialog id="dialogo-cadastro" class="dialogo dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
+<dialog id="dialogo-cadastro" class="dialogo dialogo--cadastro dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'coffee:salvar' t.chave %}" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
