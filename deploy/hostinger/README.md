@@ -140,3 +140,38 @@ sudo deploy/vps/instalar-timers.sh producao
   tocado em nenhum passo.
 - Depois da carga: `pcpr.sh producao reverter <*-pre-implantacao.dump>
   --confirmo-sobrescrever-producao`.
+
+## Estado desta VPS (19/10/2026)
+
+Implantado o commit `a9e998e` (ramo `release/producao-2026-10-19`: PR #25 + PR #24 até a 12ª
+revisão + migração dos sistemas antigos + este pacote). Valores encontrados no template:
+
+| Item | Valor |
+|---|---|
+| Traefik | `/docker/traefik`, `network_mode: host`, resolver `letsencrypt` (desafio HTTP), entrada `websecure`, HTTP → HTTPS global |
+| n8n | `/docker/n8n-mrbk` (projeto `n8n-mrbk`), SQLite no volume `n8n-mrbk_n8n_data`, versão 2.43.7 |
+| `TRAEFIK_REDE` | `n8n-mrbk_default` (o serviço do n8n atende por `n8n` nessa rede) |
+
+Mudanças feitas no template (cópia do original em `/docker/n8n-mrbk/docker-compose.yml.original-hostinger`
+e backup completo em `/root/backup-antes-pcpr-*`): sem porta publicada (antes `0.0.0.0:32768`, HTTP
+sem TLS); `N8N_SECURE_COOKIE=true`; rota extra `n8n.gerenciadorviagens.tech` (precisa do registro
+DNS `A n8n`); `N8N_SSRF_ALLOWED_HOSTNAMES=pcpr-web,graph.facebook.com`; poda de execuções. Se o
+painel da Hostinger reimplantar o n8n, essas mudanças precisam ser refeitas.
+
+Host: swap de 4 GB; `ufw` liberando só 22, 80 e 443.
+
+**Carga dos dados migrados** (feita uma vez, `/root/carregar-dados.sh`): web e worker parados,
+mídia copiada para `dados/midia` (dono 10001), banco recriado com dono `pcpr_owner` e
+`pg_restore --no-owner --no-privileges --role=pcpr_owner` (o dump veio de um banco local sem os
+papéis), depois `migrar` (aplica os privilégios de `pcpr_app`) e subida. Conferido: contagens
+iguais às do ensaio local, 0 anexo ausente, cadeia de auditoria íntegra.
+
+**n8n** (`/root/integrar-n8n.sh`): credencial de transporte (180 dias) emitida por um
+administrador, segredos em `/etc/pcpr/producao/n8n.env` (0600); credenciais `pcprApiToken0001`,
+`pcprHmacEventos1`, `pcprWebhookInt01` e os 7 fluxos importados **desativados**, apontando para
+`http://pcpr-web:8000/api/automacao/v1`. `AUTOMACAO_TRANSPORTE=manual` até haver a conta oficial
+do WhatsApp; ligar = `AUTOMACAO_TRANSPORTE=n8n` no `app.env`, recriar web/worker/automacao e
+publicar os fluxos na ordem do README dos fluxos.
+
+Pendências: backup externo (`/etc/pcpr/producao/backup.env`, repositório restic fora da VPS);
+renovar a credencial de transporte antes de 180 dias.
