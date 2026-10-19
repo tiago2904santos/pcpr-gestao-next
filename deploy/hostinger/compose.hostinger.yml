@@ -1,0 +1,67 @@
+# Sobreposição para a VPS Hostinger com o template "Docker + n8n" (Traefik já ocupa 80/443).
+# Usar SEMPRE junto com deploy/compose.yml — deploy/hostinger/README.md:
+#   docker compose -p pcpr-producao --env-file /etc/pcpr/producao/instancia.env \
+#     -f deploy/compose.yml -f deploy/hostinger/compose.hostinger.yml up -d --wait
+#
+# O que muda em relação ao compose base:
+#   - o web NÃO publica porta no host: o Traefik do template o alcança pela rede dele
+#     (${TRAEFIK_REDE}, externa, criada pelo template) e emite o certificado;
+#   - /api/automacao/, /media/ e /var/ ficam FORA das regras públicas (Traefik responde 404);
+#     o n8n chama a API pela mesma rede interna em http://pcpr-web:8000 (sem TLS e sem passar
+#     pela Internet), por isso o Django isenta só esse caminho do redirecionamento HTTPS;
+#   - o worker de automação posta os eventos assinados (HMAC) em http://n8n:5678/webhook/...
+#     pela mesma rede; nenhum outro serviço do PCPR entra nela (banco continua isolado).
+# Nada aqui altera o compose do n8n nem o do Traefik do template.
+
+services:
+  web:
+    ports: !reset []
+    networks:
+      banco: {}
+      saida: {}
+      proxy:
+        aliases: [pcpr-web]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_REDE:?defina TRAEFIK_REDE (rede do Traefik do template)}
+      traefik.http.services.pcpr.loadbalancer.server.port: "8000"
+      # Domínio principal: tudo menos a API de automação e os caminhos internos.
+      traefik.http.routers.pcpr.rule: >-
+        Host(`${PCPR_DOMINIO:?}`) && !PathPrefix(`/api/automacao`)
+        && !PathPrefix(`/media`) && !PathPrefix(`/var`)
+      traefik.http.routers.pcpr.entrypoints: ${TRAEFIK_ENTRADA_TLS:-websecure}
+      traefik.http.routers.pcpr.tls: "true"
+      traefik.http.routers.pcpr.tls.certresolver: ${TRAEFIK_CERTRESOLVER:?}
+      traefik.http.routers.pcpr.middlewares: pcpr-cabecalhos,pcpr-corpo
+      traefik.http.routers.pcpr.service: pcpr
+      # Endereços antigos (Eventos Sociais e PREVIEW) e www → domínio principal, mesma rota.
+      traefik.http.routers.pcpr-antigos.rule: >-
+        Host(`www.${PCPR_DOMINIO}`) || Host(`eventos.${PCPR_DOMINIO}`)
+        || Host(`pcpr.${PCPR_DOMINIO}`)
+      traefik.http.routers.pcpr-antigos.entrypoints: ${TRAEFIK_ENTRADA_TLS:-websecure}
+      traefik.http.routers.pcpr-antigos.tls: "true"
+      traefik.http.routers.pcpr-antigos.tls.certresolver: ${TRAEFIK_CERTRESOLVER}
+      traefik.http.routers.pcpr-antigos.middlewares: pcpr-para-principal
+      traefik.http.routers.pcpr-antigos.service: pcpr
+      traefik.http.middlewares.pcpr-para-principal.redirectregex.regex: "^https?://[^/]+/(.*)"
+      traefik.http.middlewares.pcpr-para-principal.redirectregex.replacement: "https://${PCPR_DOMINIO}/$${1}"
+      traefik.http.middlewares.pcpr-para-principal.redirectregex.permanent: "true"
+      # O Django já manda CSP, X-Frame-Options, nosniff, Referrer-Policy, COOP e HSTS.
+      traefik.http.middlewares.pcpr-cabecalhos.headers.permissionsPolicy: "camera=(), microphone=(), geolocation=(), payment=()"
+      traefik.http.middlewares.pcpr-cabecalhos.headers.customResponseHeaders.Server: ""
+      # Importação até 25 MiB + formulário (o Django limita 16 MiB nas demais rotas).
+      traefik.http.middlewares.pcpr-corpo.buffering.maxRequestBodyBytes: "33554432"
+    environment:
+      # O n8n fala HTTP puro na rede interna: só a API de automação fica sem redirecionar.
+      DJANGO_SSL_REDIRECT_EXEMPT: "^api/automacao/"
+
+  automacao:
+    networks:
+      banco: {}
+      saida: {}
+      proxy: {}
+
+networks:
+  proxy:
+    name: ${TRAEFIK_REDE}
+    external: true
