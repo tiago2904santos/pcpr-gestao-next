@@ -64,7 +64,12 @@ carregar_instancia() {
 }
 
 dc() {
-  docker compose -p "pcpr-$INST" --env-file "$CONF/instancia.env" -f "$DEPLOY_DIR/compose.yml" "$@"
+  # PCPR_COMPOSE_EXTRA (instancia.env): sobreposição relativa a deploy/, ex.:
+  # hostinger/compose.hostinger.yml (Traefik do template em vez do proxy do host).
+  local extra=()
+  [ -z "${PCPR_COMPOSE_EXTRA:-}" ] || extra=(-f "$DEPLOY_DIR/$PCPR_COMPOSE_EXTRA")
+  docker compose -p "pcpr-$INST" --env-file "$CONF/instancia.env" -f "$DEPLOY_DIR/compose.yml" \
+    "${extra[@]}" "$@"
 }
 
 # Grava/atualiza CHAVE=valor no instancia.env (não secreto).
