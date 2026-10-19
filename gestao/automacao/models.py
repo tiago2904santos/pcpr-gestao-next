@@ -615,6 +615,20 @@ class LinkAcesso(models.Model):
         return self.revogado_em is None and self.expira_em > timezone.now()
 
 
+class ContadorDeLimite(models.Model):
+    """Janela fixa de um limite de uso das páginas públicas (ex.: gravações por link de km),
+    no banco: vale entre os workers do gunicorn e as réplicas (o cache local de cada processo
+    não valia). Atualizado só por `limites.exceder` (upsert atômico); sem trilha de auditoria
+    (é contador, não estado de negócio) e apagado pela retenção."""
+
+    chave = models.CharField(max_length=120, unique=True)
+    inicio = models.DateTimeField()
+    total = models.PositiveIntegerField(default=0)
+
+    def __str__(self) -> str:
+        return f"{self.chave}: {self.total}"
+
+
 from .models_api import (  # noqa: E402, F401  (os modelos da API entram no app)
     CredencialIntegracao,
     Delegacao,

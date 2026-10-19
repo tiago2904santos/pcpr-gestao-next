@@ -162,6 +162,13 @@ def _recusa_do_contato(c: Comunicacao, contato: ContatoVerificado | None, exige_
                        configuracao) -> bool:
     """As travas do destinatário, iguais na reserva e na repetição dela: se o contato não pode
     receber, encerra a comunicação como recusada (com exceção) e devolve True."""
+    servidor = c.servidor if c.servidor_id else None
+    if servidor is not None and not servidor.ativo:
+        # Desativado depois do agendamento: a mensagem não sai (o link pessoal dela, de todo
+        # modo, não abriria — `links.do_token` recusa servidor inativo).
+        _encerrar(c, S.RECUSADA, "O servidor está inativo no cadastro.", excecao=T.CONTATO,
+                  resumo=f"{servidor}: inativo no cadastro; nada foi enviado.")
+        return True
     if contato is None:
         _encerrar(c, S.RECUSADA, "O servidor não tem WhatsApp verificado.",
                   excecao=T.CONTATO,

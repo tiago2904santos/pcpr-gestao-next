@@ -324,6 +324,21 @@ def _na_equipe(oficio: Oficio, servidor_id) -> bool:
     return Viajante.objects.filter(oficio=oficio, servidor_id=servidor_id).exists()
 
 
+def _equipe_emitida(oficio: Oficio) -> list[int]:
+    """Quem recebeu a última versão emitida (o instantâneo do documento), na ordem dele —
+    vazio se o ofício nunca foi emitido."""
+    doc = (Documento.objects.filter(oficio=oficio, tipo=Documento.Tipo.OFICIO)
+           .order_by("-versao").first())
+    if doc is None:
+        return []
+    ids: list[int] = []
+    for v in (doc.dados or {}).get("viajantes") or []:
+        pk = v.get("id") if isinstance(v, dict) else None
+        if isinstance(pk, int) and pk not in ids:
+            ids.append(pk)
+    return ids
+
+
 def _equipe_com_contato(oficio: Oficio) -> list[int]:
     """Quem está no ofício e tem WhatsApp verificado (só para essa pessoa há aviso)."""
     return _com_contato(list(Viajante.objects.filter(oficio=oficio).order_by("ordem", "pk")
@@ -368,7 +383,8 @@ def _preparar_cancelamento(contexto: dict) -> ganchos.Preparo:
     # pk nunca é nulo: sem o id no contexto, o filtro não acharia ninguém.
     servidor = (Servidor.objects.filter(pk=servidor_pk).first()
                 if servidor_pk is not None else None)
-    if servidor is None or not _na_equipe(oficio, servidor.pk):
+    if servidor is None or not (_na_equipe(oficio, servidor.pk)
+                                or servidor.pk in _equipe_emitida(oficio)):
         return ganchos.Preparo(False, "A pessoa não está mais na equipe.")
     saida, _ = _periodo_texto(oficio)
     data = saida.split(" ")[0] if saida else "-"
@@ -496,11 +512,19 @@ def oficio_cancelado(oficio: Oficio, usuario, anterior: str) -> None:
     automacao.encerrar_relacionadas(_recurso_oficio(oficio.pk),
                                     (REAGENDAMENTO, SUBSTITUICAO, RETIRADA),
                                     "O ofício foi cancelado.")
-    if anterior != Oficio.Situacao.EMITIDO or not _registrado(CANCELAMENTO):
+    if not _registrado(CANCELAMENTO):
         return
+    servidores = None  # emitido: a equipe do ofício
+    if anterior != Oficio.Situacao.EMITIDO:
+        # Reaberto ou em retificação depois de emitido: quem recebeu a última versão emitida
+        # ainda tem um ofício que parece valer. Nunca emitido: ninguém recebeu nada.
+        emitida = _equipe_emitida(oficio)
+        if not emitida:
+            return
+        servidores = _com_contato(emitida)
     versao = _versao_cancelamento(oficio)
     _avisar_equipe(oficio, CANCELAMENTO, versao, {"oficio": oficio.pk, "versao": versao},
-                   versao, usuario)
+                   versao, usuario, servidores=servidores)
 
 
 def _periodo_do_documento(dados: dict) -> tuple:

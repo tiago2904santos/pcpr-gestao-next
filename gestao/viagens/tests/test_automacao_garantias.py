@@ -1074,3 +1074,20 @@ def test_falha_de_conta_so_no_erro_do_status_bloqueia_o_canal(c):
     _processar_entradas()
     canal.refresh_from_db()
     assert canal.estado == ChaveAutomacao.Estado.LIGADA
+
+
+# ------------------------------------------------------------------ 11ª revisão
+def test_servidor_desativado_depois_do_agendamento_nao_recebe(c):
+    """Desativado depois de a comunicação entrar na fila (contato ainda verificado, mesmo
+    telefone): nada sai — o link pessoal, se houvesse, nem abriria."""
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    servidor = c.ps.servidor
+    servidor.ativo = False
+    servidor.save(update_fields=["ativo"])
+    espiao = Espiao()
+    entrega.processar_uma(porta=espiao)
+    aviso = _aviso(c)
+    assert aviso.situacao == S.RECUSADA and "inativo" in aviso.motivo
+    assert espiao.envios == []

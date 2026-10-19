@@ -112,6 +112,20 @@ def test_cancelamento_avisa_quem_tem_contato_sem_o_motivo(c):
     assert espiao.envios[0].modelo.parametros[1] == c.oficio.numero_formatado
 
 
+def test_cancelar_oficio_reaberto_depois_de_emitido_avisa_quem_recebeu(c):
+    """Emitido, reaberto para correção e cancelado antes de sair de novo: quem recebeu a
+    versão emitida é avisado (o ofício dele parece valer)."""
+    _contato(c, c.equipe[0])
+    services.reabrir(c.oficio, c.usuarios["gestor"], "Corrigir a viagem (teste).")
+    oficio = Oficio.objects.get(pk=c.oficio.pk)
+    assert oficio.situacao != Oficio.Situacao.EMITIDO
+    services.cancelar(oficio, c.usuarios["gestor"], "Não vai mais.")
+    avisos = Comunicacao.objects.filter(tipo=cv.CANCELAMENTO)
+    assert list(avisos.values_list("servidor_id", flat=True)) == [c.equipe[0].pk]
+    _processar()
+    assert avisos.get().situacao == S.ENVIADA
+
+
 def test_rascunho_cancelado_nao_avisa_ninguem(c):
     rascunho = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
     for v in Viajante.objects.filter(oficio=rascunho).select_related("servidor"):

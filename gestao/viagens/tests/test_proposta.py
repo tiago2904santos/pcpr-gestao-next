@@ -285,6 +285,23 @@ def test_ferramenta_previa_e_leitura_e_nao_cria(c):
                              {"viagem": v.pk, "servidores": ["Fulano"]}, usuario=op)
 
 
+def test_equipe_cheia_mais_o_motorista_de_fora_bloqueia(c):
+    """O limite vale para a união equipe + motorista, na tela e na ferramenta tipada."""
+    from gestao.automacao import ferramentas
+
+    v = _viagem(c)
+    op = c.usuarios["operador"]
+    equipe = list(range(800001, 800001 + proposta.MAX_SERVIDORES))
+    p = proposta.montar(op, _entrada(v, equipe, motorista=899999))
+    assert not p.pode_criar
+    assert any("contando o motorista" in b.mensagem for b in p.bloqueios)
+    proposta.registrar_ferramentas()
+    with pytest.raises(ferramentas.FerramentaInvalida):
+        ferramentas.executar("viagens.proposta_previa",
+                             {"viagem": v.pk, "servidores": equipe, "motorista": 899999},
+                             usuario=op)
+
+
 def test_sem_roteiro_avisa_e_nao_estima(c):
     op = c.usuarios["operador"]
     v = viagem.criar(op)

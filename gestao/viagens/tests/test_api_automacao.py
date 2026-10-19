@@ -569,3 +569,51 @@ def test_aprovacao_que_falha_na_execucao_termina_a_execucao_com_erro(c):
     assert pedido.situacao == "falhou" and "já tinha saído" in pedido.motivo
     assert pedido.execucao.resultado == ExecucaoFerramenta.Resultado.ERRO
     assert "falhou" in pedido.execucao.detalhe
+
+
+def test_pedido_vencido_termina_a_execucao_e_a_rotina_vence_os_esquecidos(c):
+    _ferramentas_de_teste()
+    _, token = credenciais.emitir(c.usuarios["operador"], nome="meu cliente 5", tipo="pessoal")
+    pedidos = []
+    for i in (1, 2):
+        r = _post(c, "/ferramentas/teste.cancelar_aviso/executar", {"comunicacao": i},
+                  f"ferramenta:vencido-execucao-{i}", token=token)
+        pedidos.append(PedidoAprovacao.objects.get(pk=r.json()["pedido"]))
+    PedidoAprovacao.objects.filter(pk__in=[p.pk for p in pedidos]).update(
+        expira_em=timezone.now() - timedelta(minutes=1))
+    with pytest.raises(ferramentas.FerramentaRecusada):
+        ferramentas.aprovar(c.usuarios["gestor"], pedidos[0].pk)  # alguém tentou decidir
+    assert ferramentas.expirar_vencidos() == 1  # o outro, ninguém abriu: a rotina diária
+    for p in pedidos:
+        p.refresh_from_db()
+        p.execucao.refresh_from_db()
+        assert p.situacao == "expirado"
+        assert p.execucao.resultado == ExecucaoFerramenta.Resultado.NEGADA
+        assert "expirou" in p.execucao.detalhe
+
+
+def test_ferramenta_com_processo_caido_depois_do_efeito_nao_executa_de_novo(c, monkeypatch):
+    """O efeito (pedido de aprovação) foi gravado e o processo caiu antes de responder: a
+    resposta da chave foi gravada na mesma transação, e a repetição — mesmo depois do prazo
+    de "em andamento" abandonado — devolve a primeira, sem um segundo pedido."""
+    from gestao.automacao.models_api import RegistroIdempotencia
+
+    _ferramentas_de_teste()
+    _, token = credenciais.emitir(c.usuarios["operador"], nome="meu cliente 6", tipo="pessoal")
+    url, chave = "/ferramentas/teste.cancelar_aviso/executar", "ferramenta:caiu-depois-do-efeito"
+    original = ferramentas.executar
+
+    def cai_depois(*args, **kwargs):
+        original(*args, **kwargs)
+        raise RuntimeError("o processo caiu antes de responder")
+
+    monkeypatch.setattr(ferramentas, "executar", cai_depois)
+    with pytest.raises(RuntimeError):
+        _post(c, url, {"comunicacao": 77}, chave, token=token)
+    monkeypatch.setattr(ferramentas, "executar", original)
+    RegistroIdempotencia.objects.filter(chave=chave).update(
+        criado_em=timezone.now() - timedelta(minutes=10))
+    r = _post(c, url, {"comunicacao": 77}, chave, token=token)
+    assert r.status_code == 202 and r["Idempotency-Replayed"] == "true", r.content
+    assert PedidoAprovacao.objects.filter(entrada={"comunicacao": 77}).count() == 1
+    assert ExecucaoFerramenta.objects.filter(entrada={"comunicacao": 77}).count() == 1

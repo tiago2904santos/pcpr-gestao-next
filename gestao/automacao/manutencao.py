@@ -22,6 +22,7 @@ from django.utils import timezone
 from . import excecoes
 from .models import (
     Comunicacao,
+    ContadorDeLimite,
     ConteudoComunicacao,
     ConteudoRecebimento,
     EntradaWebhook,
@@ -78,6 +79,7 @@ def purgar(agora=None) -> dict[str, int]:
         # A da reserva guarda só ids (a repetição remonta a resposta): passa do lease, some.
         respostas += RegistroIdempotencia.objects.filter(
             rota__endswith="/reservar", criado_em__lte=agora - timedelta(hours=1)).delete()[0]
+        ContadorDeLimite.objects.filter(inicio__lt=agora - timedelta(days=1)).delete()
         corpos = EntradaWebhook.objects.filter(
             ~Q(corpo=b""), recebida_em__lte=limite,
             situacao__in=(EntradaWebhook.Situacao.PROCESSADA, EntradaWebhook.Situacao.ERRO)
@@ -116,7 +118,11 @@ def _purgar_midia_simulada(limite) -> int:
 
 
 def diaria(hoje=None) -> str:
+    from . import ferramentas
+
     vencidas = expirar_vencidas()
+    pedidos = ferramentas.expirar_vencidos()
     orfaos = reconciliar()
     apagados = purgar()
-    return f"{vencidas} expirada(s), {orfaos} órfão(s), retenção {apagados}"
+    return (f"{vencidas} expirada(s), {pedidos} aprovação(ões) vencida(s), {orfaos} órfão(s), "
+            f"retenção {apagados}")

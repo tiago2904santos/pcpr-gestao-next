@@ -517,6 +517,22 @@ def test_reemissao_que_traz_a_saida_para_perto_agenda_o_link_da_versao_nova(c):
     assert novas.count() == 1  # nem a emissão de novo nem a rotina duplicam
 
 
+def test_limite_de_gravacoes_do_link_e_contado_no_banco(c, monkeypatch):
+    """O limite vale para todos os workers: a contagem é do banco, não do cache do processo."""
+    from gestao.automacao.models import ContadorDeLimite
+    from gestao.viagens import views_km_link
+
+    path, _, _ = _enviar_link(c)
+    monkeypatch.setattr(views_km_link, "ENVIOS_POR_JANELA", 2)
+    cliente = Client()
+    assert [_postar(cliente, path, [])["_status"] for _ in range(3)] == [200, 200, 429]
+    link = LinkAcesso.objects.get()
+    assert ContadorDeLimite.objects.get(chave=f"km-link-envios:{link.pk}").total == 3
+    ContadorDeLimite.objects.update(inicio=timezone.now() - timedelta(minutes=11))
+    assert _postar(Client(), path, [])["_status"] == 200  # janela nova, outro "processo"
+    assert ContadorDeLimite.objects.get().total == 1
+
+
 def test_primeira_emissao_depois_da_rotina_agenda_o_link(c):
     """Ofício emitido pela 1ª vez depois da rotina da véspera, saindo amanhã: a emissão agenda
     o link (a rotina do dia seguinte já não o veria); rodar a rotina depois não duplica."""

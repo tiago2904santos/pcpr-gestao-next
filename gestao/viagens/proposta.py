@@ -46,7 +46,7 @@ from .models import Viagem
 
 ROTULO_DIARIAS = "Estimativa para conferência — o valor oficial sai no documento."
 NUMERO_NA_CRIACAO = "nº atribuído ao criar o rascunho"
-MAX_SERVIDORES = 40
+MAX_SERVIDORES = 40  # o mesmo `viagem_lote.MAX_SERVIDORES_POR_OFICIO`, contando o motorista
 
 
 class ForaDoEscopo(Exception):
@@ -232,11 +232,13 @@ def montar(usuario, entrada: Entrada) -> Proposta:
     depois: list[Item] = []
 
     # Quem vai: só os ids informados, na ordem informada. Inativo ou inexistente bloqueia.
-    if len(entrada.servidores) > MAX_SERVIDORES:
-        bloqueios.append(Item("equipe", f"No máximo {MAX_SERVIDORES} servidores por ofício."))
-    ids = list(entrada.servidores[:MAX_SERVIDORES])
-    if entrada.motorista and entrada.motorista not in ids:
-        ids.append(entrada.motorista)  # o motorista de fora da equipe entra nela (lote)
+    # O motorista de fora da equipe entra nela (lote): o limite vale para a união.
+    ids = list(dict.fromkeys([*entrada.servidores,
+                              *([entrada.motorista] if entrada.motorista else [])]))
+    if len(ids) > MAX_SERVIDORES:
+        bloqueios.append(Item("equipe", f"No máximo {MAX_SERVIDORES} servidores por ofício, "
+                                        "contando o motorista."))
+        ids = ids[:MAX_SERVIDORES + 1]
     por_id = Servidor.objects.select_related("unidade", "cargo").in_bulk(ids)
     servidores: list[Servidor] = []
     for sid in ids:
@@ -477,10 +479,12 @@ def _entrada_da_ferramenta(dados: dict) -> Entrada:
     from gestao.automacao.ferramentas import FerramentaInvalida
 
     servidores = dados.get("servidores") or []
+    motorista = dados.get("motorista")
     if (not all(isinstance(s, int) and not isinstance(s, bool) for s in servidores)
-            or len(servidores) > MAX_SERVIDORES):
+            or len(set(servidores) | ({motorista} if isinstance(motorista, int) else set()))
+            > MAX_SERVIDORES):
         raise FerramentaInvalida(f"servidores deve ser uma lista de até {MAX_SERVIDORES} ids "
-                                 "inteiros, informada por uma pessoa.")
+                                 "inteiros (contando o motorista), informada por uma pessoa.")
     return Entrada.de(dados["viagem"], servidores, dados.get("motorista"),
                       dados.get("viatura"), termos=dados.get("termos", True),
                       ordem=dados.get("ordem", True), plano=dados.get("plano", True))

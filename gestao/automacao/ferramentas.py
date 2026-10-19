@@ -136,9 +136,13 @@ class Resultado:
 
 
 def executar(nome: str, entrada: object, *, usuario, credencial=None, delegacao=None,
-             origem: str = "api", correlacao: str = "") -> Resultado:
+             origem: str = "api", correlacao: str = "",
+             ao_concluir: Callable[[Resultado], None] | None = None) -> Resultado:
     """Negações e erros são gravados numa transação própria, depois de desfeita a da
-    execução — um token roubado sondando ids deixa rastro."""
+    execução — um token roubado sondando ids deixa rastro. `ao_concluir(resultado)` roda
+    DENTRO da transação do efeito (execução, pedido de aprovação ou registro em sombra): a
+    API grava ali a resposta da `Idempotency-Key`, que assim nunca fica sem o efeito nem o
+    efeito sem ela (o processo que cai no meio não deixa a repetição executar de novo)."""
     f = obter(nome)
     if f is None:
         raise FerramentaInvalida("Ferramenta desconhecida.")
@@ -159,7 +163,10 @@ def executar(nome: str, entrada: object, *, usuario, credencial=None, delegacao=
             with transaction.atomic():
                 e = _registrar(f, resultado=ExecucaoFerramenta.Resultado.SOMBRA,
                                detalhe="Modo sombra: registrada, não executada.", **comum)
-            return Resultado(e)
+                resultado = Resultado(e)
+                if ao_concluir is not None:
+                    ao_concluir(resultado)
+            return resultado
         if f.risco == IRREVERSIVEL or permissao.modo == "assistido":
             with transaction.atomic():
                 e = _registrar(f, resultado=ExecucaoFerramenta.Resultado.PENDENTE,
@@ -170,11 +177,16 @@ def executar(nome: str, entrada: object, *, usuario, credencial=None, delegacao=
                     recurso=f.recurso(dados)[:80], unidade_id=f.unidade(dados),
                     pedido_por=usuario, execucao=e,
                     expira_em=timezone.now() + timedelta(days=2))
-            return Resultado(e, aprovacao=pedido)
+                resultado = Resultado(e, aprovacao=pedido)
+                if ao_concluir is not None:
+                    ao_concluir(resultado)
+            return resultado
     try:
         with transaction.atomic():
             saida = f.executar(usuario, dados)
             e = _registrar(f, resultado=ExecucaoFerramenta.Resultado.OK, **comum)
+            if ao_concluir is not None:
+                ao_concluir(Resultado(e, saida=saida))
     except (FerramentaRecusada, FerramentaInvalida, PermissionDenied) as erro:
         with transaction.atomic():
             _registrar(f, resultado=ExecucaoFerramenta.Resultado.ERRO, detalhe=str(erro),
@@ -200,9 +212,32 @@ class PedidoVencido(FerramentaRecusada):
     """Venceu antes da decisão: quem chama grava EXPIRADO fora da transação desfeita."""
 
 
+def _expirar(pedidos) -> int:
+    """Pedido vencido sem decisão: EXPIRADO, e a execução dele deixa de "aguardar aprovação"
+    (termina como negada, como na recusa: nada foi executado)."""
+    total = 0
+    for p in pedidos.select_for_update(of=("self",)).select_related("execucao"):
+        p.situacao = PedidoAprovacao.Situacao.EXPIRADO
+        p.save(update_fields=["situacao"])
+        if p.execucao.resultado == ExecucaoFerramenta.Resultado.PENDENTE:
+            p.execucao.resultado = ExecucaoFerramenta.Resultado.NEGADA
+            p.execucao.detalhe = "O pedido de aprovação expirou sem decisão."
+            p.execucao.save(update_fields=["resultado", "detalhe"])
+        total += 1
+    return total
+
+
 def _marcar_vencido(pk: int) -> None:
-    PedidoAprovacao.objects.filter(pk=pk, situacao=PedidoAprovacao.Situacao.PENDENTE).update(
-        situacao=PedidoAprovacao.Situacao.EXPIRADO)
+    with transaction.atomic():
+        _expirar(PedidoAprovacao.objects.filter(pk=pk,
+                                                situacao=PedidoAprovacao.Situacao.PENDENTE))
+
+
+def expirar_vencidos(agora=None) -> int:
+    """Rotina diária: os pedidos que venceram sem ninguém decidir."""
+    with transaction.atomic():
+        return _expirar(PedidoAprovacao.objects.filter(
+            situacao=PedidoAprovacao.Situacao.PENDENTE, expira_em__lte=agora or timezone.now()))
 
 
 def _decidir(funcao, usuario, pk: int, *args):

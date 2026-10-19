@@ -189,8 +189,9 @@ def _assumir_abandonado(guardado: RegistroIdempotencia, impressao: str, request)
     registro): a MESMA requisição assume a chave, renovando o prazo de forma atômica (só uma
     retentativa assume). É seguro executar de novo porque todo efeito da API é idempotente
     pela chave de negócio no serviço (reserva por tentativa, resultado por token, status por
-    wamid+status, recebimento pela chave receb:, exceção pela chave, delegação de uso único):
-    o que já tinha sido gravado volta como repetição, sem efeito novo."""
+    wamid+status, recebimento pela chave receb:, exceção pela chave, delegação de uso único;
+    ferramenta e pedido de aprovação gravam a resposta da chave na transação do próprio
+    efeito): o que já tinha sido gravado volta como repetição, sem efeito novo."""
     if (guardado.status != EM_ANDAMENTO or guardado.impressao != impressao
             or guardado.rota != request.path[:120]):
         return False
@@ -269,7 +270,9 @@ def _executar(funcao, request, c, correlacao, metodo, desligamento, args, kwargs
                 resposta = e.resposta()
     except Exception:
         if registro is not None:
-            RegistroIdempotencia.objects.filter(pk=registro.pk).delete()
+            # Só a reserva ainda "em andamento": a resposta que o serviço já gravou junto do
+            # efeito (ferramentas) fica, e a repetição a devolve sem executar de novo.
+            RegistroIdempotencia.objects.filter(pk=registro.pk, status=EM_ANDAMENTO).delete()
         raise
     if registro is not None:
         if resposta.status_code in GUARDADOS or resposta.status_code == 409:

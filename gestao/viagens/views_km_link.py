@@ -15,14 +15,15 @@ from __future__ import annotations
 
 import json
 import secrets
+from datetime import timedelta
 from typing import Any
 
-from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+from gestao.automacao import limites
 from gestao.automacao.views_links import indisponivel
 from gestao.plataforma.middleware import ip_do_cliente
 
@@ -37,14 +38,9 @@ def _base(request: HttpRequest, resto: str) -> str:
 
 
 def _excedeu(link) -> bool:
-    chave = f"km-link-envios:{link.pk}"
-    if cache.add(chave, 1, JANELA):
-        return False
-    try:
-        return cache.incr(chave) > ENVIOS_POR_JANELA
-    except ValueError:
-        cache.set(chave, 1, JANELA)
-        return False
+    """Contado no banco (`limites.exceder`): o mesmo limite em todos os workers."""
+    return limites.exceder(f"km-link-envios:{link.pk}", ENVIOS_POR_JANELA,
+                           timedelta(seconds=JANELA))
 
 
 def pagina(request: HttpRequest, link, resto: str) -> HttpResponse:

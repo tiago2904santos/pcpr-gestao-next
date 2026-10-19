@@ -35,9 +35,9 @@ from .. import (
     recebimentos,
 )
 from ..models import CANAL_WHATSAPP, ChaveAutomacao, Comunicacao, ExcecaoAutomacao, Recebimento
-from ..models_api import CredencialIntegracao
+from ..models_api import CredencialIntegracao, RegistroIdempotencia
 from . import delegacoes
-from .base import Chamada, ErroApi, erro, mascarar, rota
+from .base import EM_ANDAMENTO, Chamada, ErroApi, erro, mascarar, rota
 
 S = Comunicacao.Situacao
 ESTADOS: dict[str, str] = {
@@ -488,9 +488,20 @@ def executar_ferramenta(ch: Chamada, nome: str) -> JsonResponse:
         except delegacoes.DelegacaoNegada as e:
             return erro(403, "negado", str(e))
         usuario = delegacao.usuario
+    chave = (ch.request.headers.get("Idempotency-Key") or "").strip()
+
+    def guardar_resposta(r: ferramentas.Resultado) -> None:
+        # Na transação do efeito: se o processo cair antes de responder, a repetição da chave
+        # devolve esta resposta em vez de executar (ou pedir aprovação) de novo.
+        corpo, status = _corpo_da_ferramenta(r)
+        RegistroIdempotencia.objects.filter(credencial=c, chave=chave,
+                                            status=EM_ANDAMENTO).update(status=status,
+                                                                        corpo=corpo)
+
     try:
         r = ferramentas.executar(nome, ch.dados, usuario=usuario, credencial=c,
-                                 delegacao=delegacao, origem="api", correlacao=ch.correlacao)
+                                 delegacao=delegacao, origem="api", correlacao=ch.correlacao,
+                                 ao_concluir=guardar_resposta if chave else None)
     except ferramentas.FerramentaInvalida as e:
         return erro(422, "entrada_invalida", str(e))
     except ferramentas.FerramentaRecusada as e:
@@ -499,9 +510,13 @@ def executar_ferramenta(ch: Chamada, nome: str) -> JsonResponse:
         return erro(423, "desligada", str(e))
     except PermissionDenied as e:
         return erro(403, "negado", str(e) or "Policy negada.")
+    corpo, status = _corpo_da_ferramenta(r)
+    return JsonResponse(corpo, status=status)
+
+
+def _corpo_da_ferramenta(r: ferramentas.Resultado) -> tuple[dict, int]:
     if r.aprovacao is not None:
-        return JsonResponse({"codigo": "aprovacao_pendente", "pedido": r.aprovacao.pk,
-                             "mensagem": "Ação irreversível: uma pessoa precisa aprovar na "
-                             "tela."}, status=202)
-    return JsonResponse({"execucao": r.execucao.pk, "resultado": r.execucao.resultado,
-                         "saida": r.saida})
+        return ({"codigo": "aprovacao_pendente", "pedido": r.aprovacao.pk,
+                 "mensagem": "Ação irreversível: uma pessoa precisa aprovar na tela."}, 202)
+    return ({"execucao": r.execucao.pk, "resultado": r.execucao.resultado,
+             "saida": r.saida}, 200)
