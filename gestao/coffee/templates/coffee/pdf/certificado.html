@@ -9,7 +9,7 @@
   <tr><th>Data da solicitação</th><td>{{ s.data_solicitacao|date:"d/m/Y" }}</td></tr>
   <tr><th>Evento</th><td>{{ s.descricao }}</td></tr>
   <tr><th>Data do evento</th><td>{{ s.data_evento|date:"d/m/Y"|default:"—" }}</td></tr>
-  <tr><th>Município</th><td>{{ s.municipio.nome }}/{{ s.municipio.uf }}</td></tr>
+  <tr><th>Município</th><td>{{ s.municipio_rotulo }}</td></tr>
   <tr><th>Quantidade</th><td>{{ s.quantidade }} pessoas{% if s.quantidade_faturada %} (faturadas: {{ s.quantidade_faturada }}){% endif %}</td></tr>
   <tr><th>Situação</th><td>{{ s.situacao_rotulo }}</td></tr>
 </table>

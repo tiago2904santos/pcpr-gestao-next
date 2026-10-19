@@ -180,6 +180,10 @@ class Movimento(models.Model):
         TRANSFERENCIA = "transferencia", "Responsável transferido"
         ANEXO = "anexo", "Anexos"
         VIAGEM = "viagem", "Viagem gerada"
+        # Só nos movimentos trazidos do sistema anterior (migração): a edição com a lista de
+        # campos alterados na observação e a carga inicial da planilha.
+        ATUALIZACAO = "atualizacao", "Solicitação alterada"
+        IMPORTACAO = "importacao", "Importada da planilha"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")

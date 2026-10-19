@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "gestao.automacao",
     # Assistência por IA: porta, orçamento, sugestões e Central de ajuda (ADR 0048)
     "gestao.assistencia",
+    "gestao.migracao",
 ]
 
 MIDDLEWARE = [

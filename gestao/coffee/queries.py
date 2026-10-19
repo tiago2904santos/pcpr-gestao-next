@@ -116,10 +116,12 @@ def lote_para(municipio, data: date) -> InfoLote | None:
     return InfoLote(lote, saldo(lote), fim, escolha.cidade, bool(fim and data > fim))
 
 
-def proximo_numero(ano: int) -> str:
-    """Próxima OS do ano: a maior sequência usada + 1 (numeração própria do módulo por ora —
-    a conjunta com Viagens depende de decisão; ver decisoes.md)."""
-    usadas = [s for n in Solicitacao.objects.filter(numero__endswith=f"/{ano}")
+def proximo_numero(ano: int, lote: Lote | int) -> str:
+    """Próxima OS do ano no lote: a maior sequência do lote no ano + 1. A numeração é por lote,
+    como no sistema anterior (cada lote começa do 1; o mesmo "1/2025" existe em lotes
+    diferentes) — decisão do usuário na migração (G1)."""
+    lote_id: int = lote.pk if isinstance(lote, Lote) else lote
+    usadas = [s for n in Solicitacao.objects.filter(lote_id=lote_id, numero__endswith=f"/{ano}")
               .values_list("numero", flat=True) if (s := dominio_pedido.sequencia(n))]
     return f"{max((seq for _a, seq in usadas), default=0) + 1}/{ano}"
 

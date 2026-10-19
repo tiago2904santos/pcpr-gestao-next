@@ -87,10 +87,17 @@ class FormularioSolicitacao(forms.Form):
                              "horario", "local_entrega", "endereco", "bairro", "cep",
                              "responsavel"):
                     self.initial[nome] = getattr(solicitacao, nome)
-                self.initial["municipio"] = (f"{solicitacao.municipio.nome}/"
-                                             f"{solicitacao.municipio.uf}")
+                if solicitacao.municipio_id:
+                    self.initial["municipio"] = (f"{solicitacao.municipio.nome}/"
+                                                 f"{solicitacao.municipio.uf}")
                 self.initial["numero"] = solicitacao.numero.partition("/")[0]
                 self.initial["versao"] = versao_de(solicitacao)
+        if solicitacao is not None and solicitacao.pk and not solicitacao.municipio_id:
+            # Pedido antigo sem município (sistema anterior): pode ficar sem; o novo exige.
+            self.fields["municipio"].required = False
+            self.fields["municipio"].help_text = (
+                "O sistema anterior não registrou o município deste pedido. Informar agora "
+                "não troca o lote.")
         self.travado = bool(solicitacao is not None and solicitacao.financeiro_iniciado)
         if self.travado:
             for nome in TRAVADOS:

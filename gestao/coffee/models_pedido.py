@@ -17,8 +17,11 @@ from .models import Carimbos, Lote
 
 class Solicitacao(Carimbos):
     lote = models.ForeignKey(Lote, on_delete=models.PROTECT, related_name="solicitacoes")
+    # Vazio só nos pedidos antigos, que o sistema anterior guardou sem município (migração);
+    # pedido novo exige o município (formulário e `pedidos.salvar`).
     municipio = models.ForeignKey("cadastros.Municipio", verbose_name="município do evento",
-                                  on_delete=models.PROTECT, related_name="+")
+                                  on_delete=models.PROTECT, null=True, blank=True,
+                                  related_name="+")
     data_solicitacao = models.DateField("data da solicitação")
     numero = models.CharField("Nº da OS", max_length=20, blank=True)
     descricao = models.TextField("descrição do evento (objeto da OS)")
@@ -86,8 +89,10 @@ class Solicitacao(Carimbos):
         verbose_name = "solicitação de coffee break"
         verbose_name_plural = "solicitações de coffee break"
         constraints = [
-            models.UniqueConstraint(fields=["numero"], condition=~models.Q(numero=""),
-                                    name="coffee_os_numero_unico"),
+            # A numeração é por lote (como no sistema anterior): "1/2025" pode existir em
+            # dois lotes.
+            models.UniqueConstraint(fields=["lote", "numero"], condition=~models.Q(numero=""),
+                                    name="coffee_os_numero_unico_por_lote"),
             models.CheckConstraint(condition=models.Q(cancelada=True)
                                    | models.Q(quantidade__gte=1),
                                    name="coffee_os_quantidade_positiva"),
@@ -105,6 +110,17 @@ class Solicitacao(Carimbos):
 
     def __str__(self) -> str:
         return f"OS {self.numero}" if self.numero else f"Solicitação #{self.pk}"
+
+    @property
+    def municipio_nome(self) -> str:
+        m = self.municipio
+        return m.nome if m is not None else dominio_pedido.SEM_MUNICIPIO
+
+    @property
+    def municipio_rotulo(self) -> str:
+        """"Cidade/UF", ou "município não informado" nos pedidos antigos sem município."""
+        m = self.municipio
+        return f"{m.nome}/{m.uf}" if m is not None else dominio_pedido.SEM_MUNICIPIO
 
     @property
     def endereco_completo(self) -> str:

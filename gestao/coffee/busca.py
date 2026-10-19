@@ -21,7 +21,7 @@ def _ordens(usuario, termo: str, limite: int) -> list[Resultado]:
                       reverse("coffee:solicitacao", args=[s.pk]),
                       " · ".join(p for p in (s.situacao_rotulo,
                                              f"{s.data_evento:%d/%m/%Y}" if s.data_evento
-                                             else "", s.municipio.nome) if p), "receipt")
+                                             else "", s.municipio_nome) if p), "receipt")
             for s in qs]
 
 

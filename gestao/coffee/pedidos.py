@@ -54,18 +54,19 @@ def _mover(s: Solicitacao, usuario, acao: str, texto: str = "") -> None:
     Movimento.objects.create(solicitacao=s, acao=acao, texto=texto.strip(), usuario=usuario)
 
 
-def _numero(s: Solicitacao, digitado: str, ano: int) -> str:
-    """Em branco: o próximo. Digitado: conferido contra os já usados."""
+def _numero(s: Solicitacao, digitado: str, ano: int, lote: Lote) -> str:
+    """Em branco: o próximo do lote. Digitado: conferido contra os já usados no lote (a
+    numeração é por lote)."""
     try:
         numero = regras.formatar_numero(digitado, ano)
     except ValueError as exc:
         raise PedidoInvalido(str(exc), "numero") from None
     if not numero:
-        return queries.proximo_numero(ano)
-    outra = Solicitacao.objects.filter(numero=numero).exclude(pk=s.pk).first()
+        return queries.proximo_numero(ano, lote)
+    outra = Solicitacao.objects.filter(lote=lote, numero=numero).exclude(pk=s.pk).first()
     if outra is not None:
-        raise PedidoInvalido(f"A OS {numero} já existe ({outra.descricao[:60]}). A próxima "
-                             f"livre é {queries.proximo_numero(ano)}.", "numero")
+        raise PedidoInvalido(f"A OS {numero} já existe no {lote} ({outra.descricao[:60]}). A "
+                             f"próxima livre é {queries.proximo_numero(ano, lote)}.", "numero")
     return numero
 
 
@@ -93,16 +94,21 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
                 "municipio", "data_solicitacao", "descricao", "quantidade", "data_evento")},
                 "numero": s.numero}
     antes = {c: getattr(s, c) for c in CAMPOS} if not novo else {}
-    municipio = dados["municipio"]
+    municipio = dados.get("municipio")
+    if municipio is None and (novo or s.municipio_id is not None):
+        raise PedidoInvalido(regras.MSG_MUNICIPIO, "municipio")
+    # Pedido antigo sem município (migração): completar o município não troca o lote, que
+    # foi escolhido no sistema anterior.
+    troca_lote = municipio is not None and (
+        novo or (s.municipio_id is not None and municipio.pk != s.municipio_id))
     data_ref = dados.get("data_evento") or dados["data_solicitacao"]
-    mudou_local = novo or municipio.pk != s.municipio_id or data_ref != (
-        s.data_evento or s.data_solicitacao)
+    mudou_local = troca_lote or data_ref != (s.data_evento or s.data_solicitacao)
     try:
         regras.conferir_retroativo(dados.get("data_evento"), dados["data_solicitacao"],
                                    retroativo, justificativa)
     except ValueError as exc:
         raise PedidoInvalido(str(exc), "data_evento") from None
-    if novo or municipio.pk != s.municipio_id:
+    if troca_lote and municipio is not None:
         info = queries.lote_para(municipio, data_ref)
         if info is None:
             raise PedidoInvalido(regras.MSG_SEM_LOTE.format(
@@ -132,7 +138,7 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
     ano = (dados["data_solicitacao"] or hoje).year
     if not novo and (atual := regras.sequencia(s.numero)):
         ano = atual[0]
-    s.numero = _numero(s, dados.get("numero", ""), ano)
+    s.numero = _numero(s, dados.get("numero", ""), ano, lote)
     sal = queries.saldo(lote, exceto=s.pk)
     if s.quantidade_efetiva > sal.restante:
         raise PedidoInvalido(regras.MSG_SALDO.format(restante=sal.restante, total=sal.total),
@@ -145,14 +151,14 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
             break
         except IntegrityError as exc:
             restricao = getattr(getattr(exc.__cause__, "diag", None), "constraint_name", "")
-            if restricao != "coffee_os_numero_unico":
+            if restricao != "coffee_os_numero_unico_por_lote":
                 raise
             if not em_branco or tentativa == 2:
                 raise PedidoInvalido(
                     f"A OS {s.numero} acabou de ser usada. A próxima livre é "
-                    f"{queries.proximo_numero(ano)}.",
+                    f"{queries.proximo_numero(ano, lote)}.",
                     "numero") from None
-            s.numero = queries.proximo_numero(ano)
+            s.numero = queries.proximo_numero(ano, lote)
     if novo:
         de_onde = f" Duplicada da solicitação {duplicada_de}." if duplicada_de else ""
         if origem is not None:
@@ -240,7 +246,9 @@ def excluir(usuario, pk: int) -> str:
 def dados_para_duplicar(s: Solicitacao) -> dict[str, Any]:
     """Município, descrição, quantidade, horário, local, endereço e responsável; nunca datas,
     número, nota, ofício, protocolo ou pagamento."""
-    return {"municipio": f"{s.municipio.nome}/{s.municipio.uf}", "descricao": s.descricao,
+    m = s.municipio
+    municipio = f"{m.nome}/{m.uf}" if m is not None else ""
+    return {"municipio": municipio, "descricao": s.descricao,
             "quantidade": s.quantidade, "horario": s.horario, "local_entrega": s.local_entrega,
             "endereco": s.endereco, "bairro": s.bairro, "cep": s.cep,
             "responsavel": s.responsavel}
