@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Delegar a uma automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Delegar a uma automação</h1>
+    <p class="pagina-cabecalho__descricao">Autorize uma automação de IA a usar <strong>uma</strong> ferramenta, <strong>uma</strong> vez, num registro que você mesmo pode acessar — com as suas permissões, por até 10 minutos. Ninguém escolhe, por cabeçalho, quem a automação representa.</p>
+  </div>
+</header>
+{% if token %}
+<section class="alerta alerta--sucesso mt-4" role="alert">
+  {% icone "lock" %}
+  <div class="alerta__corpo">
+    <p class="alerta__titulo">Delegação emitida — vale por 10 minutos e uma única vez</p>
+    <p class="texto-pre texto-sm quebra-palavras">{{ token }}</p>
+    <p class="texto-sm">Entregue este identificador à automação (cabeçalho <code>X-PCPR-Delegacao</code>). Ele não aparece de novo.</p>
+  </div>
+</section>
+{% endif %}
+<section class="cartao mt-4" aria-labelledby="t-form">
+  <h2 class="sr-only" id="t-form">Nova delegação</h2>
+  {% if credenciais_ia %}
+  <form method="post" class="cartao__corpo pilha">{% csrf_token %}
+    <div class="campo"><label class="campo__rotulo" for="del-cred">Automação (credencial de IA)</label>
+      <select class="entrada" id="del-cred" name="credencial" required>{% for c in credenciais_ia %}<option value="{{ c.pk }}">{{ c.nome }}</option>{% endfor %}</select></div>
+    <div class="campo"><label class="campo__rotulo" for="del-ferramenta">Ferramenta</label>
+      <select class="entrada" id="del-ferramenta" name="ferramenta" required>{% for f in ferramentas %}<option value="{{ f.nome }}">{{ f.nome }} — {{ f.descricao }}</option>{% endfor %}</select></div>
+    <div class="campo"><label class="campo__rotulo" for="del-recurso">Registro<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" id="del-recurso" name="recurso" required maxlength="80" placeholder="viagens.prestacaoservidor:42" aria-describedby="del-recurso-ajuda"><p class="campo__ajuda" id="del-recurso-ajuda">O registro em que a automação vai agir (tipo:número).</p></div>
+    <div class="campo"><label class="campo__rotulo" for="del-motivo">Para quê</label><input class="entrada" id="del-motivo" name="motivo" maxlength="200"></div>
+    <div><button class="botao botao--primario" type="submit">{% icone "send" %}Emitir delegação</button></div>
+  </form>
+  {% else %}{% include "componentes/vazio.html" with icone="lock" titulo="Nenhuma automação de IA cadastrada" texto="Quem administra cria a credencial de IA (com as ferramentas permitidas) em Credenciais." %}{% endif %}
+</section>
+{% endblock %}

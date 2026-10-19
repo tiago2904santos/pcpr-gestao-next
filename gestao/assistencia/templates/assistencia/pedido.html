@@ -1,0 +1,42 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Pedido #{{ p.pk }} · Assistência{% endblock %}
+{% comment %}Pedido ainda sem sugestão: na fila do worker (a IA nunca roda dentro desta tela). Atualize a página; com a IA simulada, quem administra processa na hora.{% endcomment %}
+{% block cabecalho_detalhe %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">{{ uso.codigo }} · {{ assunto.rotulo|default:"Registro" }}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ uso.rotulo }}</h1>
+    <p class="pagina-cabecalho__descricao"><span class="selo selo--{% if p.estado == 'falhou' or p.estado == 'cancelado' %}aviso{% else %}info{% endif %} selo--sem-ponto">{{ p.get_estado_display }}</span></p>
+  </div>
+  <div class="pagina-cabecalho__acoes">{% if assunto.url %}<a class="botao" href="{{ assunto.url }}">{% icone "arrow-left" %}Voltar ao registro</a>{% endif %}</div>
+</header>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-andamento">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-andamento">Andamento</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if p.estado == 'pendente' or p.estado == 'processando' %}
+      <p role="status">{% icone "loader-circle" classe="icone--sm" %} O pedido está {{ p.get_estado_display|lower }}. A sugestão é preparada fora desta tela, pelo processamento em segundo plano; costuma levar segundos.</p>
+      <p><a class="botao" href="{{ request.path }}">{% icone "refresh-cw" %}Atualizar</a></p>
+    {% elif p.estado == 'cancelado' %}
+      <p class="alerta alerta--aviso" role="status">{% icone "info" classe="icone--sm" %}<span>O pedido foi cancelado ({{ p.motivo|default:"sem motivo" }}): você perdeu o acesso ao registro ou ele não existe mais.</span></p>
+    {% else %}
+      <p class="alerta alerta--perigo" role="alert">{% icone "alert-triangle" classe="icone--sm" %}<span>O pedido falhou. Siga com o texto à mão; o registro não mudou.</span></p>
+    {% endif %}
+    {% if simulador %}
+    <form method="post" action="{% url 'assistencia:processar_agora' %}">{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.path }}"><button class="botao botao--sutil" type="submit">{% icone "refresh-cw" %}Processar a fila agora (IA simulada)</button></form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-pedido-dados">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pedido-dados">Pedido</h2></div>
+  <div class="cartao__corpo"><dl class="definicoes">
+    {% include "componentes/metadado.html" with rotulo="Pedido por" valor=p.usuario %}
+    {% include "componentes/metadado.html" with rotulo="Criado em" valor=p.criado_em|date:"d/m/Y H:i" %}
+    {% include "componentes/metadado.html" with rotulo="Modo" valor=p.get_modo_display %}
+    {% include "componentes/metadado.html" with rotulo="Tentativas do worker" valor=p.tentativas %}
+  </dl></div>
+</section>
+{% endblock %}

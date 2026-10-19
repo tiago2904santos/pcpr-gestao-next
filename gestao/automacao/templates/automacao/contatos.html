@@ -1,0 +1,41 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Contatos e opt-in · Automação{% endblock %}
+{% block titulo_lista %}Contatos e opt-in{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Só recebe mensagem quem tem o número verificado e o opt-in registrado{% if lista_fechada %} — e, neste ambiente de testes, está na lista de testadores autorizados{% endif %}. O número vem sempre do cadastro do servidor.</p>{% endblock %}
+{% block acoes_lista %}<a class="botao botao--primario" href="{% url 'automacao:novo_contato' %}">{% icone "plus" %}Novo contato</a>{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Recortes">
+  <a class="aba" href="{% url 'automacao:contatos' %}"{% if not revogados %} aria-current="page"{% endif %}>Vigentes</a>
+  <a class="aba" href="?revogados=1"{% if revogados %} aria-current="page"{% endif %}>Com revogados</a>
+</nav>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">Contatos</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"contato,contatos" }}</span>
+</div>
+{% if linhas %}
+<ul class="registros" aria-labelledby="titulo-resultados">
+  {% for ct in linhas %}{% with s=ct.situacao %}
+  <li class="registro{% if ct.revogado_em %} registro--inativo{% endif %}">
+    <span class="placa" aria-hidden="true"><span class="placa__rotulo">Zap</span><span class="placa__numero">{{ ct.endereco|slice:"-4:" }}</span></span>
+    <div class="registro__corpo">
+      <div class="registro__titulo">
+        <a class="registro__link" href="{% url 'automacao:contato' ct.pk %}">{{ ct.servidor }}</a>
+        <span class="selo selo--{{ s.1 }} selo--sem-ponto">{{ s.0 }}</span>
+        {% if lista_fechada and not ct.revogado_em %}{% if ct.endereco in na_lista %}<span class="selo selo--info selo--sem-ponto">Testador autorizado</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">Fora da lista de testadores</span>{% endif %}{% endif %}
+      </div>
+      <div class="registro__meta">
+        <span class="registro__meta-item"><span class="sr-only">Opt-in: </span>{% icone "badge-check" classe="icone--sm" %}{% if ct.optin_em %}Opt-in em {{ ct.optin_em|date:"d/m/Y" }}{% else %}<span class="vazio-inline">Sem opt-in</span>{% endif %}</span>
+        {% if ct.ultima_mensagem_em %}<span class="registro__meta-item"><span class="sr-only">Última mensagem: </span>{% icone "messages-square" classe="icone--sm" %}Escreveu em {{ ct.ultima_mensagem_em|date:"d/m H:i" }}</span>{% endif %}
+      </div>
+    </div>
+  </li>
+  {% endwith %}{% endfor %}
+</ul>
+{% else %}
+  {% url 'automacao:novo_contato' as url_novo %}
+  {% include "componentes/vazio.html" with icone="phone" titulo="Nenhum contato cadastrado" texto="Cadastre o WhatsApp de um servidor (do telefone do cadastro) para ele receber os avisos do teste." acao_url=url_novo acao_rotulo="Novo contato" %}
+{% endif %}
+{% endblock %}
+{% block depois_lista %}{% include "componentes/barra_paginacao.html" %}{% endblock %}

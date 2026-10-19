@@ -1,0 +1,50 @@
+{% comment %}
+Cartão de sugestão de um uso numa tela de negócio (templatetag `painel_ia`). Fica FORA dos
+formulários da folha (formulário dentro de formulário não existe em HTML). Estados: sem
+pedido, na fila, pronta, obsoleta, decidida, desligado. A sugestão nunca entra direto: o
+link leva à revisão (fontes, lacunas, aceitar, editar, descartar).
+{% endcomment %}
+{% if mostrar %}
+<section class="secao" id="{{ ident }}" aria-labelledby="{{ ident }}-titulo">
+  <div class="secao__cabecalho">
+    <h2 class="secao__titulo" id="{{ ident }}-titulo">{% icone "text-quote" %}{{ uso.rotulo }}</h2>
+    <div class="secao__estado">
+      {% if not config.ligado %}<span class="selo selo--neutro selo--sem-ponto">Desligado</span>
+      {% elif pendente %}<span class="selo selo--info selo--sem-ponto">Redigindo</span>
+      {% elif pronta %}<span class="selo selo--info selo--sem-ponto">Sugestão pronta</span>
+      {% elif obsoleta %}<span class="selo selo--aviso selo--sem-ponto">Sugestão obsoleta</span>
+      {% elif sugestao %}<span class="selo selo--{{ sugestao.tom }} selo--sem-ponto">{{ sugestao.get_estado_display }}</span>{% endif %}
+      <span class="selo selo--neutro selo--sem-ponto">{% if config.modo == "ia" %}Com IA ({{ uso.codigo }}){% else %}Por regra ({{ uso.codigo }}){% endif %}</span>
+    </div>
+    <p class="secao__nota">{{ uso.descricao }} Você vê a sugestão antes: revisa as fontes, edita, aceita ou descarta. Nada entra no documento sem a sua decisão.</p>
+  </div>
+  <div class="pilha">
+    {% if pronta %}
+      <p><a class="botao botao--primario" href="{% url 'assistencia:sugestao' sugestao.pk %}">{% icone "eye" %}Revisar a sugestão</a></p>
+    {% elif pendente %}
+      <p class="texto-secundario" role="status">{% icone "loader-circle" classe="icone--sm" %} O pedido está na fila do processamento (fora desta tela). <a href="{% url 'assistencia:pedido' pedido.pk %}">Acompanhar o pedido</a>.</p>
+    {% elif obsoleta %}
+      <p class="texto-secundario">Os dados mudaram depois da última sugestão: ela não é mais aplicada. <a href="{% url 'assistencia:sugestao' sugestao.pk %}">Ver a sugestão antiga</a>.</p>
+    {% elif sugestao %}
+      <p class="texto-secundario">Última sugestão: {{ sugestao.get_estado_display|lower }}{% if sugestao.decidida_por %} por {{ sugestao.decidida_por }}{% endif %}. <a href="{% url 'assistencia:sugestao' sugestao.pk %}">Ver</a>.</p>
+    {% endif %}
+    {% if not config.ligado %}
+      <p class="vazio-inline">Este uso está desligado. O texto continua sendo escrito à mão (ou com os textos prontos).</p>
+    {% elif pode_pedir and not pendente %}
+      <form method="post" action="{% url 'assistencia:pedir' uso.chave recurso_id %}" class="pilha">
+        {% csrf_token %}
+        <input type="hidden" name="voltar" value="{{ voltar }}">
+        {% for o in uso.opcoes %}
+        <div class="campo campo--lg">
+          <label class="campo__rotulo" for="{{ ident }}-{{ o.nome }}">{{ o.rotulo }}</label>
+          <textarea class="area-texto" id="{{ ident }}-{{ o.nome }}" name="{{ o.nome }}" rows="3" maxlength="{{ o.max_caracteres }}"{% if o.ajuda %} aria-describedby="{{ ident }}-{{ o.nome }}-ajuda"{% endif %}{% if o.obrigatorio %} required{% endif %}></textarea>
+          {% if o.ajuda %}<p class="campo__ajuda" id="{{ ident }}-{{ o.nome }}-ajuda">{{ o.ajuda }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <div><button class="botao" type="submit">{% icone "text-quote" %}{% if sugestao %}Pedir outra sugestão{% else %}{{ uso.acao }}{% endif %}</button></div>
+      </form>
+    {% endif %}
+    {% if relacionados %}<p class="texto-sm">{% for r in relacionados %}<a href="{% url 'assistencia:pedir' r.chave recurso_id %}?voltar={{ voltar|urlencode }}">{% icone "text-quote" classe="icone--sm" %}{{ r.acao }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+  </div>
+</section>
+{% endif %}

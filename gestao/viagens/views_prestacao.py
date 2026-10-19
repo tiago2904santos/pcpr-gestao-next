@@ -26,6 +26,7 @@ from . import (
     anexos,
     assinados,
     carimbo,
+    comunicacoes,
     exportacao,
     leitura_anexos,
     pacote_prestacao,
@@ -130,15 +131,18 @@ def lista(request: HttpRequest) -> HttpResponse:
     hoje = timezone.localdate()
     situacao = anexos.situacao(da_pagina)
     # Uma consulta por página: estado da equipe inteira, linhas apenas do recorte.
-    membros = (PrestacaoServidor.objects.filter(prestacao__in=list(da_pagina),
-                                                removida_em__isnull=True)
-               .select_related("servidor")
-               .annotate(no_recorte=Exists(qs.filter(pk=OuterRef("pk"))))
-               .order_by("servidor__nome"))
+    consulta_membros = (PrestacaoServidor.objects.filter(prestacao__in=list(da_pagina),
+                                                         removida_em__isnull=True)
+                        .select_related("servidor")
+                        .annotate(no_recorte=Exists(qs.filter(pk=OuterRef("pk"))))
+                        .order_by("servidor__nome"))
     motoristas = _motoristas(list(da_pagina))
+    membros = list(consulta_membros)
+    avisos = comunicacoes.situacoes([ps.pk for ps in membros])
     for ps in membros:
         ps.prestacao = da_pagina[ps.prestacao_id]
-        linha = _linha(request, ps, hoje, situacao, motoristas.get(ps.prestacao_id))
+        linha = _linha(request, ps, hoje, situacao, motoristas.get(ps.prestacao_id),
+                       avisos.get(ps.pk))
         equipes.setdefault(ps.prestacao_id, []).append(linha)
         if ps.no_recorte:
             por_prestacao.setdefault(ps.prestacao_id, []).append(linha)
@@ -208,7 +212,8 @@ def _situacao_texto(ps: PrestacaoServidor, feitos: dict) -> tuple[str, str]:
 
 
 def _linha(request: HttpRequest, ps: PrestacaoServidor, hoje: date,
-           situacao: anexos.Situacao, motoristas: set[int] | None = None) -> dict:
+           situacao: anexos.Situacao, motoristas: set[int] | None = None,
+           aviso_automatico: tuple[int, str] | None = None) -> dict:
     selos = prestacao.selos(ps, hoje, tem_comprovante=bool(situacao.comprovantes.get(ps.pk)))
     pendencias = prestacao.pendencias(ps, situacao)
     diaria = prestacao.diaria_liberada(ps, getattr(ps.prestacao, "equipe", None))
@@ -223,6 +228,7 @@ def _linha(request: HttpRequest, ps: PrestacaoServidor, hoje: date,
             "feitos": feitos,
             "motorista": ps.servidor_id in (motoristas or set()),
             "whatsapp": _whatsapp(ps, diaria),
+            "whatsapp_automatico": aviso_automatico,
             "editavel": policies.pode_editar_prestacao(request.user, ps)}
 
 
@@ -511,7 +517,9 @@ def contexto_folha(request: HttpRequest, p: PrestacaoContas, atual: str) -> dict
     for ps in membros:
         ps.prestacao = p
     motoristas = _motoristas([p.pk])
-    linhas = [_linha(request, ps, hoje, situacao, motoristas.get(p.pk)) for ps in membros]
+    avisos = comunicacoes.situacoes([ps.pk for ps in membros])
+    linhas = [_linha(request, ps, hoje, situacao, motoristas.get(p.pk), avisos.get(ps.pk))
+              for ps in membros]
     b = _bloco(request, p, linhas, linhas)
     folhas = prestacao_equipe.folhas(p, membros, situacao, b["trechos"])
     # O servidor da folha (?servidor=): troca de servidor na mesma etapa; sem ele, o primeiro.

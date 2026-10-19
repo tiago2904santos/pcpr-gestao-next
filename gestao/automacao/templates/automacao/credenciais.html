@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block titulo %}Credenciais · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Credenciais da automação</h1>
+    <p class="pagina-cabecalho__descricao">Uma credencial por integração, com escopos mínimos, validade e rotação. O valor aparece uma única vez, na criação; o sistema guarda só o hash.{% if not pode_administrar %} Aqui você vê e cria só os seus tokens pessoais (eles agem com as suas permissões).{% endif %}</p>
+  </div>
+</header>
+{% if token_novo %}
+<section class="alerta alerta--sucesso mt-4" role="alert" aria-labelledby="t-token">
+  {% icone "lock" %}
+  <div class="alerta__corpo">
+    <p class="alerta__titulo" id="t-token">Copie agora: este valor não aparece de novo</p>
+    <p class="texto-pre texto-sm quebra-palavras">{{ token_novo }}</p>
+    <p class="texto-sm">Guarde no cofre de credenciais da integração (nunca no repositório, num e-mail ou no próprio workflow).</p>
+  </div>
+</section>
+{% endif %}
+<div class="layout-detalhe mt-4">
+  <section class="cartao" aria-labelledby="t-lista">
+    <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lista">Credenciais</h2></div>
+    {% if linhas %}
+    <ul class="registros">
+      {% for c, vigente in linhas %}
+      <li class="registro{% if not vigente %} registro--inativo{% endif %}">
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link">{{ c.nome }}</span><span class="selo selo--info selo--sem-ponto">{{ c.get_tipo_display }}</span>{% if c.emergencia %}<span class="selo selo--perigo selo--sem-ponto">Emergência</span>{% elif c.revogada_em %}<span class="selo selo--neutro selo--sem-ponto">Revogada</span>{% elif not vigente %}<span class="selo selo--neutro selo--sem-ponto">Vencida</span>{% else %}<span class="selo selo--sucesso selo--sem-ponto">Vigente</span>{% endif %}</div>
+          <p class="texto-sm texto-secundario quebra-palavras">{{ c.prefixo }}… · {{ c.escopos|join:", " }}{% if c.ferramentas %} · ferramentas: {{ c.ferramentas|join:", " }}{% endif %}</p>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}vale até {{ c.expira_em|date:"d/m/Y H:i" }}</span>
+            <span class="registro__meta-item">{% icone "activity" classe="icone--sm" %}{% if c.ultimo_uso_em %}usada em {{ c.ultimo_uso_em|date:"d/m H:i" }}{% else %}<span class="vazio-inline">nunca usada</span>{% endif %}</span>
+            {% if c.usuario %}<span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ c.usuario }}</span>{% endif %}
+          </div>
+        </div>
+        {% if vigente or c.emergencia %}
+        <div class="registro__acoes registro__acoes--fixas">
+          {% if vigente %}<form method="post" action="{% url 'automacao:acao_credencial' c.pk 'rotacionar' %}">{% csrf_token %}<button class="botao botao--sm" type="submit" aria-label="Rotacionar {{ c.nome }}">{% icone "refresh-cw" %}Rotacionar</button></form>{% endif %}
+          {% if pode_administrar %}<form method="post" action="{% url 'automacao:acao_credencial' c.pk 'emergencia' %}">{% csrf_token %}<button class="botao botao--sm botao--sutil" type="submit" aria-label="{% if c.emergencia %}Sair da emergência{% else %}Emergência{% endif %}: {{ c.nome }}">{% if c.emergencia %}Sair da emergência{% else %}Emergência{% endif %}</button></form>{% endif %}
+          {% if not c.revogada_em %}<form method="post" action="{% url 'automacao:acao_credencial' c.pk 'revogar' %}" data-confirmar="{{ c.nome }} deixa de funcionar agora: toda chamada com ela passa a ser recusada. Não dá para desfazer; para voltar, crie outra." data-confirmar-titulo="Revogar a credencial?" data-confirmar-rotulo="Revogar" data-confirmar-perigo>{% csrf_token %}<button class="botao botao--sm botao--perigo-sutil" type="submit" aria-label="Revogar {{ c.nome }}">{% icone "ban" %}Revogar</button></form>{% endif %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}{% include "componentes/vazio.html" with icone="lock" titulo="Nenhuma credencial" texto="Crie a credencial do n8n (transporte) ou um token pessoal ao lado." %}{% endif %}
+  </section>
+  <aside class="layout-detalhe__lateral" aria-label="Nova credencial">
+    <section class="cartao" aria-labelledby="t-nova">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-nova">Nova credencial</h2></div>
+      <form method="post" class="cartao__corpo pilha">{% csrf_token %}
+        <div class="campo"><label class="campo__rotulo" for="cred-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" id="cred-nome" name="nome" maxlength="80" required placeholder="n8n do LAB"></div>
+        <div class="campo"><label class="campo__rotulo" for="cred-tipo">Tipo</label>
+          <pc-select class="seletor"><select class="selecao" id="cred-tipo" name="tipo">
+            {% if pode_administrar %}<option value="transporte">Transporte (n8n): comunicações, recebimentos, exceções</option><option value="ia">IA: ferramentas, sempre com delegação</option>{% endif %}
+            <option value="pessoal">Pessoal: age como você</option>
+          </select></pc-select></div>
+        <div class="campo"><label class="campo__rotulo" for="cred-dias">Validade (dias)</label><input class="entrada" id="cred-dias" name="dias" type="number" min="1" max="180" value="30" inputmode="numeric"></div>
+        {% if pode_administrar %}<div class="campo"><label class="campo__rotulo" for="cred-ferramentas">Ferramentas (só IA)</label><input class="entrada" id="cred-ferramentas" name="ferramentas" placeholder="{{ nomes_ferramentas|join:', '|default:'prestacao.situacao' }}" aria-describedby="cred-ferramentas-ajuda"><p class="campo__ajuda" id="cred-ferramentas-ajuda">Separadas por vírgula. A IA nunca recebe o token de transporte.</p></div>{% endif %}
+        <div><button class="botao botao--primario" type="submit">{% icone "plus" %}Criar</button></div>
+      </form>
+    </section>
+  </aside>
+</div>
+{% endblock %}

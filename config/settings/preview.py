@@ -51,3 +51,10 @@ if DEMO_MODE:  # noqa: F405
 # Produção configura o próprio (ROTAS_PROVEDOR/ROTAS_URL) — ver docs/ops/rotas.md.
 ROTAS_PROVEDOR = env("ROTAS_PROVEDOR", "osrm")  # noqa: F405
 ROTAS_URL = env("ROTAS_URL", "https://router.project-osrm.org")  # noqa: F405
+
+# A API de automação não existe na demonstração pública (sem senha): o canal é simulado e
+# ninguém de fora deveria poder emitir ou usar credencial de máquina aqui.
+AUTOMACAO_API_LIGADA = False
+AUTOMACAO_TRANSPORTE = "interno"
+N8N_EVENTOS_URL = ""
+N8N_EVENTOS_SEGREDO = ""

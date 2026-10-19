@@ -12,6 +12,7 @@ from . import (
     views_pacotes,
     views_planos,
     views_prestacao,
+    views_proposta,
     views_relatorio,
     views_roteiros,
     views_termos,
@@ -152,6 +153,9 @@ urlpatterns = [
          name="autosave_prestacao"),
     path("prestacoes/<int:pk>/<str:acao>/", views_prestacao.acao_servidor,
          name="acao_prestacao"),
+    # Proposta consolidada (AUT-14): prévia sem gravar e "Criar rascunhos" com a assinatura.
+    path("proposta/", views_proposta.proposta, name="proposta"),
+    path("proposta/criar/", views_proposta.criar, name="criar_proposta"),
     path("viagens/", views_viagem.lista, name="viagens"),
     path("viagens/<int:pk>/resumo/", views_viagem.resumo, name="resumo_viagem"),
     path("viagens/<int:pk>/solicitacao/anexar/", views_viagem.anexar_solicitacao,

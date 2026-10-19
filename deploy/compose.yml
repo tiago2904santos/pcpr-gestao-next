@@ -140,6 +140,29 @@ services:
         condition: service_healthy
     stop_grace_period: 60s
 
+  # Automação/WhatsApp (ADR 0047) e assistência por IA (ADR 0048): sem estes workers nada sai
+  # das filas (comunicações, recebidos, eventos ao n8n, pedidos de IA). Nascem simulados e com
+  # as chaves desligadas; o canal real só com as variáveis WHATSAPP_* do LAB, a IA real só com
+  # IA_MODO/IA_API_KEY (docs/ops/lab-whatsapp-ia.md).
+  automacao:
+    <<: *app
+    command: ["python", "manage.py", "processar_automacao"]
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: ${PCPR_AUTOMACAO_MEMORIA:-512m}
+    # O envio em curso termina; o que ficar reservado volta pela reserva vencida (incerta).
+    stop_grace_period: 30s
+
+  ia:
+    <<: *app
+    command: ["python", "manage.py", "processar_ia"]
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: ${PCPR_IA_MEMORIA:-512m}
+    stop_grace_period: 30s
+
   # ---- Tarefas sob demanda (profile "ops"): docker compose run --rm <serviço> ----
   migrar:
     <<: *app

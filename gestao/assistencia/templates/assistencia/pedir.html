@@ -1,0 +1,53 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}{{ uso.rotulo }} · Assistência{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% comment %}Formulário de pedido de um uso (quando ele tem campos livres, ex.: a programação em texto). O texto vai mascarado (CPF, telefone, e-mail, link) e como DADO, nunca como instrução.{% endcomment %}
+{% block cabecalho_detalhe %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">{{ uso.codigo }} · {{ assunto.rotulo|default:"Registro" }}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ uso.rotulo }}</h1>
+    <p class="pagina-cabecalho__descricao">{{ uso.descricao }}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">{% if assunto.url %}<a class="botao" href="{{ assunto.url }}">{% icone "arrow-left" %}Voltar ao registro</a>{% endif %}</div>
+</header>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-pedido">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pedido">Pedido</h2></div>
+  <div class="cartao__corpo pilha">
+  {% if sugestao_anterior %}
+    <p class="texto-secundario">Última sugestão deste registro: <span class="selo selo--{{ sugestao_anterior.tom }} selo--sem-ponto">{{ sugestao_anterior.get_estado_display }}</span> <a href="{% url 'assistencia:sugestao' sugestao_anterior.pk %}">Abrir a revisão</a>.</p>
+  {% elif anterior %}
+    <p class="texto-secundario" role="status">Há um pedido {{ anterior.get_estado_display|lower }} para este registro. <a href="{% url 'assistencia:pedido' anterior.pk %}">Acompanhar</a>.</p>
+  {% endif %}
+  {% if not config.ligado %}
+    {% include "componentes/vazio.html" with icone="ban" titulo="Uso desligado" texto="Siga sem a sugestão: o registro continua editável à mão. Quem administra liga em Assistência › Usos." compacto=True %}
+  {% elif not pode_pedir %}
+    {% include "componentes/vazio.html" with icone="lock" titulo="Você não pode pedir sugestões para este registro" texto="A sugestão segue a mesma permissão de editar o registro." compacto=True %}
+  {% else %}
+    <form method="post" class="pilha">{% csrf_token %}
+      <input type="hidden" name="voltar" value="{{ voltar|default:request.path }}">
+      {% for o in uso.opcoes %}
+      <div class="campo campo--lg">
+        <label class="campo__rotulo" for="opcao-{{ o.nome }}">{{ o.rotulo }}{% if o.obrigatorio %} <span class="selo selo--sem-ponto">Obrigatório</span>{% endif %}</label>
+        <textarea class="area-texto" id="opcao-{{ o.nome }}" name="{{ o.nome }}" rows="8" maxlength="{{ o.max_caracteres }}"{% if o.ajuda %} aria-describedby="ajuda-{{ o.nome }}"{% endif %}{% if o.obrigatorio %} required{% endif %}></textarea>
+        {% if o.ajuda %}<p class="campo__ajuda" id="ajuda-{{ o.nome }}">{{ o.ajuda }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <p class="texto-secundario texto-sm">Modo deste uso: {{ config.get_modo_display|lower }}. A sugestão aparece para revisão antes de qualquer efeito.</p>
+      <div><button class="botao botao--primario" type="submit">{% icone "text-quote" %}{{ uso.acao }}</button></div>
+    </form>
+  {% endif %}
+  </div>
+</section>
+{% endblock %}
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-dados-uso">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados-uso">O que entra e o que não entra</h2></div>
+  <div class="cartao__corpo"><dl class="definicoes">
+    {% include "componentes/metadado.html" with rotulo="Entra" valor=uso.campos_permitidos|join:", " %}
+    {% include "componentes/metadado.html" with rotulo="Nunca entra" valor=uso.dados_excluidos|join:"; " %}
+  </dl></div>
+</section>
+{% endblock %}

@@ -1,0 +1,1477 @@
+{
+  "inicio": "2026-10-18T09:29:19-03:00",
+  "codigo_do_pcpr": {
+    "sha256_codigo": "08339b4db2ad9401c32d67addfb80b67a6e7280c2a2bb3df5b233b3d51bee86f",
+    "arquivos": 61,
+    "commit_base": "716e9efcffe86167b27b75c21e3aea3750d97d6e"
+  },
+  "imagem_n8n": "docker.n8n.io/n8nio/n8n:2.43.7",
+  "python": "3.13.15",
+  "portas": {
+    "n8n": 5679,
+    "pcpr": 8770,
+    "espiao": 8775,
+    "graph": 8777,
+    "postgres": 55439
+  },
+  "garantias": {
+    "pcpr": "real (runserver do worktree, APP_ENV=lab, PostgreSQL descartável em tmpfs, AUTOMACAO_TRANSPORTE=n8n)",
+    "graph_api": "simulada em 127.0.0.1:8777; no contêiner graph.facebook.com, graph.whatsapp.com, lookaside.fbsbx.com, facebook.com, www.facebook.com → 127.0.0.1",
+    "guarda_de_rede_no_pcpr": "sitecustomize: só 127.0.0.1/localhost resolvem",
+    "segredos": "sintéticos, gerados nesta execução; o token da API só em memória e num arquivo temporário fora do repositório, apagado no fim",
+    "numeros": "fictícios 5523999990001… (DDD 23 não existe)"
+  },
+  "cenarios": [
+    {
+      "id": "T1",
+      "nome": "evento válido do emissor real → 1 envio e 1 resultado; envelope no esquema",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:31:31-03:00",
+      "evidencia": {
+        "comunicacao_id": 1,
+        "evento": {
+          "tipo": "comunicacao.agendada",
+          "situacao": "entregue",
+          "tentativas": 1
+        },
+        "reservas": 1,
+        "chave_idempotencia_reserva": "reserva:1:v1:exec5",
+        "versao_esperada_enviada": "1",
+        "resultados_registrados": 1,
+        "envios_na_graph_api": 1,
+        "mensagem": {
+          "tipo": "template",
+          "modelo": "pcpr_diarias_liberadas_v1",
+          "parametros": 4,
+          "biz_opaque_callback_data": "com:1:t1"
+        },
+        "estado_final": "enviada",
+        "provedor_mensagem_id_registrado": true,
+        "envelopes_validados": [
+          "automacao.religada",
+          "comunicacao.agendada"
+        ],
+        "erros_de_esquema": {},
+        "dados_da_agendada": {
+          "fluxo": "diarias-liberadas",
+          "imediato": true,
+          "enviar_em": "2026-10-18T12:31:32.977029+00:00",
+          "comunicacao_id": 1,
+          "tipo_comunicacao": "mensagem_saque"
+        }
+      },
+      "segundos": 6.5
+    },
+    {
+      "id": "T2",
+      "nome": "mesmo evento reenviado (série, paralelo, outro id) → 1 envio",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:31:37-03:00",
+      "evidencia": {
+        "a_reentregas_em_serie": {
+          "respostas_n8n": [
+            202,
+            202
+          ],
+          "chamadas_novas_ao_pcpr": 0,
+          "envios": 1
+        },
+        "b_cinco_simultaneas": {
+          "respostas_n8n": [
+            202,
+            202,
+            202,
+            202,
+            202
+          ],
+          "execucoes_que_tentaram_reservar": 1,
+          "reservas_por_status": {
+            "200": 1
+          },
+          "codigos_409": [],
+          "envios": 1
+        },
+        "c_outro_id_mesma_comunicacao": {
+          "resposta_n8n": 202,
+          "reserva": [
+            409
+          ],
+          "codigo": "ja_processada",
+          "envios": 1
+        }
+      },
+      "segundos": 13.0
+    },
+    {
+      "id": "T3",
+      "nome": "assinatura inválida → 401 e 0 envio; emissor real com segredo errado",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:31:50-03:00",
+      "evidencia": {
+        "respostas_invalidas": {
+          "segredo_errado": 401,
+          "t_de_10_min_atras": 401,
+          "sem_assinatura": 401,
+          "ambiente_producao": 401,
+          "evento_id_divergente": 401,
+          "corpo_alterado_depois_de_assinado": 401
+        },
+        "envios_com_eventos_invalidos": 0,
+        "e_emissor_real_com_segredo_errado": {
+          "situacao_do_evento": "configuracao",
+          "excecao_eventos_n8n_401": true,
+          "repete": false
+        },
+        "f_controle_positivo_emissor_real": {
+          "status": [
+            202
+          ],
+          "envios": 1
+        },
+        "g_utf8": {
+          "assinado_sobre_reserializacao_ascii": 401,
+          "assinado_sobre_bytes_utf8": 202
+        }
+      },
+      "segundos": 8.8
+    },
+    {
+      "id": "T4",
+      "nome": "evento obsoleto/versão antiga → 409 e 0 envio",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:31:59-03:00",
+      "evidencia": {
+        "a_versao_nova_da_liberacao": {
+          "comunicacao_antiga": 4,
+          "resposta_n8n": [
+            202
+          ],
+          "reserva": [
+            409
+          ],
+          "codigo": "obsoleta",
+          "estado_antiga": "obsoleta",
+          "envios_antiga": 0,
+          "comunicacao_nova": 5,
+          "envios_nova": 1
+        },
+        "a2_futura_nao_antecipada": {
+          "comunicacao": 6,
+          "reservas": 0,
+          "nas_devidas": false,
+          "estado": "agendada"
+        },
+        "b_versao_antiga_depois_de_aprovacao": {
+          "comunicacao": 7,
+          "reconciliacao_assistido": [
+            200,
+            {
+              "devidas": 1
+            }
+          ],
+          "revisao_apos_aprovar": 2,
+          "evento_v1": [
+            202
+          ],
+          "reserva_v1": [
+            409,
+            "conflito_de_versao"
+          ],
+          "reconciliacao": [
+            200,
+            {
+              "devidas": 1
+            }
+          ],
+          "reserva_v2_versao_esperada": "2",
+          "envios_v2": 1
+        }
+      },
+      "segundos": 12.6
+    },
+    {
+      "id": "T5",
+      "nome": "automação desligada → 0 envio; 423 no reservar; religada → 1 cada",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:32:11-03:00",
+      "evidencia": {
+        "a_geral_desligada": {
+          "comunicacao": 8,
+          "reservas": 0,
+          "estado": "agendada"
+        },
+        "b_canal_desligado": {
+          "comunicacao": 9,
+          "estado_api": {
+            "ligada": true,
+            "canais.whatsapp": "desligado"
+          },
+          "reserva": [
+            423
+          ],
+          "codigo": "desligada",
+          "423_guardado": false,
+          "estado": "agendada",
+          "envios": 0
+        },
+        "c_religada": {
+          "reconciliacao": {
+            "devidas": 2
+          },
+          "envios": {
+            "8": 1,
+            "9": 1
+          }
+        }
+      },
+      "segundos": 11.5
+    },
+    {
+      "id": "T6",
+      "resultado": "NÃO APLICÁVEL",
+      "motivo": "Canal genérico com recusa 1× e 2ª tentativa no W2: o PCPR real só tem o canal WhatsApp (toda reserva vem com canal=whatsapp → W6), e o W6 por desenho NÃO repete o POST /messages (a Cloud API não tem chave de idempotência). O caminho de 3 tentativas do W2 não existe no alvo pcpr. Recusa temporária do WhatsApp: ver T7 (adaptado)."
+    },
+    {
+      "id": "T7",
+      "nome": "Graph API sempre recusa (temporário) → rodadas do PCPR, exceção no fim",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:32:23-03:00",
+      "evidencia": {
+        "rodadas": [
+          {
+            "rodada": 1,
+            "estado": "agendada",
+            "tentativas": 1,
+            "proxima_em_s": 120,
+            "relogio_avancado": {
+              "campo": "proxima_tentativa_em",
+              "era": "2026-10-18T12:34:24.188544+00:00",
+              "virou": "2026-10-18T12:32:23.214246+00:00"
+            }
+          },
+          {
+            "rodada": 2,
+            "estado": "agendada",
+            "tentativas": 2,
+            "proxima_em_s": 480,
+            "relogio_avancado": {
+              "campo": "proxima_tentativa_em",
+              "era": "2026-10-18T12:40:24.750331+00:00",
+              "virou": "2026-10-18T12:32:23.829565+00:00"
+            }
+          },
+          {
+            "rodada": 3,
+            "estado": "falhou",
+            "tentativas": 3,
+            "proxima_em_s": null
+          }
+        ],
+        "tentativas_na_graph_api": [
+          131000,
+          131000,
+          131000
+        ],
+        "envios_aceitos": 0,
+        "excecoes": [
+          {
+            "tipo": "falha_definitiva",
+            "chave": "falha_definitiva:com:10",
+            "situacao": "aberta"
+          }
+        ],
+        "reconciliacao_final": {
+          "devidas": 0
+        },
+        "observacao": "espera entre rodadas calculada pelo PCPR (2 min, 8 min); o relógio foi avançado no banco descartável em vez de esperar"
+      },
+      "segundos": 8.2
+    },
+    {
+      "id": "T8",
+      "nome": "evento perdido → reconciliação envia 1 vez",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:32:31-03:00",
+      "evidencia": {
+        "reconciliacao_1": {
+          "devidas": 1
+        },
+        "reconciliacao_2": {
+          "devidas": 0
+        },
+        "envios": 1,
+        "evento_atrasado": {
+          "reserva": 409,
+          "codigo": "ja_processada"
+        }
+      },
+      "segundos": 7.8
+    },
+    {
+      "id": "T9",
+      "resultado": "NÃO APLICÁVEL",
+      "motivo": "W4 é o recebimento do canal genérico (e-mail): a API real responde 501 integracao_inexistente para canal≠whatsapp (piloto WhatsApp). A idempotência de /recebimentos com canal whatsapp está em TW9 e X1."
+    },
+    {
+      "id": "T10",
+      "nome": "queda do n8n no meio → nada duplicado, reconciliação completa",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:32:44-03:00",
+      "evidencia": {
+        "grupo_A_enviando_na_queda": [
+          13,
+          14,
+          15,
+          16
+        ],
+        "graph_aceitou_cada_A": 1,
+        "queda": "docker kill com 4 respostas da Graph API pendentes (atraso 8 s)",
+        "grupo_B_com_n8n_fora": [
+          {
+            "situacao": "pendente",
+            "ultimo_erro": "URLError"
+          },
+          {
+            "situacao": "pendente",
+            "ultimo_erro": "URLError"
+          }
+        ],
+        "n8n_voltou_em_s": 22.0,
+        "reentrega_de_evento_A": [
+          202
+        ],
+        "reconciliacao": {
+          "devidas": 2
+        },
+        "A_estado_antes_do_prazo": [
+          "reservada",
+          "reservada",
+          "reservada",
+          "reservada"
+        ],
+        "relogio_avancado_reservada_ate": 4,
+        "A_estado_final": [
+          "incerta",
+          "incerta",
+          "incerta",
+          "incerta"
+        ],
+        "A_excecoes": {
+          "13": [
+            "resultado_incerto"
+          ],
+          "14": [
+            "resultado_incerto"
+          ],
+          "15": [
+            "resultado_incerto"
+          ],
+          "16": [
+            "resultado_incerto"
+          ]
+        },
+        "duplicados": 0,
+        "segundos_desde_a_queda": 32.8
+      },
+      "segundos": 36.1
+    },
+    {
+      "id": "T11",
+      "resultado": "NÃO APLICÁVEL",
+      "motivo": "Regra da véspera (`regra_vespera.py`) é uma função pura do protótipo; o PCPR real não implementa o link de km da véspera pela API de automação. Não toca a API."
+    },
+    {
+      "id": "T12",
+      "nome": "erro inesperado → W5 abre exceção no PCPR",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:32:39-03:00",
+      "evidencia": {
+        "estado_injetado": "2x HTTP 500 no /estado (espião; a API não foi alterada)",
+        "excecao_no_pcpr": {
+          "tipo": "atendimento",
+          "chave": "api:n8n:PCPR · Entregar comunicação:n8n:execucao:72:outro…",
+          "resumo": "Automação externa (n8n:PCPR · Entregar comunicação): outro. The service was not able to process your request (nó: Consultar estado)"
+        },
+        "post_excecoes": [
+          201
+        ],
+        "reconciliacao": {
+          "devidas": 1
+        },
+        "envios": 1
+      },
+      "segundos": 5.3
+    },
+    {
+      "id": "T13",
+      "nome": "nada sensível retido no n8n (envio)",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:36:08-03:00",
+      "evidencia": {
+        "imediata": {
+          "segundos_desde_subida": 119.1,
+          "destino_e_token": {
+            "envio·destino": 35,
+            "envio·token_reserva": 5
+          }
+        },
+        "apos_hard_delete": {
+          "segundos_desde_subida": 195.1,
+          "destino_e_token": {}
+        },
+        "credenciais_no_n8n": 0,
+        "configuracao": "EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=1 (n8n_local.py)"
+      },
+      "segundos": 0.0
+    },
+    {
+      "id": "TW0",
+      "nome": "simulador da Graph API aplica as regras (pré-condição)",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:31:31-03:00",
+      "evidencia": {
+        "sem_bearer": [
+          401,
+          190
+        ],
+        "texto_fora_da_janela": [
+          400,
+          131047
+        ],
+        "modelo_aprovado": [
+          200,
+          "wamid"
+        ],
+        "modelo_pendente": [
+          400,
+          132001
+        ]
+      },
+      "segundos": 0.1
+    },
+    {
+      "id": "TW1",
+      "nome": "modelo enviado 1× e wamid registrado no PCPR",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:33:20-03:00",
+      "evidencia": {
+        "mensagem": {
+          "tipo": "template",
+          "modelo": "pcpr_diarias_liberadas_v1",
+          "parametros": 4,
+          "biz_opaque_callback_data": "com:19:t1"
+        },
+        "reservas": 1,
+        "resultados": 1,
+        "provedor_mensagem_id_registrado": true,
+        "busca_pelo_wamid": {
+          "itens": [
+            {
+              "id": 19,
+              "versao": 1
+            }
+          ]
+        }
+      },
+      "segundos": 4.4
+    },
+    {
+      "id": "TW2",
+      "nome": "evento duplicado → 1 mensagem",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:33:25-03:00",
+      "evidencia": {
+        "serie": {
+          "respostas": [
+            202,
+            202
+          ],
+          "mensagens": 1
+        },
+        "paralelo_3x": {
+          "respostas": [
+            202,
+            202,
+            202
+          ],
+          "mensagens": 1,
+          "reservas": [
+            200,
+            409
+          ]
+        },
+        "outro_id": {
+          "resposta": 202,
+          "mensagens": 1
+        }
+      },
+      "segundos": 7.2
+    },
+    {
+      "id": "TW3",
+      "nome": "fora da janela: modelo; 131047 nunca em laço",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:33:32-03:00",
+      "evidencia": {
+        "a_janela_fechada": {
+          "mensagens": [
+            "template"
+          ]
+        },
+        "b_pcpr_aberta_meta_fechada": {
+          "mensagens": [
+            [
+              "text",
+              131047
+            ]
+          ],
+          "estado": "falhou",
+          "excecoes": [
+            {
+              "tipo": "falha_definitiva",
+              "chave": "falha_definitiva:com:24",
+              "situacao": "aberta"
+            },
+            {
+              "tipo": "atendimento",
+              "chave": "api:whatsapp:com-24:outro",
+              "situacao": "aberta"
+            }
+          ],
+          "troca_por_modelo": "não aplicável: a reserva real só traz `mensagem.modelo` quando o PCPR acha a janela fechada (extensão `mensagem.whatsapp` do protótipo não adotada)"
+        },
+        "c_131047_assincrono": {
+          "mensagens": 1,
+          "estado": "falhou",
+          "entrega": "falhou",
+          "excecoes": [
+            {
+              "tipo": "falha_definitiva",
+              "chave": "falha_definitiva:com:25",
+              "situacao": "aberta"
+            }
+          ],
+          "substituta_por_modelo": "não aplicável (extensão `substitui` do protótipo não adotada no contrato)"
+        },
+        "d_sem_modelo": {
+          "graph": 0,
+          "reserva": [
+            409,
+            "regra_violada"
+          ],
+          "estado": "falhou",
+          "excecoes": [
+            {
+              "tipo": "falha_definitiva",
+              "chave": "falha_definitiva:com:26",
+              "situacao": "aberta"
+            }
+          ]
+        },
+        "e_modelo_nao_aprovado": {
+          "tentativas": [
+            132001
+          ],
+          "estado": "falhou",
+          "excecoes": [
+            {
+              "tipo": "falha_definitiva",
+              "chave": "falha_definitiva:com:27",
+              "situacao": "aberta"
+            },
+            {
+              "tipo": "atendimento",
+              "chave": "api:whatsapp:com-27:outro",
+              "situacao": "aberta"
+            }
+          ]
+        },
+        "131047_na_bateria": [
+          {
+            "comunicacao": "com:24:t1",
+            "tipo": "text"
+          }
+        ]
+      },
+      "segundos": 17.9
+    },
+    {
+      "id": "TW4",
+      "resultado": "NÃO APLICÁVEL",
+      "motivo": "Documento por id de mídia: a reserva real (`ComunicacaoReservada`) não traz `anexos` nem `url_assinada` para nenhum tipo implementado; o W6 do alvo pcpr não tem o ramo de documento."
+    },
+    {
+      "id": "TW5",
+      "nome": "status fora de ordem e duplicado → lida, sem regressão",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:07-03:00",
+          "evidencia": {
+            "webhooks": [
+              200,
+              200,
+              200,
+              200
+            ],
+            "read_repetido_com_outro_horario": 200,
+            "sem_callback_data": 200,
+            "posts_entrega": [
+              [
+                200,
+                false,
+                null
+              ],
+              [
+                200,
+                false,
+                null
+              ],
+              [
+                200,
+                true,
+                null
+              ],
+              [
+                200,
+                true,
+                null
+              ]
+            ],
+            "busca_pelo_wamid": [
+              200
+            ],
+            "estado_final_entrega": "lida",
+            "entregue_em": true,
+            "lida_em": true,
+            "situacao": "enviada"
+          },
+          "resultado": "PASSOU",
+          "segundos": 6.6
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:34-03:00",
+          "evidencia": {
+            "webhooks": [
+              200,
+              200,
+              200,
+              200
+            ],
+            "read_repetido_com_outro_horario": 200,
+            "status_registrados": [
+              "entregue",
+              "enviada",
+              "lida"
+            ],
+            "entradas_webhook": 5,
+            "estado_final_entrega": "lida",
+            "entregue_em": true,
+            "lida_em": true,
+            "situacao": "enviada"
+          },
+          "resultado": "PASSOU",
+          "segundos": 3.2
+        }
+      }
+    },
+    {
+      "id": "TW6",
+      "nome": "assinatura inválida → 401, nada gravado",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:14-03:00",
+          "evidencia": {
+            "respostas_invalidas": {
+              "segredo_errado": 401,
+              "sem_assinatura": 401,
+              "corpo_alterado": 401,
+              "sha1": 401
+            },
+            "entradas_gravadas": 0,
+            "midias_tocadas": 0,
+            "controle_positivo": {
+              "status": 200,
+              "recebimentos": 1
+            }
+          },
+          "resultado": "PASSOU",
+          "segundos": 3.7
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:37-03:00",
+          "evidencia": {
+            "respostas_invalidas": {
+              "segredo_errado": 401,
+              "sem_assinatura": 401,
+              "corpo_alterado": 401,
+              "sha1": 401
+            },
+            "entradas_gravadas": 0,
+            "midias_tocadas": 0,
+            "controle_positivo": {
+              "status": 200,
+              "recebimentos": 1
+            }
+          },
+          "resultado": "PASSOU",
+          "segundos": 3.6
+        }
+      }
+    },
+    {
+      "id": "TW7",
+      "nome": "verificação GET",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:18-03:00",
+          "evidencia": {
+            "correta": [
+              200,
+              "text/plain; charset=utf-8"
+            ],
+            "token_errado": 403,
+            "modo_errado": 403,
+            "desafio_nao_alfanumerico": [
+              403,
+              null
+            ]
+          },
+          "resultado": "PASSOU",
+          "segundos": 0.3
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:41-03:00",
+          "evidencia": {
+            "correta": [
+              200,
+              "text/plain; charset=utf-8"
+            ],
+            "token_errado": 403,
+            "modo_errado": 403,
+            "desafio_nao_alfanumerico": [
+              403,
+              null
+            ]
+          },
+          "resultado": "PASSOU",
+          "segundos": 0.2
+        }
+      }
+    },
+    {
+      "id": "TW8",
+      "nome": "documento recebido → 1 recebimento",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:18-03:00",
+          "evidencia": {
+            "webhook": 200,
+            "recebimentos": 1,
+            "situacao": "identificado",
+            "comunicacao_respondida": 38,
+            "passos_na_graph_api": {
+              "metadados": 1,
+              "downloads": [
+                200
+              ]
+            },
+            "sha256_conferido": true,
+            "b_sha256_divergente": {
+              "recebimentos": 0,
+              "excecao": true,
+              "webhook": 200
+            },
+            "c_lote_misto": {
+              "resposta": 200,
+              "recebimentos": 1,
+              "entrega": "entregue"
+            }
+          },
+          "resultado": "PASSOU",
+          "segundos": 7.8
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:41-03:00",
+          "evidencia": {
+            "webhook": 200,
+            "recebimentos": 1,
+            "situacao": "recusado",
+            "comunicacao_respondida": 41,
+            "passos_na_graph_api": {
+              "metadados": 0,
+              "downloads": []
+            },
+            "download_pelo_pcpr": "não aplicável: o PCPR baixa da base fixa https://graph.facebook.com (gestao/integracoes/whatsapp/config.py: BASE_URL constante) — a guarda de rede bloqueou ['graph.facebook.com']; 0 download no simulador",
+            "c_lote_misto": {
+              "resposta": 200,
+              "recebimentos": 1,
+              "entrega": "entregue"
+            }
+          },
+          "resultado": "PASSOU",
+          "segundos": 5.4
+        }
+      }
+    },
+    {
+      "id": "TW9",
+      "nome": "reentrega do mesmo webhook → 1 recebimento",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:26-03:00",
+          "evidencia": {
+            "entregas_identicas": 3,
+            "respostas": [
+              200,
+              200,
+              200
+            ],
+            "recebimentos": 1,
+            "downloads_no_simulador": 3,
+            "post_recebimentos": [
+              [
+                202,
+                false
+              ],
+              [
+                202,
+                true
+              ],
+              [
+                202,
+                true
+              ]
+            ]
+          },
+          "resultado": "PASSOU",
+          "segundos": 3.9
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:46-03:00",
+          "evidencia": {
+            "entregas_identicas": 3,
+            "respostas": [
+              200,
+              200,
+              200
+            ],
+            "recebimentos": 1,
+            "downloads_no_simulador": 0,
+            "entradas_webhook_com_mensagem": 11
+          },
+          "resultado": "PASSOU",
+          "segundos": 3.2
+        }
+      }
+    },
+    {
+      "id": "TW10",
+      "nome": "URL de mídia vencida → pede nova",
+      "resultado": "PASSOU",
+      "variantes": {
+        "V1": {
+          "inicio": "2026-10-18T09:34:30-03:00",
+          "evidencia": {
+            "pedidos_de_url": 2,
+            "downloads": [
+              404,
+              200
+            ],
+            "recebimentos": 1,
+            "webhook": 200
+          },
+          "resultado": "PASSOU",
+          "segundos": 2.5
+        },
+        "V2": {
+          "inicio": "2026-10-18T09:34:50-03:00",
+          "resultado": "NÃO APLICÁVEL",
+          "motivo": "na V2 quem baixa é o PCPR, da base fixa https://graph.facebook.com (BASE_URL constante em gestao/integracoes/whatsapp/config.py): não dá para apontar para o simulador sem mudar o código; a guarda de rede bloqueia a chamada",
+          "evidencia": {},
+          "segundos": 0.0
+        }
+      }
+    },
+    {
+      "id": "TW11",
+      "nome": "canal bloqueado → 0 chamada à Graph API; desligado ≠ bloqueado",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:33:50-03:00",
+      "evidencia": {
+        "a_bloqueado": {
+          "estado_api": {
+            "canais.whatsapp": "bloqueado",
+            "canais_entrada.whatsapp": "bloqueado"
+          },
+          "reserva": [
+            409,
+            "canal_bloqueado"
+          ],
+          "estado": "agendada",
+          "graph": 0,
+          "aguardando_envio_manual": "não aplicável (estado da extensão WA-1 do protótipo; no PCPR real a comunicação segue `agendada`)"
+        },
+        "c_entrada_bloqueada": {
+          "webhook_v2": 200,
+          "entradas_gravadas": 1,
+          "post_recebimentos": [
+            409,
+            "canal_bloqueado"
+          ]
+        },
+        "d_desligado": {
+          "reserva": [
+            423
+          ],
+          "reconciliacao": {
+            "devidas": 3
+          },
+          "mensagens": 1
+        },
+        "mensagens_enquanto_bloqueado": 0,
+        "a_depois_de_desbloqueado": {
+          "estado": "enviada",
+          "mensagens": 1,
+          "nota": "a comunicação recusada com canal_bloqueado segue agendada no PCPR real e sai na primeira reconciliação depois de o canal voltar a `ligado`"
+        }
+      },
+      "segundos": 8.7
+    },
+    {
+      "id": "TW12",
+      "nome": "contato sem opt-in/verificação → não envia",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:33:59-03:00",
+      "evidencia": {
+        "i_sem_contato": {
+          "reserva": [
+            [
+              409,
+              "regra_violada"
+            ]
+          ],
+          "estado": "recusada",
+          "excecoes": [
+            "contato"
+          ],
+          "graph": 0
+        },
+        "ii_nao_verificado": {
+          "reserva": [
+            [
+              409,
+              "regra_violada"
+            ]
+          ],
+          "estado": "recusada",
+          "excecoes": [
+            "contato"
+          ],
+          "graph": 0
+        },
+        "iii_revogado_com_pendente": {
+          "reserva": [
+            [
+              409,
+              "obsoleta"
+            ]
+          ],
+          "estado": "cancelada",
+          "excecoes": [],
+          "graph": 0
+        },
+        "iii_revogado_depois": {
+          "reserva": [
+            [
+              409,
+              "regra_violada"
+            ]
+          ],
+          "estado": "recusada",
+          "excecoes": [
+            "contato"
+          ],
+          "graph": 0
+        }
+      },
+      "segundos": 4.8
+    },
+    {
+      "id": "TW13",
+      "nome": "retenção no n8n: V1 × V2",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:36:08-03:00",
+      "evidencia": {
+        "V1_logo_apos": {
+          "V1·wamid": 27,
+          "V1·nome_perfil": 18,
+          "V1·url_midia": 16,
+          "V1·id_midia": 34,
+          "V1·documento": 9
+        },
+        "V2_em_qualquer_varredura": 0,
+        "apos_hard_delete": 0,
+        "segredos_vindos_de_fora_retidos": {
+          "apos_v1": {
+            "segredo·wa_verify_token": 3
+          },
+          "apos_v2": {
+            "segredo·wa_verify_token": 3
+          },
+          "imediata": {
+            "segredo·wa_verify_token": 3
+          },
+          "apos_hard_delete": {}
+        }
+      },
+      "segundos": 0.0
+    },
+    {
+      "id": "X1",
+      "nome": "contrato de /recebimentos: mesma chave, outro SHA-256 → 409",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:34:03-03:00",
+      "evidencia": {
+        "primeiro": [
+          202,
+          "identificado"
+        ],
+        "repeticao_identica": [
+          202,
+          "identificado",
+          "true"
+        ],
+        "mesma_chave_outro_sha256": [
+          409,
+          "conflito_de_versao"
+        ],
+        "recebimentos": 1,
+        "canal_email_json": [
+          501,
+          "integracao_inexistente"
+        ]
+      },
+      "segundos": 0.4
+    },
+    {
+      "id": "X2",
+      "nome": "Idempotency-Key > 200: workflows usam <prefixo>sha256:<hex>",
+      "resultado": "PASSOU",
+      "inicio": "2026-10-18T09:34:04-03:00",
+      "evidencia": {
+        "pcpr_com_chave_de_216": [
+          422,
+          "entrada_invalida"
+        ],
+        "webhook_w7": 200,
+        "post_sem_arquivo": [
+          [
+            202,
+            88,
+            "receb#sha256:w…"
+          ]
+        ]
+      },
+      "segundos": 3.5
+    }
+  ],
+  "postgres_s": 4.0,
+  "migrate_s": 51.4,
+  "cenario": {
+    "prestacoes": 2,
+    "telefones": [
+      "5523999990001",
+      "5523999990002"
+    ],
+    "credencial": {
+      "tipo": "transporte",
+      "escopos": [
+        "estado:ler",
+        "comunicacoes:ler",
+        "comunicacoes:reservar",
+        "comunicacoes:resultado",
+        "comunicacoes:entrega",
+        "recebimentos:criar",
+        "recebimentos:ler",
+        "entradas:criar",
+        "assistente:mensagens",
+        "excecoes:criar"
+      ],
+      "prefixo": "<opaco: pcpr_lab_…>"
+    }
+  },
+  "preparacao_n8n": {
+    "segundos": 49.6,
+    "saida_cli": [
+      "pcprEntradaEvt01|PCPR · Entrada de eventos",
+      "pcprEntregaCom01|PCPR · Entregar comunicação",
+      "pcprReconcilia01|PCPR · Reconciliação",
+      "pcprErros0000001|PCPR · Erros",
+      "pcprWhatsEnvio01|PCPR · Enviar por WhatsApp (oficial)",
+      "pcprWhatsWebhk01|PCPR · Webhook WhatsApp",
+      "pcprWhatsStatus1|PCPR · Status WhatsApp",
+      "pcprEntradaEvt01",
+      "pcprEntregaCom01",
+      "pcprReconcilia01",
+      "pcprErros0000001",
+      "pcprWhatsEnvio01",
+      "pcprWhatsWebhk01",
+      "pcprWhatsStatus1"
+    ]
+  },
+  "primeira_subida_n8n_s": 10.2,
+  "config_efetiva_n8n": {
+    "diagnostics": false,
+    "versionNotifications": false,
+    "whatsNew": false,
+    "templates": false,
+    "personalization": false,
+    "dynamicBanners": false,
+    "hiringBanner": false,
+    "licenseAutoRenew": false,
+    "ai": false,
+    "publicApiDisabled": true,
+    "ssrf": {
+      "enabled": true,
+      "allowedHostnames": [
+        "host.docker.internal"
+      ]
+    },
+    "prune": {
+      "on": true,
+      "maxAgeH": 168,
+      "maxCount": 5000
+    },
+    "timezone": "America/Sao_Paulo",
+    "runnersMode": "internal",
+    "db": "sqlite"
+  },
+  "nos_oficiais_whatsapp_na_imagem": {
+    "pasta": "/usr/local/lib/node_modules/n8n/node_modules/n8n-nodes-base/dist/nodes/WhatsApp",
+    "ocorrencias": [
+      "1 graph.facebook.com/v13.0",
+      "2 graph.facebook.com/v19.0"
+    ],
+    "erro": null
+  },
+  "controle_positivo_v1": {
+    "wamid": "…YjI1Zg"
+  },
+  "defeitos": {},
+  "varreduras": {
+    "apos_v1": {
+      "rotulo": "apos_v1",
+      "em": "2026-10-18T09:34:34-03:00",
+      "segundos_desde_subida_do_n8n": 100.9,
+      "tabelas_de_execucao": {
+        "envio·destino": 13,
+        "envio·destino[b64]": 19,
+        "V1·wamid": 9,
+        "V1·wamid[b64]": 9,
+        "V1·nome_perfil": 9,
+        "V1·nome_perfil[b64]": 9,
+        "V1·url_midia": 8,
+        "V1·url_midia[b64]": 8,
+        "V1·id_midia": 17,
+        "V1·id_midia[b64]": 17,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 2,
+        "status·wamid_saida": 3,
+        "status·wamid_saida[b64]": 2
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 9,
+        "V1·documento": 9
+      },
+      "linhas_execution_entity": {
+        "pcprEntradaEvt01|crashed|ativa": 4,
+        "pcprWhatsWebhk01|running|soft-deleted": 13,
+        "pcprEntradaEvt01|running|soft-deleted": 2,
+        "pcprEntregaCom01|running|soft-deleted": 2,
+        "pcprWhatsEnvio01|running|soft-deleted": 2,
+        "pcprWhatsStatus1|running|soft-deleted": 1
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsWebhk01|running|soft-deleted": {
+          "envio·destino": 10,
+          "envio·destino[b64]": 19,
+          "V1·wamid": 9,
+          "V1·wamid[b64]": 9,
+          "V1·nome_perfil": 9,
+          "V1·nome_perfil[b64]": 9,
+          "V1·url_midia": 8,
+          "V1·url_midia[b64]": 8,
+          "V1·id_midia": 17,
+          "V1·id_midia[b64]": 17,
+          "segredo·wa_verify_token": 3,
+          "status·wamid_saida": 2,
+          "status·wamid_saida[b64]": 2
+        },
+        "pcprWhatsEnvio01|running|soft-deleted": {
+          "envio·destino": 2,
+          "envio·token_reserva": 2
+        },
+        "pcprWhatsStatus1|running|soft-deleted": {
+          "envio·destino": 1,
+          "status·wamid_saida": 1
+        }
+      },
+      "por_grupo": {
+        "envio·destino": 32,
+        "V1·wamid": 27,
+        "V1·nome_perfil": 18,
+        "V1·url_midia": 16,
+        "V1·id_midia": 34,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 2,
+        "status·wamid_saida": 5,
+        "V1·documento": 9
+      }
+    },
+    "apos_v2": {
+      "rotulo": "apos_v2",
+      "em": "2026-10-18T09:34:51-03:00",
+      "segundos_desde_subida_do_n8n": 117.9,
+      "tabelas_de_execucao": {
+        "envio·destino": 16,
+        "envio·destino[b64]": 19,
+        "V1·wamid": 9,
+        "V1·wamid[b64]": 9,
+        "V1·nome_perfil": 9,
+        "V1·nome_perfil[b64]": 9,
+        "V1·url_midia": 8,
+        "V1·url_midia[b64]": 8,
+        "V1·id_midia": 17,
+        "V1·id_midia[b64]": 17,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 5,
+        "status·wamid_saida": 3,
+        "status·wamid_saida[b64]": 2
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 9,
+        "V1·documento": 9
+      },
+      "linhas_execution_entity": {
+        "pcprEntradaEvt01|crashed|ativa": 4,
+        "pcprWhatsWebhk01|running|soft-deleted": 13,
+        "pcprEntradaEvt01|running|soft-deleted": 5,
+        "pcprEntregaCom01|running|soft-deleted": 5,
+        "pcprWhatsEnvio01|running|soft-deleted": 5,
+        "pcprWhatsStatus1|running|soft-deleted": 1
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsWebhk01|running|soft-deleted": {
+          "envio·destino": 10,
+          "envio·destino[b64]": 19,
+          "V1·wamid": 9,
+          "V1·wamid[b64]": 9,
+          "V1·nome_perfil": 9,
+          "V1·nome_perfil[b64]": 9,
+          "V1·url_midia": 8,
+          "V1·url_midia[b64]": 8,
+          "V1·id_midia": 17,
+          "V1·id_midia[b64]": 17,
+          "segredo·wa_verify_token": 3,
+          "status·wamid_saida": 2,
+          "status·wamid_saida[b64]": 2
+        },
+        "pcprWhatsEnvio01|running|soft-deleted": {
+          "envio·destino": 5,
+          "envio·token_reserva": 5
+        },
+        "pcprWhatsStatus1|running|soft-deleted": {
+          "envio·destino": 1,
+          "status·wamid_saida": 1
+        }
+      },
+      "por_grupo": {
+        "envio·destino": 35,
+        "V1·wamid": 27,
+        "V1·nome_perfil": 18,
+        "V1·url_midia": 16,
+        "V1·id_midia": 34,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 5,
+        "status·wamid_saida": 5,
+        "V1·documento": 9
+      }
+    },
+    "imediata": {
+      "rotulo": "imediata",
+      "em": "2026-10-18T09:34:52-03:00",
+      "segundos_desde_subida_do_n8n": 119.1,
+      "tabelas_de_execucao": {
+        "envio·destino": 16,
+        "envio·destino[b64]": 19,
+        "V1·wamid": 9,
+        "V1·wamid[b64]": 9,
+        "V1·nome_perfil": 9,
+        "V1·nome_perfil[b64]": 9,
+        "V1·url_midia": 8,
+        "V1·url_midia[b64]": 8,
+        "V1·id_midia": 17,
+        "V1·id_midia[b64]": 17,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 5,
+        "status·wamid_saida": 3,
+        "status·wamid_saida[b64]": 2
+      },
+      "demais_tabelas": {},
+      "arquivos": {
+        "V1·wamid": 9,
+        "V1·documento": 9
+      },
+      "linhas_execution_entity": {
+        "pcprEntradaEvt01|crashed|ativa": 4,
+        "pcprWhatsWebhk01|running|soft-deleted": 13,
+        "pcprEntradaEvt01|running|soft-deleted": 5,
+        "pcprEntregaCom01|running|soft-deleted": 5,
+        "pcprWhatsEnvio01|running|soft-deleted": 5,
+        "pcprWhatsStatus1|running|soft-deleted": 1,
+        "pcprEntradaEvt01|running|ativa": 1,
+        "pcprEntregaCom01|running|ativa": 1
+      },
+      "execucoes_com_marcadores": {
+        "pcprWhatsWebhk01|running|soft-deleted": {
+          "envio·destino": 10,
+          "envio·destino[b64]": 19,
+          "V1·wamid": 9,
+          "V1·wamid[b64]": 9,
+          "V1·nome_perfil": 9,
+          "V1·nome_perfil[b64]": 9,
+          "V1·url_midia": 8,
+          "V1·url_midia[b64]": 8,
+          "V1·id_midia": 17,
+          "V1·id_midia[b64]": 17,
+          "segredo·wa_verify_token": 3,
+          "status·wamid_saida": 2,
+          "status·wamid_saida[b64]": 2
+        },
+        "pcprWhatsEnvio01|running|soft-deleted": {
+          "envio·destino": 5,
+          "envio·token_reserva": 5
+        },
+        "pcprWhatsStatus1|running|soft-deleted": {
+          "envio·destino": 1,
+          "status·wamid_saida": 1
+        }
+      },
+      "por_grupo": {
+        "envio·destino": 35,
+        "V1·wamid": 27,
+        "V1·nome_perfil": 18,
+        "V1·url_midia": 16,
+        "V1·id_midia": 34,
+        "segredo·wa_verify_token": 3,
+        "envio·token_reserva": 5,
+        "status·wamid_saida": 5,
+        "V1·documento": 9
+      }
+    },
+    "apos_hard_delete": {
+      "rotulo": "apos_hard_delete",
+      "em": "2026-10-18T09:36:08-03:00",
+      "segundos_desde_subida_do_n8n": 195.1,
+      "tabelas_de_execucao": {},
+      "demais_tabelas": {},
+      "arquivos": {},
+      "linhas_execution_entity": {
+        "pcprEntradaEvt01|crashed|ativa": 4
+      },
+      "execucoes_com_marcadores": {},
+      "por_grupo": {}
+    }
+  },
+  "worker": {
+    "voltas": 743,
+    "erros": []
+  },
+  "guarda_de_rede_bloqueou": [
+    "graph.facebook.com"
+  ],
+  "n8n_log_menciona_facebook": false,
+  "exportacao": {
+    "cli": [
+      "All workflows unpublished successfully",
+      "Note: Changes will not take effect if n8n is running.",
+      "Please restart n8n for changes to take effect if n8n is currently running.",
+      "Successfully exported 7 workflows.",
+      "Successfully exported 6 credentials.",
+      "FIM"
+    ],
+    "arquivos": {
+      "w1-entrada-de-eventos.json": {
+        "active": false,
+        "nos": 14,
+        "credenciais": [
+          "pcprHmacEventos1 (PCPR · segredo HMAC dos eventos)"
+        ]
+      },
+      "w2-entregar-comunicacao.json": {
+        "active": false,
+        "nos": 20,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)"
+        ]
+      },
+      "w3-reconciliacao.json": {
+        "active": false,
+        "nos": 11,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)",
+          "pcprWebhookInt01 (PCPR · token do disparo da reconciliação)"
+        ]
+      },
+      "w5-erros.json": {
+        "active": false,
+        "nos": 3,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)"
+        ]
+      },
+      "w6-enviar-por-whatsapp.json": {
+        "active": false,
+        "nos": 13,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)",
+          "pcprWaToken00001 (WhatsApp · token de acesso (usuário de sistema))"
+        ]
+      },
+      "w7-webhook-whatsapp.json": {
+        "active": false,
+        "nos": 31,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)",
+          "pcprWaAppSecret1 (WhatsApp · App Secret (assinatura dos webhooks))",
+          "pcprWaToken00001 (WhatsApp · token de acesso (usuário de sistema))",
+          "pcprWaVerifyTok1 (WhatsApp · chave do verify token)"
+        ]
+      },
+      "w8-status-whatsapp.json": {
+        "active": false,
+        "nos": 13,
+        "credenciais": [
+          "pcprApiToken0001 (PCPR · token da API de automação)"
+        ]
+      }
+    },
+    "credenciais_criptografadas_no_banco": true
+  },
+  "limpeza": {
+    "conteiner_n8n_existe": false,
+    "volume_n8n_existe": false,
+    "conteiner_postgres_existe": false,
+    "pasta_temporaria_existe": false,
+    "portas_ainda_abertas": []
+  },
+  "fim": "2026-10-18T09:36:33-03:00",
+  "segredos_no_relatorio": []
+}

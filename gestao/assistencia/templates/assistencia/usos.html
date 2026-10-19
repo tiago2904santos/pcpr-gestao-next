@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block titulo %}Usos, limites e orçamento · Assistência{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Configuração por uso: liga/desliga, modo (regra ou IA), limites (chamadas por dia, pedidos
+por pessoa, tokens de saída, caracteres de entrada, tempo-limite, tentativas) e teto mensal
+de custo ESTIMADO — por uso e global. Mostra também, por uso, o que entra, o que nunca entra
+e a política de provedor. Só quem administra altera; quem vê o painel lê.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Usos, limites e orçamento</h1>
+    <p class="pagina-cabecalho__descricao">Cada uso começa no modo regra (sem IA). No modo IA, a chamada sai só pelo worker, com o pior caso reservado do orçamento antes; passou do teto, do limite do dia ou falhou, vale a regra. Custos são estimados, não cobrados.</p>
+  </div>
+</header>
+<div class="layout-detalhe mt-4">
+  <div class="pilha-lg">
+    {% for l in linhas %}{% with u=l.uso c=l.config %}
+    <section class="cartao" id="uso-{{ u.chave|slugify }}" aria-labelledby="t-{{ u.chave|slugify }}">
+      <div class="cartao__cabecalho">
+        <h2 class="cartao__titulo" id="t-{{ u.chave|slugify }}">{{ u.codigo }} · {{ u.rotulo }}</h2>
+        <div class="cartao__acoes">
+          <span class="selo selo--{% if not c.ligado %}neutro{% elif c.modo == 'ia' %}info{% else %}sucesso{% endif %} selo--sem-ponto">{% if not c.ligado %}Desligado{% else %}{{ c.get_modo_display }}{% endif %}</span>
+          {% if u.envolve_documento %}<span class="selo selo--aviso selo--sem-ponto">Provedor real bloqueado (ADR 0041)</span>{% endif %}
+        </div>
+      </div>
+      <div class="cartao__corpo pilha">
+        <p class="texto-secundario">{{ u.descricao }}</p>
+        <dl class="definicoes">
+          {% include "componentes/metadado.html" with rotulo="Entra (campos do sistema)" valor=u.campos_permitidos|join:", " %}
+          {% include "componentes/metadado.html" with rotulo="Nunca entra" valor=u.dados_excluidos|join:"; " %}
+          {% include "componentes/metadado.html" with rotulo="Versão do prompt" valor=u.versao_prompt %}
+          {% include "componentes/metadado.html" with rotulo="Chamadas de IA hoje" valor=l.chamadas_hoje %}
+          {% include "componentes/metadado.html" with rotulo="Custo estimado no mês" valor=l.orcamento.gasto_estimado_usd|default:0|floatformat:4 %}
+          {% include "componentes/metadado.html" with rotulo="Teto próprio do mês (US$)" valor=l.orcamento.teto_usd|floatformat:2 ausente="Sem teto próprio (vale o global)" %}
+        </dl>
+        {% if pode_administrar %}
+        <form method="post" action="{% url 'assistencia:alterar_uso' u.chave %}" class="pilha">{% csrf_token %}
+          <fieldset class="modos">
+            <legend class="campo__rotulo">Situação e modo</legend>
+            <div class="opcoes">
+              <label class="opcao"><input type="checkbox" name="ligado" value="1"{% if c.ligado %} checked{% endif %}><span>Ligado</span></label>
+              {% for valor, rotulo in modos %}<label class="opcao"><input type="radio" name="modo" value="{{ valor }}"{% if c.modo == valor %} checked{% endif %}><span>{{ rotulo }}</span></label>{% endfor %}
+            </div>
+          </fieldset>
+          <div class="grade grade--4">
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-dia">Chamadas de IA por dia</label><input class="entrada" id="{{ u.chave|slugify }}-dia" name="max_chamadas_dia" inputmode="numeric" value="{{ c.max_chamadas_dia }}"></div>
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-pessoa">Pedidos por pessoa/dia</label><input class="entrada" id="{{ u.chave|slugify }}-pessoa" name="max_pedidos_pessoa_dia" inputmode="numeric" value="{{ c.max_pedidos_pessoa_dia }}"></div>
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-saida">Tokens de saída</label><input class="entrada" id="{{ u.chave|slugify }}-saida" name="max_tokens_saida" inputmode="numeric" value="{{ c.max_tokens_saida }}"></div>
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-entrada">Caracteres de entrada</label><input class="entrada" id="{{ u.chave|slugify }}-entrada" name="max_entrada_caracteres" inputmode="numeric" value="{{ c.max_entrada_caracteres }}"></div>
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-tempo">Tempo-limite (s)</label><input class="entrada" id="{{ u.chave|slugify }}-tempo" name="tempo_limite_s" inputmode="numeric" value="{{ c.tempo_limite_s }}"></div>
+            <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-tentativas">Tentativas (1 a 3)</label><input class="entrada" id="{{ u.chave|slugify }}-tentativas" name="max_tentativas" inputmode="numeric" value="{{ c.max_tentativas }}"></div>
+            <div class="campo campo--lg"><label class="campo__rotulo" for="{{ u.chave|slugify }}-motivo">Motivo da mudança</label><input class="entrada" id="{{ u.chave|slugify }}-motivo" name="motivo" maxlength="255" autocomplete="off" value="{{ c.motivo }}"></div>
+          </div>
+          <div><button class="botao botao--sm" type="submit" aria-label="Salvar {{ u.rotulo }}">{% icone "save" %}Salvar</button></div>
+        </form>
+        <form method="post" action="{% url 'assistencia:definir_teto' %}" class="linha">{% csrf_token %}
+          <input type="hidden" name="escopo" value="{{ u.chave }}">
+          <div class="campo"><label class="campo__rotulo" for="{{ u.chave|slugify }}-teto">Teto próprio do mês (US$, vazio = só o global)</label><input class="entrada" id="{{ u.chave|slugify }}-teto" name="teto" inputmode="decimal" value="{% if l.orcamento.teto_usd is not None %}{{ l.orcamento.teto_usd|floatformat:2 }}{% endif %}"></div>
+          <div><button class="botao botao--sm" type="submit" aria-label="Salvar teto de {{ u.rotulo }}">{% icone "wallet" %}Salvar teto</button></div>
+        </form>
+        {% endif %}
+        {% if c.alterada_por %}<p class="texto-secundario texto-sm">Alterado por {{ c.alterada_por }} em {{ c.alterada_em|date:"d/m/Y H:i" }}.</p>{% endif %}
+      </div>
+    </section>
+    {% endwith %}{% empty %}
+    {% include "componentes/vazio.html" with icone="text-quote" titulo="Nenhum uso registrado" texto="Os contextos registram os usos em ia_usos.py." %}
+    {% endfor %}
+  </div>
+  <aside class="layout-detalhe__lateral" aria-label="Orçamento e porta de IA">
+    <section class="cartao" id="orcamento" aria-labelledby="t-orcamento">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-orcamento">Orçamento global do mês</h2></div>
+      <div class="cartao__corpo pilha">
+        <dl class="definicoes">
+          {% include "componentes/metadado.html" with rotulo="Teto (US$)" valor=global.teto_usd|floatformat:2 %}
+          {% include "componentes/metadado.html" with rotulo="Gasto estimado (US$)" valor=global.gasto_estimado_usd|floatformat:6 %}
+          {% include "componentes/metadado.html" with rotulo="Reservado agora (US$)" valor=global.reservado_usd|floatformat:6 %}
+          {% include "componentes/metadado.html" with rotulo="Chamadas / bloqueadas" valor=global.chamadas_texto %}
+        </dl>
+        {% if pode_administrar %}
+        <form method="post" action="{% url 'assistencia:definir_teto' %}" class="pilha">{% csrf_token %}
+          <input type="hidden" name="escopo" value="global">
+          <div class="campo"><label class="campo__rotulo" for="teto-global">Teto global do mês (US$; zero bloqueia toda chamada com custo)</label><input class="entrada" id="teto-global" name="teto" inputmode="decimal" required value="{{ global.teto_usd|floatformat:2 }}"></div>
+          <div><button class="botao botao--sm" type="submit">{% icone "wallet" %}Salvar teto global</button></div>
+        </form>
+        {% endif %}
+        <p class="texto-secundario texto-sm">Estimativa = tokens × preço oficial da tabela (por milhão de tokens). A fatura do provedor é a fonte do valor cobrado.</p>
+      </div>
+    </section>
+    <section class="cartao" aria-labelledby="t-porta">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-porta">Porta de IA</h2></div>
+      <div class="cartao__corpo pilha">
+        <p><span class="selo selo--{% if diagnostico.modo_real %}aviso{% else %}info{% endif %} selo--sem-ponto">{% if diagnostico.modo_real %}Real{% else %}Simulada{% endif %}</span> {{ diagnostico.estado }}</p>
+        <dl class="definicoes">
+          {% include "componentes/metadado.html" with rotulo="Modelo" valor=diagnostico.modelo %}
+          {% include "componentes/metadado.html" with rotulo="Preço de referência" valor=diagnostico.preco_estimado %}
+          {% include "componentes/metadado.html" with rotulo="Tempo-limite do provedor (s)" valor=diagnostico.timeout %}
+          {% include "componentes/metadado.html" with rotulo="Documentos" valor=diagnostico.documentos_ao_provedor_real %}
+        </dl>
+        <p class="texto-secundario texto-sm">Modo real só com IA_MODO=anthropic e IA_API_KEY no servidor, e nunca no PREVIEW.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

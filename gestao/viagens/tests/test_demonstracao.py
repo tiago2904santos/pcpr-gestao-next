@@ -251,3 +251,42 @@ def test_coffee_pedido_a_partir_de_um_evento_de_exemplo(dataset):
     from gestao.coffee.models import Solicitacao as OrdemCoffee
 
     assert OrdemCoffee.objects.filter(origem_tipo="evento", origem_id__isnull=False).exists()
+
+
+def test_automacao_e_assistencia_de_exemplo(dataset):
+    """O PREVIEW mostra o WhatsApp simulado de ponta a ponta e a IA simulada."""
+    from gestao.automacao.models import (
+        Comunicacao,
+        ContatoVerificado,
+        ExcecaoAutomacao,
+        Recebimento,
+    )
+    from gestao.integracoes.whatsapp import config
+
+    assert not config.carregar().real
+    assert ContatoVerificado.objects.filter(revogado_em__isnull=True).count() >= 2
+    assert Comunicacao.objects.filter(situacao="enviada", entrega="lida").exists()
+    assert Recebimento.objects.filter(situacao="associado").exists()
+    assert Recebimento.objects.filter(situacao="quarentena").exists()
+    assert Comunicacao.objects.filter(tipo="automacao.assistente").exists()
+    assert ExcecaoAutomacao.objects.filter(tipo="resultado_incerto", situacao="aberta").exists()
+    # Viagens no WhatsApp (10-4 e 10-2): o link de km enviado, com o link pessoal criado no
+    # envio (o token não fica guardado), o aviso de cancelamento e um pedido pendente que o
+    # DEMO pode decidir (quem pediu foi um colega da unidade).
+    from gestao.automacao import ganchos
+    from gestao.automacao import policies as automacao_policies
+    from gestao.automacao.models import LinkAcesso, PedidoAprovacao
+
+    link_km = Comunicacao.objects.filter(tipo="viagens.link_km", situacao="enviada").first()
+    assert link_km is not None
+    assert LinkAcesso.objects.filter(comunicacao=link_km, escopo="km",
+                                     revogado_em__isnull=True).exists()
+    assert ganchos.PLACEHOLDER_LINK in link_km.conteudo.texto and "/p/" not in \
+        link_km.conteudo.texto
+    assert Comunicacao.objects.filter(tipo="viagens.aviso_cancelamento",
+                                      situacao="enviada").exists()
+    pedido = PedidoAprovacao.objects.get(situacao="pendente", ferramenta="comunicacoes.cancelar")
+    demo = Usuario.objects.get(login=LOGIN_DEMO)
+    assert pedido.pedido_por_id != demo.pk
+    assert automacao_policies.pode_operar_objeto(demo, pedido)
+    assert Comunicacao.objects.get(pk=pedido.entrada["comunicacao"]).situacao == "agendada"

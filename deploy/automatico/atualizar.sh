@@ -39,7 +39,7 @@ saude() {
 servicos_aplicacao() {
   local lista
   lista="$(compose "$1" config --services)" || return
-  printf '%s\n' "$lista" | grep -E '^(web|worker|importador)$'
+  printf '%s\n' "$lista" | grep -E '^(web|worker|importador|automacao|ia)$'
 }
 operar_aplicacao() {
   local pasta="$1" lista; shift
@@ -131,6 +131,12 @@ printf 'services:\n  web:\n    image: %s\n    environment:\n      PREVIEW_SEMEAR
 if compose "$STAGE" config --services | grep -qx importador; then
   printf '  importador:\n    image: %s\n    command: ["python", "manage.py", "processar_importacoes", "--concorrencia", "2"]\n' "$IMAGEM" >>"$STAGE/compose.release.yml"
 fi
+# Workers da automação e da IA (ADR 0047/0048): no PREVIEW sempre simulados (compose.preview.yml).
+for servico in automacao ia; do
+  if compose "$STAGE" config --services | grep -qx "$servico"; then
+    printf '  %s:\n    image: %s\n' "$servico" "$IMAGEM" >>"$STAGE/compose.release.yml"
+  fi
+done
 mapfile -t CONFIG < <(compose "$STAGE" run --rm --no-deps -T web printenv APP_ENV DJANGO_SETTINGS_MODULE POSTGRES_HOST POSTGRES_DB POSTGRES_USER </dev/null)
 preview_esperado "${CONFIG[@]}" || falhar 'Novo ambiente/banco não corresponde ao PREVIEW autorizado.'
 compose "$STAGE" run --rm --no-deps -T web python manage.py check </dev/null
@@ -176,6 +182,12 @@ if servicos_aplicacao "$APP" | grep -qx importador; then
   [ "$(docker inspect pcpr-preview-importador-1 --format '{{.RestartCount}}')" = 0 ]
   docker exec pcpr-preview-importador-1 scripts/preview-entrypoint.sh python manage.py migrate --check </dev/null
 fi
+for servico in automacao ia; do
+  if servicos_aplicacao "$APP" | grep -qx "$servico"; then
+    [ "$(docker inspect "pcpr-preview-$servico-1" --format '{{.State.Running}}')" = true ]
+    [ "$(docker inspect "pcpr-preview-$servico-1" --format '{{.RestartCount}}')" = 0 ]
+  fi
+done
 printf '%s\n' "$SHA" >"$APP/versao-main.txt"
 printf '%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$IMAGEM" "$BACKUP" >>"$RAIZ/implantacoes.tsv"
 SUCESSO=1

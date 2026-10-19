@@ -1,0 +1,543 @@
+{
+  "updatedAt": "2026-10-18T12:36:15.000Z",
+  "createdAt": "2026-10-18T12:30:39.146Z",
+  "id": "pcprWhatsEnvio01",
+  "name": "PCPR · Enviar por WhatsApp (oficial)",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "a8a9881e-7c42-57da-9a08-b6f220b013ac",
+      "name": "Quando chamado pelo W2",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea763efe-852f-55d5-bb57-f82cce4f9774",
+              "name": "cfg_graph",
+              "value": "http://host.docker.internal:8777/v21.0",
+              "type": "string"
+            },
+            {
+              "id": "007508c4-19cd-5bca-9a47-9208880cc3eb",
+              "name": "cfg_numero_id",
+              "value": "100000000000001",
+              "type": "string"
+            },
+            {
+              "id": "6bc47302-0d9f-58c7-8782-4db99c625f29",
+              "name": "cfg_idioma_modelo",
+              "value": "pt_BR",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "c38b3dde-7417-5af4-ad07-ccfac226d7cb",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reserva da API REAL (contrato `ComunicacaoReservada`): quem decide a forma é o PCPR, pela janela\n// de 24 h que ELE conhece. `mensagem.modelo` preenchido = fora da janela → modelo aprovado, com\n// `variaveis` p1..pN na ordem; vazio = dentro da janela → texto livre (`mensagem.texto`).\n// Sem documento: a reserva real não traz `anexos`/`url_assinada`.\n// O idioma do modelo NÃO vem na reserva (lacuna do contrato): usa cfg_idioma_modelo.\n// biz_opaque_callback_data = idempotencia_canal ('com:<id>:t<n>'), o formato que o webhook do PCPR\n// (V2) e o W8 reconhecem para achar a comunicação mesmo antes do resultado registrado.\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst cfg = $('Configuração').first().json;\nconst m = (ctx.mensagem && typeof ctx.mensagem === 'object') ? ctx.mensagem : {};\nconst para = String(ctx.destino || '').replace(/[^0-9]/g, '');\nconst ref = String(ctx.idempotencia_canal || ('com:' + ctx.comunicacao_id)).slice(0, 512);\nconst nome = String(m.modelo || '');\nif (nome) {\n  const vars = (m.variaveis && typeof m.variaveis === 'object') ? m.variaveis : {};\n  const chaves = Object.keys(vars).filter((k) => /^p\\d+$/.test(k))\n    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));\n  const componentes = chaves.length ? [{ type: 'body',\n    parameters: chaves.map((k) => ({ type: 'text', text: String(vars[k]) })) }] : [];\n  return [{ json: { forma: 'modelo', payload: {\n    messaging_product: 'whatsapp', recipient_type: 'individual', to: para, type: 'template',\n    template: { name: nome, language: { code: String(cfg.cfg_idioma_modelo || 'pt_BR') },\n      components: componentes },\n    biz_opaque_callback_data: ref,\n  } } }];\n}\nconst texto = String(m.texto || '');\nif (!texto) return [{ json: { forma: 'impossivel' } }];\nconst payload = {\n  messaging_product: 'whatsapp', recipient_type: 'individual', to: para, type: 'text',\n  text: { body: texto.slice(0, 4096), preview_url: false }, biz_opaque_callback_data: ref,\n};\nif (ctx.responder_a) payload.context = { message_id: String(ctx.responder_a) };\nreturn [{ json: { forma: 'texto', payload } }];"
+      },
+      "id": "d1fff903-4f49-55fd-b686-3a4ac48f6941",
+      "name": "Montar mensagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "16949c75-7a3a-565f-9935-822b22839a54",
+              "leftValue": "={{ $json.forma !== 'impossivel' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0656a6aa-c72a-5a41-b5fb-b22adcafd452",
+      "name": "Há o que enviar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { fallback: false, resultado: 'falha_definitiva', provedor_mensagem_id: '',\n  erro: 'reserva sem modelo e sem texto: nada enviado', motivo_excecao: 'outro' } }];"
+      },
+      "id": "b58b3676-4079-5266-bef3-85f3c70fdf71",
+      "name": "Sem forma possível",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.cfg_graph }}/{{ $('Configuração').first().json.cfg_numero_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "248fb4b4-6923-56de-9697-300cfd4c42e5",
+      "name": "Enviar ao WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        240
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprWaToken00001",
+          "name": "WhatsApp · token de acesso (usuário de sistema)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resposta da Graph API → resultado para o PCPR. Sem retentativa automática do POST /messages:\n// a Cloud API não tem chave de idempotência, então repetir após tempo esgotado duplicaria.\nconst PERMITE_FALLBACK = false;\nconst r = $input.first().json;\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst forma = PERMITE_FALLBACK ? $('Decidir forma').first().json.forma : 'modelo';\nconst temModelo = Boolean((((ctx.mensagem || {}).whatsapp || {}).modelo || {}).nome);\nconst sc = Number(r.statusCode || 0);\nconst corpo = (r.body && typeof r.body === 'object') ? r.body : {};\nconst e = corpo.error || {};\nconst codigo = Number(e.code || 0);\nconst wamid = ((corpo.messages || [])[0] || {}).id || '';\nconst descr = ('HTTP ' + sc + (codigo ? ' código ' + codigo : '') +\n  (e.message ? ': ' + String(e.message) : '')).slice(0, 300);\nif (sc === 200 && wamid) {\n  return [{ json: { fallback: false, resultado: 'enviada', provedor_mensagem_id: wamid,\n    erro: '', motivo_excecao: '' } }];\n}\n// 131047 (fora da janela) numa mensagem livre: troca UMA vez por modelo; nunca repete o livre.\nif (codigo === 131047 && PERMITE_FALLBACK && forma !== 'modelo' && temModelo) {\n  return [{ json: { fallback: true, erro_primeira_tentativa: descr } }];\n}\n// Sem erro estruturado da Graph API (ex.: 502/504 de um proxy, 2xx sem wamid) não se sabe se a\n// Meta aceitou → resultado desconhecido + exceção. Nunca falha_temporaria aqui: o PCPR reagenda\n// a temporária e reenviaria às cegas (mesma regra do W2; C5/C6 do PR #23).\nconst erroGraph = Boolean(e.code);\nif (!erroGraph && sc !== 429) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\nconst temporario = sc === 429 || sc >= 500 ||\n  [130429, 131056, 131048, 131000, 131016, 2, 4, 80007].includes(codigo);\nconst motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { fallback: false,\n  resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',\n  erro: descr, motivo_excecao: temporario ? '' : motivo } }];"
+      },
+      "id": "98576c40-864b-5eee-b70b-7e6b75c60fa9",
+      "name": "Classificar resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tempo esgotado/conexão caída: não se sabe se a Meta aceitou → resultado desconhecido + exceção\n// (nunca reenviar às cegas).\nconst e = $input.first().json.error || $input.first().json || {};\nreturn [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n  erro: String(e.message || 'erro de rede').slice(0, 300),\n  motivo_excecao: 'resultado_desconhecido' } }];"
+      },
+      "id": "475a2297-7701-5b38-b2ee-0ef6844d492b",
+      "name": "Falha de rede",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85dd0541-02cd-57cd-a836-b5243f993e1f",
+              "name": "resultado",
+              "value": "={{ $json.resultado }}",
+              "type": "string"
+            },
+            {
+              "id": "56b27e82-79b6-5ff4-ba96-c796c4a22561",
+              "name": "provedor_mensagem_id",
+              "value": "={{ $json.provedor_mensagem_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "57e1adbc-317e-54d2-a3df-a7f2df7303b4",
+              "name": "erro",
+              "value": "={{ $json.erro || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "b4b5024e-9efb-54bd-bee9-8ed9fbdfa0f6",
+              "name": "motivo_excecao",
+              "value": "={{ $json.motivo_excecao || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "12842c09-a24a-50a5-8df6-653553a76c03",
+      "name": "Normalizar resultado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Quando chamado pelo W2').first().json.cfg_pcpr }}/comunicacoes/{{ $('Quando chamado pelo W2').first().json.comunicacao_id }}/resultado",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length >= 16 && (\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"resultado:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"resultado#sha256:\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
+            },
+            {
+              "name": "X-PCPR-Correlacao",
+              "value": "={{ $('Quando chamado pelo W2').first().json.correlacao_id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ reserva_token: $('Quando chamado pelo W2').first().json.reserva_token, resultado: $json.resultado, provedor: 'whatsapp_cloud', provedor_mensagem_id: $json.provedor_mensagem_id || undefined, erro: $json.erro || undefined }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "d15aa6f3-4384-5bef-98e9-84cfe2a257a2",
+      "name": "Registrar resultado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af6402e0-ae9d-595d-8e6a-141ecbd1ef46",
+              "leftValue": "={{ Boolean($('Normalizar resultado').first().json.motivo_excecao) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3d9236fc-fe7f-5694-ba82-1111d5947690",
+      "name": "Abrir exceção?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ac81e9cf-9d8f-569e-831a-0b897dfb5fff",
+      "name": "Fim: registrado",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Quando chamado pelo W2').first().json.cfg_pcpr }}/excecoes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ (\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length >= 16 && (\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))).length <= 200 && /^[ -~]*$/.test(\"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token))) ? \"excecao:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)) : \"excecao#sha256:com\" + (String($('Quando chamado pelo W2').first().json.comunicacao_id) + \":\" + String($('Quando chamado pelo W2').first().json.reserva_token)).hash('sha256') }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'whatsapp', correlacao_id: $('Quando chamado pelo W2').first().json.correlacao_id, motivo: $('Normalizar resultado').first().json.motivo_excecao, detalhe: 'comunicacao ' + $('Quando chamado pelo W2').first().json.comunicacao_id + ': ' + $('Normalizar resultado').first().json.erro, execucao_orquestrador: String($execution.id), recurso: { tipo: 'comunicacao', id: $('Quando chamado pelo W2').first().json.comunicacao_id } }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "23d3818a-275a-5a8e-9658-daaf71dd32bb",
+      "name": "Abrir exceção",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pcprApiToken0001",
+          "name": "PCPR · token da API de automação"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Quando chamado pelo W2": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Montar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar mensagem": {
+      "main": [
+        [
+          {
+            "node": "Há o que enviar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sem forma possível": {
+      "main": [
+        [
+          {
+            "node": "Normalizar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificar resposta": {
+      "main": [
+        [
+          {
+            "node": "Normalizar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Falha de rede": {
+      "main": [
+        [
+          {
+            "node": "Normalizar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar resultado": {
+      "main": [
+        [
+          {
+            "node": "Registrar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar resultado": {
+      "main": [
+        [
+          {
+            "node": "Abrir exceção?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Há o que enviar?": {
+      "main": [
+        [
+          {
+            "node": "Enviar ao WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sem forma possível",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar ao WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Classificar resposta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha de rede",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir exceção?": {
+      "main": [
+        [
+          {
+            "node": "Abrir exceção",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fim: registrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "pcprErros0000001",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "38f25dd7-ddda-4ea3-8b56-b60c3d32412a",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-10-18T12:30:39.149Z",
+      "createdAt": "2026-10-18T12:30:39.149Z",
+      "role": "workflow:owner",
+      "workflowId": "pcprWhatsEnvio01",
+      "projectId": "n5ei4JiqNqKfr82t",
+      "project": {
+        "updatedAt": "2026-10-18T12:30:31.150Z",
+        "createdAt": "2026-10-18T12:30:31.150Z",
+        "id": "n5ei4JiqNqKfr82t",
+        "name": "Unnamed Project",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "2adc8501-40c6-45e5-bf84-8b229c47e2d1"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

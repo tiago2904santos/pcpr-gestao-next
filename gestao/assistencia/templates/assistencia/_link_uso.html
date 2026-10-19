@@ -1,0 +1,2 @@
+{% comment %}Entrada leve de um uso de assistência (templatetag `link_ia`): só o link para o pedido, que confere a permissão.{% endcomment %}
+{% if uso %}<a class="botao botao--sm botao--sutil" href="{% url 'assistencia:pedir' uso.chave recurso_id %}?voltar={{ voltar|urlencode }}">{% icone "text-quote" classe="icone--sm" %}{{ uso.acao }}<span class="sr-only"> ({{ uso.codigo }}, sugestão revisada antes de usar)</span></a>{% endif %}

@@ -28,6 +28,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
 
 {% include "componentes/resumo_erros.html" %}
 
+{% load assistencia %}{% if plano %}{% painel_ia "viagens.plano_textos" plano.pk %}{% endif %}
 <form method="post" novalidate id="form-plano" data-proteger{% if plano and editavel %} data-autosave="{% url 'viagens:autosave_plano' plano.pk %}"{% endif %}>
   {% csrf_token %}
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário). #}
