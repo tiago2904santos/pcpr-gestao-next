@@ -27,7 +27,7 @@ def test_relato_continuar_e_valores_individuais(logado, dados_e2e, largura):
     assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
     expect(pg.locator("[data-status-salvamento]")).to_be_visible()
     texto = "Relato salvo antes de sair pelo teclado."
-    pg.get_by_label("Objetivo da participação").fill(texto)
+    pg.get_by_role("textbox", name="Objetivo da participação").fill(texto)
     # Não aguarda o anúncio de autosave: continuar precisa coordenar a gravação.
     pg.get_by_role("button", name="Ir para Documentos").last.focus()
     pg.keyboard.press("Enter")

@@ -163,7 +163,7 @@ def test_resumo_existente_e_trilha_das_folhas(logado, dados_e2e, largura):
     trilha = pg.get_by_role("list", name="Etapas da prestação")
     expect(trilha.locator('[aria-current="step"]')).to_contain_text("Diário de bordo")
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Diário de bordo")
-    expect(pg.get_by_role("button", name=re.compile("^Servidor da folha"))).to_contain_text(a.servidor.nome)
+    # O diário é da equipe: o servidor da folha aparece a partir do relatório técnico.
     _axe_estavel(pg)
     if os.environ.get("MIGRACAO_CAPTURAS"):
         pg.screenshot(path=str(destino / f"prestacao-diario-{largura}.png"), full_page=True)
@@ -179,7 +179,7 @@ def test_resumo_existente_e_trilha_das_folhas(logado, dados_e2e, largura):
     trilha = pg.get_by_role("list", name="Etapas da prestação")
     expect(trilha.locator('[aria-current="step"]')).to_contain_text("Relatório técnico")
     expect(pg).to_have_url(re.compile(rf"servidor={a.pk}"))
-    pg.get_by_label("Objetivo da participação").fill("Relato integrado da equipe.")
+    pg.get_by_role("textbox", name="Objetivo da participação").fill("Relato integrado da equipe.")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     trilha.get_by_role("link", name=re.compile("^Documentos")).click()
     trilha = pg.get_by_role("list", name="Etapas da prestação")

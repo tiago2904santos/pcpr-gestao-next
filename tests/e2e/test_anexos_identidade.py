@@ -23,10 +23,10 @@ def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura
     arquivo = a.arquivo.name
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
-    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
+    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/leitura/?servidor={ps.pk}")
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos")
     expect(pg.get_by_role("button", name=re.compile("^Servidor da folha"))).to_contain_text(ps.servidor.nome)
-    cartao = pg.locator(f"#ps-{ps.pk}")
+    cartao = pg.locator(f"#comprovantes-{ps.pk}")  # o comprovante do servidor da folha
     corrigir = cartao.get_by_role("button", name=re.compile("^Corrigir valor"))
     corrigir.focus()
     pg.keyboard.press("Enter")

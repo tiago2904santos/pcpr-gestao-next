@@ -67,7 +67,7 @@ refeita a cada gravação). Grava sozinho (autosave); sem JavaScript, Enter envi
         {# "Informar à mão" saiu: viatura nova se cadastra pelo "+" (o mesmo modal do cadastro). Só os diários antigos ainda a mostram. #}
         <pc-select class="seletor"><select class="selecao" id="viatura-modo" name="viatura_modo">{% for valor, rotulo in d.ViaturaModo.choices %}{% if valor != 'manual' or d.viatura_modo == 'manual' %}<option value="{{ valor }}"{% if d.viatura_modo == valor %} selected{% endif %}>{% if valor == 'oficio' %}A do ofício{% elif valor == 'cadastro' %}Outra do cadastro{% else %}Informada à mão{% endif %}</option>{% endif %}{% endfor %}</select></pc-select></div>
       <div class="modos__campos" data-modo="cadastro">
-        {% include "viagens/_campo_viatura.html" with campo=form_viatura_diario.viatura rotulo="Viatura do cadastro" cadastrar=True %}
+        {% include "viagens/_campo_viatura.html" with campo=form_viatura_diario.viatura rotulo="Viatura do cadastro" cadastrar=True equipe="" %}
       </div>
     </div>
     {% if d.viatura_modo == 'manual' %}<div class="modos__campos" data-modo="manual">

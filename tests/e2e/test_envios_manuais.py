@@ -33,6 +33,9 @@ def test_documentos_mensagem_e_confirmacao(pagina, dados_e2e, settings, live_ser
     EVIDENCIAS.mkdir(parents=True, exist_ok=True)
     pg.goto("/viagens/prestacoes/")
     assert pg.locator(f'a[href="/viagens/envios/{ps.pk}/"]').first.get_attribute("target") == "_self"
+    # A barra fixa da paginação cobre a linha que estiver embaixo dela; no fim da lista ela
+    # volta ao lugar dela e o alvo de toque (WCAG 2.5.8) mede só a página.
+    pg.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
     estabilizar(pg)
     assert not rodar_axe(pg)
     pg.screenshot(path=str(EVIDENCIAS / f"prestacoes-{largura}.png"), full_page=True)

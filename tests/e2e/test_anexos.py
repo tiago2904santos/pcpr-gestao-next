@@ -24,18 +24,17 @@ def test_leitura_remover_e_trazer_de_volta(logado, dados_e2e):
     pg = logado
     pg.goto("/viagens/prestacoes/")
     pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
-    expect(pg.get_by_role("menuitem", name="3 · Documentos")).to_have_count(0)
     pg.get_by_role("menuitem", name="3 · Documentos").click()
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos")
     expect(pg.locator("#despacho")).to_contain_text("despacho.pdf")
-    expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("saque.pdf")
+    expect(pg.locator(f"#comprovantes-{a.pk}")).to_contain_text("saque.pdf")
 
     pg.locator("#comprovantes").get_by_role("button", name="Remover saque.pdf").click()
     confirmar = pg.get_by_role("dialog", name="Remover saque.pdf?")
     expect(confirmar).to_be_visible()
     confirmar.get_by_role("button", name="Remover", exact=True).click()
     expect(pg.locator("#anteriores")).to_contain_text("saque.pdf")
-    expect(pg.locator(f"#ps-{a.pk}")).not_to_contain_text("saque.pdf")
+    expect(pg.locator(f"#comprovantes-{a.pk}")).not_to_contain_text("saque.pdf")
     pg.locator("#anteriores").get_by_role("button", name="Trazer de volta saque.pdf").click()
     expect(pg.locator("#comprovantes")).to_contain_text("saque.pdf")
     assert AnexoPrestacao.objects.filter(tipo="comprovante", removido_em__isnull=True).count() == 1
