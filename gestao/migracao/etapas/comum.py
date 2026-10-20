@@ -5,8 +5,9 @@
   guarda a impressão digital (SHA-256) da linha do GV naquele momento. Recalcular a impressão
   da linha atual do GV diz, sem depender de `updated_at`, se ela mudou depois da carga.
 * Um documento com os seus filhos (roteiro + trechos, ofício + equipe…) é um AGREGADO: monta-se
-  o agregado dos dois lados, e o lado que vence (a edição mais recente) entra inteiro. O que
-  perde vai para a conferência (só ids e nomes de campos — nunca valores).
+  o agregado dos dois lados, e o lado que vence (a edição mais recente — ou o documento
+  emitido, quando o outro lado é rascunho: `Carga.emitido`) entra inteiro. O que perde vai
+  para a conferência (só ids e nomes de campos — nunca valores).
 * Arquivos: aqui só se grava a referência, endereçada pelo conteúdo:
   `legado/<ev|gv>/<2 primeiros do sha256>/<sha256>.<ext>` (cabe nos 100 caracteres do
   FileField; os caminhos do legado não cabem). A cópia dos binários (passo seguinte) percorre
@@ -364,6 +365,10 @@ class Carga:
     preencher_vazios: bool = False
     # Entidade "raiz" (viagem, documento…): linha do GV apagada no EV vai à conferência.
     conferir_apagados: bool = True
+    # Documento emitido (True) × rascunho (False); None = nem um nem outro. Quando os dois lados
+    # diferem e um foi emitido enquanto o outro ficou em rascunho, vale o emitido (o documento
+    # real), qualquer que seja a data da última edição.
+    emitido: Callable[[Agregado], bool | None] | None = None
 
 
 def executar_carga(ctx: Contexto, c: Carga) -> None:
@@ -458,8 +463,13 @@ def _decidir(ctx: Contexto, c: Carga, ev_linha: dict, ag_ev: Agregado,
     ev_mudou = (depois_da_carga(ctx, datas(ev_linha)[1])
                 or bool(c.ev_alterado and c.ev_alterado(ctx, ev_linha)))
     ids = {"ev_pk": ev_linha["id"], "gv_pk": gv_linha["id"]}
-    sistema, linha, ag = _vencedor(ctx, c, ev_linha, ag_ev, gv_linha, ag_gv, campos, gv_mudou,
-                                   ev_mudou, ids)
+    emitido = _emitido_vence(ctx, c, ag_ev, ag_gv, campos, ids)
+    if emitido is not None:
+        sistema, linha, ag = (("gv", gv_linha, ag_gv) if emitido == "gv"
+                              else ("ev", ev_linha, ag_ev))
+    else:
+        sistema, linha, ag = _vencedor(ctx, c, ev_linha, ag_ev, gv_linha, ag_gv, campos,
+                                       gv_mudou, ev_mudou, ids)
     if c.preencher_vazios:
         outro = ag_gv if ag is ag_ev else ag_ev
         preencher_vazios(ag, outro)
@@ -491,6 +501,23 @@ def preencher_vazios(ag: Agregado, outro: Agregado) -> list[str]:
         ag.notas.append("campos vazios na versão que valeu preenchidos com a outra: "
                         + ", ".join(sorted(set(preenchidos))))
     return preenchidos
+
+
+def _emitido_vence(ctx: Contexto, c: Carga, ag_ev: Agregado, ag_gv: Agregado,
+                   campos: list[str], ids: dict[str, Any]) -> str | None:
+    """Um lado emitido e o outro em rascunho: vale o emitido ("ev"/"gv"); None = a regra não
+    se aplica (decide a edição mais recente)."""
+    if c.emitido is None:
+        return None
+    ev, gv = c.emitido(ag_ev), c.emitido(ag_gv)
+    if ev is None or gv is None or ev == gv:
+        return None
+    vencedor, outro = ("GV", "EV") if gv else ("EV", "GV")
+    ctx.relatorio.conta(c.entidade, "emitido_vence_rascunho")
+    ctx.relatorio.revisar(c.entidade, f"emitido no {vencedor} e em rascunho no {outro}: valeu o "
+                          f"emitido, qualquer que seja a data da edição; conferir o rascunho do "
+                          f"{outro}", campos=campos, **ids)
+    return vencedor.lower()
 
 
 def _vencedor(ctx: Contexto, c: Carga, ev_linha: dict, ag_ev: Agregado, gv_linha: dict,
