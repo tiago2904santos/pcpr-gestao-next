@@ -25,9 +25,13 @@ class ViagensConfig(AppConfig):
         proposta.registrar_ferramentas()
         from . import comunicacoes_viagem  # WhatsApp: link de km e avisos à equipe (10-4, 10-2)
         comunicacoes_viagem.registrar()
-        registrar_rotina("links de km na véspera (WhatsApp)", comunicacoes_viagem.agendar_links_km)
-        registrar_rotina("lembretes de km (WhatsApp)", comunicacoes_viagem.agendar_lembretes_km)
-        registrar_rotina("lembretes de comprovante (WhatsApp)", comunicacoes.agendar_lembretes)
+        # Mensagens automáticas: só com as automações ligadas (ADR 0050).
+        registrar_rotina("links de km na véspera (WhatsApp)", comunicacoes_viagem.agendar_links_km,
+                         recurso="automacao")
+        registrar_rotina("lembretes de km (WhatsApp)", comunicacoes_viagem.agendar_lembretes_km,
+                         recurso="automacao")
+        registrar_rotina("lembretes de comprovante (WhatsApp)", comunicacoes.agendar_lembretes,
+                         recurso="automacao")
 
         from . import envios_manuais
         # A rotina recebe o dia; `sincronizar` recebe quem pede (None = todas as unidades).

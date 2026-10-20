@@ -28,6 +28,8 @@ class Item:
     requer: str | None = None
     # Prefixos de caminho que também marcam o item como ativo.
     ativo_em: tuple[str, ...] = ()
+    # Recurso opcional (plataforma.recursos): desligado, o item some do menu.
+    recurso: str | None = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +50,8 @@ class Modulo:
     ordem: int = 100
     # Permissão para o módulo aparecer (no menu e na central de módulos).
     requer: str | None = None
+    # Recurso opcional (plataforma.recursos): desligado, o módulo some do menu.
+    recurso: str | None = None
 
 
 _MODULOS: dict[str, Modulo] = {}
@@ -74,7 +78,11 @@ def registrar_modulo(modulo: Modulo) -> None:
 
 
 def modulos() -> list[Modulo]:
-    return sorted(_MODULOS.values(), key=lambda m: m.ordem)
+    """Os módulos registrados cujo recurso opcional (se houver) está ligado."""
+    from .recursos import ligado
+
+    return sorted((m for m in _MODULOS.values() if m.recurso is None or ligado(m.recurso)),
+                  key=lambda m: m.ordem)
 
 
 def _url(nome: str) -> str | None:
@@ -85,6 +93,8 @@ def _url(nome: str) -> str | None:
 
 
 def navegacao_para(request: HttpRequest) -> dict[str, Any]:
+    from .recursos import ligado
+
     usuario = getattr(request, "user", None)
     if usuario is None or not usuario.is_authenticated:
         return {"modulos": [], "atual": None}
@@ -99,6 +109,8 @@ def navegacao_para(request: HttpRequest) -> dict[str, Any]:
             itens: list[dict[str, Any]] = []
             for item in grupo.itens:
                 if item.requer and not usuario.has_perm(item.requer):
+                    continue
+                if item.recurso and not ligado(item.recurso):
                     continue
                 url = _url(item.url_name)
                 if url is None:

@@ -34,6 +34,7 @@ from gestao.integracoes.ia import esquema as esq
 from gestao.integracoes.ia import servico as servico_ia
 from gestao.integracoes.ia.porta import BlocoDeDados, PedidoIA, PortaIA
 from gestao.integracoes.ia.protecao import dados_pessoais_em, mascarar
+from gestao.plataforma import recursos
 
 from . import configuracao, ganchos, orcamento, policies
 from .dominio.textos import INSTRUCOES_COMUNS, codigos, serializar_fatos
@@ -102,6 +103,8 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
           ) -> PedidoSugestao:
     """Cria o pedido (ou devolve o que já está na fila para a mesma versão). No modo REGRA a
     sugestão sai na hora (é local, sem IA); no modo IA vai para o worker."""
+    if not recursos.ligado(recursos.IA):
+        raise PedidoRecusado("A assistência por IA está desligada neste sistema.")
     uso = _uso(uso_chave)
     recurso_id = str(recurso_id)
     policies.exigir(policies.pode_pedir(usuario, uso, recurso_id),

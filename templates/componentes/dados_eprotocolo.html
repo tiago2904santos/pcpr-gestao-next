@@ -2,7 +2,9 @@
 Projeção autorizada de leitura: `copia` (ProjecaoEprotocolo), `copiar_id` único na página.
 Componente único da Folha e do Resumo, usando campos e divulgação do Design System.
 Copiar tudo tem região de seleção de texto para fallback quando Clipboard não estiver disponível.
+Some com o eProtocolo desligado (`recursos.eprotocolo`, ADR 0050).
 {% endcomment %}
+{% if recursos.eprotocolo %}
 <details class="divulgacao{% if compacto %} divulgacao--copiavel{% endif %}" id="{{ copiar_id }}-bloco" data-dados-eprotocolo{% if aberto %} open{% endif %}>
   <summary id="{{ copiar_id }}-abrir">{% icone "copy" classe="icone--sm" %}Dados para o eProtocolo</summary>
   <div class="divulgacao__corpo pilha">
@@ -39,3 +41,4 @@ Copiar tudo tem região de seleção de texto para fallback quando Clipboard nã
     {% endif %}
   </div>
 </details>
+{% endif %}

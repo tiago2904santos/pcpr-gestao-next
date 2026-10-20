@@ -119,7 +119,7 @@ pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é grava
           <p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
           <p class="texto-sm texto-secundario mt-2">{% if c.anexo.valor %}Gravado: {{ c.anexo.valor|moeda }}{% if c.anexo.data_operacao %} em {{ c.anexo.data_operacao|date:"d/m/Y" }}{% endif %}{% if c.anexo.operacao %} · {{ c.anexo.get_operacao_display }}{% endif %}.{% else %}Sem valor gravado{% if s.editavel %} — informe pelo lápis ao lado do arquivo{% endif %}.{% endif %}</p>
           {% endif %}
-          {% load assistencia %}<p class="mt-2">{% link_ia "viagens.leitura_comprovante" c.anexo.pk %}</p>
+          {% if recursos.ia %}{% load assistencia %}<p class="mt-2">{% link_ia "viagens.leitura_comprovante" c.anexo.pk %}</p>{% endif %}
         </div>
       {% empty %}
         <p class="vazio-inline">{% icone "receipt" classe="icone--sm" %}Nenhum comprovante anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a>.</p>

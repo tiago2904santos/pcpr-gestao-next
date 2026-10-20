@@ -19,19 +19,29 @@ from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 _ROTINAS: list[tuple[str, Callable[[date], object]]] = []
+_RECURSO_DA_ROTINA: dict[str, str] = {}
 _ultimo_dia_visto = ""  # evita ir ao banco a cada requisição deste processo
 
 
-def registrar_rotina(nome: str, funcao: Callable[[date], object]) -> None:
+def registrar_rotina(nome: str, funcao: Callable[[date], object],
+                     recurso: str | None = None) -> None:
+    """`recurso` (plataforma.recursos): com ele desligado, a rotina não roda."""
     if all(n != nome for n, _ in _ROTINAS):
         _ROTINAS.append((nome, funcao))
+    if recurso is not None:
+        _RECURSO_DA_ROTINA[nome] = recurso
 
 
 def rodar(hoje: date | None = None) -> dict[str, str]:
     """Todas as rotinas, cada uma protegida da falha das outras."""
     hoje = hoje or timezone.localdate()
     resultado: dict[str, str] = {}
+    from .recursos import ligado
+
     for nome, funcao in _ROTINAS:
+        if nome in _RECURSO_DA_ROTINA and not ligado(_RECURSO_DA_ROTINA[nome]):
+            resultado[nome] = "desligada"
+            continue
         try:
             with transaction.atomic():
                 resultado[nome] = str(funcao(hoje))

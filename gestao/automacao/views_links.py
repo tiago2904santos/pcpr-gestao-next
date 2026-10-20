@@ -14,9 +14,11 @@ from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
+from gestao.plataforma import recursos
 from gestao.plataforma.middleware import ip_do_cliente
 
 from . import links
+from .models import LinkAcesso
 
 TENTATIVAS_INVALIDAS_POR_HORA = 20
 
@@ -55,6 +57,10 @@ def abrir(request: HttpRequest, token: str, resto: str = "") -> HttpResponse:
         return indisponivel(request, 429)
     link = links.do_token(token)
     pagina = links.pagina(link.escopo) if link else None
+    # Automações desligadas (ADR 0050): só o link de KM, que vai no envio manual, segue aberto.
+    if (link is not None and link.escopo != LinkAcesso.Escopo.KM
+            and not recursos.ligado(recursos.AUTOMACAO)):
+        pagina = None
     if link is None or pagina is None:
         _contar(_chave(request))
         return indisponivel(request)

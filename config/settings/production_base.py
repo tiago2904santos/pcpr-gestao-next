@@ -18,6 +18,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Caminhos chamados só pela rede interna do Docker, em HTTP (ex.: "^api/automacao/" para o n8n
 # atrás do Traefik do template da Hostinger — deploy/hostinger/). O proxy público nunca os expõe.
 SECURE_REDIRECT_EXEMPT = env_list("DJANGO_SSL_REDIRECT_EXEMPT")  # noqa: F405
+# IA, automações e eProtocolo ficam desligados em STAGING/PRODUCTION, salvo pedido explícito
+# no ambiente (ADR 0050). Pendências e envios manuais pelo WhatsApp seguem funcionando.
+IA_HABILITADA = env_bool("IA_HABILITADA", False)  # noqa: F405
+AUTOMACAO_HABILITADA = env_bool("AUTOMACAO_HABILITADA", False)  # noqa: F405
+EPROTOCOLO_HABILITADO = env_bool("EPROTOCOLO_HABILITADO", False)  # noqa: F405
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")  # noqa: F405

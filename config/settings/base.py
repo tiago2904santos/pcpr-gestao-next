@@ -101,6 +101,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     # LoginRequiredMiddleware do Django + 401 para pedidos assíncronos (sessão expirada).
+    # Recursos desligados (IA, automações, eProtocolo) respondem 404 — ADR 0050.
+    "gestao.plataforma.middleware.RecursosDesligadosMiddleware",
     "gestao.identidade.middleware.EntradaObrigatoriaMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "gestao.identidade.middleware.TrocaDeSenhaObrigatoriaMiddleware",
@@ -293,6 +295,13 @@ DOMINIO_EMAIL_INSTITUCIONAL = env("DOMINIO_EMAIL_INSTITUCIONAL", "pc.pr.gov.br")
 # Tentativas de login: bloqueio progressivo por e-mail+IP.
 LOGIN_MAX_TENTATIVAS = 5
 LOGIN_JANELA_SEGUNDOS = 15 * 60
+
+# Recursos opcionais (ADR 0050; gestao/plataforma/recursos.py). Desligado: some do menu, os
+# botões não aparecem, as rotas respondem 404 e os workers ficam parados — nada é apagado.
+# Ligados por padrão em DEV/TEST/PREVIEW; STAGING/PRODUCTION desligam (production_base).
+IA_HABILITADA = env_bool("IA_HABILITADA", True)
+AUTOMACAO_HABILITADA = env_bool("AUTOMACAO_HABILITADA", True)
+EPROTOCOLO_HABILITADO = env_bool("EPROTOCOLO_HABILITADO", True)
 
 # eProtocolo/PR (docs/integrations/eprotocolo.md). Sem credenciais = modo simulado; a trava
 # de somente leitura fica ligada até ser desligada explicitamente.

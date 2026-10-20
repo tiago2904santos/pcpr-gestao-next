@@ -123,8 +123,8 @@ histórico.
         </div>
       </div>
     </fieldset>
-    {% if s and s.protocolo %}
-    {# Fora do fieldset: a consulta vale mesmo quando os dados já não se editam. #}
+    {% if s and s.protocolo and recursos.eprotocolo %}
+    {# Fora do fieldset: a consulta vale mesmo quando os dados já não se editam. Some com o eProtocolo desligado (ADR 0050). #}
     <div class="secao__bloco" id="andamento-protocolo" aria-labelledby="t-andamento">
       <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-andamento">{% icone "stamp" classe="icone--sm" %}Andamento do protocolo {{ s.protocolo }}</h3>
         <div class="secao__estado"><button type="submit" form="consultar-protocolo" class="botao botao--sm">{% icone "refresh-cw" %}Consultar andamento</button></div></div>
@@ -300,7 +300,7 @@ histórico.
   {% endif %}
   </div>
 </div>
-{% if s and s.protocolo %}<form id="consultar-protocolo" method="post" action="{% url 'eventos:consultar_protocolo' s.pk %}" hidden>{% csrf_token %}</form>{% endif %}
+{% if s and s.protocolo and recursos.eprotocolo %}<form id="consultar-protocolo" method="post" action="{% url 'eventos:consultar_protocolo' s.pk %}" hidden>{% csrf_token %}</form>{% endif %}
 <form id="finalizar-evento" method="get" action="{% url 'eventos:solicitacoes' %}" hidden data-esperar-salvamento></form>
 <form id="duplicar-evento" method="post" action="{% url 'eventos:duplicar' s.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
 {% if pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}

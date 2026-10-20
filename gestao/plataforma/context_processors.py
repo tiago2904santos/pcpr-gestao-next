@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils.functional import SimpleLazyObject
 
-from . import ambiente
+from . import ambiente, recursos
 from .navegacao import navegacao_para, pagina_anterior
 
 
@@ -16,6 +16,8 @@ def plataforma(request: HttpRequest) -> dict[str, Any]:
         "instituicao": settings.INSTITUICAO,
         "app_env": ambiente.atual(),
         "demo_ativo": ambiente.demo_ativo(),
+        # Recursos opcionais ligados (ADR 0050): `{% if recursos.ia %}`, `recursos.eprotocolo`…
+        "recursos": recursos.todos(),
         "navegacao": navegacao_para(request),
         # Botão "Voltar para …" quando se entra numa área vindo de outra.
         "pagina_anterior": pagina_anterior(request),

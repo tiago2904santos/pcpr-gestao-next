@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from django import template
 
+from gestao.plataforma import recursos
+
 from .. import ganchos, policies, servicos
 from ..models import ConfiguracaoUso, PedidoSugestao, Sugestao
 
@@ -30,6 +32,8 @@ def _configuracao(context, chave: str) -> ConfiguracaoUso:
 
 @register.inclusion_tag("assistencia/_painel_uso.html", takes_context=True)
 def painel_ia(context, chave: str, recurso_id, *relacionados: str) -> dict:
+    if not recursos.ligado(recursos.IA):  # IA desligada (ADR 0050): o cartão não aparece
+        return {"mostrar": False}
     request = context.get("request")
     usuario = getattr(request, "user", None)
     uso = ganchos.uso(chave)
@@ -60,7 +64,7 @@ def painel_ia(context, chave: str, recurso_id, *relacionados: str) -> dict:
 def link_ia(context, chave: str, recurso_id) -> dict:
     """Entrada leve (nenhuma consulta) para listas e telas com orçamento de consultas: um link
     para a tela do pedido, que confere a permissão e mostra a última sugestão do registro."""
-    uso = ganchos.uso(chave)
+    uso = ganchos.uso(chave) if recursos.ligado(recursos.IA) else None
     request = context.get("request")
     return {"uso": uso, "recurso_id": str(recurso_id),
             "voltar": request.get_full_path() if request else ""}

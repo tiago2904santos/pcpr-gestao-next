@@ -27,7 +27,7 @@ from django.conf import settings
 from django.db import connection, transaction
 from django.utils import timezone
 
-from gestao.plataforma import ambiente
+from gestao.plataforma import ambiente, recursos
 
 from . import excecoes
 from .models import ExcecaoAutomacao
@@ -40,7 +40,8 @@ AMBIENTES = {"production": "producao", "staging": "treinamento", "preview": "pre
 
 
 def ligado() -> bool:
-    return bool(getattr(settings, "N8N_EVENTOS_URL", "") and
+    return bool(recursos.ligado(recursos.AUTOMACAO) and
+                getattr(settings, "N8N_EVENTOS_URL", "") and
                 getattr(settings, "N8N_EVENTOS_SEGREDO", ""))
 
 

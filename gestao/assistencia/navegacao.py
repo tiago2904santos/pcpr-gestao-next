@@ -8,6 +8,7 @@ registrar_modulo(
         rotulo="Ajuda",
         icone="book-open-text",
         url_name="ajuda:central",
+        recurso="ia",
         descricao="Central de ajuda com procedimentos aprovados e o assistente de dúvidas "
                   "(responde com os dados do sistema e diz o que não sabe).",
         ordem=95,
@@ -24,6 +25,7 @@ registrar_modulo(
         rotulo="Assistência",
         icone="text-quote",
         url_name="assistencia:painel",
+        recurso="ia",
         descricao="Sugestões de texto e de leitura (com ou sem IA), sempre revisadas por uma "
                   "pessoa: usos, limites, orçamento e custo estimado.",
         ordem=85,

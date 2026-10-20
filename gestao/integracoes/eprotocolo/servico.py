@@ -6,8 +6,11 @@ garante as travas: escrita só com a trava aberta, origem do número sempre expl
 
 from __future__ import annotations
 
+from gestao.plataforma import recursos
+
 from . import config as cfg
 from .adaptadores import AdaptadorHttp, AdaptadorSimulado
+from .erros import Desligado
 from .porta import Origem, PedidoDeAbertura, PortaEprotocolo, ProtocoloAberto, Situacao
 
 
@@ -18,11 +21,19 @@ def adaptador(configuracao: cfg.Configuracao | None = None) -> PortaEprotocolo:
     return AdaptadorSimulado()
 
 
+def _exigir_ligado() -> None:
+    if not recursos.ligado(recursos.EPROTOCOLO):
+        raise Desligado("A integração com o eProtocolo está desligada. Digite o número do "
+                        "protocolo à mão.")
+
+
 def consultar(numero: str) -> Situacao:
+    _exigir_ligado()
     return adaptador().consultar(numero)
 
 
 def abrir(pedido: PedidoDeAbertura) -> ProtocoloAberto:
+    _exigir_ligado()
     return adaptador().abrir(pedido)
 
 

@@ -9,6 +9,7 @@ from datetime import date
 from django.urls import reverse
 from django.utils import timezone
 
+from gestao.plataforma import recursos
 from gestao.plataforma.pendencias import Grupo, Item, Secao, carregar, registrar_secao
 
 from . import policies
@@ -34,8 +35,13 @@ def _grupos(usuario, hoje: date) -> list[Grupo]:
                   ver_todos=reverse("automacao:excecoes"))]
 
 
+def _pode_ver(usuario) -> bool:
+    """Com as automações desligadas (ADR 0050) a seção some das Pendências."""
+    return recursos.ligado(recursos.AUTOMACAO) and policies.pode_ver(usuario)
+
+
 def registrar() -> None:
     registrar_secao(Secao(
         "automacao", "Exceções da automação", "alert-triangle",
         "O que a automação não resolveu sozinha e espera uma pessoa.",
-        policies.pode_ver, _grupos, vazio="Nenhuma exceção aberta.", ordem=60))
+        _pode_ver, _grupos, vazio="Nenhuma exceção aberta.", ordem=60))

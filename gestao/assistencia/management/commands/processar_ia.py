@@ -18,6 +18,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
 
 from gestao.assistencia import manutencao, orcamento, servicos
+from gestao.plataforma import recursos
 
 log = logging.getLogger("gestao.assistencia")
 MANUTENCAO_A_CADA = 3600  # s
@@ -32,6 +33,14 @@ class Command(BaseCommand):
         parser.add_argument("--intervalo", type=float, default=30.0)
 
     def handle(self, *args, uma_vez=False, intervalo=30.0, **opts):
+        if not recursos.ligado(recursos.IA):
+            # IA desligada (ADR 0050): nada é chamado. Em serviço, fica parado (sem reinícios
+            # em laço do contêiner); a retenção segue pela rotina diária.
+            self.stdout.write("Assistência por IA desligada (IA_HABILITADA=false): nada a fazer.")
+            if not uma_vez:
+                while True:
+                    time.sleep(3600)
+            return
         if connection.in_atomic_block:
             raise CommandError("O worker não roda dentro de transação.")
         if uma_vez:

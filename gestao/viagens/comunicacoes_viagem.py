@@ -150,13 +150,13 @@ def _agendar_link(d: DiarioBordo, dia: date, autor=None, sufixo: str = "",
         return False  # sem cadastro não há contato: o setor entrega o link à mão
     oficio = d.prestacao.oficio
     versao = km_link.versao(d)
-    automacao.agendar(tipo=LINK_KM, servidor_id=pessoa.pk, recurso=km_link.recurso(d.pk),
-                      chave=f"{LINK_KM}:{d.pk}:{versao}{':' + sufixo if sufixo else ''}",
-                      unidade_id=oficio.unidade_id,
-                      criada_por=autor or _quem_emitiu(oficio),
-                      contexto={"diario": d.pk, "servidor": pessoa.pk}, versao=versao,
-                      agendada_para=quando or _quando(dia))
-    return True
+    # Com as automações desligadas (ADR 0050) nada é agendado: o link vai no envio manual.
+    return automacao.agendar(
+        tipo=LINK_KM, servidor_id=pessoa.pk, recurso=km_link.recurso(d.pk),
+        chave=f"{LINK_KM}:{d.pk}:{versao}{':' + sufixo if sufixo else ''}",
+        unidade_id=oficio.unidade_id, criada_por=autor or _quem_emitiu(oficio),
+        contexto={"diario": d.pk, "servidor": pessoa.pk}, versao=versao,
+        agendada_para=quando or _quando(dia)) is not None
 
 
 def _inicio(dia: date) -> datetime:
@@ -487,12 +487,12 @@ def _avisar_equipe(oficio: Oficio, tipo: str, marca: str, contexto: dict, versao
                    autor, servidores: list[int] | None = None) -> int:
     total = 0
     for servidor_id in (_equipe_com_contato(oficio) if servidores is None else servidores):
-        automacao.agendar(tipo=tipo, servidor_id=servidor_id,
-                          recurso=_recurso_oficio(oficio.pk),
-                          chave=f"{tipo}:{oficio.pk}:{marca}:{servidor_id}",
-                          unidade_id=oficio.unidade_id, criada_por=autor,
-                          contexto={**contexto, "servidor": servidor_id}, versao=versao)
-        total += 1
+        c = automacao.agendar(tipo=tipo, servidor_id=servidor_id,
+                              recurso=_recurso_oficio(oficio.pk),
+                              chave=f"{tipo}:{oficio.pk}:{marca}:{servidor_id}",
+                              unidade_id=oficio.unidade_id, criada_por=autor,
+                              contexto={**contexto, "servidor": servidor_id}, versao=versao)
+        total += c is not None
     return total
 
 

@@ -91,6 +91,8 @@ def _lembrar(usuario, entrada: dict) -> dict:
               f"{timezone.localdate()}",
         unidade_id=ps.prestacao.oficio.unidade_id, criada_por=usuario, contexto={"ps": ps.pk},
         versao=comunicacoes.versao(ps))
+    if c is None:
+        raise FerramentaRecusada("As automações estão desligadas.")
     return {"comunicacao": c.pk, "situacao": c.situacao}
 
 

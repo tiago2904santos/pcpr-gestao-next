@@ -150,12 +150,15 @@ def _registrar_pacote(pacote: Pacote, autor) -> Comunicacao | None:
         c = anterior
         c.revisao += 1
     else:
-        c = comunicacoes.agendar(
+        nova = comunicacoes.agendar(
             tipo=TIPO, servidor_id=ps.servidor_id, recurso=recurso, chave=chave,
             unidade_id=ps.prestacao.oficio.unidade_id, criada_por=autor,
             contexto={"ps": ps.pk, "manual": True,
                       "oficio": ps.prestacao.oficio.numero_formatado,
                       "itens": itens(pacote)}, versao=pacote.versao)
+        if nova is None:  # inalcançável: a pendência manual não depende das automações
+            return None
+        c = nova
     c.situacao, c.expira_em = S.AGUARDANDO_APROVACAO, None
     c.motivo = "Envio manual pendente: prepare a mensagem e confirme depois de enviá-la."
     c.save()

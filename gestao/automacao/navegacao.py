@@ -8,6 +8,7 @@ registrar_modulo(
         rotulo="Automação",
         icone="send",
         url_name="automacao:painel",
+        recurso="automacao",
         descricao="WhatsApp do sistema de testes: avisos enviados, respostas recebidas, "
                   "contatos com opt-in e a fila do que precisa de uma pessoa.",
         ordem=80,

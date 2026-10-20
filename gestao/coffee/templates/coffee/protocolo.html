@@ -10,9 +10,10 @@ protocolo é aberto à mão no eProtocolo; aqui ficam 1 o passo a passo, 2 os te
 3 a lista do anexo na ordem (OS, ofício, notas e certificos, contrato e certidões — pronto ou o
 que falta, com "Resolver"), 4 os arquivos para baixar (baixar registra o atesto e envio ao GAF,
 uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da ordem bancária.
+Com o eProtocolo desligado (ADR 0050) a seção 2 some e as seguintes sobem um número (`d`).
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
-{% block conteudo %}
+{% block conteudo %}{% with d=recursos.eprotocolo|yesno:"0,-1" %}
 {% include "coffee/_hero_folha.html" with contexto_hero="Coffee break · Etapa 3 · Protocolo de pagamento" %}
 {% include "coffee/_alertas_folha.html" %}
 
@@ -20,13 +21,14 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
   <section class="secao" aria-labelledby="t-passos">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-passos"><span class="secao__numero">1</span>Passo a passo</h2></div>
     <ol class="pilha-sm">
-      <li>Baixe os arquivos (seção 4) — o sistema registra o atesto e envio ao GAF.</li>
-      <li>No eProtocolo, abra um protocolo novo e preencha com os textos da seção 2.</li>
+      <li>Baixe os arquivos (seção {{ 4|add:d }}) — o sistema registra o atesto e envio ao GAF.</li>
+      <li>No eProtocolo, abra um protocolo novo{% if recursos.eprotocolo %} e preencha com os textos da seção 2{% endif %}.</li>
       <li>Anexe os arquivos na ordem: ordens de serviço, ofício, notas e certificos, contrato com aditivos e certidões.</li>
-      <li>Despache ao GAF e registre o número do protocolo na seção 5; depois, a ordem bancária e o envio dela à empresa.</li>
+      <li>Despache ao GAF e registre o número do protocolo na seção {{ 5|add:d }}; depois, a ordem bancária e o envio dela à empresa.</li>
     </ol>
   </section>
 
+  {% if recursos.eprotocolo %}
   <section class="secao" aria-labelledby="t-textos">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-textos"><span class="secao__numero">2</span>Textos para copiar</h2><p class="secao__nota">Montados com o fornecedor, as notas, o contrato e a configuração do ofício.</p></div>
     <div class="pilha">
@@ -42,9 +44,10 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
       {% endfor %}
     </div>
   </section>
+  {% endif %}
 
   <section class="secao" aria-labelledby="t-anexo">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexo"><span class="secao__numero">3</span>Anexo do protocolo</h2><p class="secao__nota">Na ordem do protocolo. O que falta fica de fora dos arquivos; certidão vencida entra com aviso.</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexo"><span class="secao__numero">{{ 3|add:d }}</span>Anexo do protocolo</h2><p class="secao__nota">Na ordem do protocolo. O que falta fica de fora dos arquivos; certidão vencida entra com aviso.</p></div>
     <ol class="registros" aria-labelledby="t-anexo">
       {% for i in itens %}
       <li class="registro">
@@ -60,7 +63,7 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
   </section>
 
   <section class="secao" aria-labelledby="t-arquivos">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-arquivos"><span class="secao__numero">4</span>Arquivos para baixar</h2><p class="secao__nota">Cada um junta os seus documentos num PDF. {% if s.protocolo_pagamento and not s.atesto_em %}Baixar registra hoje o atesto e envio ao GAF.{% endif %}</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-arquivos"><span class="secao__numero">{{ 4|add:d }}</span>Arquivos para baixar</h2><p class="secao__nota">Cada um junta os seus documentos num PDF. {% if s.protocolo_pagamento and not s.atesto_em %}Baixar registra hoje o atesto e envio ao GAF.{% endif %}</p></div>
     <form method="post" action="{% url 'coffee:baixar_protocolo' s.pk %}" class="pilha" id="form-protocolo" novalidate>
       {% csrf_token %}
       <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Arquivos</legend>
@@ -78,7 +81,7 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
   {% csrf_token %}
   {{ form_fin.versao }}<input type="hidden" name="etapa" value="protocolo" form="{{ form_financeiro_id }}">
   <section class="secao{% if s.concluida %} secao--ok{% endif %}" id="pagamento" aria-labelledby="t-pagamento">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pagamento"><span class="secao__numero">5</span>Protocolo e pagamento</h2><p class="secao__nota">Na ordem: protocolo, atesto e envio ao GAF, ordem bancária e o envio dela à empresa.{% if grupo %} Vale para as {{ grupo|length }} OS do pagamento conjunto.{% endif %}</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pagamento"><span class="secao__numero">{{ 5|add:d }}</span>Protocolo e pagamento</h2><p class="secao__nota">Na ordem: protocolo, atesto e envio ao GAF, ordem bancária e o envio dela à empresa.{% if grupo %} Vale para as {{ grupo|length }} OS do pagamento conjunto.{% endif %}</p></div>
     <div class="pilha">
       <div class="campos-folha campos-folha--quatro">
         {% include "componentes/campo.html" with campo=form_fin.protocolo_pagamento %}
@@ -92,7 +95,7 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
 </form>
 {% if not s.cancelada %}
   <section class="secao" id="pdf-ob" aria-labelledby="t-pdf-ob">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pdf-ob"><span class="secao__numero">6</span>Ordem bancária em PDF</h2><p class="secao__nota">Vale para todas as OS do pagamento; daqui vai por e-mail ao fornecedor, e o envio conclui o pagamento.</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pdf-ob"><span class="secao__numero">{{ 6|add:d }}</span>Ordem bancária em PDF</h2><p class="secao__nota">Vale para todas as OS do pagamento; daqui vai por e-mail ao fornecedor, e o envio conclui o pagamento.</p></div>
     {% include "coffee/_lista_pdfs.html" %}
   </section>
 {% endif %}
@@ -104,4 +107,4 @@ uma vez, com o protocolo registrado), 5 o protocolo e o pagamento e 6 o PDF da o
     {% if not s.bloqueada %}<button type="submit" form="{{ form_financeiro_id }}" class="botao botao--primario">{% icone "save" %}Salvar</button>{% endif %}
   </div>
 </div>
-{% endblock %}
+{% endwith %}{% endblock %}

@@ -13,6 +13,8 @@ from django.conf import settings
 from django.db import connection, transaction
 from django.utils import timezone
 
+from gestao.plataforma import recursos
+
 from . import excecoes, ganchos, policies
 from .models import Comunicacao, ContatoVerificado
 
@@ -39,10 +41,15 @@ def contato_vigente(servidor_id: int | None, canal: str) -> ContatoVerificado | 
 def agendar(*, tipo: str, servidor_id: int | None, recurso: str, chave: str,
             unidade_id: int | None = None, criada_por=None, contexto: dict | None = None,
             versao: str = "", canal: str = "whatsapp", agendada_para: datetime | None = None,
-            em_resposta_a=None, contato: ContatoVerificado | None = None) -> Comunicacao:
-    """Cria (ou devolve, se a chave já existe) a comunicação. Precisa de transação aberta."""
+            em_resposta_a=None, contato: ContatoVerificado | None = None) -> Comunicacao | None:
+    """Cria (ou devolve, se a chave já existe) a comunicação. Precisa de transação aberta.
+
+    Com as automações desligadas (ADR 0050) nada é agendado e volta None — exceto a pendência
+    de envio manual (`contexto["manual"]`), que o operador manda pelo próprio WhatsApp."""
     if not connection.in_atomic_block:
         raise ComunicacaoInvalida("agendar() roda na transação da mudança de negócio.")
+    if not (contexto or {}).get("manual") and not recursos.ligado(recursos.AUTOMACAO):
+        return None
     definicao = ganchos.tipo(tipo)
     if definicao is None:
         raise ComunicacaoInvalida(f"Tipo de comunicação não registrado: {tipo}")

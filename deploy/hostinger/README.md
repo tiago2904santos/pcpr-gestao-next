@@ -59,8 +59,9 @@ sudoedit /etc/pcpr/producao/app.env
 #   DJANGO_ALLOWED_HOSTS=gerenciadorviagens.tech,pcpr-web
 #   DJANGO_CSRF_TRUSTED_ORIGINS=https://gerenciadorviagens.tech
 #   DEMO_MODE=false   APP_ENV=production
-#   AUTOMACAO_TRANSPORTE=manual          (n8n liga depois do passo 6)
+#   AUTOMACAO_TRANSPORTE=manual          (envios manuais pelo WhatsApp do operador)
 #   WHATSAPP_MODO=simulado  IA_MODO=simulado   (canais reais só com credenciais oficiais)
+#   IA_HABILITADA=false  AUTOMACAO_HABILITADA=false  EPROTOCOLO_HABILITADO=false   (ADR 0050)
 echo <sha-aprovado> | sudo tee -a /etc/pcpr/producao/aprovados.txt
 ```
 
@@ -109,7 +110,19 @@ curl -s -o /dev/null -w '%{http_code}\n' https://gerenciadorviagens.tech/api/aut
 
 Login de um administrador migrado com a senha antiga.
 
-## 6. Integração com o n8n
+## Recursos desligados (ADR 0050)
+
+A versão em uso roda **sem IA, sem automações e sem eProtocolo**: `IA_HABILITADA=false`,
+`AUTOMACAO_HABILITADA=false` e `EPROTOCOLO_HABILITADO=false` no `app.env` (é também o padrão de
+`config.settings.production` quando a variável falta). Efeito: Automação, Assistência e Central
+de ajuda somem do menu e respondem 404, assim como `/api/automacao/` e o webhook do WhatsApp; os
+workers `automacao` e `ia` ficam parados (podem ser desligados: `pcpr.sh producao compose stop
+automacao ia`); nenhum evento vai ao n8n, então `N8N_EVENTOS_URL`/`N8N_EVENTOS_SEGREDO` podem
+ficar vazios. Continuam: Pendências, envios manuais (PDFs, `wa.me`, confirmação à mão, link de
+KM) e o número do protocolo digitado à mão. Religar = trocar a variável para `true` e
+`pcpr.sh producao reiniciar`; nada foi apagado.
+
+## 6. Integração com o n8n (só com `AUTOMACAO_HABILITADA=true`)
 
 1. No PCPR (Automação → Credenciais): emitir o token de **transporte** do n8n.
 2. No n8n (`https://n8n.gerenciadorviagens.tech`): criar as credenciais com os nomes de

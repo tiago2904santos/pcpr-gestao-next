@@ -18,6 +18,7 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 from gestao.automacao import entrada, entrega, eventos, manutencao, recebimentos
+from gestao.plataforma import recursos
 
 log = logging.getLogger("gestao.automacao")
 MANUTENCAO_A_CADA = 300  # s
@@ -49,6 +50,14 @@ class Command(BaseCommand):
         parser.add_argument("--intervalo", type=float, default=15.0)
 
     def handle(self, *args, uma_vez=False, intervalo=15.0, **opts):
+        if not recursos.ligado(recursos.AUTOMACAO):
+            # Automações desligadas (ADR 0050): nada sai nem entra. Em serviço, fica parado
+            # (sem reinícios em laço do contêiner); a retenção segue pela rotina diária.
+            self.stdout.write("Automações desligadas (AUTOMACAO_HABILITADA=false): nada a fazer.")
+            if not uma_vez:
+                while True:
+                    time.sleep(3600)
+            return
         if uma_vez:
             total = 0
             while (n := rodada()) > 0:

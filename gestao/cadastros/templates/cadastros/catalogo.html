@@ -53,7 +53,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
           <div class="registro__meta">
             {% if slug == "unidades" %}<span class="registro__meta-item">{% if o.sigla %}{{ o.sigla }}{% else %}<span class="vazio-inline">Sem sigla</span>{% endif %}</span>{% endif %}
             {% if o.detalhe %}<span class="registro__meta-item">{{ o.detalhe }}</span>{% endif %}
-            {% if slug == "atividades" and acoes.alterar and not o.recurso %}{% load assistencia %}<span class="registro__meta-item">{% link_ia "cadastros.atividade_complemento" o.pk %}</span>{% endif %}
+            {% if slug == "atividades" and acoes.alterar and not o.recurso and recursos.ia %}{% load assistencia %}<span class="registro__meta-item">{% link_ia "cadastros.atividade_complemento" o.pk %}</span>{% endif %}
             {% for total, rotulo in o.usos %}<span class="registro__meta-item">{{ total|pluralizar:rotulo }}</span>{% empty %}<span class="registro__meta-item vazio-inline">Ainda não usado</span>{% endfor %}
           </div>
         </div>

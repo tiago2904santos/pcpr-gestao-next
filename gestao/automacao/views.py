@@ -491,6 +491,8 @@ def responder(usuario, r: Recebimento, texto: str) -> Comunicacao:
             recurso=f"automacao.recebimento:{r.pk}",
             chave=f"resposta:{r.pk}:{timezone.now():%Y%m%d%H%M%S%f}", unidade_id=r.unidade_id,
             criada_por=usuario, contexto={"recebimento": r.pk}, em_resposta_a=r)
+        if c is None:
+            raise recebimentos.RecebimentoInvalido("As automações estão desligadas.")
         ConteudoComunicacao.objects.update_or_create(comunicacao=c, defaults={
             "texto": texto.strip()[:1000], "expira_em": timezone.now() + retencao()})
         excecoes.encerrar_do_assunto(recebimento=r, usuario=usuario,

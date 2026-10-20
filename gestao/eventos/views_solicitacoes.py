@@ -24,6 +24,7 @@ from gestao.cadastros.fontes import atividades_e_servicos
 from gestao.cadastros.models import Municipio
 from gestao.integracoes.eprotocolo import servico as eprotocolo
 from gestao.integracoes.eprotocolo.erros import ErroEprotocolo
+from gestao.plataforma import recursos
 
 from . import (
     conflitos,
@@ -350,6 +351,7 @@ def _chave_protocolo(pk: int) -> str:
 
 
 @require_POST
+@recursos.exige(recursos.EPROTOCOLO)
 def consultar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
     """"Consultar andamento": a última movimentação do protocolo no eProtocolo (simulada sem
     credencial). Só lê; o resultado volta uma vez na folha."""

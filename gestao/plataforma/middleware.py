@@ -109,6 +109,26 @@ class LimiteDoCorpoMiddleware:
         return self.get_response(request)
 
 
+class RecursosDesligadosMiddleware:
+    """404 para as rotas de um recurso desligado (IA, automações, eProtocolo — ADR 0050): pelo
+    namespace registrado em `recursos.registrar_rotas`. Antes da entrada obrigatória, para que
+    rota desligada responda igual para quem entrou e para quem não entrou."""
+
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        return self.get_response(request)
+
+    def process_view(self, request: HttpRequest, view_func, view_args, view_kwargs) -> None:
+        from . import recursos
+
+        match = getattr(request, "resolver_match", None)
+        recurso = recursos.recurso_das_rotas(list(match.namespaces)) if match else None
+        if recurso is not None:
+            recursos.exigir(recurso)
+
+
 class RotinasDiariasMiddleware:
     """Dispara as rotinas diárias no primeiro acesso de usuário logado do dia (referência:
     `RotinasDiariasMiddleware`). Depois da resposta pronta não dá (WSGI): roda antes, uma vez

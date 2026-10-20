@@ -11,6 +11,10 @@ class ConfiguracaoIncompleta(ErroEprotocolo):
     pass
 
 
+class Desligado(ErroEprotocolo):
+    """A integração está desligada neste sistema (EPROTOCOLO_HABILITADO=false, ADR 0050)."""
+
+
 class EscritaBloqueada(ErroEprotocolo):
     """A trava de somente leitura está ligada (padrão) ou o ambiente não permite escrever."""
 
