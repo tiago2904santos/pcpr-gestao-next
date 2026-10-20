@@ -8,9 +8,14 @@ Regras (docs da migração, 02-viagens):
   linha do GV que o EV trouxe é comparada pela impressão digital: mudou só no GV → a versão do
   GV entra; mudou nos dois → vale a edição mais recente e a outra vai para a conferência.
   O agregado (documento + filhos) entra inteiro do lado que venceu.
+* Ofício emitido (GERADO/FINALIZADO) num lado e em RASCUNHO no outro: vale o emitido, qualquer
+  que seja a data da edição (o rascunho editado depois não é o documento real); vai para a
+  conferência.
 * Apagado no EV depois da carga não é recriado pelo GV.
 * Ofícios 127/2026 e 128/2026 do GV (documentos diferentes dos nativos do EV com o mesmo
-  número): entram com o próximo número livre do ano; o número antigo fica no histórico.
+  número): o ofício só do GV que foi EMITIDO fica com o número (é o que está no PDF); o rascunho
+  do EV que colide é o renumerado (próximo número livre do ano; o antigo fica no histórico).
+  Nos demais conflitos, quem entra depois (o só do GV) é o renumerado.
 * Arquivos: só a referência (`legado/<ev|gv>/<xx>/<sha256>.<ext>`, ver `comum`), com hash e
   tamanho do backup.
 * Nada de dado pessoal na conferência: só ids, tabelas, campos e motivos.
@@ -62,6 +67,7 @@ from gestao.viagens.models import (
 from ..contexto import Contexto
 from .comum import (
     Agregado,
+    Arquivo,
     Carga,
     agrupar,
     arquivo,
@@ -435,6 +441,17 @@ def _roteiro_ev_alterado(ctx: Contexto, r: dict) -> bool:
 # ============================================================================ ofícios
 SITUACAO_OFICIO = {"RASCUNHO": "rascunho", "GERADO": "emitido", "FINALIZADO": "emitido",
                    "ARQUIVADO": "emitido"}
+STATUS_EMITIDO = ("GERADO", "FINALIZADO")
+
+
+def _status_emitido(status: Any) -> bool | None:
+    """Status do legado: emitido (True), rascunho (False) ou outro (None)."""
+    s = str(status or "").upper()
+    return True if s in STATUS_EMITIDO else (False if s == "RASCUNHO" else None)
+
+
+def _oficio_emitido(ag: Agregado) -> bool | None:
+    return _status_emitido(ag.extra.get("status"))
 CUSTEIO = {"UNIDADE_DPC": "unidade", "OUTRA_INSTITUICAO": "outra_instituicao",
            "ONUS_LIMITADO": "onus_limitado"}
 
@@ -599,17 +616,39 @@ def _numero_livre(ctx: Contexto, ano: int) -> int:
     return max([no_destino, *legado]) + 1
 
 
+def _numeros_emitidos_so_no_gv(ctx: Contexto) -> set[tuple[int, int]]:
+    """(ano, número) dos ofícios que só existem no GV (fora do registro do EV), foram emitidos
+    e ainda não entraram: o número é deles (está no PDF)."""
+    chave = "numeros_emitidos_so_no_gv"
+    if chave not in ctx.memo:
+        tabela = t("oficio", "gv")
+        reg = registro(ctx, tabela)
+        ctx.memo[chave] = {
+            (o["ano"], o["numero"]) for o in tab(ctx, "gv", tabela)
+            if str(o["id"]) not in reg and _status_emitido(o.get("status"))
+            and not o.get("cancelado") and ctx.destino("gv", tabela, o["id"]) is None}
+    return ctx.memo[chave]
+
+
 def _criar_oficio(ctx: Contexto, sistema: str, r: dict, ag: Agregado) -> Oficio:
     campos = dict(ag.campos)
     anterior = None
-    if Oficio.objects.filter(ano=campos["ano"], numero=campos["numero"]).exists():
+    reservado = (sistema == "ev" and _oficio_emitido(ag) is False
+                 and (campos["ano"], campos["numero"]) in _numeros_emitidos_so_no_gv(ctx))
+    if reservado or Oficio.objects.filter(ano=campos["ano"], numero=campos["numero"]).exists():
         anterior = campos["numero"]
         campos["numero"] = _numero_livre(ctx, campos["ano"])
         ctx.relatorio.conta("oficio", "renumerado")
-        ctx.relatorio.revisar("oficio", f"número {anterior}/{campos['ano']} já usado por outro "
-                              f"documento: renumerado para {campos['numero']}/{campos['ano']} "
-                              "(o PDF emitido no legado mostra o número antigo)",
-                              sistema=sistema, tabela=t("oficio", sistema), origem_pk=r["id"])
+        if reservado:
+            motivo = (f"rascunho com o número {anterior}/{campos['ano']}, que é de um ofício "
+                      f"emitido só no GV: o rascunho foi renumerado para "
+                      f"{campos['numero']}/{campos['ano']}")
+        else:
+            motivo = (f"número {anterior}/{campos['ano']} já usado por outro documento: "
+                      f"renumerado para {campos['numero']}/{campos['ano']} (o PDF emitido no "
+                      "legado mostra o número antigo)")
+        ctx.relatorio.revisar("oficio", motivo, sistema=sistema, tabela=t("oficio", sistema),
+                              origem_pk=r["id"])
     o = Oficio.objects.create(**campos, criado_por_id=ctx.usuario_migracao.pk)
     criar_filhos(Viajante, {"oficio": o}, ag.filhos["viajantes"])
     criar_filhos(Trecho, {"oficio": o}, ag.filhos["trechos"])
@@ -618,8 +657,10 @@ def _criar_oficio(ctx: Contexto, sistema: str, r: dict, ag: Agregado) -> Oficio:
     origem = "EV" if sistema == "ev" else "GV"
     descricao = f"Migrado do sistema anterior ({origem}, ofício {r['id']})."
     if anterior is not None:
+        porque = ("o número é do ofício emitido no Gerenciador de Viagens" if reservado
+                  else "conflito de numeração")
         descricao = (f"Migrado do sistema anterior ({origem}, ofício {r['id']}), onde era o nº "
-                     f"{anterior:02d}/{campos['ano']}; renumerado por conflito de numeração.")
+                     f"{anterior:02d}/{campos['ano']}; renumerado ({porque}).")
     dados: dict[str, Any] = {"origem": sistema, "pk": r["id"],
                              "status_legado": ag.extra["status"], "lote": ctx.lote}
     if anterior is not None:
@@ -1090,6 +1131,9 @@ def _emitido(oficio: Oficio) -> bool:
 def _candidatos_documento(ctx: Contexto) -> dict[int, list[tuple[str, dict]]]:
     """Artefatos PDF de ofício/justificativa por ofício do destino: todos os do EV e os do GV
     gerados depois da carga (os do GV que o EV trouxe já estão no EV — ou o EV os descartou)."""
+    chave = "candidatos_documento"
+    if chave in ctx.memo:
+        return ctx.memo[chave]
     por_oficio: dict[int, list[tuple[str, dict]]] = {}
     for s in ("ev", "gv"):
         reg = registro(ctx, t("artefato", "gv")) if s == "gv" else {}
@@ -1102,42 +1146,48 @@ def _candidatos_documento(ctx: Contexto) -> dict[int, list[tuple[str, dict]]]:
             if alvo is None:
                 continue
             por_oficio.setdefault(alvo, []).append((s, a))
+    ctx.memo[chave] = por_oficio
     return por_oficio
 
 
-def _documentos(ctx: Contexto) -> None:
+def documentos_escolhidos(ctx: Contexto, oficio_pk: int, emitido: bool
+                          ) -> list[tuple[str, str, dict, int]]:
+    """Os PDFs do legado que viram `Documento` de um ofício: (tipo, sistema, artefato, versão).
+    Com "versão emitida" marcada no legado, todas elas; senão, se o ofício foi emitido, o PDF
+    mais recente vira a versão 1 (as regerações anteriores não entram)."""
     rel = ctx.relatorio
-    for oficio_pk, candidatos in sorted(_candidatos_documento(ctx).items()):
+    candidatos = _candidatos_documento(ctx).get(oficio_pk, [])
+    res: list[tuple[str, str, dict, int]] = []
+    for tipo in ("oficio", "justificativa"):
+        lista = [(s, a) for s, a in candidatos if a["tipo"] == tipo]
+        if not lista:
+            continue
+        emitidas = [(s, a) for s, a in lista if a.get("versao_emitida")]
+        if emitidas:
+            escolhidos = [(s, a, int(a["versao_emitida"])) for s, a in emitidas]
+        elif emitido:
+            s, a = max(lista, key=lambda sa: (sa[1]["criado_em"], str(sa[1]["id"])))
+            escolhidos = [(s, a, 1)]
+        else:
+            rel.conta("documento", "oficio_nao_emitido_sem_documento", len(lista))
+            continue
+        rel.conta("documento", "regeracao_nao_migrada", len(lista) - len(escolhidos))
+        res += [(tipo, s, a, versao) for s, a, versao in escolhidos]
+    return res
+
+
+def _documentos(ctx: Contexto) -> None:
+    for oficio_pk in sorted(_candidatos_documento(ctx)):
         oficio = Oficio.objects.get(pk=oficio_pk)
-        for tipo in ("oficio", "justificativa"):
-            lista = [(s, a) for s, a in candidatos if a["tipo"] == tipo]
-            if not lista:
-                continue
-            emitidas = [(s, a) for s, a in lista if a.get("versao_emitida")]
-            if emitidas:
-                escolhidos = [(s, a, int(a["versao_emitida"])) for s, a in emitidas]
-            elif _emitido(oficio):
-                s, a = max(lista, key=lambda sa: (sa[1]["criado_em"], str(sa[1]["id"])))
-                escolhidos = [(s, a, 1)]
-            else:
-                rel.conta("documento", "oficio_nao_emitido_sem_documento", len(lista))
-                continue
-            rel.conta("documento", "regeracao_nao_migrada", len(lista) - len(escolhidos))
-            for s, a, versao in escolhidos:
-                _documento(ctx, oficio, tipo, s, a, versao)
+        for tipo, s, a, versao in documentos_escolhidos(ctx, oficio_pk, _emitido(oficio)):
+            _documento(ctx, oficio, tipo, s, a, versao)
 
 
-def _documento(ctx: Contexto, oficio: Oficio, tipo: str, s: str, a: dict, versao: int) -> None:
+def campos_documento(ctx: Contexto, numero_oficio: int, tipo: str, s: str, a: dict,
+                     versao: int) -> tuple[dict[str, Any], Arquivo | None]:
+    """Os campos do `Documento` (sem o ofício) de um PDF do legado, e o arquivo dele."""
     rel = ctx.relatorio
     tabela = t("artefato", s)
-    if ctx.destino(s, tabela, a["id"]) is not None:
-        rel.conta("documento", "ja_mapeado")
-        return
-    existente = Documento.objects.filter(oficio=oficio, tipo=tipo, versao=versao).first()
-    if existente is not None:
-        ctx.mapear(s, tabela, a["id"], existente, criado=False)
-        rel.conta("documento", "casado_por_chave")
-        return
     arq = arquivo(ctx, s, a.get("arquivo"), entidade="documento", tabela=tabela,
                   origem_pk=a["id"])
     hash_legado = (a.get("hash_sha256") or "").lower()
@@ -1153,16 +1203,35 @@ def _documento(ctx: Contexto, oficio: Oficio, tipo: str, s: str, a: dict, versao
         "generator_version": a.get("generator_version") or "", "engine": a.get("engine") or "",
         "pdfa": False}}
     legado = por_id(ctx, s, t("oficio", s)).get(str(a.get("oficio_id")))
-    if legado is not None and legado.get("numero") != oficio.numero:
+    if legado is not None and legado.get("numero") != numero_oficio:
         dados["legado"]["numero_do_oficio_no_pdf"] = legado.get("numero")
     autor = a.get("emitida_por_id") or a.get("criado_por_id")
-    doc = Documento.objects.create(
-        oficio=oficio, tipo=tipo, versao=versao, situacao="pronto" if ok else "falhou",
-        dados=dados, arquivo=arq.nome if arq else "", sha256=arq.sha256 if ok and arq else "",
-        tamanho=arq.tamanho if ok and arq else 0,
-        erro="" if ok else "Arquivo do sistema anterior ausente no backup da migração.",
-        emitido_por_id=usuario(ctx, s, autor), gerado_em=a.get("criado_em"))
-    preservar_datas(Documento, doc.pk, emitido_em=a.get("emitida_em") or a.get("criado_em"))
+    campos = {
+        "tipo": tipo, "versao": versao, "situacao": "pronto" if ok else "falhou",
+        "dados": dados, "arquivo": arq.nome if arq else "",
+        "sha256": arq.sha256 if ok and arq else "", "tamanho": arq.tamanho if ok and arq else 0,
+        "erro": "" if ok else "Arquivo do sistema anterior ausente no backup da migração.",
+        "emitido_por_id": usuario(ctx, s, autor), "gerado_em": a.get("criado_em"),
+        "emitido_em": a.get("emitida_em") or a.get("criado_em")}
+    return campos, arq
+
+
+def _documento(ctx: Contexto, oficio: Oficio, tipo: str, s: str, a: dict, versao: int) -> None:
+    rel = ctx.relatorio
+    tabela = t("artefato", s)
+    if ctx.destino(s, tabela, a["id"]) is not None:
+        rel.conta("documento", "ja_mapeado")
+        return
+    existente = Documento.objects.filter(oficio=oficio, tipo=tipo, versao=versao).first()
+    if existente is not None:
+        ctx.mapear(s, tabela, a["id"], existente, criado=False)
+        rel.conta("documento", "casado_por_chave")
+        return
+    campos, _ = campos_documento(ctx, oficio.numero, tipo, s, a, versao)
+    ok = campos["situacao"] == "pronto"
+    emitido_em = campos.pop("emitido_em")
+    doc = Documento.objects.create(oficio=oficio, **campos)
+    preservar_datas(Documento, doc.pk, emitido_em=emitido_em)
     ctx.mapear(s, tabela, a["id"], doc, criado=True)
     rel.conta("documento", "criado" if ok else "criado_sem_arquivo")
 
@@ -1340,7 +1409,8 @@ def executar(ctx: Contexto) -> None:
               ev_alterado=_roteiro_ev_alterado,
               ignorar_na_comparacao=("quantidade_servidores",)),
         Carga("oficio", Oficio, t("oficio", "ev"), t("oficio", "gv"), _construir_oficio,
-              _criar_oficio, gv_alterado=_oficio_gv_alterado, ev_alterado=_oficio_ev_alterado),
+              _criar_oficio, gv_alterado=_oficio_gv_alterado, ev_alterado=_oficio_ev_alterado,
+              emitido=_oficio_emitido),
         Carga("termo", TermoAutorizacao, t("termo", "ev"), t("termo", "gv"), _construir_termo,
               _criar_termo),
         Carga("ordem_servico", OrdemServico, t("os", "ev"), t("os", "gv"), _construir_os,
