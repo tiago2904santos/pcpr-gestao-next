@@ -1,12 +1,14 @@
 {% extends "arquetipos/formulario.html" %}
 {% load static viagens %}
 {% block titulo %}Diário de bordo · {{ oficio }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block modulos %}{% if editavel %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endif %}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Diário de bordo" complemento_template="viagens/diario/_contexto.html" acoes_template="viagens/diario/_acoes.html" menu_folha="viagens/diario/_menu.html" %}
+{# A barra das quatro etapas, como no sistema antigo (ADR 0051). #}
+{% include "viagens/prestacao/_etapas.html" %}
 {% include "componentes/resumo_erros.html" %}
 
 {% if equipe_finalizada %}
@@ -72,8 +74,9 @@
 <div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% if editavel and linhas %}{% include "componentes/estado_salvamento.html" with atualizado_em=d.atualizado_em sem_emissao=True only %}{% else %}<div class="barra-acoes__status" role="status">{% icone "gauge" classe="icone--sm" %}<span>{% if not linhas %}O diário segue os trechos do ofício.{% else %}Diário em consulta.{% endif %}</span></div>{% endif %}
   <div class="barra-acoes__acoes">
-    <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">Voltar</a>
-    {% if editavel and linhas %}<button type="submit" form="continuar-diario" class="botao botao--primario">{% icone "arrow-right" %}Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-right" %}Relatório técnico</a>{% endif %}
+    <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "arrow-left" %}Voltar à lista</a>
+    {# Como no sistema antigo: "Ir para Relatório técnico" (espera a gravação do autosave). #}
+    {% if editavel and linhas %}<button type="submit" form="continuar-diario" class="botao botao--primario">Ir para Relatório técnico{% icone "arrow-right" classe="icone--seta" %}</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Ir para Relatório técnico{% icone "arrow-right" classe="icone--seta" %}</a>{% endif %}
   </div>
 </div>
 {% if editavel and linhas %}<form id="continuar-diario" method="get" action="{% url 'viagens:relatorio' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>{% endif %}

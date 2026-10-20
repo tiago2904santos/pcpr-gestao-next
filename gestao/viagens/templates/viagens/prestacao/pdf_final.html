@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static viagens %}
+{% block titulo %}PDF final · {{ oficio }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Etapa 4 da prestação de contas, como a do sistema antigo (ADR 0051): 1 Equipe — os
+servidores da prestação, o da folha em destaque (trocar fica na mesma etapa, `?servidor=`);
+2 Pacote final — ofício, despacho, RT, diário e comprovante reunidos num PDF, na ordem do
+pacote; com o que falta, o aviso "Falta para fechar o PDF final" e o atalho para os
+Documentos; pronto, abrir em nova aba ou baixar. Nada é gravado ao abrir.
+{% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block conteudo %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="PDF final" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" %}
+{% include "viagens/prestacao/_etapas.html" %}
+
+<div class="documento documento--preparacao">
+  <section class="secao" id="equipe" aria-labelledby="t-equipe">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">1</span>Equipe</h2>
+      <p class="secao__nota">Servidores desta prestação. O pacote é de um servidor: escolha de quem.</p>
+    </div>
+    {% if equipe_linhas %}
+    <ul class="registros" aria-labelledby="t-equipe">
+      {% for l in equipe_linhas %}{% with ps=l.ps %}
+      <li class="registro{% if servidor_atual and ps.pk == servidor_atual.ps.pk %} registro--atual{% endif %}">
+        <span class="avatar{% if l.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{% if l.motorista %}{% icone "car" classe="icone--sm" %}{% else %}{{ ps.servidor.iniciais }}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <a class="registro__link" href="?servidor={{ ps.pk }}"{% if servidor_atual and ps.pk == servidor_atual.ps.pk %} aria-current="true"{% endif %}><span class="registro__link-texto">{{ ps.servidor.nome }}</span></a>
+            <span class="registro__selos">{% if servidor_atual and ps.pk == servidor_atual.ps.pk %}<span class="selo selo--neutro selo--sem-ponto">Pacote abaixo</span>{% endif %}{% if l.motorista %}<span class="selo selo--info selo--sem-ponto">Motorista</span>{% endif %}<span class="selo selo--{{ l.situacao.1 }}">{{ l.situacao.0 }}</span></span>
+          </div>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "briefcase" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.cargo|default:"Sem cargo" }}</span></span>
+            <span class="registro__meta-item">{% icone "id-card" classe="icone--sm" %}<span class="registro__meta-texto">{{ ps.servidor.cpf_formatado|default:"sem CPF" }}</span></span>
+            <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Solicitação {{ ps.numero_solicitacao|default:"—" }}</span></span>
+          </div>
+        </div>
+      </li>
+      {% endwith %}{% endfor %}
+    </ul>
+    {% else %}
+    {% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor nesta prestação" texto="A equipe vem do ofício emitido." %}
+    {% endif %}
+  </section>
+
+  {% if servidor_atual %}{% with ps=servidor_atual.ps %}
+  <section class="secao{% if not falta %} secao--ok{% endif %}" id="pacote" aria-labelledby="t-pacote">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-pacote"><span class="secao__numero">2</span>Pacote final</h2>
+      <div class="secao__estado">{% if falta %}<span class="selo selo--aviso selo--situacao-rascunho">{{ falta|length|pluralizar:"pendência,pendências" }}</span>{% else %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto</span>{% endif %}</div>
+      <p class="secao__nota">Ofício, despacho, relatório técnico, diário de bordo e comprovante reunidos em um PDF, nesta ordem.</p>
+    </div>
+    <div class="secao__bloco" aria-labelledby="t-pacote-de">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-pacote-de">{% icone "file-check-2" classe="icone--sm" %}Pacote de {{ ps.servidor.nome }}</h3>
+        {% if servidor_atual.motorista %}<div class="secao__estado"><span class="selo selo--info selo--sem-ponto">Motorista</span></div>{% endif %}
+      </div>
+      {% if falta %}
+      <div class="alerta alerta--aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo">
+        <p class="alerta__titulo">Falta para fechar o PDF final</p>
+        <p>O pacote reúne documentos que ainda não estão na prestação.</p>
+        <ul>{% for f in falta %}<li>{{ f }}</li>{% endfor %}</ul>
+      </div></div>
+      <div class="grupo-botoes mt-2"><a class="botao" href="{% url 'viagens:leitura_prestacao' p.pk %}?servidor={{ ps.pk }}">Ir para Documentos{% icone "arrow-right" classe="icone--seta" %}</a></div>
+      {% else %}
+      <div class="grupo-botoes">
+        <a class="botao" href="{% url 'viagens:pacote_servidor' ps.pk %}?abrir=1" target="_blank" rel="noopener">{% icone "external-link" %}Abrir em nova aba<span class="sr-only"> o pacote de {{ ps.servidor.nome }} (PDF)</span></a>
+        <a class="botao botao--primario" href="{% url 'viagens:pacote_servidor' ps.pk %}">{% icone "download" %}Baixar pacote (PDF final)</a>
+      </div>
+      {% endif %}
+      <ol class="registros mt-4" aria-label="O que entra no pacote, na ordem">
+        {% for titulo, estado, pronto in itens %}
+        <li class="registro{% if not pronto %} registro--rascunho{% endif %}">
+          <span class="registro__icone" aria-hidden="true">{% if pronto %}{% icone "check-circle-2" %}{% else %}{% icone "alert-triangle" %}{% endif %}</span>
+          <div class="registro__corpo"><div class="registro__titulo"><span class="registro__texto">{{ forloop.counter }}. {{ titulo }}</span>{% if pronto %}<span class="selo selo--sucesso selo--sem-ponto">{{ estado|capfirst }}</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{{ estado|capfirst }}</span>{% endif %}</div></div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </section>
+  {% endwith %}{% endif %}
+</div>
+
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" role="status">{% icone "file-check-2" classe="icone--sm" %}<span>{% if not servidor_atual %}Sem servidor nesta prestação.{% elif falta %}O pacote ainda não fecha.{% else %}Pacote pronto para baixar.{% endif %}</span></div>
+  <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'viagens:leitura_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-left" %}Voltar aos Documentos</a>
+    <a class="botao botao--primario" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "list" %}Voltar à lista</a>
+  </div>
+</div>
+{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% endblock %}

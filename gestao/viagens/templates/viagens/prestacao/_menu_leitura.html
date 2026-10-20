@@ -1,3 +1,3 @@
-{% load viagens %}{# Itens do ⋮ do cabeçalho na leitura e conferência (só entra com algo a mostrar). #}
+{% load viagens %}{# Itens do ⋮ do cabeçalho nos Documentos (só entra com algo a mostrar). #}
 {% if pacote_pronto %}<a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' pacote_pronto.ps.pk %}">{% icone "file-check-2" %}Pacote final de {{ pacote_pronto.ps.servidor.nome }} (PDF)</a>{% endif %}
 {% if via %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">{% icone "stamp" %}Prévia do ofício carimbado (PDF)</a>{% endif %}

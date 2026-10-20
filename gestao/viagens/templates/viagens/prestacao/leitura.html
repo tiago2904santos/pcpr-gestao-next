@@ -1,29 +1,41 @@
 {% extends "base.html" %}
 {% load static viagens %}
-{% block titulo %}Leitura e conferência · {{ oficio }}{% endblock %}
+{% block titulo %}Documentos · {{ oficio }}{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Etapa 3 da prestação de contas (ADR 0042), com as peças da folha do termo e da OS. Os
-arquivos chegam pelo importador; aqui se confere o que veio. 1 Ofício assinado e despacho —
-a via do ofício com a posição do nº da solicitação de cada servidor (o carimbo) e os
-despachos. 2 Comprovantes — por servidor, o nº de autorização, a data, o valor e a operação
-lidos do PDF do banco, conferidos com a diária do ofício e com a do RT assinado; "Usar no
-comprovante" grava o lido no anexo. 3 Relatório técnico assinado e 4 Diário de bordo
-assinado — os campos como estão no PDF. 5 Versões anteriores — o removido fica 30 dias e
-pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é gravado ao abrir.
+Etapa 3 da prestação de contas — Documentos, na ordem do sistema antigo (ADR 0051), com as
+peças da folha do termo e da OS. Os arquivos chegam pelo importador; aqui se confere o que
+veio. 1 Equipe — o servidor da folha com o nº da solicitação e o prazo de saque (o mesmo
+cartão da lista, grava sozinho). 2 Documentos do ofício — a via assinada com a posição do nº
+da solicitação de cada servidor (o carimbo) e os despachos, de todos. 3 Relatório técnico,
+4 Diário de bordo e 5 Comprovante de saque/transferência assinados — os campos como estão no
+PDF, para copiar; o comprovante conferido com a diária do ofício e a do RT ("Usar no
+comprovante" grava o lido no anexo). 6 Versões anteriores — o removido fica 30 dias e pode
+voltar. RT e comprovante são do servidor da folha (`?servidor=`). Nada é gravado ao abrir.
 {% endcomment %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Leitura e conferência" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" menu_folha=menu_leitura %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos" complemento_template="viagens/prestacao/_cabecalho_contexto.html" acoes_template="viagens/prestacao/_cabecalho_acoes.html" menu_folha=menu_leitura %}
 {% include "viagens/prestacao/_etapas.html" %}
 
 <div class="documento documento--preparacao">
-  {# 1. Ofício assinado (com o nº da solicitação de cada servidor) e despacho, da equipe. #}
+  {# 1. Equipe: o servidor da folha, com o nº da solicitação e o prazo de saque (como no sistema antigo). #}
+  {% if servidor_atual %}
+  <section class="secao" id="equipe" aria-labelledby="t-equipe">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">1</span>Equipe</h2>
+      <p class="secao__nota">O servidor desta folha: número da solicitação e prazo de saque gravam sozinhos. Troque de servidor no cabeçalho.</p>
+    </div>
+    <ul class="registros" aria-labelledby="t-equipe">{% with l=servidor_atual %}{% include "viagens/prestacao/_cartao.html" %}{% endwith %}</ul>
+  </section>
+  {% endif %}
+
+  {# 2. Documentos do ofício: a via assinada (com o nº da solicitação de cada servidor) e o despacho, de todos. #}
   <section class="secao{% if via and despachos %} secao--ok{% endif %}" id="oficio_assinado" aria-labelledby="t-oficio-assinado">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-oficio-assinado"><span class="secao__numero">1</span>Ofício assinado e despacho</h2>
-      <p class="secao__nota">Da equipe. O nº da solicitação de cada servidor entra na prévia e no pacote, na posição indicada; o arquivo assinado não muda.</p>
+      <h2 class="secao__titulo" id="t-oficio-assinado"><span class="secao__numero">2</span>Documentos do ofício</h2>
+      <p class="secao__nota">Ofício e despacho assinados, compartilhados por todos os servidores. O nº da solicitação de cada servidor entra na prévia e no pacote, na posição indicada; o arquivo assinado não muda.</p>
     </div>
     <div class="secao__bloco">
     <ul class="registros" aria-label="Documentos da equipe">
@@ -68,15 +80,45 @@ pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é grava
     </div>
   </section>
 
-  {# 2. Comprovantes: por servidor, o que foi lido e a conferência. #}
+  {# 3. Relatório técnico assinado do servidor da folha. #}
+  <section class="secao" id="rt_assinado" aria-labelledby="t-relatorios">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-relatorios"><span class="secao__numero">3</span>Relatório técnico</h2>
+      <p class="secao__nota">Assinado, deste servidor. Os campos do RT como estão no PDF anexado, para copiar; a diária escrita nele entra na conferência do comprovante. Sem o assinado, o RT preenchido vale para finalizar.</p>
+    </div>
+    {% for s in da_folha %}{% with ps=s.ps c=s.rt %}
+    <div class="secao__bloco" aria-labelledby="t-rt-{{ ps.pk }}">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-rt-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
+        {% if c %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{% icone "file-pen-line" classe="icone--sm" %}{{ c.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=s.rt_anexo editavel=s.editavel %}</div>{% endif %}
+      </div>
+      {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">ver o RT preenchido</a>.</p>
+      {% elif not c.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
+      {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=c prefixo="rt" %}{% endif %}
+    </div>
+    {% endwith %}{% endfor %}
+  </section>
+
+  {# 4. Diário de bordo assinado (da equipe). #}
+  <section class="secao" id="db_assinado" aria-labelledby="t-diario-lido">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">4</span>Diário de bordo</h2>
+      {% if diario %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{% icone "gauge" classe="icone--sm" %}{{ diario.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=db_anexo editavel=editavel_equipe %}</div>{% endif %}
+      <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado. Sem o assinado, o diário preenchido vale para finalizar.</p>
+    </div>
+    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">ver o diário preenchido</a>.</p>
+    {% elif not diario.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ diario.aviso }}</span></p>
+    {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=diario prefixo="db" %}{% endif %}
+  </section>
+
+  {# 5. Comprovante de saque/transferência do servidor da folha: o que foi lido e a conferência. #}
   <section class="secao" id="comprovantes" aria-labelledby="t-comprovantes">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-comprovantes"><span class="secao__numero">2</span>Comprovantes de saque e transferência</h2>
-      <div class="secao__estado"><span class="texto-terciario texto-xs">{{ lidos|pluralizar:"documento lido,documentos lidos" }}</span></div>
+      <h2 class="secao__titulo" id="t-comprovantes"><span class="secao__numero">5</span>Comprovante de saque/transferência</h2>
       <p class="secao__nota">Nº de autorização (o código do banco), data e valor lidos do PDF. O valor é conferido com a diária do ofício e com a escrita no relatório técnico assinado. PDF digitalizado ou imagem não têm texto para ler.</p>
     </div>
-    {% for s in servidores %}{% with ps=s.ps %}
-    <div class="secao__bloco" id="ps-{{ ps.pk }}" aria-labelledby="t-ps-{{ ps.pk }}">
+    {% for s in da_folha %}{% with ps=s.ps %}
+    <div class="secao__bloco" id="comprovantes-{{ ps.pk }}" aria-labelledby="t-ps-{{ ps.pk }}">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-ps-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">diária do ofício {% if s.liberada %}{{ s.liberada|moeda }}{% else %}não calculada{% endif %}{% if s.diaria_rt %} · do RT {{ s.diaria_rt|moeda }}{% endif %}</span></div>
@@ -131,41 +173,10 @@ pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é grava
     {% endfor %}
   </section>
 
-  {# 3. Relatório técnico assinado, por servidor. #}
-  <section class="secao" id="rt_assinado" aria-labelledby="t-relatorios">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-relatorios"><span class="secao__numero">3</span>Relatório técnico assinado</h2>
-      <p class="secao__nota">Os campos do RT como estão no PDF anexado, para copiar; a diária escrita nele entra na conferência do comprovante. Sem o assinado, o RT preenchido vale para finalizar.</p>
-    </div>
-    {% for s in servidores %}{% with ps=s.ps c=s.rt %}
-    <div class="secao__bloco" aria-labelledby="t-rt-{{ ps.pk }}">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-rt-{{ ps.pk }}">{% icone "user" classe="icone--sm" %}{{ ps.servidor.nome }}</h3>
-        {% if c %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' c.anexo.pk %}" target="_blank" rel="noopener">{% icone "file-pen-line" classe="icone--sm" %}{{ c.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=s.rt_anexo editavel=s.editavel %}</div>{% endif %}
-      </div>
-      {% if not c %}<p class="vazio-inline">{% icone "file-pen-line" classe="icone--sm" %}Sem RT assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:relatorio' p.pk %}?servidor={{ ps.pk }}">ver o RT preenchido</a>.</p>
-      {% elif not c.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ c.aviso }}</span></p>
-      {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=c prefixo="rt" %}{% endif %}
-    </div>
-    {% endwith %}{% endfor %}
-  </section>
-
-  {# 4. Diário de bordo assinado (da equipe). #}
-  <section class="secao" id="db_assinado" aria-labelledby="t-diario-lido">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-diario-lido"><span class="secao__numero">4</span>Diário de bordo assinado</h2>
-      {% if diario %}<div class="secao__estado"><a class="texto-xs" href="{% url 'viagens:abrir_anexo' diario.anexo.pk %}" target="_blank" rel="noopener">{% icone "gauge" classe="icone--sm" %}{{ diario.titulo }}</a>{% include "viagens/prestacao/_anexo_acoes.html" with a=db_anexo editavel=editavel_equipe %}</div>{% endif %}
-      <p class="secao__nota">Motorista, viatura e os trechos como estão no PDF anexado. Sem o assinado, o diário preenchido vale para finalizar.</p>
-    </div>
-    {% if not diario %}<p class="vazio-inline">{% icone "gauge" classe="icone--sm" %}Sem diário assinado anexado. <a href="{% url 'viagens:importacoes' %}">Enviar pelo importador</a> ou <a href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">ver o diário preenchido</a>.</p>
-    {% elif not diario.legivel %}<p class="alerta alerta--aviso">{% icone "scan-text" classe="icone--sm" %}<span>{{ diario.aviso }}</span></p>
-    {% else %}{% include "viagens/prestacao/_leitura_campos.html" with c=diario prefixo="db" %}{% endif %}
-  </section>
-
-  {# 5. Versões anteriores: o removido fica 30 dias e pode voltar. #}
+  {# 6. Versões anteriores: o removido fica 30 dias e pode voltar. #}
   <section class="secao" id="anteriores" aria-labelledby="t-anteriores">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-anteriores"><span class="secao__numero">5</span>Versões anteriores</h2>
+      <h2 class="secao__titulo" id="t-anteriores"><span class="secao__numero">6</span>Versões anteriores</h2>
       <div class="secao__estado"><span class="texto-terciario texto-xs">{{ anteriores|length|pluralizar:"arquivo,arquivos" }}</span></div>
       <p class="secao__nota">O que foi removido ou substituído fica 30 dias e pode voltar.</p>
     </div>
@@ -180,9 +191,13 @@ pode voltar. Cada arquivo baixa e, para quem edita, sai (remover). Nada é grava
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   <div class="barra-acoes__status" role="status">{% icone "scan-text" classe="icone--sm" %}<span>{{ lidos|pluralizar:"documento lido,documentos lidos" }}. Nada é gravado ao abrir esta página.</span></div>
   <div class="barra-acoes__acoes">
-    <a class="botao botao--texto" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
-    <a class="botao botao--primario" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}#equipe-{{ p.pk }}">{% icone "list" %}Concluir: voltar à lista</a>
+    <a class="botao botao--texto" href="{% url 'viagens:relatorio' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-left" %}Voltar ao Relatório técnico</a>
+    <button type="submit" form="continuar-documentos" class="botao botao--primario">Ir para PDF final{% icone "arrow-right" classe="icone--seta" %}</button>
   </div>
 </div>
+{# Espera o cartão do servidor gravar antes de seguir (autosave.js). #}
+<form id="continuar-documentos" method="get" action="{% url 'viagens:pdf_final_prestacao' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>
+{% with l=servidor_atual %}{% if l and l.editavel and l.ps.finalizada and l.ps.situacao != "enviada" and l.ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=l.ps equipe=False %}{% endif %}{% endwith %}
 {% include "viagens/oficios/_dialogo_resumo.html" %}
+{% include "componentes/dialogo_motivo.html" %}
 {% endblock %}

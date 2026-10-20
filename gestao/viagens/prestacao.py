@@ -156,10 +156,11 @@ def pendencias(ps: PrestacaoServidor, situacao=None) -> list[str]:
     return falta
 
 
+# As quatro primeiras na ordem do filtro de situação do sistema antigo (ADR 0051).
 ABAS = [
     ("nao_liberadas", "Não liberadas"), ("liberadas", "Liberadas"),
-    ("devolvidas", "Devolvidas"), ("arquivados", "Arquivados"),
-    ("finalizados", "Finalizados"), ("saque_vencendo", "Saque vencendo"),
+    ("arquivados", "Arquivados"), ("finalizados", "Finalizados"),
+    ("devolvidas", "Devolvidas"), ("saque_vencendo", "Saque vencendo"),
     ("prestacao_vencida", "Prestação vencida"),
     # Pendências (referência): para cobrar em lote — e o número do mês.
     ("sem_solicitacao", "Sem solicitação"), ("sem_despacho", "Sem despacho"),

@@ -127,6 +127,8 @@ urlpatterns = [
          name="folha_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
+    path("prestacoes/equipe/<int:pk>/pdf-final/", views_prestacao.pdf_final,
+         name="pdf_final_prestacao"),
     path("prestacoes/equipe/<int:pk>/documentos/", views_anexos.folha,
          name="documentos_prestacao"),
     path("prestacoes/equipe/<int:pk>/documentos/anexar/", views_anexos.anexar,

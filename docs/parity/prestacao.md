@@ -140,3 +140,14 @@ validação em `../qa/diario-base-oficio-20261016.md`.
 - Não regrediu: motorista/viatura (3 modos), viagem realizada, conferência do hodômetro,
   textos prontos, sugerir e copiar RT, limite da diária, carimbo do nº da solicitação,
   versões anteriores, pacotes, envio/aprovação/devolução, consulta sem edição, planilha.
+
+## Mais próxima do sistema antigo — 19/10/2026 (ADR 0051)
+
+Comparada com o Gerenciador de Viagens rodando localmente (cópia isolada, só leitura):
+quatro etapas como no antigo (Diário de bordo → Relatório técnico → Documentos → PDF final);
+"Leitura e conferência" virou **Documentos** e começa pelo servidor com o nº da solicitação,
+seguido dos documentos do ofício e dos assinados do servidor (RT, diário, comprovante); a
+etapa nova **PDF final** mostra a equipe, o pacote e "Falta para fechar o PDF final". Rodapés
+"Voltar ao …" / "Ir para …". Lista: "Prestações de contas", busca e filtros na ordem do antigo,
+"Mostrando x–y de N", viatura do ofício e o lápis "Abrir prestação". Diferenças mantidas e o
+porquê: ADR 0051.

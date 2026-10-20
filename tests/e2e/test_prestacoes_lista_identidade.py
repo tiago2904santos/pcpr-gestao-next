@@ -184,16 +184,17 @@ def test_resumo_existente_e_trilha_das_folhas(logado, dados_e2e, largura):
     trilha.get_by_role("link", name=re.compile("^Documentos")).click()
     trilha = pg.get_by_role("list", name="Etapas da prestação")
     expect(trilha.locator('[aria-current="step"]')).to_contain_text("Documentos")
-    expect(pg.locator("#despacho input[type=file]")).to_be_visible()
+    # Como no sistema antigo: o servidor da folha com o nº da solicitação, depois os documentos.
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text(a.servidor.nome)
+    expect(pg.locator(f"#comprovantes-{a.pk}")).to_contain_text("Nenhum comprovante anexado")
     _axe_estavel(pg)
     if os.environ.get("MIGRACAO_CAPTURAS"):
         pg.screenshot(path=str(destino / f"prestacao-documentos-{largura}.png"), full_page=True)
     assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
-    trilha.get_by_role("link", name=re.compile("^Leitura")).click()
+    trilha.get_by_role("link", name=re.compile("^PDF final")).click()
     trilha = pg.get_by_role("list", name="Etapas da prestação")
-    expect(trilha.locator('[aria-current="step"]')).to_contain_text("Leitura e conferência")
-    expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Nenhum comprovante anexado")
+    expect(trilha.locator('[aria-current="step"]')).to_contain_text("PDF final")
+    expect(pg.locator("#pacote")).to_contain_text("Falta para fechar o PDF final")
     _axe_estavel(pg)
     linha.refresh_from_db()
     assert linha.km_final == 10440

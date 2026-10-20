@@ -1,4 +1,4 @@
-"""O resultado do trecho acompanha o autosave; "Salvar e continuar" leva ao relatório do
+"""O resultado do trecho acompanha o autosave; "Ir para Relatório técnico" leva ao relatório do
 mesmo servidor sem finalizar a prestação."""
 
 import re
@@ -34,7 +34,7 @@ def test_resultado_vivo_estado_visivel_e_continuar(logado, dados_e2e, largura):
     chegada.fill("10470")
     expect(resultado).to_contain_text("470 km")
     expect(chegada).to_be_focused()
-    continuar = pg.get_by_role("button", name="Salvar e continuar").last
+    continuar = pg.get_by_role("button", name="Ir para Relatório técnico").last
     continuar.focus()
     continuar.press("Enter")
     expect(pg).to_have_url(re.compile(rf"/viagens/prestacoes/equipe/{p.pk}/relatorio/\?servidor=\d+$"))

@@ -4,7 +4,8 @@ das listas (listas.css): o avatar (o motorista do ofício em grafite, com o vola
 com a situação e o que já foi feito (diário, relatório, comprovante, despacho — selos), a
 nota (cargo · CPF · telefone · prazo) e, à direita, o nº da solicitação e o prazo de saque
 (liberação a limite, num calendário só) que gravam sozinhos, a ação da vez (Finalizar,
-Registrar envio, Aprovar/Devolver, Reabrir, Desarquivar) e o ⋮. Um formulário por linha:
+Registrar envio, Aprovar/Devolver, Reabrir, Desarquivar), o lápis "Abrir prestação" (etapa 1
+do servidor, como no sistema antigo) e o ⋮. Um formulário por linha:
 Enter grava; as ações enviam o mesmo formulário e gravam o digitado antes de agir. As
 regiões [data-vivo] se refazem depois de cada gravação. O que falta para finalizar é a
 pílula de pendências das listas, cada item levando aonde se resolve.
@@ -41,7 +42,7 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
         {% if l.prestar_ate and not ps.finalizada %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar contas até <strong>{{ l.prestar_ate|date:"d/m/Y" }}</strong></span></span>{% endif %}
         {% if ps.protocolo_envio %}<span class="registro__meta-item">{% icone "send" classe="icone--sm" %}<span class="registro__meta-texto">Envio {{ ps.protocolo_envio }}</span></span>{% endif %}
         {% if not aberta or ps.finalizada or ps.arquivada %}
-          <span class="registro__meta-item">{% icone "hash" classe="icone--sm" %}<span class="registro__meta-texto">Solicitação {{ ps.numero_solicitacao|default:"—" }}</span></span>
+          <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Solicitação {{ ps.numero_solicitacao|default:"—" }}</span></span>
           <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Saque {% if ps.data_liberacao_diarias or ps.prazo_limite_saque %}{{ ps.data_liberacao_diarias|date:"d/m/Y"|default:"…" }} a {{ ps.prazo_limite_saque|date:"d/m/Y"|default:"…" }}{% else %}—{% endif %}</span></span>
         {% endif %}
         {% if l.pendencias_links and not ps.finalizada and aberta and not ps.arquivada %}{% include "componentes/linha_pendencias.html" with pendencias=l.pendencias_links url=l.url_pendencias titulo="Falta para finalizar" %}{% endif %}
@@ -84,13 +85,16 @@ Contexto: `l` (linha de views_prestacao._linha), `request`.
           {% else %}<button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar</button>{% endif %}
         {% endif %}
       {% endif %}
+      {# Como o lápis do sistema antigo: abre a prestação deste servidor na etapa 1. #}
+      <a class="botao botao--icone botao--sutil" href="{% url 'viagens:diario' ps.prestacao_id %}?servidor={{ ps.pk }}" title="Abrir prestação" aria-label="Abrir a prestação de {{ ps.servidor.nome }} na etapa 1 (diário de bordo)">{% icone "pencil" %}</a>
       <pc-menu class="menu">
         <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Mais ações de {{ ps.servidor.nome }}">{% icone "ellipsis-vertical" %}</button>
         <div class="menu__painel menu__painel--descrito" role="menu" hidden>
           <p class="menu__folha-titulo" aria-hidden="true">{{ ps.servidor.nome }}</p>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "gauge" %}1 · Diário de bordo</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "file-pen-line" %}2 · Relatório técnico</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "scan-text" %}3 · Leitura e conferência</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "scan-text" %}3 · Documentos</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:pdf_final_prestacao' ps.prestacao_id %}?servidor={{ ps.pk }}">{% icone "file-check-2" %}4 · PDF final</a>
           <div class="menu__separador" role="separator"></div>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:pacote_servidor' ps.pk %}">{% icone "file-check-2" %}Pacote final (PDF)</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_relatorio' ps.prestacao_id ps.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}RT deste servidor (PDF)</a>

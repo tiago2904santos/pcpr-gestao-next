@@ -1,8 +1,8 @@
 {% extends "arquetipos/lista.html" %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/prestacao.css' %}">{% endblock %}
-{% block titulo %}Prestação de contas{% endblock %}
+{% block titulo %}Prestações de contas{% endblock %}
 {% block classe_conteudo %}pagina--documental pagina--prestacoes colecao-operacional colecao-operacional--consulta{% endblock %}
-{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestação de contas" complemento="Da solicitação ao envio. Confira e prepare cada equipe." %}{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Prestações de contas" complemento="Da solicitação ao PDF final: diário de bordo, relatório técnico, documentos e pacote de cada servidor." %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
 {% block classe_area_lista %}colecao-operacional__painel{% endblock %}
@@ -34,7 +34,7 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
   {% for selecionada in abas_selecionadas %}<input type="hidden" name="aba" value="{{ selecionada }}">{% endfor %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-prestacoes">Buscar</label>
-    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-prestacoes" type="search" name="q" value="{{ busca }}" placeholder="Servidor, ofício, protocolo…" autocomplete="off"></div>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-prestacoes" type="search" name="q" value="{{ busca }}" placeholder="Buscar por servidor, ofício, protocolo ou solicitação…" autocomplete="off"></div>
   </div>
   {# "Pedem atenção" no desenho do filtro Documento dos Ofícios: rótulo na borda e atalhos em segmentado com contagem. #}
   <div class="filtros__lado filtros__lado--flexivel">
@@ -56,7 +56,8 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
 <div id="resultados">
 <div class="lista-cabecalho">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Prestações por ofício{% endif %}</h2>
-  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"equipe,equipes" }} · {{ total_servidores|pluralizar:"servidor,servidores" }}</span>
+  {# Como no sistema antigo: "Mostrando 1–25 de N". #}
+  <span class="lista-cabecalho__total" role="status">{% if page_obj.paginator.count %}Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count|pluralizar:"equipe,equipes" }}{% else %}Nenhuma equipe{% endif %} · {{ total_servidores|pluralizar:"servidor,servidores" }}</span>
 </div>
 {% if blocos %}
   <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
@@ -74,6 +75,7 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
         {% if b.periodo %}<span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ b.periodo }}</span></span>{% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Sem período</span></span>{% endif %}
         {% if o.protocolo %}<span class="registro__meta-item registro__meta-item--protocolo" title="Protocolo {{ o.protocolo_formatado }}">{% icone "stamp" classe="icone--sm" %}<span class="sr-only">Protocolo </span><span class="registro__meta-texto">{{ o.protocolo_formatado }}</span></span>{% else %}<span class="registro__meta-item registro__meta-item--protocolo registro__meta-item--vazio">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">Sem protocolo</span></span>{% endif %}
         <span class="registro__meta-item" title="{{ o.unidade.nome }}">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.unidade.sigla|default:o.unidade.nome }}</span></span>
+        {% if o.viatura %}<span class="registro__meta-item" title="Viatura do ofício">{% icone "car" classe="icone--sm" %}<span class="sr-only">Viatura: </span><span class="registro__meta-texto">{{ o.viatura }}</span></span>{% endif %}
         {% if b.prestar_ate %}<span class="registro__meta-item" title="Prazo para prestar contas (o mais próximo da equipe)">{% icone "clock" classe="icone--sm" %}<span class="registro__meta-texto">Prestar até {{ b.prestar_ate|date:"d/m/Y" }}</span></span>{% endif %}
       </div>
     </div>
@@ -94,7 +96,8 @@ diálogos de envio moram em #resultados (a troca HTMX os leva junto).
           {% endif %}
           <a class="menu__item" role="menuitem" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}1 · Diário de bordo</a>
           <a class="menu__item" role="menuitem" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}2 · Relatório técnico</a>
-          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}">{% icone "scan-text" %}3 · Leitura e conferência</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:leitura_prestacao' p.pk %}">{% icone "scan-text" %}3 · Documentos</a>
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:pdf_final_prestacao' p.pk %}">{% icone "file-check-2" %}4 · PDF final</a>
           <div class="menu__separador" role="separator"></div>
           <a class="menu__item" role="menuitem" href="{{ b.url }}">{% icone "users" %}Visão da equipe</a>
           <a class="menu__item" role="menuitem" data-baixar-arquivo href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "download" %}Pacotes da equipe (fila)</a>

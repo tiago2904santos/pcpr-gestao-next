@@ -107,7 +107,7 @@ def test_leitura_confere_o_comprovante_e_grava_o_lido(c):
     assert 'value="A1B2.C3D4.E5F6.0718"' in html and 'value="07/11/2026"' in html
     assert "Bate com a diária do ofício" in html
     assert "Imagem: não há texto para transcrever" in html
-    assert "Leitura e conferência" in html and f"?servidor={ps.pk}" in html  # trilha e seletor
+    assert "Documentos" in html and f"?servidor={ps.pk}" in html  # trilha e seletor
     # "Usar no comprovante" grava valor, data e operação lidos no anexo (acao_anexo).
     r = cliente.post(reverse("viagens:acao_anexo", args=[a.pk, "comprovante"]),
                      {"valor": "1205.78", "data_operacao": "07/11/2026", "operacao": "pix"})

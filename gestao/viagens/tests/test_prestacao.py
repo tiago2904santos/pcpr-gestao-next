@@ -455,7 +455,7 @@ def test_folha_da_equipe_etapas_folhas_e_conferencia(c):
     r = op.get(reverse("viagens:prestacao_equipe", args=[a.prestacao_id]))
     assert r.status_code == 200
     assert [e.titulo for e in r.context["etapas_folha"]] == [
-        "Diário de bordo", "Relatório técnico", "Leitura e conferência"]
+        "Diário de bordo", "Relatório técnico", "Documentos", "PDF final"]
     assert all(e.estado == "pendente" for e in r.context["etapas_folha"])  # nada feito
     assert [f.chave for f in r.context["folhas"]] == ["diario", "relatorio", "leitura"]
     conf = r.context["conferencia"]
@@ -581,3 +581,35 @@ def test_termo_avulso_segue_nas_abas_de_quando(c):
     base = _com_inicio(TermoAutorizacao.objects.all())
     assert _filtrar(base, "futuros").filter(pk=avulso.pk).exists()
     assert not _filtrar(base, "finalizados").filter(pk=avulso.pk).exists()
+
+
+def test_pdf_final_como_no_sistema_antigo(c):
+    """Etapa 4 (ADR 0051): a equipe com o servidor da folha, o que entra no pacote e o que
+    falta para fechá-lo, levando aos Documentos; quem não vê a equipe não abre."""
+    a, b = _linhas(c)
+    op = _cliente(c, "operador")
+    url = reverse("viagens:pdf_final_prestacao", args=[a.prestacao_id])
+    r = op.get(f"{url}?servidor={b.pk}")
+    assert r.status_code == 200
+    html = r.content.decode()
+    etapas = r.context["etapas_folha"]
+    assert [e.titulo for e in etapas][-1] == "PDF final" and etapas[-1].atual
+    assert f"Pacote de {b.servidor.nome}" in html
+    assert "Falta para fechar o PDF final" in html
+    assert "Informe o número da solicitação deste servidor." in html
+    assert f'href="/viagens/prestacoes/equipe/{a.prestacao_id}/leitura/?servidor={b.pk}"' in html
+    assert a.servidor.nome in html  # a equipe inteira, como no sistema antigo
+    assert _cliente(c, "outra").get(url).status_code == 404
+
+
+def test_documentos_mostram_o_servidor_da_folha_primeiro(c):
+    a, b = _linhas(c)
+    op = _cliente(c, "operador")
+    r = op.get(reverse("viagens:leitura_prestacao", args=[a.prestacao_id]) + f"?servidor={b.pk}")
+    html = r.content.decode()
+    assert r.status_code == 200
+    # 1 Equipe (o cartão do servidor com o nº da solicitação), depois os documentos.
+    assert html.index(f'id="ps-{b.pk}"') < html.index('id="oficio_assinado"')
+    assert f'id="form-ps-{b.pk}"' in html and f'id="ps-{a.pk}"' not in html
+    assert f'id="comprovantes-{b.pk}"' in html and f'id="comprovantes-{a.pk}"' not in html
+    assert "Ir para PDF final" in html

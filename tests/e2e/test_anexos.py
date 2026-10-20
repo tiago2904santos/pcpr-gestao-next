@@ -25,8 +25,8 @@ def test_leitura_remover_e_trazer_de_volta(logado, dados_e2e):
     pg.goto("/viagens/prestacoes/")
     pg.locator(f"#equipe-{p.pk}").get_by_role("button", name="Ações da prestação do").click()
     expect(pg.get_by_role("menuitem", name="3 · Documentos")).to_have_count(0)
-    pg.get_by_role("menuitem", name="3 · Leitura e conferência").click()
-    expect(pg.get_by_role("heading", level=1)).to_contain_text("Leitura e conferência")
+    pg.get_by_role("menuitem", name="3 · Documentos").click()
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos")
     expect(pg.locator("#despacho")).to_contain_text("despacho.pdf")
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("saque.pdf")
 

@@ -207,7 +207,7 @@ def test_folha_autosave_e_documento(c, django_assert_max_num_queries):
     r = op.get(reverse("viagens:diario", args=[p.pk]))
     html = r.content.decode()
     assert r.status_code == 200 and 'id="conferencia"' in html
-    assert "Preencher pelas distâncias" in html and "Salvar e continuar" in html
+    assert "Preencher pelas distâncias" in html and "Ir para Relatório técnico" in html
     d = DiarioBordo.objects.get(prestacao=p)
     a, b = diario.linhas(d)
     assert f'name="l-{a.pk}-km_inicial"' in html

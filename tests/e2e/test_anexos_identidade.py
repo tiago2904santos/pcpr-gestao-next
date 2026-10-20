@@ -1,4 +1,4 @@
-"""Leitura e conferência da prestação: correção e carimbo operáveis em cada largura."""
+"""Documentos da prestação (etapa 3): correção e carimbo operáveis em cada largura."""
 
 import re
 
@@ -24,7 +24,7 @@ def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
     pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/leitura/")
-    expect(pg.get_by_role("heading", level=1)).to_contain_text("Leitura e conferência")
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Documentos")
     expect(pg.get_by_role("button", name=re.compile("^Servidor da folha"))).to_contain_text(ps.servidor.nome)
     cartao = pg.locator(f"#ps-{ps.pk}")
     corrigir = cartao.get_by_role("button", name=re.compile("^Corrigir valor"))

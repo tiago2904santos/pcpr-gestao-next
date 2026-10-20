@@ -119,7 +119,7 @@ def lista(request: HttpRequest) -> HttpResponse:
     # A paginação é por ofício: a equipe não se parte entre páginas (referência).
     ids = qs.select_related(None).values("prestacao_id")
     prestacoes = (PrestacaoContas.objects.filter(pk__in=ids)
-                  .select_related("oficio__unidade")
+                  .select_related("oficio__unidade", "oficio__viatura")
                   .prefetch_related(Prefetch("oficio__trechos", queryset=Trecho.objects
                                              .select_related("destino").order_by("ordem")))
                   .annotate(equipe=Count("oficio__viajantes", distinct=True))
@@ -437,7 +437,8 @@ def exportar(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def leitura(request: HttpRequest, pk: int) -> HttpResponse:
-    """Leitura e conferência (etapa 3): o ofício assinado com a posição do nº da solicitação
+    """Documentos (etapa 3; antes "Leitura e conferência"): o servidor da folha com o nº da
+    solicitação, o ofício assinado com a posição do nº da solicitação
     de cada servidor e o despacho; o texto dos comprovantes, do RT e do diário assinados em
     campos para copiar, com autorização, data e valor conferidos com a diária do ofício e a
     do RT; remover um anexo e trazer de volta uma versão anterior. Os arquivos chegam pelo
@@ -490,9 +491,12 @@ def leitura(request: HttpRequest, pk: int) -> HttpResponse:
     folha = contexto_folha(request, p, "leitura")
     atual = folha["servidor_atual"]
     pacote = next((s for s in servidores if atual and s["ps"].pk == atual["ps"].pk), None)
+    # RT e comprovante são do servidor da folha (como no sistema antigo); sem ele, todos.
+    da_folha = [pacote] if pacote else servidores
     pacote_pronto = pacote if pacote and not pacote["falta_pacote"] else None
     return render(request, "viagens/prestacao/leitura.html", {
-        "p": p, "oficio": o, "servidores": servidores, "diario": diario, "db_anexo": db_anexo,
+        "p": p, "oficio": o, "servidores": servidores, "da_folha": da_folha,
+        "diario": diario, "db_anexo": db_anexo,
         "lidos": lidos, "via": via, "pode": pode,
         "paginas_via": range(1, carimbo.numero_de_paginas(via) + 1) if via else range(0),
         "despachos": [a for a in todos if a.tipo == tipos.DESPACHO and a.servidor_id is None],
@@ -505,7 +509,48 @@ def leitura(request: HttpRequest, pk: int) -> HttpResponse:
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Ofício {o.numero_formatado}",
                                reverse("viagens:prestacao_equipe", args=[p.pk])),
-                              ("Leitura e conferência", ""))})
+                              ("Documentos", ""))})
+
+
+@require_GET
+def pdf_final(request: HttpRequest, pk: int) -> HttpResponse:
+    """PDF final (etapa 4, como no sistema antigo — ADR 0051): a equipe, com o servidor da
+    folha em destaque, e o pacote dele — o que entra, na ordem do pacote, e o que falta para
+    fechá-lo, levando aos Documentos. Abrir ou baixar o pacote usa a rota de sempre; nada é
+    gravado ao abrir."""
+    p = get_object_or_404(PrestacaoContas.objects.select_related("oficio__unidade"), pk=pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, p):
+        raise Http404
+    folha = contexto_folha(request, p, "pdf")
+    atual = folha["servidor_atual"]
+    s = anexos.situacao([p.pk])
+    itens: list[tuple[str, str, bool]] = []
+    falta: list[str] = []
+    if atual:
+        ps = atual["ps"]
+        falta = pacote_prestacao.pendencias_do_pacote(ps)
+        comprovantes = len(s.comprovantes.get(ps.pk, []))
+        itens = [
+            ("Ofício", "via assinada" if p.pk in s.vias else "PDF emitido", True),
+            ("Despacho", "assinado" if p.pk in s.despachos else "falta anexar",
+             p.pk in s.despachos),
+            ("Relatório técnico", "assinado" if ps.pk in s.rt_assinados
+             else "gerado pelo sistema" if p.pk in s.relatorios else "falta preencher",
+             ps.pk in s.rt_assinados or p.pk in s.relatorios),
+            ("Diário de bordo", "assinado" if p.pk in s.db_assinados
+             else "gerado pelo sistema" if p.pk in s.diarios else "falta preencher",
+             p.pk in s.db_assinados or p.pk in s.diarios),
+            ("Comprovante de saque/transferência",
+             f"{comprovantes} anexado{'s' if comprovantes > 1 else ''}" if comprovantes
+             else "falta anexar", bool(comprovantes)),
+        ]
+    o = p.oficio
+    return render(request, "viagens/prestacao/pdf_final.html", {
+        **folha, "falta": falta, "itens": itens,
+        "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
+                              (f"Ofício {o.numero_formatado}",
+                               reverse("viagens:prestacao_equipe", args=[p.pk])),
+                              ("PDF final", ""))})
 
 
 def contexto_folha(request: HttpRequest, p: PrestacaoContas, atual: str) -> dict:
@@ -530,6 +575,12 @@ def contexto_folha(request: HttpRequest, p: PrestacaoContas, atual: str) -> dict
     atual_linha = next((linha for linha in linhas
                         if pedido.isdigit() and linha["ps"].pk == int(pedido)),
                        linhas[0] if linhas else None)
+    # O PDF final do servidor da folha fecha com nº, despacho e comprovante (sem consultar).
+    ps_atual = atual_linha["ps"] if atual_linha else None
+    pdf_pronto = bool(ps_atual and ps_atual.numero_solicitacao.strip()
+                      and p.pk in situacao.despachos and situacao.comprovantes.get(ps_atual.pk))
     return {"equipe_linhas": linhas, "b": b, "oficio": p.oficio, "p": p,
             "servidor_atual": atual_linha,
-            "etapas_folha": prestacao_equipe.etapas_folha(folhas, b, atual)}
+            "etapas_folha": prestacao_equipe.etapas_folha(
+                folhas, b, atual, pdf_url=reverse("viagens:pdf_final_prestacao", args=[p.pk]),
+                pdf_pronto=pdf_pronto)}

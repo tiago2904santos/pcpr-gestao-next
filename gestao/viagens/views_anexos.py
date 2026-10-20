@@ -65,7 +65,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 def _voltar(p: PrestacaoContas, ancora: str, servidor: str | int | None = "") -> str:
-    """De volta à leitura e conferência, no servidor que estava aberto e na âncora."""
+    """De volta aos Documentos (etapa 3), no servidor que estava aberto e na âncora."""
     base = reverse("viagens:leitura_prestacao", args=[p.pk])
     consulta = f"?servidor={servidor}" if str(servidor or "").isdigit() else ""
     return f"{base}{consulta}#{ancora}"
@@ -128,8 +128,10 @@ def pacote_servidor(request: HttpRequest, ps_pk: int) -> HttpResponse:
         messages.error(request, f"{ps.servidor.nome}: {exc}")
         return redirect(_voltar(ps.prestacao, f"ps-{ps.pk}", ps.pk))
     resposta = HttpResponse(conteudo, content_type="application/pdf")
+    # "Abrir em nova aba" (PDF final): o mesmo arquivo, mostrado pelo navegador.
+    disposicao = "inline" if request.GET.get("abrir") == "1" else "attachment"
     resposta["Content-Disposition"] = (
-        f'attachment; filename="{pacote_prestacao.nome_do_pdf(ps)}"')
+        f'{disposicao}; filename="{pacote_prestacao.nome_do_pdf(ps)}"')
     return resposta
 
 

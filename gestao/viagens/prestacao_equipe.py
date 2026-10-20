@@ -62,7 +62,7 @@ class Conferencia:
 
 def destino(p: PrestacaoContas, ps: PrestacaoServidor, texto: str) -> str:
     """Onde se resolve cada pendência (os textos são os de `prestacao.pendencias`): o que
-    falta anexar vai ao importador; a posição do nº, à leitura e conferência."""
+    falta anexar vai ao importador; a posição do nº, aos Documentos (etapa 3)."""
     if texto == diario.PENDENCIA:
         return reverse("viagens:diario", args=[p.pk])
     if texto == relatorio.PENDENCIA:
@@ -97,7 +97,7 @@ def _plural(n: int, singular: str, plural: str) -> str:
 
 def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
            trechos: int) -> list[Folha]:
-    """As três folhas da equipe (diário, relatório, leitura e conferência), com a situação
+    """As três folhas da equipe (diário, relatório e documentos), com a situação
     de cada uma numa linha."""
     total = len(membros)
     if p.pk in s.diarios:
@@ -134,9 +134,9 @@ def folhas(p: PrestacaoContas, membros: list[PrestacaoServidor], s: Situacao,
               reverse("viagens:relatorio", args=[p.pk]), chip_rt,
               f"RT assinado de {rts} de {_plural(total, 'servidor', 'servidores')}",
               chip_rt.tom == "sucesso"),
-        Folha("leitura", "Leitura e conferência", "scan-text",
+        Folha("leitura", "Documentos", "scan-text",
               "O ofício assinado com o nº da solicitação, o despacho e o que está escrito "
-              "nos comprovantes, no RT e no diário assinados, para copiar e conferir.",
+              "no RT, no diário e nos comprovantes assinados, para copiar e conferir.",
               reverse("viagens:leitura_prestacao", args=[p.pk]), chip_docs,
               f"Despacho {'anexado' if despacho else 'pendente'} · comprovantes de "
               f"{comprovantes} de {_plural(total, 'servidor', 'servidores')}"
@@ -171,13 +171,18 @@ class EtapaFolha:
     atual: bool
 
 
-def etapas_folha(folhas: list[Folha], bloco: dict, atual: str) -> list[EtapaFolha]:
-    """A barra das folhas: 1 Diário → 2 Relatório → 3 Leitura e conferência.
-    Concluída vem da completude (nunca só por abrir a página); a atual é a folha aberta."""
+def etapas_folha(folhas: list[Folha], bloco: dict, atual: str, *, pdf_url: str = "",
+                 pdf_pronto: bool = False) -> list[EtapaFolha]:
+    """A barra das folhas, na ordem do sistema antigo (ADR 0051): 1 Diário de bordo →
+    2 Relatório técnico → 3 Documentos → 4 PDF final. Concluída vem da completude (nunca só
+    por abrir a página); a atual é a folha aberta. O PDF final é do servidor da folha."""
     feitas = {f.chave: f.feito for f in folhas}
     urls = {f.chave: f.url for f in folhas}
     passos = [("diario", "Diário de bordo"), ("relatorio", "Relatório técnico"),
-              ("leitura", "Leitura e conferência")]
+              ("leitura", "Documentos")]
+    if pdf_url:
+        feitas["pdf"], urls["pdf"] = pdf_pronto, pdf_url
+        passos.append(("pdf", "PDF final"))
     saida = []
     for i, (chave, titulo) in enumerate(passos, 1):
         feita = feitas.get(chave, bloco.get("todas_finalizadas", False))

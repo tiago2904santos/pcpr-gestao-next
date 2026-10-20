@@ -29,7 +29,7 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
   {% comment %}1. Custeio — a diária do servidor da folha (vem do ofício ou da viagem realizada; a recebida se ajusta em 3) e como foi o translado, o combustível e a passagem.{% endcomment %}
   <section class="secao secao--ok" id="custeio" aria-labelledby="t-custeio">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-custeio"><span class="secao__numero">1</span>Custeio</h2>
+      <h2 class="secao__titulo" id="t-custeio"><span class="secao__numero">1</span>Custeios</h2>
       <div class="secao__estado">{% if servidor_atual %}{% for s in servidores %}{% if s.ps.pk == servidor_atual.ps.pk %}<span class="selo selo--sucesso selo--situacao-emitido">Diária {{ s.recebida|default:s.liberada|default:"—" }}</span>{% endif %}{% endfor %}{% endif %}</div>
       <p class="secao__nota">O valor da diária é o liberado no ofício{% if servidor_atual %} para {{ servidor_atual.ps.servidor.nome }}{% endif %} (ajuste o recebido na seção 3). Nos demais itens, "Outro" abre o texto livre — vale para a equipe toda.</p>
     </div>
@@ -155,8 +155,9 @@ valem para todos); a diária recebida é de cada um. Trava quando todos estão f
 <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% if editavel %}{% include "componentes/estado_salvamento.html" with atualizado_em=rt.atualizado_em sem_emissao=True only %}{% else %}<div class="barra-acoes__status" role="status">{% icone "file-pen-line" classe="icone--sm" %}<span>Relatório em consulta.</span></div>{% endif %}
   <div class="barra-acoes__acoes">
-    <a class="botao botao--texto" href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Voltar</a>
-    {% if editavel %}<button type="submit" form="continuar-relatorio" class="botao botao--primario">{% icone "arrow-right" %}Salvar e continuar</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:leitura_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-right" %}Leitura e conferência</a>{% endif %}
+    <a class="botao botao--texto" href="{% url 'viagens:diario' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">{% icone "arrow-left" %}Voltar ao Diário de bordo</a>
+    {# Como no sistema antigo: "Ir para Documentos" (espera a gravação do autosave). #}
+    {% if editavel %}<button type="submit" form="continuar-relatorio" class="botao botao--primario">Ir para Documentos{% icone "arrow-right" classe="icone--seta" %}</button>{% else %}<a class="botao botao--primario" href="{% url 'viagens:leitura_prestacao' p.pk %}{% if servidor_atual %}?servidor={{ servidor_atual.ps.pk }}{% endif %}">Ir para Documentos{% icone "arrow-right" classe="icone--seta" %}</a>{% endif %}
   </div>
 </div>
 {% if editavel %}<form id="continuar-relatorio" method="get" action="{% url 'viagens:leitura_prestacao' p.pk %}" hidden data-esperar-salvamento>{% if servidor_atual %}<input type="hidden" name="servidor" value="{{ servidor_atual.ps.pk }}">{% endif %}</form>{% endif %}
