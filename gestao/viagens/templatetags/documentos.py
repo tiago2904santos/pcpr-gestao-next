@@ -6,6 +6,7 @@ from django import template
 from django.utils.html import format_html, format_html_join
 
 from ..documentos.campos import CAMPOS
+from ..dominio.escrita import legivel
 
 register = template.Library()
 
@@ -67,6 +68,23 @@ def campo_trecho(ordem: int, lado: str, momento: dict | None) -> str:
     return format_html(
         '<span data-campo="trecho_{}_{}" data-rotulo="{}" data-obrigatorio>{}</span>',
         ordem, lado, rotulo, texto)
+
+
+@register.filter(name="legivel")
+def legivel_filtro(valor: object) -> str:
+    """Nome, cargo ou unidade sem a caixa alta do cadastro ("AGENTE DE POLÍCIA JUDICIÁRIA" →
+    "Agente de Polícia Judiciária"); as siglas conhecidas ficam."""
+    return legivel(str(valor)) if valor else ""
+
+
+@register.filter
+def rodape_legivel(valor: object) -> str:
+    """O rodapé é "UNIDADE - Rua, nº - Bairro - Cidade/UF - CEP … - e-mail": só os trechos
+    todos em maiúsculas e sem algarismos (o nome da unidade) perdem a caixa alta — o resto
+    (UF, CEP, e-mail) fica como foi escrito."""
+    trechos = str(valor or "").split(" - ")
+    return " - ".join(legivel(t) if t.isupper() and not any(c.isdigit() for c in t) else t
+                      for t in trechos)
 
 
 @register.simple_tag

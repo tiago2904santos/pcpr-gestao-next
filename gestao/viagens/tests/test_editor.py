@@ -106,6 +106,51 @@ class TestRegioes:
         marcado = reg.marcar_blocos_alterados(corpo, {"a"})
         assert '<p data-bloco="a" data-rotulo="Saudação" class="bloco--alterado">' in marcado
 
+    EQUIPE = ('<table data-bloco="equipe"><thead><tr><th>Nome</th><th>CPF</th><th>Cargo</th>'
+              "<th>Nº</th></tr></thead><tbody>{}</tbody></table>")
+
+    @staticmethod
+    def _linha(i, nome, celulas=("", "{nome}", "CPF: 1", "<strong>AGENTE</strong>", "")):
+        corpo = "".join(f"<td>{c.format(nome=nome)}</td>" for c in celulas)
+        return f'<tr data-entidade="servidor" data-id="{i}">{corpo}</tr>'
+
+    def test_linha_da_equipe_empurrada_volta_a_ser_a_do_modelo(self):
+        # Ofício 144/2026: a 1ª linha ganhou uma célula vazia na frente e outra no fim, e
+        # nome, CPF e cargo saíram uma coluna à direita.
+        certa = self._linha(1, "ADILSON", ("{nome}", "CPF: 1", "<strong>AGENTE</strong>", ""))
+        modelo = self.EQUIPE.format(certa)
+        torta = self._linha(1, "ADILSON", ("", "{nome}", "CPF: 1", "<strong>AGENTE</strong>",
+                                           "", ""))
+        assert reg.reparar_tabelas(self.EQUIPE.format(torta), modelo) == modelo
+
+    def test_linha_sem_dono_perde_as_celulas_vazias_que_sobram_e_completa_as_que_faltam(self):
+        html = ("<table><tr><td>a</td><td>b</td></tr><tr><td></td><td>c</td><td>d</td></tr>"
+                "<tr><td>e</td></tr><tr><td>f</td><td>g</td></tr></table>")
+        assert reg.reparar_tabelas(html) == (
+            "<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr>"
+            "<tr><td>e</td><td></td></tr><tr><td>f</td><td>g</td></tr></table>")
+
+    def test_tabela_certa_com_texto_ou_mescla_fica_como_esta(self):
+        certa = ("<table><tr><td colspan=\"2\">a</td></tr><tr><td>b</td><td>c</td></tr>"
+                 "</table>")
+        assert reg.reparar_tabelas(certa) == certa
+        # Célula a mais com texto não se apaga: o texto é da pessoa.
+        com_texto = ("<table><tr><td>a</td></tr><tr><td>a</td></tr>"
+                     "<tr><td>b</td><td>c</td></tr></table>")
+        assert reg.reparar_tabelas(com_texto) == com_texto
+        mesclada = "<table><tr><td rowspan=\"2\">a</td><td>b</td></tr><tr><td>c</td></tr></table>"
+        assert reg.reparar_tabelas(mesclada) == mesclada
+
+    def test_documento_sai_sem_caixa_alta_e_com_as_siglas(self):
+        from gestao.viagens.templatetags.documentos import legivel_filtro, rodape_legivel
+
+        assert legivel_filtro("AGENTE DE POLÍCIA JUDICIÁRIA") == "Agente de Polícia Judiciária"
+        assert legivel_filtro("DR.") == "Dr." and legivel_filtro("CURITIBA – Pr") == "Curitiba – PR"
+        assert rodape_legivel("ASSESSORIA DE COMUNICAÇÃO SOCIAL - Rua X, 1 - Curitiba/PR - "
+                              "CEP 80000-000 - a@pc.pr.gov.br") == (
+            "Assessoria de Comunicação Social - Rua X, 1 - Curitiba/PR - CEP 80000-000 - "
+            "a@pc.pr.gov.br")
+
 
 # ---------------------------------------------------------------- modelos marcados
 class TestModelosMarcados:

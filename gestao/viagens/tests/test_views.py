@@ -770,8 +770,8 @@ class TestDecisoesDoDono:
         dados = dados_do_oficio(oficio)
         assert dados["bate_volta"] and len(dados["trechos"]) == 4
         html = html_do_documento("oficio", dados)
-        assert "ROTEIRO POR TRECHOS" in html and "Trecho 4" in html
-        assert "ROTEIRO DE IDA" not in html
+        assert "Roteiro por trechos" in html and "Trecho 4" in html
+        assert "Roteiro de ida" not in html
 
     def test_viagem_simples_continua_com_ida_e_retorno(self, cenario):
         from gestao.viagens.documentos.dados import dados_do_oficio
@@ -779,8 +779,8 @@ class TestDecisoesDoDono:
 
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
         html = html_do_documento("oficio", dados_do_oficio(oficio))
-        assert "ROTEIRO DE IDA" in html and "ROTEIRO DE RETORNO" in html
-        assert "ROTEIRO POR TRECHOS" not in html
+        assert "Roteiro de ida" in html and "Roteiro de retorno" in html
+        assert "Roteiro por trechos" not in html
 
     def test_numero_impresso_com_dois_digitos(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])

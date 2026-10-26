@@ -21,6 +21,7 @@ from .regioes import (
     aplicar_regioes,
     extrair_regioes,
     marcar_blocos_alterados,
+    reparar_tabelas,
     sincronizar_campos,
 )
 
@@ -106,7 +107,7 @@ def html_do_documento(tipo: str, dados: dict[str, Any], *, previa: bool = False,
         regioes = (dados.get("edicao") or {}).get("regioes") or {}
     html = html_do_modelo(tipo, dados, previa=previa, folha=folha, nonce=nonce)
     if regioes:
-        html = aplicar_regioes(html, regioes)
+        html = reparar_tabelas(aplicar_regioes(html, regioes), modelo=html)
     html = sincronizar_campos(html, valores_dos_campos(tipo, dados))
     if blocos_alterados:
         html = marcar_blocos_alterados(html, blocos_alterados)

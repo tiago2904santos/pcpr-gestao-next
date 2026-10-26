@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections import Counter
 from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
@@ -142,6 +143,91 @@ def aplicar_regioes(html: str, regioes: dict[str, str]) -> str:
             return m.group(0)
         return f"{MARCADOR_INICIO.format(chave)}{regioes[chave]}{MARCADOR_FIM.format(chave)}"
     return _REGIAO.sub(trocar, html)
+
+
+_TABELA = re.compile(r"<table\b[^>]*>.*?</table>", re.S)
+_LINHA = re.compile(r"<tr\b([^>]*)>(.*?)</tr>", re.S)
+_CELULA = re.compile(r"<(td|th)\b([^>]*)>(.*?)</\1>", re.S)
+_ATRIBUTO = re.compile(r'([a-z-]+)="([^"]*)"')
+_VAZIA = re.compile(r"<[^>]+>|&nbsp;|\s|\xa0")
+
+
+def _linha_de_quem(atributos: str) -> tuple[str, str] | None:
+    attrs = dict(_ATRIBUTO.findall(atributos))
+    if attrs.get("data-entidade") and attrs.get("data-id"):
+        return attrs["data-entidade"], attrs["data-id"]
+    return None
+
+
+def _largura(celulas: list[tuple[str, str, str]]) -> int:
+    total = 0
+    for _tag, atributos, _conteudo in celulas:
+        span = dict(_ATRIBUTO.findall(atributos)).get("colspan", "1")
+        total += int(span) if span.isdecimal() else 1
+    return total
+
+
+def _celula_vazia(celula: tuple[str, str, str]) -> bool:
+    _tag, atributos, conteudo = celula
+    return "colspan" not in atributos and "data-campo" not in conteudo and not _VAZIA.sub(
+        "", conteudo)
+
+
+def reparar_tabelas(html: str, modelo: str = "") -> str:
+    """Linhas de tabela com mais (ou menos) células que o cabeçalho voltam ao alinhamento.
+
+    O editor escreve no navegador (contenteditable), e uma seleção apagada ou um texto colado
+    entre células pode deixar uma linha com células a mais — no PDF, nome, CPF e cargo saem
+    empurrados uma coluna para a direita. Linha de alguém (``data-entidade``/``data-id``) volta
+    a ser a linha que o modelo gera para essa pessoa; nas demais, saem as células vazias que
+    sobram (as da frente primeiro) e faltando célula, completa-se no fim. Tabela com
+    ``rowspan`` fica como está: lá a contagem por linha não diz nada."""
+    do_modelo = {quem: m.group(0) for m in _LINHA.finditer(modelo)
+                 if (quem := _linha_de_quem(m.group(1)))}
+
+    def reparar(tabela: re.Match[str]) -> str:
+        texto = tabela.group(0)
+        if "rowspan" in texto or texto.count("<table") > 1:
+            return texto
+        linhas = [(m, _CELULA.findall(m.group(2))) for m in _LINHA.finditer(texto)]
+        larguras = [_largura(c) for _m, c in linhas if c]
+        if not larguras or len(set(larguras)) == 1:
+            return texto
+        cabecalho = re.search(r"<thead\b.*?<tr\b[^>]*>(.*?)</tr>", texto, re.S)
+        if cabecalho:
+            esperada = _largura(_CELULA.findall(cabecalho.group(1)))
+        else:
+            esperada = Counter(larguras).most_common(1)[0][0]
+
+        def linha_reparada(m: re.Match[str], celulas: list[tuple[str, str, str]]) -> str:
+            sobra = _largura(celulas) - esperada
+            if not celulas or sobra == 0:
+                return m.group(0)
+            quem = _linha_de_quem(m.group(1))
+            if sobra > 0 and quem in do_modelo:
+                return do_modelo[quem]
+            celulas = list(celulas)
+            if sobra > 0:
+                while sobra and celulas and _celula_vazia(celulas[0]):
+                    del celulas[0]
+                    sobra -= 1
+                while sobra and celulas and _celula_vazia(celulas[-1]):
+                    del celulas[-1]
+                    sobra -= 1
+                if sobra:
+                    return m.group(0)
+            else:
+                celulas += [("td", "", "")] * -sobra
+            corpo = "".join(f"<{t}{a}>{c}</{t}>" for t, a, c in celulas)
+            return f"<tr{m.group(1)}>{corpo}</tr>"
+
+        saida, fim = [], 0
+        for m, celulas in linhas:
+            saida += [texto[fim:m.start()], linha_reparada(m, celulas)]
+            fim = m.end()
+        return "".join(saida) + texto[fim:]
+
+    return _TABELA.sub(reparar, html)
 
 
 def impressao(html: str) -> str:
