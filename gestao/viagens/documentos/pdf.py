@@ -67,9 +67,10 @@ def buscar_recurso():
 def _recursos(folha: bool) -> dict[str, Any]:
     if folha:
         return {"brasao": static("documentos/brasao-pcpr.png"),
+                "marca": static("documentos/marca-pcpr.png"),
                 "fontes": {k: static(f"documentos/fontes/{v}") for k, v in FONTES.items()}}
     base = ASSETS.as_uri()
-    return {"brasao": f"{base}/brasao-pcpr.png",
+    return {"brasao": f"{base}/brasao-pcpr.png", "marca": f"{base}/marca-pcpr.png",
             "fontes": {k: f"{base}/fontes/{v}" for k, v in FONTES.items()}}
 
 

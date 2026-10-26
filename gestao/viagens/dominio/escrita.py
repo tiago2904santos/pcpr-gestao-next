@@ -85,6 +85,28 @@ def legivel(texto: str) -> str:
     return " ".join(saida)
 
 
+_SAUDACOES = ("exm", "ilm", "ao ", "à ", "sr", "senhor")
+
+
+def linhas_do_destinatario(tratamento: str, nome: str, cargo: str, cidade: str) -> list[str]:
+    """O pé do ofício como no modelo oficial: "Exmo. Sr" / "DR. Nome" / "MD. Cargo" /
+    "CURITIBA – Pr.". O tratamento da configuração pode ser a saudação ("Exmo. Sr") ou o
+    título ("DR."); o que faltar entra como no modelo, e o que já veio escrito não repete."""
+    tratamento, nome, cargo, cidade = (s.strip() for s in (tratamento, nome, cargo, cidade))
+    if not tratamento or tratamento.lower().startswith(_SAUDACOES):
+        saudacao, titulo = tratamento or "Exmo. Sr", "DR."
+    else:
+        saudacao = "Exma. Sra" if tratamento.lower().startswith("dra") else "Exmo. Sr"
+        titulo = tratamento
+    if nome and not nome.lower().startswith(("dr.", "dr ", "dra.", "dra ")):
+        nome = f"{titulo} {nome}"
+    if cargo and not cargo.lower().startswith("md"):
+        cargo = f"MD. {cargo}"
+    if cidade and not cidade.endswith("."):
+        cidade += "."
+    return [linha for linha in (saudacao, nome, cargo, cidade) if linha]
+
+
 def cargo_no_plural(cargo: str) -> str:
     """"Policial Civil" -> "Policiais Civis"; "Agente de Polícia Judiciária" -> "Agentes de
     Polícia Judiciária": só o núcleo (as palavras antes da primeira preposição) vai ao plural

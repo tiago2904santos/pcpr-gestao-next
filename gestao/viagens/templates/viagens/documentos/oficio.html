@@ -15,57 +15,67 @@
   @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
   @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ fontes.italico }}"); }
   @font-face { font-family: "Doc Serif"; font-weight: bold; font-style: italic; src: url("{{ fontes.negrito_italico }}"); }
+  @font-face { font-family: "Doc Sans"; font-weight: bold; src: url("{{ fontes.sans_negrito }}"); }
 
+  /* Medidas do ofício oficial (o modelo assinado no eProtocolo): A4, meia polegada dos lados,
+     brasão colado ao topo; no pé, o destinatário, a marca PCPR e o endereço da unidade. */
   @page {
     size: A4;
-    /* Topo e pé mais curtos: o timbre e o rodapé estavam comendo página sem informação. */
-    margin: 9mm 18mm 15mm 18mm;
-    @bottom-center {
-      content: element(rodape);
-    }
+    margin: 12.8pt 36pt 48pt 36pt;
+    @bottom-center { content: element(rodape); vertical-align: top; }
+    @footnote { margin: 0 0 -9.3pt; padding: 0; }
   }
-  html { font-family: "Doc Serif", serif; font-size: 8.5pt; color: #000; line-height: 1.3; }
+  html { font-family: "Doc Serif", serif; font-size: 8pt; color: #000; line-height: 1.3; }
   body { margin: 0; }
-  header.timbre { text-align: center; margin-bottom: 3mm; }
-  header.timbre img { height: 13mm; display: block; margin: 0 auto 1mm; }
-  header.timbre p { margin: 0; font-weight: bold; font-size: 9pt; }
+  header.timbre { text-align: center; margin-bottom: 11.7pt; }
+  /* O desenho do brasão do modelo ocupa 41,7 × 54,3pt a 18,3pt do topo da folha. */
+  header.timbre img { height: 57.1pt; display: block; margin: 4.9pt auto 13.2pt; }
+  header.timbre p { margin: 0; font-family: "Doc Sans", sans-serif; font-weight: bold;
+                    font-size: 10.5pt; line-height: 1.2; }
   .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
             color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
-  table { width: 100%; border-collapse: collapse; margin: 0 0 3mm; }
-  td, th { border: 0.6pt solid #000; padding: 1.4mm 2mm; vertical-align: top; text-align: left; }
+  /* Colunas sempre iguais, como no modelo (a largura não segue o tamanho do texto). */
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0 0 6.25pt; }
+  td, th { border: 0.75pt solid #000; padding: 3pt 6pt; vertical-align: top; text-align: left; }
   th { font-weight: bold; text-align: center; vertical-align: middle; }
-  /* Larguras fixas: com a largura pelo conteúdo, ida e retorno saíam com a divisória em
-     lugares diferentes e a equipe mudava de desenho conforme o tamanho dos nomes. */
-  [data-bloco="equipe"], [data-bloco="resumo"], [data-bloco="roteiro"] table { table-layout: fixed; }
-  [data-bloco="equipe"] th:nth-child(1) { width: 30%; }
-  [data-bloco="equipe"] th:nth-child(2) { width: 19%; }
-  [data-bloco="equipe"] th:nth-child(3) { width: 26%; }
+  td p { margin: 0; }
+  td p + p { margin-top: 2pt; }
+  [data-bloco="custos"] p + p { margin-top: 3pt; }
+  /* Equipe: um servidor por linha, sem traço entre eles (a tabela do modelo é uma linha só). */
+  [data-bloco="equipe"] tbody td { border-top: 0; border-bottom: 0; }
+  [data-bloco="equipe"] tbody tr:last-child td { border-bottom: 0.75pt solid #000; }
+  [data-bloco="transporte"] td { vertical-align: middle; }
   [data-bloco="roteiro"] td.centro { width: 16%; }
   .centro { text-align: center; }
-  .titulo-secao { text-align: center; font-weight: bold; margin: 2mm 0 1.5mm; }
+  .titulo-secao { text-align: center; font-weight: bold; margin: 0 0 2.95pt; }
   .sem-borda td { border: 0; padding: 0; }
-  p { margin: 0 0 2.5mm; }
-  .assinatura { text-align: center; margin-top: 6mm; break-inside: avoid; }
-  .assinatura .nome { font-weight: bold; font-size: 9.5pt; margin: 0; }
-  .assinatura .cargo { font-weight: bold; margin: 0; }
-  .destinatario { margin-top: 8mm; font-weight: bold; line-height: 1.25; break-inside: avoid; }
+  p { margin: 0 0 6.4pt; }
+  .assinatura { text-align: center; margin-top: 8.35pt; break-inside: avoid; }
+  .assinatura p { margin: 0; }
+  .assinatura p:first-child { margin-bottom: 4.2pt; }
+  .assinatura .nome { font-weight: bold; font-size: 9pt; }
+  .assinatura .cargo { font-weight: bold; }
+  /* O destinatário vai ao pé da página da assinatura (nota de rodapé sem chamada). */
+  .destinatario { float: footnote; font-weight: bold; line-height: 1.2; text-align: left; }
+  .destinatario::footnote-call { content: none; }
+  .destinatario::footnote-marker { content: none; }
   .destinatario p { margin: 0; }
-  .rodape { position: running(rodape); text-align: center; font-size: 7pt; font-style: italic; }
-  .rodape strong { display: block; font-style: normal; font-size: 9pt; letter-spacing: 1pt; color: #555; }
-  .marcacao { display: inline-block; width: 7mm; text-align: center; }
+  .rodape { position: running(rodape); text-align: center; padding-top: 6.8pt; font-size: 7pt;
+            font-weight: bold; font-style: italic; line-height: 1.15; }
+  .rodape img { display: block; width: 53.9pt; height: 15.6pt; margin: 0 auto 3.2pt; }
   .quebra { display: none; }
   .quebra--ativa { display: block; break-before: page; height: 0; }
 </style>
 </head>
 <body>
   {% if previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
-  <div class="rodape" role="contentinfo"><strong>PCPR</strong>{{ d.rodape|rodape_legivel }}</div>
+  <div class="rodape" role="contentinfo"><img src="{{ marca }}" alt="PCPR">{{ d.rodape|rodape_legivel }}</div>
 
   <header class="timbre">
     <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
-    <p>Secretaria de Estado da Segurança Pública</p>
-    <p>Polícia Civil do Paraná</p>
-    <p>{{ d.cabecalho_unidade|legivel }}</p>
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
   </header>
 
   <main>
@@ -87,8 +97,7 @@
     {% endregiao %}
 
     {% regiao "corpo" "Corpo do ofício" %}
-    {# Em uma linha só: "através deste" e "medidas para" não diziam nada que o verbo já não diga. #}
-    <p data-bloco="saudacao" data-rotulo="Saudação e pedido"><strong>Senhor Delegado,</strong> solicito {{ d.assunto_termo }} e a concessão de diárias e combustível, conforme cronograma abaixo:</p>
+    <p data-bloco="saudacao" data-rotulo="Saudação e pedido"><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
 
     <table data-bloco="equipe" data-rotulo="Servidores">
       <thead>
@@ -105,14 +114,14 @@
       <tr>
         <td class="centro"><strong>Destino da viagem:</strong><br>{% campo_destinos d.destinos %}</td>
         <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }} diárias</td>
-        <td class="centro"><strong>Valor total do ofício:</strong><br>{{ d.diarias.total }}</td>
+        <td class="centro"><strong>Valor total do ofício:</strong><br>{{ d.diarias.total|cut:" " }}</td>
       </tr>
     </table>
 
     {% ponto_de_quebra "antes-roteiro" "Antes do roteiro" %}
     <div data-bloco="roteiro" data-rotulo="Roteiro">
     {% if d.bate_volta %}
-    <p class="titulo-secao">Roteiro por trechos</p>
+    <p class="titulo-secao">ROTEIRO POR TRECHOS</p>
     <table>
       {% for t in d.trechos %}
       <tr>
@@ -123,7 +132,7 @@
       {% endfor %}
     </table>
     {% else %}
-    <p class="titulo-secao">Roteiro de ida</p>
+    <p class="titulo-secao">ROTEIRO DE IDA</p>
     <table>
       {% for t in d.ida %}
       <tr>
@@ -133,7 +142,7 @@
       {% endfor %}
     </table>
 
-    <p class="titulo-secao">Roteiro de retorno</p>
+    <p class="titulo-secao">ROTEIRO DE RETORNO</p>
     <table>
       {% for t in d.volta %}
       <tr>
@@ -148,27 +157,27 @@
     <table data-bloco="transporte" data-rotulo="Transporte">
       <tr data-entidade="transporte"{% if d.transporte.viatura_id %} data-id="{{ d.transporte.viatura_id }}"{% endif %}>
         <td>
-          <strong>Meio de transporte:</strong> {{ d.transporte.meio|legivel }}<br>
-          {% if d.transporte.placa %}<strong>Placa{% if d.transporte.oficial %} oficial{% endif %}:</strong> {{ d.transporte.placa }}<br>{% endif %}
-          {% if d.motorista %}<strong>Motorista:</strong> <span data-entidade="motorista">{{ d.motorista|legivel }}</span>{% endif %}
+          <p><strong>Meio de transporte:</strong> {{ d.transporte.meio|legivel }}</p>
+          {% if d.transporte.placa %}<p><strong>Placa{% if d.transporte.oficial %} oficial{% endif %}:</strong> {{ d.transporte.placa }}</p>{% endif %}
+          {% if d.motorista %}<p><strong>Motorista:</strong> <span data-entidade="motorista">{{ d.motorista|legivel }}</span></p>{% endif %}
         </td>
         <td>
-          {% if d.transporte.combustivel %}<strong>Combustível:</strong> {{ d.transporte.combustivel|legivel }}<br>{% endif %}
-          {% if d.transporte.viatura %}<strong>Viatura:</strong> {{ d.transporte.viatura|legivel }}{% endif %}
+          {% if d.transporte.combustivel %}<p><strong>Combustível:</strong> {{ d.transporte.combustivel|legivel }}</p>{% endif %}
+          {% if d.transporte.viatura %}<p><strong>Viatura:</strong> {{ d.transporte.viatura|legivel }}</p>{% endif %}
         </td>
-        <td><strong>Porte/trânsito de arma:</strong> {{ d.porte_arma|yesno:"Sim,Não" }}</td>
+        <td><p><strong>Porte/trânsito de arma:</strong> {{ d.porte_arma|yesno:"Sim,Não" }}</p></td>
       </tr>
     </table>
 
     <table>
       <tr><td data-bloco="custos" data-rotulo="Custos">
-        <strong>Custos:</strong> informar qual entidade custeará as diárias (hospedagem/alimentação) e deslocamento:<br>
-        <span class="marcacao">({% if d.custeio == "unidade" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> Unidade - {{ d.unidade_sigla }} (diárias e combustível custeados pela {{ d.unidade_sigla }}).<br>
-        <span class="marcacao">({% if d.custeio == "outra_instituicao" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> Outra instituição{% if d.custeio == "outra_instituicao" %}: {% campo_vinculado "custeio_instituicao" d.custeio_instituicao %}{% endif %}<br>
-        <span class="marcacao">({% if d.custeio == "onus_limitado" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> Ônus limitados aos próprios vencimentos
+        <p><strong>Custos:</strong> informar qual entidade custeará as diárias (hospedagem/alimentação) e deslocamento:</p>
+        <p>({% if d.custeio == "unidade" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %}) UNIDADE - {{ d.unidade_sigla }} (diárias e combustível custeados pela {{ d.unidade_sigla }}).<br>
+        ({% if d.custeio == "outra_instituicao" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %}) OUTRA INSTITUIÇÃO{% if d.custeio == "outra_instituicao" %}: {% campo_vinculado "custeio_instituicao" d.custeio_instituicao %}{% endif %}<br>
+        ({% if d.custeio == "onus_limitado" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %}) ÔNUS LIMITADOS AOS PRÓPRIOS VENCIMENTOS</p>
       </td></tr>
       <tr><td data-bloco="motivo" data-rotulo="Motivo da viagem"><strong>Motivo da viagem:</strong> {% campo_vinculado "motivo" d.motivo %}</td></tr>
-      <tr><td data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro que os servidores estão cientes de que devem portar cartão corporativo vigente no deslocamento.</strong></td></tr>
+      <tr><td data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro que os servidores estão cientes da necessidade de estar na posse de cartão corporativo vigente e apto para uso, no período do deslocamento.</strong></td></tr>
     </table>
     {% endregiao %}
 
@@ -181,10 +190,7 @@
     </div>
 
     <div class="destinatario" data-bloco="destinatario" data-rotulo="Destinatário">
-      <p>{{ d.destinatario.tratamento|legivel }}</p>
-      <p>{{ d.destinatario.nome|legivel }}</p>
-      <p>{{ d.destinatario.cargo|legivel }}</p>
-      <p>{{ d.destinatario.cidade|legivel }}</p>
+      {% for linha in d.destinatario|linhas_destinatario %}<p>{{ linha }}</p>{% endfor %}
     </div>
     {% endregiao %}
   </main>

@@ -6,7 +6,7 @@ from django import template
 from django.utils.html import format_html, format_html_join
 
 from ..documentos.campos import CAMPOS
-from ..dominio.escrita import legivel
+from ..dominio.escrita import legivel, linhas_do_destinatario
 
 register = template.Library()
 
@@ -75,6 +75,13 @@ def legivel_filtro(valor: object) -> str:
     """Nome, cargo ou unidade sem a caixa alta do cadastro ("AGENTE DE POLÍCIA JUDICIÁRIA" →
     "Agente de Polícia Judiciária"); as siglas conhecidas ficam."""
     return legivel(str(valor)) if valor else ""
+
+
+@register.filter
+def linhas_destinatario(destinatario: dict) -> list[str]:
+    d = destinatario or {}
+    return linhas_do_destinatario(d.get("tratamento") or "", d.get("nome") or "",
+                                  d.get("cargo") or "", d.get("cidade") or "")
 
 
 @register.filter

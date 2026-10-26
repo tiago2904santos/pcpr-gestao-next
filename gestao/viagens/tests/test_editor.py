@@ -141,6 +141,19 @@ class TestRegioes:
         mesclada = "<table><tr><td rowspan=\"2\">a</td><td>b</td></tr><tr><td>c</td></tr></table>"
         assert reg.reparar_tabelas(mesclada) == mesclada
 
+    def test_destinatario_no_pe_como_no_modelo_oficial(self):
+        from gestao.viagens.dominio.escrita import linhas_do_destinatario
+
+        modelo = ["Exmo. Sr", "DR. Lanevilton Theodoro Moreira",
+                  "MD. Delegado-Geral Adjunto Administrativo", "CURITIBA – Pr."]
+        # Tratamento gravado como título ("DR.") ou como saudação: o pé sai igual.
+        assert linhas_do_destinatario("DR.", "Lanevilton Theodoro Moreira",
+                                      "Delegado-Geral Adjunto Administrativo",
+                                      "CURITIBA – Pr") == modelo
+        assert linhas_do_destinatario("Exmo. Sr", "Lanevilton Theodoro Moreira",
+                                      "MD. Delegado-Geral Adjunto Administrativo",
+                                      "CURITIBA – Pr.") == modelo
+
     def test_documento_sai_sem_caixa_alta_e_com_as_siglas(self):
         from gestao.viagens.templatetags.documentos import legivel_filtro, rodape_legivel
 
