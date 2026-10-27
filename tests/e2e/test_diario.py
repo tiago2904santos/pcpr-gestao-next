@@ -30,17 +30,21 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     a.refresh_from_db()
     assert (a.km_inicial, a.km_final) == (10000, 10400)
 
-    # Viatura à mão: os campos do modo aparecem só ao marcar, e grava sozinho.
+    # Outra viatura do cadastro: o campo aparece só ao marcar, e grava sozinho. ("Informar à
+    # mão" saiu da tela; viatura nova se cadastra pelo "+".)
     expect(pg.locator("#motorista form")).to_be_visible()
-    expect(pg.get_by_label("Modelo", exact=True)).to_be_hidden()
+    cadastro = pg.get_by_role("combobox", name="Viatura do cadastro")
+    expect(cadastro).to_be_hidden()
     pg.get_by_role("combobox", name="Viatura", exact=True).click()
-    pg.get_by_role("option", name="Informar à mão").click()
-    pg.get_by_label("Modelo", exact=True).fill("Hilux")
-    expect(pg.locator("#viatura-atual")).to_contain_text("Hilux")
-    expect(pg.locator("#viatura-atual")).to_contain_text("só neste diário")
+    expect(pg.get_by_role("option", name="Informar à mão")).to_have_count(0)
+    pg.get_by_role("option", name="Outra do cadastro").click()
+    cadastro.fill("Duster")
+    pg.get_by_role("option", name="Duster").first.click()
+    expect(pg.locator("#viatura-atual")).to_contain_text("Duster")
     expect(pg.locator("#estado-recursos")).to_contain_text("Trocados só neste diário")
     d.refresh_from_db()
-    assert (d.viatura_modo, d.viatura_modelo) == ("manual", "Hilux")
+    assert d.viatura_modo == "cadastro"
+    assert d.viatura.modelo == "Renault Duster"
 
 
 def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
