@@ -127,6 +127,12 @@ export class PcEditorDocumento extends HTMLElement {
     // que recarregar apagaria.
     this.aoMudarDados = () => {
       if (this.sujo || this.salvando || this.vendoVersao !== null) return;
+      // Campo do documento sendo digitado ou gravado: recarregar apagaria o que a pessoa
+      // escreveu. A folha se refaz quando ele terminar de gravar (gravarCampo).
+      if (this.campoPendente || this.gravandoCampo) {
+        this.recarregarDepois = true;
+        return;
+      }
       // Folha ainda a caminho (o editor acabou de entrar na página): ela já chega com os
       // dados novos — recarregar o about:blank cancelaria a ida.
       const janela = this.quadro?.contentWindow;
@@ -201,6 +207,11 @@ export class PcEditorDocumento extends HTMLElement {
       // Fontes, brasão e o que se digita mudam a altura: acompanha.
       new ResizeObserver(() => this.ajustarAltura()).observe(doc.body);
     }
+    // O CSP da folha não aplica style="" vindo no HTML; o que o editor salvou (tamanho, cor,
+    // alinhamento — saneado no servidor) volta pelo CSSOM, e a tela fica igual ao PDF.
+    doc.querySelectorAll("[data-regiao] [style]").forEach((el) => {
+      /** @type {HTMLElement} */ (el).style.cssText = el.getAttribute("style") || "";
+    });
     raiz.classList.toggle("folha--leitura", this.vendoVersao !== null);
     const podeEditar = this.editavel && this.vendoVersao === null;
     raiz.classList.toggle("folha--editavel", podeEditar);
@@ -883,6 +894,12 @@ export class PcEditorDocumento extends HTMLElement {
       this.marcarSujo();
       return;
     }
+    // Campo vinculado (amarelo) não se parte: a cor/tamanho vale para ele inteiro. Partido,
+    // o mesmo campo ficaria em dois pedaços e o valor sairia duas vezes no documento.
+    const campoInicio = this.campoDe(faixa.startContainer);
+    const campoFim = this.campoDe(faixa.endContainer);
+    if (campoInicio) faixa.setStartBefore(campoInicio);
+    if (campoFim) faixa.setEndAfter(campoFim);
     const span = doc.createElement("span");
     span.style.setProperty(propriedade, valor);
     try {
@@ -1149,6 +1166,12 @@ export class PcEditorDocumento extends HTMLElement {
 
   async salvar() {
     if (this.vitrine || !this.sujo || this.vendoVersao !== null) return;
+    // Uma gravação por vez: a segunda sairia com a versão de antes da primeira e o servidor
+    // a recusaria como se outra pessoa tivesse salvo. O que mudou nesse meio grava depois.
+    if (this.salvando) {
+      this.salvarDepois = true;
+      return;
+    }
     window.clearTimeout(this.timerSalvar);
     this.sujo = false;
     this.salvando = true;
@@ -1156,6 +1179,8 @@ export class PcEditorDocumento extends HTMLElement {
     const base = this.estado && this.estado.edicao ? this.estado.edicao.numero : 0;
     const r = await this.pedir("salvar/", { regioes: this.regioes(), versao_base: base });
     this.salvando = false;
+    const deNovo = this.salvarDepois;
+    this.salvarDepois = false;
     if (!r) {
       this.sujo = true;
       this.mostrarSalvo("Não salvo", "editor__salvo--erro");
@@ -1166,6 +1191,7 @@ export class PcEditorDocumento extends HTMLElement {
     this.paginas();
     this.avisarGravado();
     this.oferecerAplicarEmTodos();
+    if (deNovo && this.sujo) this.salvar();
   }
 
   /** O texto gravado mudou (quem mostra a folha em miniatura refaz: editores.js). */
@@ -1187,7 +1213,7 @@ export class PcEditorDocumento extends HTMLElement {
     this.timerCampo = window.setTimeout(() => this.salvarCampo(), ESPERA_CAMPO);
   }
 
-  async salvarCampo() {
+  salvarCampo() {
     const doc = this.doc;
     const chave = this.campoPendente;
     if (!doc || !chave || this.vitrine) return;
@@ -1198,8 +1224,33 @@ export class PcEditorDocumento extends HTMLElement {
     if (limite && digitos && digitos < limite) return;  // grava quando a pessoa completar
     this.campoPendente = null;
     const valor = span.hasAttribute("data-multilinha") ? span.innerText.replace(/ /g, " ") : span.textContent || "";
-    const versao = this.estado ? this.estado.versao_oficio : undefined;
-    const r = await this.pedir(`campos/${encodeURIComponent(chave)}/`, { valor: valor.split(INVISIVEL).join(""), versao });
+    // Um campo por vez, na ordem: cada gravação sobe a versão do ofício, e a seguinte sai
+    // com a versão que a anterior devolveu (duas juntas, a segunda dava "outra pessoa salvou").
+    this.filaCampos = (this.filaCampos || Promise.resolve())
+      .then(() => this.gravarCampo(doc, chave, valor))
+      .catch(() => {})
+      .finally(() => {
+        if (this.recarregarDepois && !this.campoPendente && !this.gravandoCampo) {
+          this.recarregarDepois = false;
+          this.aoMudarDados?.();
+        }
+      });
+  }
+
+  /** @param {Document} doc @param {string} chave @param {string} valor */
+  async gravarCampo(doc, chave, valor) {
+    // A versão mais nova que a página conhece: a do editor ou a que o autosave do
+    // formulário acabou de gravar (cada autosave sobe a versão do ofício).
+    const doFormulario = Number(/** @type {HTMLInputElement | null} */ (
+      document.querySelector("#form-oficio [name='versao']"))?.value || 0);
+    const versao = Math.max(this.estado?.versao_oficio || 0, doFormulario) || undefined;
+    this.gravandoCampo = true;
+    let r;
+    try {
+      r = await this.pedir(`campos/${encodeURIComponent(chave)}/`, { valor: valor.split(INVISIVEL).join(""), versao });
+    } finally {
+      this.gravandoCampo = false;
+    }
     if (!r) return;
     this.aplicarEstado(r);
     this.avisarGravado();

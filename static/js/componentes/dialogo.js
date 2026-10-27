@@ -179,6 +179,19 @@ document.addEventListener("cancel", (e) => {
  * @returns {Promise<boolean>}
  */
 export function confirmar(opcoes) {
+  // Uma pergunta por vez: a segunda espera a primeira ser respondida (abrir o mesmo
+  // diálogo já aberto dava erro e a pergunta se perdia).
+  const vez = filaDeConfirmacoes.then(() => perguntar(opcoes));
+  filaDeConfirmacoes = vez.catch(() => false);
+  return vez;
+}
+
+/** @type {Promise<unknown>} */
+let filaDeConfirmacoes = Promise.resolve();
+
+/** @param {{titulo?: string, mensagem: string, confirmar?: string, cancelar?: string, perigo?: boolean}} opcoes
+ * @returns {Promise<boolean>} */
+function perguntar(opcoes) {
   const d = dialogoPorId("dialogo-confirmacao");
   if (!d) return Promise.resolve(window.confirm(opcoes.mensagem));
   const titulo = /** @type {HTMLElement} */ (d.querySelector("[data-titulo]"));

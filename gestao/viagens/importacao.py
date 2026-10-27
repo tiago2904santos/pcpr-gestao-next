@@ -241,6 +241,29 @@ def processar(pk: int):
 
 
 @transaction.atomic
+def _lido_do_comprovante(tipo: str, nome: str, conteudo: bytes) -> dict:
+    """Valor, data e operação lidos do comprovante (os mesmos que a tela "Leitura" mostra):
+    sem eles, a conferência "os comprovantes somam R$ X" nunca dispararia. O que não se lê
+    fica vazio (a pessoa informa pelo lápis); a leitura nunca impede o anexo."""
+    from .models import AnexoPrestacao
+    if tipo != AnexoPrestacao.Tipo.COMPROVANTE:
+        return {}
+    try:
+        from . import leitura_anexos
+        texto = leitura_anexos.extrair_texto(conteudo, nome)
+        lido = leitura_anexos.ler_comprovante(texto)
+    except Exception:  # PDF que não abre, imagem sem texto…
+        return {}
+    valor = lido.get("valor")
+    # Só o valor rotulado ("Valor: R$ …"): o maior número solto pode ser o saldo da conta,
+    # e um valor errado cobraria uma divergência que não existe.
+    if valor is not None and (not (0 < valor < anexos.VALOR_MAXIMO)
+                              or "valor" not in texto.lower()):
+        valor = None
+    return {"valor": valor, "data_operacao": lido.get("data"),
+            "operacao": lido.get("operacao") or ""}
+
+
 def aplicar(
     usuario, pk: int, destino: str, *, confirmar: bool = False, revisao: bool = False
 ) -> ParteImportada:
@@ -310,6 +333,7 @@ def aplicar(
                     nome=nome,
                     conteudo=conteudo,
                     servidor_pk=ps.pk if ps else None,
+                    **_lido_do_comprovante(tipo, nome, conteudo),
                 )
                 parte.estado = "anexado"
     except (assinados.ArquivoAssinadoInvalido, anexos.AnexoInvalido) as exc:

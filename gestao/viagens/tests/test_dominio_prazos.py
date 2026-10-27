@@ -63,7 +63,7 @@ def test_inteiro_por_extenso(n, texto):
 
 @pytest.mark.parametrize(("valor", "texto"), [
     ("2411.56", "dois mil quatrocentos e onze reais e cinquenta e seis centavos"),
-    ("1.00", "um real"), ("0.01", "um centavo"), ("0", "zero real"),
+    ("1.00", "um real"), ("0.01", "um centavo"), ("0", "zero reais"),
     ("2000000", "dois milhões de reais"),
     ("624.68", "seiscentos e vinte e quatro reais e sessenta e oito centavos")])
 def test_reais_por_extenso(valor, texto):

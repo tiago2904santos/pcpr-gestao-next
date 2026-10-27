@@ -1835,6 +1835,7 @@ class EdicaoOrdem(models.Model):
     regioes = models.JSONField("HTML por região", default=dict, blank=True)
     blocos_alterados = models.JSONField(default=list, blank=True)
     impressoes = models.JSONField(default=dict, blank=True)
+    modelos = models.JSONField("HTML do modelo por região, na edição", default=dict, blank=True)
     restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
                                       related_name="+")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
@@ -1924,6 +1925,7 @@ class EdicaoPlano(models.Model):
     regioes = models.JSONField("HTML por região", default=dict, blank=True)
     blocos_alterados = models.JSONField(default=list, blank=True)
     impressoes = models.JSONField(default=dict, blank=True)
+    modelos = models.JSONField("HTML do modelo por região, na edição", default=dict, blank=True)
     restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
                                       related_name="+")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,

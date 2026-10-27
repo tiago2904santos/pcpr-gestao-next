@@ -65,7 +65,20 @@ export class Autosave {
     // componentes que se montam depois (seleções, buscas) podem ajustar campos ao carregar:
     // a partida é refeita no "load", se ninguém mexeu ainda.
     this.ultima = this.assinatura();
-    window.addEventListener("load", () => { if (!this.mexeu) this.ultima = this.assinatura(); });
+    const refazer = () => { if (!this.mexeu) this.ultima = this.assinatura(); };
+    // Este módulo pode chegar depois do "load" (import sob demanda): aí refaz na hora, e de
+    // novo quando os componentes terminarem de se montar (app.js marca <html>).
+    if (document.readyState === "complete") window.setTimeout(refazer, 0);
+    else window.addEventListener("load", refazer);
+    const raiz = document.documentElement;
+    if (raiz.dataset.controladores !== "prontos") {
+      const observador = new MutationObserver(() => {
+        if (raiz.dataset.controladores !== "prontos") return;
+        observador.disconnect();
+        refazer();
+      });
+      observador.observe(raiz, { attributes: true, attributeFilter: ["data-controladores"] });
+    }
   }
 
   /** O formulário como texto (para saber se algo mudou desde a última gravação). */
@@ -152,12 +165,16 @@ export class Autosave {
       if (campoId && !campoId.value) campoId.value = String(corpo.id);
       // Campos que o servidor devolve (ex.: a versão nova do ofício) voltam para o
       // formulário: sem isso o próximo salvamento brigaria com a gravação de agora.
+      const nadaMudouNoCaminho = this.assinatura() === assinatura;
       for (const [nome, valor] of Object.entries(corpo.campos || {})) {
         const campo = /** @type {HTMLInputElement | null} */ (
           this.form.querySelector(`[name="${nome}"]`)
         );
         if (campo) campo.value = String(valor);
       }
+      // A versão nova faz parte do formulário: sem refazer a assinatura, sair da página
+      // mandava uma gravação sem mudança nenhuma (e subia a versão de novo).
+      if (nadaMudouNoCaminho) this.ultima = this.assinatura();
       if (corpo.recarregar) {
         this.enviando = true;  // nada mais a gravar: a página volta já com tudo
         this.anunciar("Salvo — atualizando a tela…", true);

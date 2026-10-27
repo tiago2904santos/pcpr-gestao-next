@@ -103,6 +103,14 @@ def _na_lista(oficio) -> str:
     return url_na_lista(oficio)
 
 
+def _inteiro(texto: str | None) -> int | None:
+    """Número positivo vindo do formulário; o que não for (vazio, adulterado) é None."""
+    texto = (texto or "").strip()
+    if not (texto.isascii() and texto.isdigit() and len(texto) < 10):
+        return None
+    return int(texto) or None
+
+
 def _migalhas(*itens: tuple[str, str]) -> list[tuple[str, str]]:
     return [("Início", reverse("painel:inicio")), ("Viagens", reverse("viagens:painel")),
             *itens]
@@ -195,6 +203,12 @@ def exportar(request: HttpRequest) -> HttpResponse:
     if (novos := recorte.traduzir_endereco_antigo(get.dict())) is not None:
         request.GET = QueryDict(urlencode(novos))  # type: ignore[misc]  # link antigo
     qs = _recorte_da_lista(request, base, queries.anos_dos_numeros(base)).qs
+    # A ficha "Atenção" da lista também vale para a planilha (a lista de agora).
+    atencao = request.GET.get("atencao") or ""
+    if atencao in queries.ATENCOES and atencao:
+        qs = qs.filter(queries.q_da_atencao(atencao, timezone.localdate()))
+        if atencao == "urgentes":
+            qs = qs.order_by("_saida", "pk")  # type: ignore[misc]  # com_primeira_saida
     nome = f"oficios-{timezone.localdate():%Y-%m-%d}.xlsx"
     resposta = HttpResponse(
         exportacao.planilha_de_oficios(qs.iterator(chunk_size=200)),
@@ -721,7 +735,10 @@ def _secao_equipe(request, oficio, erro: str = "") -> HttpResponse:
 @require_POST
 def adicionar_viajante(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
-    servidor = get_object_or_404(Servidor, pk=request.POST.get("id"))
+    escolhido = request.POST.get("id") or ""
+    if not escolhido.isdigit():
+        return _secao_equipe(request, oficio, "Escolha o servidor na lista.")
+    servidor = get_object_or_404(Servidor, pk=escolhido)
     try:
         services.adicionar_viajante(oficio, request.user, servidor)
     except services.RegraViolada as exc:
@@ -734,7 +751,10 @@ def adicionar_viajante(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 def remover_viajante(request: HttpRequest, pk: int, viajante_id: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
-    services.remover_viajante(oficio, request.user, viajante_id)
+    try:
+        services.remover_viajante(oficio, request.user, viajante_id)
+    except services.RegraViolada as exc:
+        return _secao_equipe(request, oficio, str(exc))
     if not _htmx(request):
         return redirect(f"{reverse('viagens:editar', args=[pk])}#equipe")
     return _secao_equipe(request, oficio)
@@ -743,8 +763,12 @@ def remover_viajante(request: HttpRequest, pk: int, viajante_id: int) -> HttpRes
 @require_POST
 def definir_motorista(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
-    viajante_id = request.POST.get("viajante") or None
-    services.definir_motorista(oficio, request.user, int(viajante_id) if viajante_id else None)
+    viajante_id = request.POST.get("viajante") or ""
+    try:
+        services.definir_motorista(oficio, request.user,
+                                   int(viajante_id) if viajante_id.isdigit() else None)
+    except services.RegraViolada as exc:
+        return _secao_equipe(request, oficio, str(exc))
     if not _htmx(request):
         return redirect(f"{reverse('viagens:editar', args=[pk])}#equipe")
     return _secao_equipe(request, oficio)
@@ -792,7 +816,7 @@ def _revisao_pedida(request: HttpRequest, oficio, folha: dict) -> dict:
 def emitir(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     try:
-        services.emitir(oficio, request.user, versao=int(request.POST.get("versao") or 0) or None)
+        services.emitir(oficio, request.user, versao=_inteiro(request.POST.get("versao")))
     except services.RegraViolada as exc:
         messages.error(request, str(exc))
         if oficio.editavel:
@@ -1216,6 +1240,13 @@ def baixar_docx(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
                 "O DOCX desta versão está indisponível. Confira os documentos do ofício; "
                 "se a geração falhou, solicite gerar novamente.",
                 status=422, content_type="text/plain; charset=utf-8")
+    if emitido is not None and "numero" not in (emitido.dados or {}):
+        # Via migrada do sistema anterior: os dados guardados são os de lá, não os deste
+        # modelo — refazer o Word daria um ofício em branco. Vale o PDF original.
+        return HttpResponse(
+            "Este documento veio do sistema anterior: baixe o PDF dele. O Word não pode ser "
+            "refeito a partir dos dados de lá.",
+            status=422, content_type="text/plain; charset=utf-8")
     if emitido is not None:
         html = html_do_documento(tipo, emitido.dados)
         nome = f"{tipo}-{oficio.numero:02d}-{oficio.ano}-v{emitido.versao}.docx"

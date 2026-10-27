@@ -40,7 +40,7 @@ def regiao(parser, token):
 def campo_vinculado(chave: str, valor: object) -> str:
     """``<span data-campo>`` com o valor atual; multilinha vira ``<br>`` como no PDF."""
     campo = CAMPOS[chave]
-    texto = "" if valor is None else str(valor)
+    texto = "" if valor is None else str(valor).replace("\r\n", "\n").replace("\r", "\n")
     if campo.multilinha:
         conteudo = format_html_join(QUEBRA_DE_LINHA, "{}",
                                     ((linha,) for linha in texto.split("\n")))

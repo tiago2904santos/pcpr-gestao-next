@@ -58,7 +58,10 @@ def ler_valor(texto: object) -> tuple[Decimal | None, str]:
     if resto[:1].isdigit() or resto[:1] in {",", "."}:
         raise ValorInvalido(ERRO_VALOR)
     centavos = (m.group("centavos") or "").ljust(2, "0")
-    return Decimal(f"{m.group('inteiro').replace('.', '')}.{centavos}"), espacos(resto)
+    inteiro = m.group("inteiro").replace(".", "")
+    if len(inteiro.lstrip("0")) > 8:  # o banco guarda até 99.999.999,99
+        raise ValorInvalido(ERRO_VALOR)
+    return Decimal(f"{inteiro}.{centavos}"), espacos(resto)
 
 
 def moeda(valor: Decimal) -> str:

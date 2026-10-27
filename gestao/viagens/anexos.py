@@ -120,6 +120,24 @@ def divergencia(ps: PrestacaoServidor, valores: list[Decimal | None],
     return None if soma == esperado else (soma, esperado)
 
 
+VALOR_MAXIMO = Decimal("100000000")  # o banco guarda até 99.999.999,99
+
+
+def operacao_escolhida(texto: str) -> str:
+    """A operação do comprovante como o cadastro guarda: aceita a chave ("transferencia") e
+    o rótulo, com ou sem acento ("Transferência", "depósito" — o que a leitura do PDF dá)."""
+    import unicodedata
+
+    def sem_acento(t: str) -> str:
+        return "".join(c for c in unicodedata.normalize("NFKD", t.strip().lower())
+                       if not unicodedata.combining(c))
+    procurado = sem_acento(texto or "")
+    for valor, rotulo in AnexoPrestacao.Operacao.choices:
+        if procurado in (valor, sem_acento(str(rotulo))):
+            return valor
+    return ""
+
+
 # ---------------------------------------------------------------- escrita
 def _travado(prestacao: PrestacaoContas, ps: PrestacaoServidor | None) -> bool:
     if ps is not None:
@@ -152,8 +170,9 @@ def anexar(usuario, prestacao_pk: int, tipo: str, *, nome: str, conteudo: bytes,
     _conferir_dono(usuario, prestacao, ps)
     if valor is not None and valor <= 0:
         raise AnexoInvalido("O valor da operação precisa ser maior que zero.")
-    if operacao and operacao not in AnexoPrestacao.Operacao.values:
-        operacao = ""
+    if valor is not None and valor >= VALOR_MAXIMO:
+        raise AnexoInvalido("Confira o valor da operação: ele passa do limite do sistema.")
+    operacao = operacao_escolhida(operacao)
     comprovante = tipo == AnexoPrestacao.Tipo.COMPROVANTE
     anexo = AnexoPrestacao(prestacao=prestacao, servidor=ps, tipo=tipo,
                            nome_original=(nome or "")[:255],
@@ -219,8 +238,10 @@ def editar_comprovante(usuario, anexo_pk: int, *, valor: Decimal | None,
         raise AnexoInvalido("Só o comprovante em uso tem valor, data e operação.")
     if valor is not None and valor <= 0:
         raise AnexoInvalido("O valor da operação precisa ser maior que zero.")
+    if valor is not None and valor >= VALOR_MAXIMO:
+        raise AnexoInvalido("Confira o valor da operação: ele passa do limite do sistema.")
     anexo.valor, anexo.data_operacao = valor, data_operacao
-    anexo.operacao = operacao if operacao in AnexoPrestacao.Operacao.values else ""
+    anexo.operacao = operacao_escolhida(operacao)
     anexo.save(update_fields=["valor", "data_operacao", "operacao"])
     return anexo
 

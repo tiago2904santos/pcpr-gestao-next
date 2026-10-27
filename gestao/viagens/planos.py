@@ -766,7 +766,7 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
              else f"{sede.nome}/{sede.uf}" if sede else "")
     inicio, fim = periodo_geral(plano)
     eventos = eventos_para_documento(plano)
-    return {
+    dados = {
         "titulo": str(plano),
         "numero": plano.numero_formatado,
         "unidade_nome": config.nome_extenso,
@@ -792,9 +792,10 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         "consideracoes": plano.consideracoes,
         "local_data": f"{local}, {data_por_extenso(data_doc)}" if local else "",
         "assina": {"nome": legivel(nome) if nome else "", "cargo": legivel(cargo) if cargo else ""},
-        # O texto editado no visualizador (EdicaoPlano) vale para a folha, o PDF e o DOCX.
-        "regioes_editadas": regioes_vigentes(plano),
     }
+    # O texto editado no visualizador (EdicaoPlano) vale para a folha, o PDF e o DOCX.
+    dados["regioes_editadas"] = regioes_vigentes(plano, dados)
+    return dados
 
 
 def _texto_do_valor(dono) -> str:
@@ -903,9 +904,26 @@ def edicao_vigente(plano: PlanoTrabalho):
     return edicao_texto.vigente(_versoes(plano))
 
 
-def regioes_vigentes(plano: PlanoTrabalho) -> dict[str, str]:
+def regioes_vigentes(plano: PlanoTrabalho, dados: dict | None = None) -> dict[str, str]:
+    """O texto editado em vigor, já com os dados de agora (como no ofício e no termo): o que
+    a pessoa mudou é levado para o modelo atual por fusão a três — equipe, datas, destinos e
+    quem assina acompanham o cadastro. Versões antigas, sem `modelos`, valem como salvas."""
+    from .documentos.regioes import mesclar_alteracao, normalizar
     edicao = edicao_vigente(plano)
-    return dict(edicao.regioes) if edicao is not None else {}
+    if edicao is None or not edicao.regioes:
+        return {}
+    regioes = dict(edicao.regioes)
+    if not edicao.modelos:
+        return regioes
+    if dados is None:
+        return dados_do_documento(plano, fixar=False)["regioes_editadas"]
+    agora = regioes_do_modelo({**dados, "regioes_editadas": {}})
+    for regiao, html in regioes.items():
+        antes, novo = edicao.modelos.get(regiao), agora.get(regiao)
+        if antes is None or novo is None or normalizar(antes) == normalizar(novo):
+            continue
+        regioes[regiao], _ = mesclar_alteracao(antes, html, novo)
+    return regioes
 
 
 def regioes_do_modelo(dados: dict) -> dict[str, str]:
@@ -928,7 +946,8 @@ def salvar_texto(plano: PlanoTrabalho, usuario, regioes: dict[str, str], *,
     return edicao_texto.salvar(
         _versoes(atual), _criar(atual), usuario,
         regioes_do_modelo(dados_do_documento(atual, fixar=False)), regioes,
-        versao_base=versao_base, invalido=PlanoInvalido, conflito=ConflitoDeEdicao)
+        versao_base=versao_base, invalido=PlanoInvalido, conflito=ConflitoDeEdicao,
+        guardar_modelos=True)
 
 
 @transaction.atomic

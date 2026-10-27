@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from django.db import transaction
+from django.utils import timezone
 
 from gestao.cadastros.models import Municipio
 
@@ -28,7 +29,8 @@ def data_base(viagem: Viagem) -> date | None:
     if viagem.data_inicio:
         return viagem.data_inicio
     saidas = [t.saida_em for r in documentos(viagem).roteiros for t in r.trechos.all()]
-    return min(saidas).date() if saidas else None
+    # A data local (22h de Curitiba já é o dia seguinte em UTC).
+    return timezone.localtime(min(saidas)).date() if saidas else None
 
 
 @transaction.atomic
@@ -54,7 +56,9 @@ def repetir(usuario, pk: int, nova_data: date, nova_cidade: Municipio | None = N
         return d + delta if d else None
 
     nova = Viagem.objects.create(
-        unidade=original.unidade, criado_por=usuario, titulo=original.titulo,
+        # Os documentos repetidos nascem na unidade de quem repete: a viagem também.
+        unidade=policies.unidade_do_usuario(usuario) or original.unidade, criado_por=usuario,
+        titulo=original.titulo,
         descricao=original.descricao, motivo=original.motivo,
         data_inicio=dia(original.data_inicio), data_fim=dia(original.data_fim))
     nova.tipos.set(original.tipos.all())
@@ -87,7 +91,7 @@ def repetir(usuario, pk: int, nova_data: date, nova_cidade: Municipio | None = N
         copia_ofi = services.salvar_dados(copia_ofi, usuario, dados)
         viajantes = {}
         for v in o.viajantes.select_related("servidor").order_by("ordem", "pk"):
-            if v.servidor_id:
+            if v.servidor_id and v.servidor.ativo:  # quem saiu do cadastro não vai
                 viajantes[v.pk] = services.adicionar_viajante(copia_ofi, usuario, v.servidor)
         motorista = next((v for v in o.viajantes.all() if v.motorista), None)
         if motorista is not None and motorista.pk in viajantes:
@@ -109,7 +113,8 @@ def repetir(usuario, pk: int, nova_data: date, nova_cidade: Municipio | None = N
             data_inicio=dia(os_.data_inicio), data_fim=dia(os_.data_fim),
             data_evento_inicio=dia(os_.data_evento_inicio),
             data_evento_fim=dia(os_.data_evento_fim), hora=os_.hora,
-            servidores=list(os_.servidores.all()), motivo=os_.motivo, funcoes=os_.funcoes)
+            servidores=[x for x in os_.servidores.all() if x.ativo], motivo=os_.motivo,
+            funcoes=os_.funcoes)
         OrdemServico.objects.filter(pk=copia_ord.pk).update(viagem=nova)
 
     for p in docs.planos:
@@ -142,7 +147,7 @@ def repetir(usuario, pk: int, nova_data: date, nova_cidade: Municipio | None = N
         copia_ter = termos.salvar(
             usuario, oficio=ligado, evento=t.evento, data_inicio=dia(t.data_inicio),
             data_fim=dia(t.data_fim), destinos=[cidade(d.municipio) for d in t.destinos.all()],
-            servidores=list(t.servidores.all()), viatura=t.viatura)
+            servidores=[x for x in t.servidores.all() if x.ativo], viatura=t.viatura)
         TermoAutorizacao.objects.filter(pk=copia_ter.pk).update(viagem=nova)
 
     from .viagem import _situacao_pelos_documentos

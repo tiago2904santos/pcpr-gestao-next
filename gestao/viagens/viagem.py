@@ -163,7 +163,7 @@ def dias_para(viagem: Viagem, hoje: date | None = None) -> str:
 def _vazia(viagem: Viagem) -> bool:
     return (not viagem.titulo and not viagem.motivo and not viagem.descricao
             and viagem.data_inicio is None and not viagem.destinos.exists()
-            and not viagem.tipos.exists()
+            and not viagem.tipos.exists() and not viagem.anexos.exists()
             and not any(getattr(viagem, t).exists() for t in TIPOS_DE_DOCUMENTO))
 
 
@@ -292,6 +292,8 @@ def novo_documento(usuario, pk: int, tipo: str):
     from . import ordens, planos, services, termos
 
     viagem = _travar(usuario, pk)
+    policies.exigir(policies.pode_gerar_documentos_da_viagem(usuario, viagem),
+                    "Os documentos nascem na sua unidade: crie-os numa viagem dela.")
     doc: Any
     destinos = [d.municipio for d in viagem.destinos.select_related("municipio")]
     inicio, fim = viagem.data_inicio, viagem.data_fim or viagem.data_inicio
@@ -346,7 +348,9 @@ def cancelar(usuario, pk: int, motivo: str) -> Viagem:
         raise ViagemInvalida("Informe o motivo do cancelamento.")
     texto = f"{PREFIXO_CASCATA}: {motivo}"[:1000]
     try:
-        for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO):
+        # Arquivado é ofício encerrado: fica como está (cancelar exigiria desarquivar).
+        for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO).filter(
+                arquivado_em__isnull=True):
             services.cancelar(o, usuario, texto)
         for r in viagem.roteiros.exclude(situacao=Roteiro.Situacao.CANCELADO):
             services.cancelar_roteiro(usuario, r)
@@ -356,7 +360,8 @@ def cancelar(usuario, pk: int, motivo: str) -> Viagem:
             ordens.cancelar(usuario, os_.pk, texto)
         for p in viagem.planos.filter(cancelado=False):
             planos.cancelar(usuario, p.pk, texto)
-    except PermissionDenied as exc:
+    except (PermissionDenied, services.RegraViolada, termos.TermoInvalido,
+            ordens.OrdemInvalida, planos.PlanoInvalido) as exc:
         raise ViagemInvalida(f"Não foi possível cancelar todos os documentos da viagem: {exc} "
                              "Peça a quem pode cancelá-los.") from None
     viagem.situacao_anterior, viagem.situacao = viagem.situacao, Viagem.Situacao.CANCELADA
@@ -381,7 +386,8 @@ def reativar(usuario, pk: int) -> Viagem:
         raise ViagemInvalida("Esta viagem não está cancelada.")
     try:
         for o in viagem.oficios.filter(situacao=Oficio.Situacao.CANCELADO,
-                                       motivo_cancelamento__startswith=PREFIXO_CASCATA):
+                                       motivo_cancelamento__startswith=PREFIXO_CASCATA,
+                                       arquivado_em__isnull=True):
             services.reativar(o, usuario, "Viagem reativada.")
         for r in viagem.roteiros.filter(situacao=Roteiro.Situacao.CANCELADO):
             services.reativar_roteiro(usuario, r)
@@ -394,7 +400,8 @@ def reativar(usuario, pk: int) -> Viagem:
         for p in viagem.planos.filter(cancelado=True,
                                       motivo_cancelamento__startswith=PREFIXO_CASCATA):
             planos.reativar(usuario, p.pk)
-    except PermissionDenied as exc:
+    except (PermissionDenied, services.RegraViolada, termos.TermoInvalido,
+            ordens.OrdemInvalida, planos.PlanoInvalido) as exc:
         raise ViagemInvalida(f"Não foi possível reativar todos os documentos da viagem: {exc} "
                              "Peça a quem pode reativá-los.") from None
     viagem.situacao = viagem.situacao_anterior or Viagem.Situacao.RASCUNHO

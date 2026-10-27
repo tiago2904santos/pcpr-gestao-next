@@ -54,8 +54,12 @@ def montar(ad: Adaptador) -> dict[str, Callable]:
         desatualizadas: list[str] = []
         if vigente is not None and not vigente.do_modelo:
             originais = ad.regioes_modelo(ad.dados(obj, chave))
+            # A região com o modelo guardado já acompanha os dados (fusão a três): não está
+            # desatualizada (como no ofício, views_editor.estado).
+            fundidas = getattr(vigente, "modelos", None) or {}
             desatualizadas = [r for r, marca in vigente.impressoes.items()
-                              if r in originais and impressao(originais[r]) != marca]
+                              if r in originais and r not in fundidas
+                              and impressao(originais[r]) != marca]
         return {
             "tipo": type(obj).__name__.lower(),
             "pode_editar": ad.pode_editar(request.user, obj),

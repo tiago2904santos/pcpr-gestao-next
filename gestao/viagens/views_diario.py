@@ -133,6 +133,9 @@ def _contexto_da_escolha(d: DiarioBordo) -> dict:
 def salvar(request: HttpRequest, pk: int) -> HttpResponse:
     """Sem JavaScript (ou "Salvar"): grava as linhas e volta para a folha."""
     p = _prestacao(request, pk)
+    if (erro := _pode_gravar(request, p)):
+        messages.error(request, erro)
+        return redirect(reverse("viagens:diario", args=[p.pk]) + "#trechos")
     d = diario.obter(p)
     try:
         n = diario.salvar_linhas(request.user, d.pk, _valores(request))
@@ -147,6 +150,8 @@ def salvar(request: HttpRequest, pk: int) -> HttpResponse:
 def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     """Contrato do autosave.js: {"salvo", "em", "campos", "recarregar", "mensagem"}."""
     p = _prestacao(request, pk)
+    if (erro := _pode_gravar(request, p)):
+        return JsonResponse({"salvo": False, "mensagem": erro})
     try:
         d = diario.obter(p)
         diario.salvar_linhas(request.user, d.pk, _valores(request))
@@ -154,6 +159,14 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         return JsonResponse({"salvo": False, "mensagem": str(exc)})
     return JsonResponse({"salvo": True, "em": f"{timezone.localtime():%H:%M}", "campos": {},
                          "recarregar": False})
+
+
+def _pode_gravar(request: HttpRequest, p) -> str:
+    """"" quando quem pede pode gravar o diário agora; senão, o porquê (antes de acertar as
+    linhas pelos trechos — quem só vê não mexe em nada)."""
+    if not diario.pode_editar(request.user, p):
+        return "Este diário de bordo não pode mais ser alterado por você."
+    return ""
 
 
 def _inteiro(texto: str | None) -> int | None:
@@ -179,6 +192,8 @@ def autosave_motorista(request: HttpRequest, pk: int) -> JsonResponse:
     """Motorista e transporte gravando sozinhos (contrato do autosave.js); o que falta para
     a escolha valer (ex.: "Da equipe" sem o servidor) volta como mensagem, sem gravar."""
     p = _prestacao(request, pk)
+    if (erro := _pode_gravar(request, p)):
+        return JsonResponse({"salvo": False, "mensagem": erro})
     d = diario.obter(p)
     antes = d.oficio_do_motorista_id if d.motorista_modo == DiarioBordo.Motorista.OUTRO else None
     try:
@@ -193,6 +208,9 @@ def autosave_motorista(request: HttpRequest, pk: int) -> JsonResponse:
 @require_POST
 def motorista(request: HttpRequest, pk: int) -> HttpResponse:
     p = _prestacao(request, pk)
+    if (erro := _pode_gravar(request, p)):
+        messages.error(request, erro)
+        return redirect(reverse("viagens:diario", args=[p.pk]) + "#motorista")
     d = diario.obter(p)
     try:
         _trocar_recursos(request, d)

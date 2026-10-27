@@ -81,5 +81,5 @@ def reais_por_extenso(valor: Decimal) -> str:
     if centavos:
         partes.append(f"{inteiro_por_extenso(centavos)} centavo{'s' if centavos > 1 else ''}")
     if not partes:
-        return "zero real"
+        return "zero reais"
     return " e ".join(partes)

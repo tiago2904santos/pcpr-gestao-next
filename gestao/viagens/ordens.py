@@ -416,7 +416,12 @@ def sede_da_unidade(unidade) -> str:
 def dados_do_dominio(ordem: OrdemServico) -> dominio.DadosOS:
     carregar(ordem)
     evento = (ordem.data_evento_inicio, ordem.data_evento_fim)
-    if evento[0] is None:  # ainda não gravada depois de entrar na viagem: o vínculo diz
+    inicio_os = ordem.data_inicio
+    fora = False
+    if evento[0] is not None and inicio_os is not None:
+        fim_os = ordem.data_fim or inicio_os
+        fora = evento[0] < inicio_os or (evento[1] or evento[0]) > fim_os
+    if evento[0] is None or fora:  # sem evento gravado (ou fora do período): o vínculo diz
         evento = evento_do_vinculo(ordem.viagem, list(ordem.oficios.all()), ordem.data_inicio,
                                    ordem.data_fim)
     return dominio.DadosOS(
@@ -473,7 +478,7 @@ def dados_do_documento(ordem: OrdemServico, *, fixar: bool = True) -> dict:
     else:
         nome, cargo, _ = quem_assina(config, "ordem_servico", data_doc)
     textos = textos_do_documento(ordem)
-    return {
+    dados = {
         "titulo": f"Ordem de Serviço {ordem.numero_formatado}",
         "numero": ordem.numero_formatado,
         "sigla": ordem.unidade.sigla or ordem.unidade.nome,
@@ -487,10 +492,11 @@ def dados_do_documento(ordem: OrdemServico, *, fixar: bool = True) -> dict:
         # Prévia (tela, PDF com ?previa=1): sai com a marca MINUTA — não é a OS emitida e
         # não pode circular como se fosse (a trava de exclusão só conta a geração real).
         "previa": not fixar,
-        # O texto editado no visualizador (EdicaoOrdem) vale para a folha, o PDF e o DOCX.
-        "regioes_editadas": regioes_vigentes(ordem),
         **textos,
     }
+    # O texto editado no visualizador (EdicaoOrdem) vale para a folha, o PDF e o DOCX.
+    dados["regioes_editadas"] = regioes_vigentes(ordem, dados)
+    return dados
 
 
 def html_do_modelo(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
@@ -560,9 +566,26 @@ def edicao_vigente(ordem: OrdemServico):
     return edicao_texto.vigente(_versoes(ordem))
 
 
-def regioes_vigentes(ordem: OrdemServico) -> dict[str, str]:
+def regioes_vigentes(ordem: OrdemServico, dados: dict | None = None) -> dict[str, str]:
+    """O texto editado em vigor, já com os dados de agora (como no ofício e no termo): o que
+    a pessoa mudou é levado para o modelo atual por fusão a três — equipe, datas, destinos e
+    quem assina acompanham o cadastro. Versões antigas, sem `modelos`, valem como salvas."""
+    from .documentos.regioes import mesclar_alteracao, normalizar
     edicao = edicao_vigente(ordem)
-    return dict(edicao.regioes) if edicao is not None else {}
+    if edicao is None or not edicao.regioes:
+        return {}
+    regioes = dict(edicao.regioes)
+    if not edicao.modelos:
+        return regioes
+    if dados is None:
+        return dados_do_documento(ordem, fixar=False)["regioes_editadas"]
+    agora = regioes_do_modelo({**dados, "regioes_editadas": {}})
+    for regiao, html in regioes.items():
+        antes, novo = edicao.modelos.get(regiao), agora.get(regiao)
+        if antes is None or novo is None or normalizar(antes) == normalizar(novo):
+            continue
+        regioes[regiao], _ = mesclar_alteracao(antes, html, novo)
+    return regioes
 
 
 def regioes_do_modelo(dados: dict) -> dict[str, str]:
@@ -585,7 +608,8 @@ def salvar_texto(ordem: OrdemServico, usuario, regioes: dict[str, str], *,
     return edicao_texto.salvar(
         _versoes(atual), _criar(atual), usuario,
         regioes_do_modelo(dados_do_documento(atual, fixar=False)), regioes,
-        versao_base=versao_base, invalido=OrdemInvalida, conflito=ConflitoDeEdicao)
+        versao_base=versao_base, invalido=OrdemInvalida, conflito=ConflitoDeEdicao,
+        guardar_modelos=True)
 
 
 @transaction.atomic

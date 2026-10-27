@@ -83,8 +83,7 @@ def dados_do_documento(prestacao: PrestacaoContas, chave: str) -> dict:
         ps = servidor_da_chave(prestacao, chave)
         rt = servico_rt.obter(prestacao)
         dados = servico_rt.dados_do_documento(rt, ps)
-    dados["chave"] = chave
-    dados["regioes_editadas"] = regioes_vigentes(prestacao, chave)
+    dados["chave"] = chave  # o texto editado já veio fundido com os dados (regioes_vigentes)
     return dados
 
 
@@ -157,9 +156,26 @@ def edicao_vigente(prestacao: PrestacaoContas, chave: str):
     return edicao_texto.vigente(_versoes(prestacao, chave))
 
 
-def regioes_vigentes(prestacao: PrestacaoContas, chave: str) -> dict[str, str]:
+def regioes_vigentes(prestacao: PrestacaoContas, chave: str, dados: dict | None = None
+                     ) -> dict[str, str]:
+    """O texto editado em vigor, já com os dados de agora (como no ofício e no termo): a
+    edição foi feita sobre o modelo de então (`modelos`); km, motorista, viatura ou datas que
+    mudaram depois entram por fusão a três, e o que a pessoa escreveu fica. `dados` são os do
+    documento (sem o texto editado); sem eles, o texto vale como foi salvo."""
+    from .documentos.regioes import mesclar_alteracao, normalizar
     edicao = edicao_vigente(prestacao, chave)
-    return dict(edicao.regioes) if edicao is not None else {}
+    if edicao is None or not edicao.regioes:
+        return {}
+    regioes = dict(edicao.regioes)
+    if not edicao.modelos or dados is None:
+        return regioes
+    agora = regioes_do_modelo({**dados, "chave": chave, "regioes_editadas": {}})
+    for regiao, html in regioes.items():
+        antes, novo = edicao.modelos.get(regiao), agora.get(regiao)
+        if antes is None or novo is None or normalizar(antes) == normalizar(novo):
+            continue
+        regioes[regiao], _ = mesclar_alteracao(antes, html, novo)
+    return regioes
 
 
 def regioes_da_versao(prestacao: PrestacaoContas, chave: str, pedido: str

@@ -63,6 +63,12 @@ def validar(viagem: Viagem, equipes: list[Equipe]) -> list[str]:
                 erros.append(f"{s.nome} está nos ofícios {onde[s.pk]} e {i}: cada servidor vai "
                              "em um ofício só.")
             onde.setdefault(s.pk, i)
+    for i, e in enumerate(equipes, 1):
+        # Quem dirige vai na equipe do ofício que dirige (gerar o põe lá se estiver solto).
+        if (e.motorista is not None and e.motorista.pk in onde
+                and e.motorista.pk not in {s.pk for s in e.servidores}):
+            erros.append(f"{e.motorista.nome} dirige o ofício {i}, mas está na equipe do "
+                         f"ofício {onde[e.motorista.pk]}: quem dirige vai no ofício que dirige.")
     ja = {v.servidor_id: o for o in documentos(viagem).oficios
           if o.situacao != Oficio.Situacao.CANCELADO for v in o.viajantes.all()}
     for e in equipes:
@@ -85,6 +91,8 @@ def gerar(usuario, viagem_pk: int, equipes: list[Equipe], *, com_termos: bool = 
     viagem = Viagem.objects.select_for_update().get(pk=viagem_pk)
     policies.exigir(policies.pode_editar_viagem(usuario, viagem),
                     "Reative a viagem antes de gerar documentos.")
+    policies.exigir(policies.pode_gerar_documentos_da_viagem(usuario, viagem),
+                    "Os documentos nascem na sua unidade: gere-os numa viagem dela.")
     # O motorista que não está em equipe nenhuma entra na do ofício dele (referência).
     todos = {s.pk for e in equipes for s in e.servidores}
     for e in equipes:
@@ -111,6 +119,10 @@ def gerar(usuario, viagem_pk: int, equipes: list[Equipe], *, com_termos: bool = 
         viajantes = {s.pk: services.adicionar_viajante(oficio, usuario, s) for s in e.servidores}
         if e.motorista is not None and e.viatura is not None:
             services.definir_motorista(oficio, usuario, viajantes[e.motorista.pk].pk)
+        elif e.motorista is not None:
+            resultado.avisos.append(
+                f"Ofício {oficio.numero_formatado}: {e.motorista.nome} está na equipe, mas sem "
+                "viatura não há quem dirige. Escolha a viatura na folha do ofício.")
         Oficio.objects.filter(pk=oficio.pk).update(viagem=viagem)
         oficio.refresh_from_db()
         resultado.oficios.append(oficio)

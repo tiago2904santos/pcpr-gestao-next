@@ -37,6 +37,12 @@ CAMPOS_RETORNO = ("saida", "tempo_viagem", "tempo_adicional")
 CAMPOS_BATE_VOLTA = ("uf", "cidade", "dia_inicial", "dia_final", "hora_saida", "hora_volta")
 
 
+def _total(dados: QueryDict, chave: str) -> int:
+    """O TOTAL_FORMS do formset como veio (adulterado ou absurdo conta como zero/teto)."""
+    texto = str(dados.get(chave) or "")
+    return min(int(texto), 1000) if texto.isascii() and texto.isdigit() else 0
+
+
 def _cru(dados: QueryDict, nome: str) -> str:
     """Valor como digitado (data e hora chegam em dois campos: nome_0 e nome_1)."""
     if nome.endswith("-saida"):
@@ -102,10 +108,10 @@ class Itinerario:
     def vazio(self, dados: QueryDict) -> bool:
         """Nenhum destino nem volta informados (rascunho pode ficar sem roteiro)."""
         if self.bate_volta:
-            total = int(dados.get("bv-TOTAL_FORMS") or 0)
+            total = _total(dados, "bv-TOTAL_FORMS")
             return not any(_cru(dados, f"bv-{i}-{c}")
                            for i in range(total) for c in ("cidade", "dia_inicial"))
-        total = int(dados.get("destino-TOTAL_FORMS") or 0)
+        total = _total(dados, "destino-TOTAL_FORMS")
         return not any(_cru(dados, f"destino-{i}-{c}") for i in range(total)
                        for c in ("cidade", "saida")) and not _cru(dados, "retorno-saida")
 

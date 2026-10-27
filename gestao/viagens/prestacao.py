@@ -32,8 +32,11 @@ def ativos(qs=None) -> QuerySet[PrestacaoServidor]:
 
 # ---------------------------------------------------------------- nascimento
 def _tem_dados(ps: PrestacaoServidor) -> bool:
+    """Linha que já recebeu algo (dados ou arquivo, mesmo removido depois) não se apaga: só
+    sai da equipe (o anexo a protege no banco — apagar daria erro na reemissão)."""
     return bool(ps.numero_solicitacao or ps.data_liberacao_diarias or ps.prazo_limite_saque
-                or ps.finalizada_em or ps.enviada_em or ps.diaria_valor_override)
+                or ps.finalizada_em or ps.enviada_em or ps.diaria_valor_override
+                or ps.anexos.exists())
 
 
 @transaction.atomic

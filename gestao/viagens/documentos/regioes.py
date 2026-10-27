@@ -240,13 +240,44 @@ def normalizar(html: str) -> str:
 
 
 # ---------------------------------------------------------------- campos vinculados
+_ABRE_CAMPO = re.compile(r'<span\b[^>]*\bdata-campo="[a-z0-9_]+"[^>]*>')
+_SPAN = re.compile(r"<span\b[^>]*>|</span>")
+
+
+def _achatar_campos(html: str) -> str:
+    """Um ``<span data-campo>`` só tem texto: marcação que o editor tenha posto dentro (cor,
+    tamanho aplicados a parte do campo) sai, o texto fica — senão o fecho da marcação
+    interna seria tomado pelo do campo e o valor sairia repetido no documento."""
+    saida, pos = [], 0
+    for m in _ABRE_CAMPO.finditer(html):
+        if m.start() < pos:
+            continue  # campo dentro de campo: já achatado com o de fora
+        nivel, fim = 1, None
+        for t in _SPAN.finditer(html, m.end()):
+            nivel += -1 if t.group(0) == "</span>" else 1
+            if nivel == 0:
+                fim = t
+                break
+        if fim is None:
+            break
+        interno = html[m.end():fim.start()]
+        if "<" in interno:
+            interno = re.sub(r"<(?!br\b)[^>]*>", "", interno)
+        saida += [html[pos:m.end()], interno, "</span>"]
+        pos = fim.end()
+    saida.append(html[pos:])
+    return "".join(saida)
+
+
 def sincronizar_campos(html: str, valores: dict[str, str]) -> str:
     """Reescreve o conteúdo dos ``<span data-campo>`` com os valores atuais do cadastro."""
+    html = _achatar_campos(html)
+
     def trocar(m: re.Match[str]) -> str:
         abertura, chave, _, fecho = m.groups()
         if chave not in valores:
             return m.group(0)
-        valor = escape(valores[chave] or "")
+        valor = escape((valores[chave] or "").replace("\r\n", "\n").replace("\r", "\n"))
         if "data-multilinha" in abertura:
             valor = valor.replace("\n", "<br>")
         return f"{abertura}{valor}{fecho}"
@@ -275,8 +306,10 @@ class _Marcados(HTMLParser):
         self.texto = texto
         self.atributo = atributo
         self.linhas = [0]
-        for linha in texto.splitlines(keepends=True):
-            self.linhas.append(self.linhas[-1] + len(linha))
+        # Só "\n" conta como quebra (é o que o HTMLParser conta em getpos): um "\r" solto
+        # de texto colado não pode deslocar as posições.
+        for linha in texto.split("\n")[:-1]:
+            self.linhas.append(self.linhas[-1] + len(linha) + 1)
         self.pilha: list[tuple[str, int]] = []  # (tag, profundidade) de tags abertas
         self.abertos: list[tuple[int, str, str, int, list[str]]] = []
         self.achados: list[Elemento] = []
@@ -344,7 +377,7 @@ def blocos_alterados(original: str, editado: str) -> list[dict[str, str]]:
 
 
 _TOKEN = re.compile(r"<[^>]+>|\s+|[^\s<]+")
-_MARCA_ALTERADO = re.compile(r'\s*class="bloco--alterado"|(?<=[" ])bloco--alterado')
+_MARCA_ALTERADO = re.compile(r'\s*class="bloco--alterado"|(?<=[" ])bloco--alterado\b')
 
 
 def mesclar_alteracao(original: str, editado: str, destino: str) -> tuple[str, int]:

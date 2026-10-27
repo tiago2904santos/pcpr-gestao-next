@@ -812,6 +812,8 @@ export class PcItinerario extends HTMLElement {
   aplicarRota(rota, trocouVeiculo = false) {
     const trechos = this.classList.contains("itin--bate-volta") ? [] : this.trechos();
     let estimativa = false;
+    /** @type {HTMLInputElement[]} */
+    const preenchidos = [];
     rota.pernas.forEach((/** @type {any} */ perna, /** @type {number} */ i) => {
       const t = trechos[i];
       if (!t || !perna) return;
@@ -829,7 +831,11 @@ export class PcItinerario extends HTMLElement {
       for (const [campo, minutos] of /** @type {[HTMLInputElement | null, number][]} */ ([[viagem, perna.minutos], [adicional, perna.adicional_sugerido]])) {
         if (!campo) continue;
         if (nova) delete campo.dataset.manual;
-        if (nova || ((trocouVeiculo || !campo.value) && !campo.dataset.manual)) campo.value = hhmm(minutos);
+        if (nova || ((trocouVeiculo || !campo.value) && !campo.dataset.manual)) {
+          const antes = campo.value;
+          campo.value = hhmm(minutos);
+          if (campo.value !== antes) preenchidos.push(campo);
+        }
       }
     });
     // A fonte só fala quando há o que avisar: a rota por estrada é o esperado, e dizer isso
@@ -851,6 +857,9 @@ export class PcItinerario extends HTMLElement {
       : "");
     this.recalcular();
     this.mapaRota?.mostrar(rota);
+    // A rota chega depois da pausa do autosave: os tempos que ela preencheu avisam que
+    // mudaram, senão só seriam gravados na próxima digitação (ou nunca).
+    preenchidos.forEach((campo) => campo.dispatchEvent(new Event("change", { bubbles: true })));
   }
 
   // ------------------------------------------------------------------ calendário das saídas

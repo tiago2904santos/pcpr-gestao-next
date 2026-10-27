@@ -113,7 +113,7 @@
     <table data-bloco="resumo" data-rotulo="Destino, diárias e valor">
       <tr>
         <td class="centro"><strong>Destino da viagem:</strong><br>{% campo_destinos d.destinos %}</td>
-        <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }} diárias</td>
+        <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }}{% if d.diarias.resumo != "Sem diárias" %} diárias{% endif %}</td>
         <td class="centro"><strong>Valor total do ofício:</strong><br>{{ d.diarias.total|cut:" " }}</td>
       </tr>
     </table>

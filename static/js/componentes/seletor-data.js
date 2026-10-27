@@ -411,6 +411,13 @@ export class PcData extends SeletorFlutuante {
     }
   }
 
+  abrir() {
+    // Período deixado pela metade (fechou com Esc ou clicando fora): cada abertura começa
+    // um período novo — senão o primeiro clique fecharia o período antigo.
+    this.aguardandoFim = false;
+    super.abrir();
+  }
+
   /** @param {Date} d */
   escolher(d) {
     if (!this.temFim) {

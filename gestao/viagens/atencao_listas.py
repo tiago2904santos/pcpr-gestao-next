@@ -23,6 +23,7 @@ from django.http import HttpRequest
 from . import ordens, planos, termos, viagem
 from .linha_lista import DIAS_DE_URGENCIA
 from .models import (
+    AnexoViagem,
     EfetivoPlano,
     EventoPlano,
     Oficio,
@@ -128,8 +129,8 @@ VIAGEM = Tipo(
                    & _sem(Viagem.tipos.through, "viagem_id") & _sem(ViagemDestino, "viagem_id")
                    & _sem(Oficio, "viagem_id") & _sem(OrdemServico, "viagem_id")
                    & _sem(PlanoTrabalho, "viagem_id") & _sem(TermoAutorizacao, "viagem_id")
-                   & _sem(Roteiro, "viagem_id")),
-    nota_vazio="Sem tipo, período, destino nem documento",
+                   & _sem(Roteiro, "viagem_id") & _sem(AnexoViagem, "viagem_id")),
+    nota_vazio="Sem tipo, período, destino, documento nem pedido anexado",
     excluir=viagem.excluir, rota_excluir="viagens:excluir_viagens_vazias",
     permissao_excluir="viagens.delete_viagem")
 

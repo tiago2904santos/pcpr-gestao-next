@@ -81,7 +81,9 @@ def equipe_no_texto(equipe: list[Pessoa]) -> str:
         nomes = [p.nome for p in grupo]
         primeiro = not partes
         if cargo == sem_cargo:
-            partes.append(lista_com_e(nomes))
+            # Sem cargo, o nome entra direto — mas a frase ainda pede o "de" ("O
+            # deslocamento de Fulano para…").
+            partes.append(f"de {lista_com_e(nomes)}" if primeiro else lista_com_e(nomes))
         elif len(nomes) == 1:
             partes.append(f"{'do' if primeiro else 'o'} {cargo_no_texto(cargo, plural=False)} "
                           f"{nomes[0]}")
@@ -118,8 +120,8 @@ def textos_da_os(dados: DadosOS) -> dict:
     equipe = equipe_no_texto(dados.equipe)
     textos: dict = {
         "referencia": "Diligências",
-        "determinacao": (f"O deslocamento {equipe} para {municipios}, {periodo}, "
-                         f"para realizar {motivo}."),
+        "determinacao": (f"O deslocamento {equipe} para {municipios}, "
+                         + (f"{periodo}, " if periodo else "") + f"para realizar {motivo}."),
         "competencias": [],
         "justificativas": [],
         "finalidade": ("A presente Ordem de Serviço tem por finalidade garantir a execução da "

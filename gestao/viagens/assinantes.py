@@ -31,6 +31,10 @@ def gerar_documento(payload: dict) -> None:
         pk=payload["documento_id"])
     if doc.situacao == Documento.Situacao.PRONTO:
         return
+    if "numero" not in (doc.dados or {}):
+        # Via migrada do sistema anterior (dados de lá): não há modelo daqui para refazê-la.
+        raise ValueError("Documento do sistema anterior: o PDF não pode ser refeito aqui. "
+                         "Use o PDF original ou emita uma nova versão do ofício.")
     conteudo, sha = gerar_pdf(doc.tipo, doc.dados)
     doc.arquivo.save(doc.nome_arquivo, ContentFile(conteudo), save=False)
     doc.sha256, doc.tamanho = sha, len(conteudo)

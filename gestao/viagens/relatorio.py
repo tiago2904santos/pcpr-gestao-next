@@ -292,6 +292,7 @@ def salvar(usuario, rt_pk: int, campos: dict[str, str]) -> dict[str, str]:
     (referência)."""
     rt = _travar(usuario, rt_pk)
     mudou = []
+    preenchido_antes = dominio.preenchido({c: getattr(rt, c) for c in dominio.CAMPOS_TEXTO})
     for campo in dominio.CAMPOS_TEXTO:
         if campo in campos and getattr(rt, campo) != campos[campo].strip():
             setattr(rt, campo, campos[campo].strip())
@@ -308,13 +309,21 @@ def salvar(usuario, rt_pk: int, campos: dict[str, str]) -> dict[str, str]:
             mudou.append(campo)
     if mudou:
         rt.save(update_fields=[*mudou, "atualizado_em"])
-    erros = _salvar_recebidas(rt, campos)
-    from . import envios_manuais
-    envios_manuais.atualizar_do_oficio(rt.prestacao.oficio_id, usuario)
+    recebidas: list[int] = []
+    erros = _salvar_recebidas(rt, campos, recebidas)
+    # O autosave grava a cada pausa na digitação: a pendência de envio só se refaz quando
+    # muda o que ela leva além do texto corrido (o RT ficar pronto, diária, custeio) — antes,
+    # cada palavra criava uma pendência nova e tornava a anterior obsoleta.
+    preenchido_agora = dominio.preenchido({c: getattr(rt, c) for c in dominio.CAMPOS_TEXTO})
+    if (recebidas or set(mudou) - set(dominio.CAMPOS_TEXTO)
+            or preenchido_agora != preenchido_antes):
+        from . import envios_manuais
+        envios_manuais.atualizar_do_oficio(rt.prestacao.oficio_id, usuario)
     return erros
 
 
-def _salvar_recebidas(rt: RelatorioTecnico, campos: dict[str, str]) -> dict[str, str]:
+def _salvar_recebidas(rt: RelatorioTecnico, campos: dict[str, str],
+                      mudaram: list[int] | None = None) -> dict[str, str]:
     from . import prestacao as servico
 
     erros: dict[str, str] = {}
@@ -340,6 +349,8 @@ def _salvar_recebidas(rt: RelatorioTecnico, campos: dict[str, str]) -> dict[str,
                 valor, observacao[:255])
             ps.save(update_fields=["diaria_valor_override", "diaria_valor_override_observacao",
                                    "atualizado_em"])
+            if mudaram is not None:
+                mudaram.append(ps.pk)
     return erros
 
 
@@ -361,7 +372,7 @@ def dados_do_documento(rt: RelatorioTecnico, ps: PrestacaoServidor) -> dict:
     cpf = ps.servidor.cpf
     if len(cpf) == 11:
         cpf = f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
-    return {
+    dados: dict = {
         "titulo": f"Relatório técnico – {ps.servidor.nome}",
         "unidade": (config.nome_extenso if config else oficio.unidade.nome).upper(),
         "rodape": config.rodape if config else "",
@@ -376,15 +387,18 @@ def dados_do_documento(rt: RelatorioTecnico, ps: PrestacaoServidor) -> dict:
         "secoes": [{"titulo": dominio.ROTULOS[c],
                     "texto": (rt.motivo or oficio.motivo) if c == "motivo"
                     else getattr(rt, c)} for c in dominio.CAMPOS_TEXTO],
-        # O texto editado no visualizador (EdicaoPrestacao) vale para a folha, o PDF e o DOCX.
         "chave": f"rt-{ps.pk}",
-        "regioes_editadas": _regioes_editadas(rt.prestacao, ps),
     }
+    # O texto editado no visualizador (EdicaoPrestacao) vale para a folha, o PDF e o DOCX,
+    # levado para os dados de agora (diária, datas, custeio que mudaram depois).
+    dados["regioes_editadas"] = _regioes_editadas(rt.prestacao, ps, dados)
+    return dados
 
 
-def _regioes_editadas(prestacao: PrestacaoContas, ps: PrestacaoServidor) -> dict[str, str]:
+def _regioes_editadas(prestacao: PrestacaoContas, ps: PrestacaoServidor,
+                      dados: dict) -> dict[str, str]:
     from . import prestacao_texto
-    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.chave_rt(ps.pk))
+    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.chave_rt(ps.pk), dados)
 
 
 def html_do_documento(dados: dict) -> str:

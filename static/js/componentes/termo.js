@@ -25,8 +25,22 @@ function preencherDestinos(destinos) {
   const comp = /** @type {any} */ (document.querySelector("pc-destinos"));
   if (!comp || !destinos.length) return;
   const linhas = () => /** @type {HTMLElement[]} */ (Array.from(comp.querySelectorAll("[data-destino]")));
-  while (linhas().length < destinos.length) comp.adicionar();
+  // O componente tem um teto de destinos (data-maximo): os que passam dele ficam de fora,
+  // e o laço para quando "adicionar" não acrescenta mais (sem isso a aba travava).
+  const maximo = Number(comp.dataset?.maximo || 0);
+  if (maximo && destinos.length > maximo) {
+    destinos = destinos.slice(0, maximo);
+    document.body.dispatchEvent(new CustomEvent("toast", { detail: {
+      mensagem: `Os ofícios somam mais de ${maximo} destinos: entraram os ${maximo} primeiros.`,
+      nivel: "aviso" } }));
+  }
+  while (linhas().length < destinos.length) {
+    const antes = linhas().length;
+    comp.adicionar();
+    if (linhas().length === antes) break;
+  }
   while (linhas().length > destinos.length) linhas().at(-1)?.remove();
+  destinos = destinos.slice(0, linhas().length);
   linhas().forEach((linha, i) => {
     const uf = /** @type {HTMLSelectElement | null} */ (linha.querySelector("[data-uf]"));
     if (uf) { uf.value = destinos[i].uf; comp.filtrar(uf); }
@@ -63,6 +77,8 @@ function preencherEquipe(servidores) {
 // Um ofício a mais nos vinculados: os campos recebem a união de todos (destinos de todos,
 // da primeira saída à última chegada, a equipe toda). As viaturas vêm pelo servidor: cada
 // ofício que entra traz a sua, com a equipe dele (termos.salvar), e o bloco se redesenha.
+let pedidoAtual = 0;  // só a resposta do último ofício escolhido preenche os campos
+
 document.addEventListener("pc-escolhido", async (evento) => {
   const origem = /** @type {HTMLElement} */ (evento.target);
   const campo = origem.closest("[data-oficio-do-termo]");
@@ -71,11 +87,13 @@ document.addEventListener("pc-escolhido", async (evento) => {
   const ids = Array.from(campo.querySelectorAll("input[type='hidden'][name='oficios']"),
     (i) => /** @type {HTMLInputElement} */ (i).value).filter(Boolean);
   if (!ids.length) return;
+  const este = ++pedidoAtual;
   const endereco = `${url.replace("/0/", `/${encodeURIComponent(ids[0])}/`)}?oficios=${ids.join(",")}`;
   const resposta = await fetch(endereco,
     { credentials: "same-origin", headers: { Accept: "application/json" } }).catch(() => null);
-  if (!resposta?.ok) return;
-  const dados = await resposta.json();
+  if (!resposta?.ok || este !== pedidoAtual) return;
+  const dados = await resposta.json().catch(() => null);
+  if (!dados || este !== pedidoAtual) return;
   preencherDestinos(dados.destinos || []);
   preencherPeriodo(dados.inicio || "", dados.fim || "");
   preencherEquipe(dados.servidores || []);

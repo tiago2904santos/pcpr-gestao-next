@@ -345,7 +345,12 @@ def aplicar(usuario, viagem_pk: int, chaves: list[str] | None = None) -> Aplicac
         if tipo == "ordem":
             o = OrdemServico.objects.get(pk=pk)
             if d.campo == "período":
-                OrdemServico.objects.filter(pk=pk).update(data_inicio=inicio, data_fim=fim)
+                # O período do evento acompanha (recortado ao novo período), senão o modelo
+                # de OS recusaria um evento fora dele e a folha não abriria.
+                ev_ini, ev_fim = ordens.evento_do_vinculo(viagem, (), inicio, fim)
+                OrdemServico.objects.filter(pk=pk).update(
+                    data_inicio=inicio, data_fim=fim, data_evento_inicio=ev_ini,
+                    data_evento_fim=ev_fim)
             elif d.campo == "destinos":
                 o.destinos.all().delete()
                 OrdemServicoDestino.objects.bulk_create(

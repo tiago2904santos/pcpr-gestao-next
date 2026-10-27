@@ -12,6 +12,13 @@ function escrever(campo, valor) {
   campo.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+/** O km como o servidor lê ("12.345", "12345 km" → 12345; "45678,9" → 45678).
+ * @param {string} texto */
+function km(texto) {
+  const inteiro = texto.trim().split(",")[0].replace(/\D/g, "");
+  return inteiro ? Number(inteiro) : NaN;
+}
+
 document.addEventListener("click", (e) => {
   const botao = /** @type {HTMLElement | null} */ (
     /** @type {Element} */ (e.target).closest("[data-preencher-distancias]"));
@@ -25,10 +32,10 @@ document.addEventListener("click", (e) => {
     const chegada = /** @type {HTMLInputElement | null} */ (linha.querySelector("input[name$='-km_final']"));
     if (!saida || !chegada) continue;
     if (saida.value.trim() === "" && Number.isFinite(atual)) escrever(saida, atual);
-    const inicio = Number(saida.value);
+    const inicio = km(saida.value);
     if (!Number.isFinite(inicio) || saida.value.trim() === "") { atual = NaN; continue; }
     if (chegada.value.trim() === "" && prevista > 0) escrever(chegada, inicio + prevista);
-    const fim = Number(chegada.value);
+    const fim = km(chegada.value);
     atual = Number.isFinite(fim) && chegada.value.trim() !== "" ? fim : NaN;
   }
   const primeiro = /** @type {HTMLInputElement | null} */ (tabela.querySelector("input[name$='-km_inicial']"));

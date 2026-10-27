@@ -594,6 +594,14 @@ def pode_editar_viagem(usuario, viagem: Viagem) -> bool:
             and pode_ver_viagem(usuario, viagem))
 
 
+def pode_gerar_documentos_da_viagem(usuario, viagem: Viagem) -> bool:
+    """Os documentos nascem na unidade de quem cria: só na viagem da própria unidade (quem
+    vê todas as unidades não cria, na viagem de outra, papéis que ela não enxergaria)."""
+    unidade = unidade_do_usuario(usuario)
+    return (pode_editar_viagem(usuario, viagem) and unidade is not None
+            and viagem.unidade_id == unidade.pk)
+
+
 # ---------------------------------------------------------------- prestação de contas (módulo 9)
 def prestacoes_visiveis(usuario) -> QuerySet[PrestacaoServidor]:
     if not usuario.has_perm("viagens.view_prestacaoservidor"):

@@ -90,7 +90,13 @@ export class PcCombobox extends HTMLElement {
       });
     }
     this.entrada.addEventListener("keydown", (e) => this.teclado(e));
-    this.entrada.addEventListener("blur", () => window.setTimeout(() => this.fechar(), 120));
+    this.entrada.addEventListener("blur", () => window.setTimeout(() => {
+      // Busca agendada ou a caminho não reabre a lista depois que o foco saiu.
+      if (document.activeElement === this.entrada) return;
+      window.clearTimeout(this.atraso);
+      this.pedido?.abort();
+      this.fechar();
+    }, 120));
     this.lista.addEventListener("mousedown", (e) => e.preventDefault());
     this.lista.addEventListener("click", (e) => {
       const li = /** @type {HTMLElement} */ (e.target).closest("[role='option']");

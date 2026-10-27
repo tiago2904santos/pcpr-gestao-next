@@ -9,7 +9,7 @@ import re
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -22,9 +22,13 @@ from gestao.cadastros.forms import formularios_de_cadastro_rapido
 from . import (
     atencao_listas,
     linha_lista,
+    ordens,
+    planos,
     policies,
     prestacao,
     resumo_listas,
+    services,
+    termos,
     viagem,
     viagem_conferencia,
     viagem_solicitacao,
@@ -32,9 +36,13 @@ from . import (
 )
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
-from .models import AnexoViagem, Viagem
+from .models import AnexoViagem, Roteiro, TermoAutorizacao, Viagem
 from .views import POR_PAGINA, _migalhas
 from .views_editor import moldura_do_pdf, primeiro_erro
+
+# O que os serviços de cada documento recusam ao gerar/repetir (vira mensagem, não erro 500).
+_ERROS_DE_DOCUMENTO = (services.RegraViolada, termos.TermoInvalido, ordens.OrdemInvalida,
+                       planos.PlanoInvalido, PermissionDenied)
 
 ABAS = [("", "Todas", "todas"), ("futuras", "Que vão acontecer", "futuras"),
         ("atuais", "Em andamento e realizadas", "atuais"),
@@ -82,7 +90,16 @@ def _buscar(qs, termo: str):
     if (m := NUMERO_OFICIO.match(termo)):
         numero = Q(oficios__numero=int(m.group(1)))
         filtro |= numero & Q(oficios__ano=int(m.group(2))) if m.group(2) else numero
-    return qs.filter(filtro).distinct()
+    # Subconsulta (e não filtro direto): o filtro por ofício reaproveitaria o JOIN das
+    # contagens da lista e contaria só os ofícios que casam com a busca.
+    return qs.filter(pk__in=Viagem.objects.filter(filtro).values("pk"))
+
+
+def _com_outros_documentos(qs):
+    """Termo, roteiro ou pedido anexado: também tiram a viagem de "vazia"."""
+    return qs.annotate(tem_outros=Exists(TermoAutorizacao.objects.filter(viagem=OuterRef("pk")))
+                       | Exists(Roteiro.objects.filter(viagem=OuterRef("pk")))
+                       | Exists(AnexoViagem.objects.filter(viagem=OuterRef("pk"))))
 
 
 @require_GET
@@ -96,11 +113,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     buscadas = _buscar(base, busca)
     contagens = {"todas": buscadas.count(),
                  **{chave: _filtrar(buscadas, chave).count() for chave, _, _ in ABAS if chave}}
-    qs = (_filtrar(buscadas, aba).select_related("unidade")
-          .prefetch_related("destinos__municipio", "tipos")
-          .annotate(n_oficios=Count("oficios", distinct=True),
-                    n_ordens=Count("ordens", distinct=True),
-                    n_planos=Count("planos", distinct=True)))
+    qs = _com_outros_documentos(
+        _filtrar(buscadas, aba).select_related("unidade")
+        .prefetch_related("destinos__municipio", "tipos")
+        .annotate(n_oficios=Count("oficios", distinct=True),
+                  n_ordens=Count("ordens", distinct=True),
+                  n_planos=Count("planos", distinct=True)))
     from django.db.models import F
     ordem = ([F("data_inicio").asc(nulls_last=True), "pk"] if aba == "futuras"
              else ["-criado_em", "-pk"])
@@ -146,7 +164,7 @@ def _linha_da_lista(usuario, v, hoje, agora) -> dict:
                                "url": f"{folha}#documentos"})
     vazio = (v.situacao == Viagem.Situacao.RASCUNHO and not (
         v.titulo or v.motivo.strip() or v.data_inicio or destinos or v.tipos.all()
-        or v.n_oficios or v.n_ordens or v.n_planos))
+        or v.n_oficios or v.n_ordens or v.n_planos or getattr(v, "tem_outros", True)))
     return {"v": v, "quando": viagem.dias_para(v, hoje), "destinos": ", ".join(destinos),
             "editavel": policies.pode_editar_viagem(usuario, v),
             "pendencias": pendencias, "vazio": vazio, "url_folha": folha,
@@ -154,11 +172,12 @@ def _linha_da_lista(usuario, v, hoje, agora) -> dict:
                                                  pendente=pendente)}
 
 
+@require_GET
 def resumo(request: HttpRequest, pk: int) -> HttpResponse:
     """Fragmento HTMX: a janela de resumo da viagem (o mesmo desenho do resumo do ofício)."""
     policies.exigir(request.user.has_perm("viagens.view_viagem"))
     v = get_object_or_404(
-        policies.viagens_visiveis(request.user).select_related("unidade")
+        _com_outros_documentos(policies.viagens_visiveis(request.user)).select_related("unidade")
         .prefetch_related("destinos__municipio", "tipos", "ordens__servidores__cargo")
         .annotate(n_oficios=Count("oficios", distinct=True),
                   n_ordens=Count("ordens", distinct=True),
@@ -405,6 +424,8 @@ def gerar_documentos(request: HttpRequest, pk: int) -> HttpResponse:
                                       com_plano=form.cleaned_data["plano"])
             except viagem_lote.LoteInvalido as exc:
                 erros = exc.erros
+            except _ERROS_DE_DOCUMENTO as exc:
+                erros = [str(exc) or "Você não pode gerar um desses documentos."]
             else:
                 numeros = ", ".join(o.numero_formatado for o in r.oficios)
                 partes = [f"{len(r.oficios)} ofício(s) ({numeros})"]
@@ -447,8 +468,8 @@ def repetir(request: HttpRequest, pk: int) -> HttpResponse:
     try:
         nova = viagem_repetir.repetir(request.user, v.pk, form.cleaned_data["nova_data"],
                                       form.cleaned_data["nova_cidade"])
-    except (viagem.ViagemInvalida, PermissionDenied) as exc:
-        messages.error(request, str(exc))
+    except (viagem.ViagemInvalida, *_ERROS_DE_DOCUMENTO) as exc:
+        messages.error(request, str(exc) or "Você não pode repetir esta viagem.")
         return redirect("viagens:editar_viagem", v.pk)
     messages.success(request, "Viagem repetida em rascunho, com roteiro, ofícios, plano, ordem "
                               "de serviço e termos. Números e protocolos são novos; confira os "

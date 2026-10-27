@@ -45,7 +45,13 @@ def _como_pdf(anexo: AnexoPrestacao) -> bytes:
         return conteudo
     from PIL import Image  # PNG/JPG: uma página, do tamanho da imagem (como a referência)
     saida = io.BytesIO()
-    Image.open(io.BytesIO(conteudo)).convert("RGB").save(saida, format="PDF", resolution=150)
+    try:
+        Image.open(io.BytesIO(conteudo)).convert("RGB").save(saida, format="PDF",
+                                                             resolution=150)
+    except (OSError, ValueError, Image.DecompressionBombError) as exc:  # truncada, gigante
+        raise PacoteIncompleto(
+            f"A imagem “{anexo.nome_original}” não abre (arquivo corrompido ou grande demais). "
+            "Substitua-a por um PDF ou outra foto.") from exc
     return saida.getvalue()
 
 

@@ -278,8 +278,13 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
         atual.data_oficio_manual = True
     if "numero" in alterados:
         # O número que a pessoa largou volta à fila como lacuna (o mesmo que a exclusão de
-        # um rascunho faz, decisão D5) e o novo sai dela, se de lá tiver vindo.
-        LacunaNumeracao.objects.get_or_create(ano=atual.ano, numero=numero_anterior)
+        # um rascunho faz, decisão D5) e o novo sai dela, se de lá tiver vindo. Mesma trava
+        # da reserva (reservar_numero), para as duas não se cruzarem. Ofício que já foi
+        # emitido (retificado/reaberto) tem o número antigo no papel: ele não volta à fila.
+        numeracao, _ = NumeracaoAnual.objects.get_or_create(ano=atual.ano)
+        NumeracaoAnual.objects.select_for_update().get(pk=numeracao.pk)
+        if not atual.documentos.exists():
+            LacunaNumeracao.objects.get_or_create(ano=atual.ano, numero=numero_anterior)
         LacunaNumeracao.objects.filter(ano=atual.ano, numero=atual.numero).delete()
     if atual.tipo_transporte == Oficio.TipoTransporte.VIATURA:
         atual.transporte_meio = ""
@@ -318,7 +323,9 @@ def adicionar_viajante(oficio: Oficio, usuario, servidor: Servidor) -> Viajante:
 @transaction.atomic
 def remover_viajante(oficio: Oficio, usuario, viajante_id: int) -> None:
     atual = _travar_para_edicao(oficio, usuario, None)
-    viajante = atual.viajantes.select_related("servidor").get(pk=viajante_id)
+    viajante = atual.viajantes.select_related("servidor").filter(pk=viajante_id).first()
+    if viajante is None:  # clique duplo ou outra aba: já saiu da equipe
+        raise RegraViolada("Este servidor já não está na equipe. Recarregue a página.")
     viajante.delete()
     _registrar(atual, Historico.Acao.VIAJANTE, f"{viajante.servidor} removido da equipe.",
                usuario)
@@ -899,6 +906,10 @@ def _salvar_destinos_do_documento(oficio: Oficio, usuario, campo: CampoVinculado
         distancia_km=None if (t.origem_id in trocas or t.destino_id in trocas) else t.distancia_km,
         tempo_viagem_min=t.tempo_viagem_min, tempo_adicional_min=t.tempo_adicional_min or 0)
         for t in trechos]
+    if any(t.origem_id == t.destino_id for t in informados):
+        # "B, B" sobre A→B: sairia um trecho de uma cidade para ela mesma.
+        raise RegraViolada("Cada destino aparece uma vez: a mesma cidade não pode ser saída e "
+                           "chegada de um trecho. Para mudar o percurso, use o roteiro da folha.")
     _aplicar_trechos(atual, informados, tocar=False)
     atual.versao += 1
     atual.save(update_fields=["versao", "atualizado_em"])
@@ -1238,7 +1249,9 @@ def duplicar_oficio(oficio: Oficio, usuario) -> Oficio:
                     "Você não pode duplicar este ofício.")
     novo = criar_rascunho(usuario)
     dados = {c: getattr(oficio, c) for c in CAMPOS_EDITAVEIS
-             if c not in ("numero", "data_oficio", "protocolo")}
+             # A data (e se foi digitada), o protocolo e o marcador são de cada ofício.
+             if c not in ("numero", "data_oficio", "data_oficio_manual", "protocolo",
+                          "marcador")}
     _aplicar_dados(novo, usuario, dados, registrar=False)
     motorista = None
     for v in oficio.viajantes.select_related("servidor").order_by("ordem", "id"):

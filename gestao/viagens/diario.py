@@ -349,14 +349,27 @@ def _travar(usuario, diario_pk: int) -> DiarioBordo:
     return diario
 
 
+def _km(linha: DiarioBordoTrecho, texto: object, qual: str) -> int | None:
+    """O hodômetro digitado: "12.345", "12345 km" e "45678,9" (a casa do décimo cai) valem;
+    sinal, letras ou mais de 7 dígitos não (como no link de km)."""
+    from .km_link import km_digitado
+    bruto = str(texto if texto is not None else "").strip().lower().removesuffix("km").strip()
+    bruto = bruto.split(",")[0] if bruto.count(",") == 1 else bruto
+    valido, numero = km_digitado(bruto)
+    if not valido:
+        raise DiarioInvalido(f"{rota(linha)}: confira o km {qual} — só números, como no "
+                             "hodômetro (até 7 dígitos).")
+    return numero
+
+
 def gravar_linha(linha: DiarioBordoTrecho, campos: dict[str, object]) -> bool:
     """Uma linha de um diário JÁ travado e conferido (`conferir_edicao`): os dois km se
     conferem juntos. Devolve se mudou."""
     antes = (linha.km_inicial, linha.km_final, linha.abastecimento)
     if "km_inicial" in campos:
-        linha.km_inicial = dominio.numero_do_km(campos["km_inicial"])
+        linha.km_inicial = _km(linha, campos["km_inicial"], "inicial")
     if "km_final" in campos:
-        linha.km_final = dominio.numero_do_km(campos["km_final"])
+        linha.km_final = _km(linha, campos["km_final"], "final")
     if "abastecimento" in campos:
         linha.abastecimento = str(campos["abastecimento"] or "") != "nao"
     if (linha.km_inicial, linha.km_final, linha.abastecimento) == antes:
@@ -389,12 +402,16 @@ def salvar_linhas(usuario, diario_pk: int,
 OFICIO_DE_REFERENCIA = re.compile(r"^\d{1,5}/\d{4}$")
 
 
-def _conferir_oficio_do_motorista(diario: DiarioBordo, oficio_id: int | None) -> list[str]:
+def _conferir_oficio_do_motorista(usuario, diario: DiarioBordo,
+                                  oficio_id: int | None) -> list[str]:
     if not oficio_id:
         return ["Busque e escolha o ofício pelo qual o motorista viajou."]
     if oficio_id == diario.prestacao.oficio_id:
         return ["Escolha outro ofício: este é o da própria prestação."]
     p = PrestacaoContas.objects.filter(oficio_id=oficio_id).select_related("oficio").first()
+    if p is not None and (not policies.pode_ver(usuario, p.oficio)
+                          or p.oficio.situacao == Oficio.Situacao.CANCELADO):
+        return ["Escolha um ofício da lista: esse não existe ou você não pode vê-lo."]
     if p is None:
         return ["Esse ofício ainda não tem prestação de contas (nasce quando ele é emitido): "
                 "sem ela, não há diário de bordo para usar."]
@@ -403,6 +420,12 @@ def _conferir_oficio_do_motorista(diario: DiarioBordo, oficio_id: int | None) ->
             and de_la.oficio_do_motorista_id):
         return [f"O diário do Ofício {p.oficio.numero_formatado} também usa o de outro "
                 "ofício: escolha o ofício em que os km foram registrados."]
+    # O caminho inverso também não encadeia: se outro diário já usa os km deste, este
+    # continua com os próprios.
+    if (DiarioBordo.objects.filter(motorista_modo=DiarioBordo.Motorista.OUTRO,
+                                   oficio_do_motorista_id=diario.prestacao.oficio_id)
+            .exclude(pk=diario.pk).exists()):
+        return ["Outro diário já usa os km deste: ele precisa continuar com os próprios km."]
     return []
 
 
@@ -431,7 +454,7 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
                 pk=motorista_servidor_id).exists():
             erros.append("Selecione o servidor que dirigiu.")
     elif motorista_modo == DiarioBordo.Motorista.OUTRO:
-        erros += _conferir_oficio_do_motorista(diario, oficio_do_motorista_id)
+        erros += _conferir_oficio_do_motorista(usuario, diario, oficio_do_motorista_id)
     modelo = " ".join((viatura_modelo or "").split())
     vinculado = motorista_modo == DiarioBordo.Motorista.OUTRO
     if vinculado:  # a viatura é a do diário do outro ofício
@@ -508,22 +531,24 @@ def dados_do_documento(diario: DiarioBordo) -> dict:
             "abastecimento": ("" if lin.abastecimento is None
                               else "Sim" if lin.abastecimento else "Não"),
         })
-    return {
+    dados: dict = {
         "titulo": f"Diário de bordo — Ofício {oficio.numero_formatado}",
         "unidade": (config.nome_extenso if config else oficio.unidade.nome).upper(),
         "rodape": config.rodape if config else "",
         "oficio_motorista": numero_mot, "ano": ano_mot, "protocolo": protocolo or "",
         "viatura": v.rotulo.upper(), "placa": v.placa, "combustivel": v.combustivel.upper(),
         "motorista": nome.upper(), "cpf": formatar_cpf(cpf), "linhas": itens,
-        # O texto editado no visualizador (EdicaoPrestacao) vale para a folha e o PDF.
         "chave": "diario",
-        "regioes_editadas": _regioes_editadas(diario.prestacao),
     }
+    # O texto editado no visualizador (EdicaoPrestacao) vale para a folha e o PDF, levado
+    # para os dados de agora (km lançados depois, outro motorista…).
+    dados["regioes_editadas"] = _regioes_editadas(diario.prestacao, dados)
+    return dados
 
 
-def _regioes_editadas(prestacao: PrestacaoContas) -> dict[str, str]:
+def _regioes_editadas(prestacao: PrestacaoContas, dados: dict) -> dict[str, str]:
     from . import prestacao_texto
-    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.CHAVE_DIARIO)
+    return prestacao_texto.regioes_vigentes(prestacao, prestacao_texto.CHAVE_DIARIO, dados)
 
 
 def pdf_do_documento(dados: dict) -> bytes:
