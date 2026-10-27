@@ -221,11 +221,15 @@ def _travar_para_edicao(oficio: Oficio, usuario, versao: int | None) -> Oficio:
              .select_related("sede", "viatura").get(pk=oficio.pk))
     policies.exigir(policies.pode_editar(usuario, atual),
                     "Este ofício não pode ser alterado (emitido, cancelado ou sem permissão).")
-    if versao is not None and versao != atual.versao:
+    outra_pessoa = atual.atualizado_por_id is not None and atual.atualizado_por_id != usuario.pk
+    if versao is not None and versao != atual.versao and outra_pessoa:
         raise ConflitoDeEdicao(
             "Outra pessoa salvou este ofício enquanto você editava. Recarregue a página para "
             "ver a versão atual antes de salvar de novo."
         )
+    if atual.atualizado_por_id != usuario.pk:
+        Oficio.objects.filter(pk=atual.pk).update(atualizado_por=usuario)
+        atual.atualizado_por_id = usuario.pk
     return atual
 
 
@@ -693,7 +697,8 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
     tipo = _tipo_de_documento(tipo)
     vigente = edicao_vigente(atual, tipo)
     numero_vigente = vigente.numero if vigente else 0
-    if versao_base is not None and versao_base != numero_vigente:
+    de_outra_pessoa = vigente is not None and vigente.criado_por_id != usuario.pk
+    if versao_base is not None and versao_base != numero_vigente and de_outra_pessoa:
         raise ConflitoDeEdicao(
             "Outra pessoa alterou o texto deste documento enquanto você editava. Recarregue "
             "a folha para ver a versão atual antes de salvar de novo.")

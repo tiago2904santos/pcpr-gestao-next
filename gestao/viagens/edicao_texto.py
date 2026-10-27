@@ -39,7 +39,8 @@ def salvar(versoes, criar: Callable[..., Any], usuario, originais: dict[str, str
 
     atual = vigente(versoes)
     numero_vigente = atual.numero if atual else 0
-    if versao_base is not None and versao_base != numero_vigente:
+    de_outra_pessoa = atual is not None and atual.criado_por_id != usuario.pk
+    if versao_base is not None and versao_base != numero_vigente and de_outra_pessoa:
         raise conflito(
             "Outra pessoa alterou o texto deste documento enquanto você editava. Recarregue "
             "a folha para ver a versão atual antes de salvar de novo.")

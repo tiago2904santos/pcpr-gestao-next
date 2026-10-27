@@ -238,6 +238,10 @@ class Oficio(models.Model):
     situacao = models.CharField(max_length=10, choices=Situacao.choices,
                                 default=Situacao.RASCUNHO)
     versao = models.PositiveIntegerField(default=1)  # concorrência otimista
+    # Quem gravou por último: versão "velha" vinda da mesma pessoa (formulário, editor e
+    # equipe gravando em paralelo na mesma tela) não é conflito.
+    atualizado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                       null=True, blank=True, related_name="+")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                    related_name="+")
     criado_em = models.DateTimeField(auto_now_add=True)
