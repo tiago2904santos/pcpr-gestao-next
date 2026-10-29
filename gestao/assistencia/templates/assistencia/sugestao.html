@@ -53,7 +53,7 @@ registro mudou desde a sugestão, ela fica obsoleta e não se aplica.
           </div>
         </div>
         {% else %}<p class="texto-pre">{{ i.valor }}</p>{% endif %}
-        <p class="campo__ajuda" id="fontes-{{ i.campo }}">Fontes: {% for f in i.fontes %}<span class="selo selo--neutro selo--sem-ponto">{{ f }}</span> {% empty %}nenhuma{% endfor %}{% if i.nota %} — {{ i.nota }}{% endif %}</p>
+        <p class="campo__ajuda" id="fontes-{{ i.campo }}">Fontes: {% for f in i.fontes %}<span class="selo selo--neutro selo--sem-ponto selo--quebra">{{ f }}</span> {% empty %}nenhuma{% endfor %}{% if i.nota %} — {{ i.nota }}{% endif %}</p>
       </div>
       {% endfor %}
       {% if pede_substituir %}
@@ -124,7 +124,7 @@ registro mudou desde a sugestão, ela fica obsoleta e não se aplica.
       {% include "componentes/metadado.html" with rotulo="Custo estimado (não é cobrança)" valor=s.custo_texto %}
       {% include "componentes/metadado.html" with rotulo="Decisão" valor=s.decisao_texto ausente="Aguardando revisão" %}
     </dl>
-    {% if s.fontes %}<div><p class="peso-semi">Campos do sistema usados</p><p>{% for f in s.fontes %}<span class="selo selo--neutro selo--sem-ponto">{{ f }}</span> {% endfor %}</p></div>{% endif %}
+    {% if s.fontes %}<div><p class="peso-semi">Campos do sistema usados</p><p>{% for f in s.fontes %}<span class="selo selo--neutro selo--sem-ponto selo--quebra">{{ f }}</span> {% endfor %}</p></div>{% endif %}
     {% if s.estado != 'pronta' %}{% if uso.opcoes %}<a class="botao botao--sm" href="{% url 'assistencia:pedir' uso.chave s.recurso_id %}">{% icone "refresh-cw" %}Pedir outra</a>{% else %}<form method="post" action="{% url 'assistencia:pedir' uso.chave s.recurso_id %}">{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.path }}"><button class="botao botao--sm" type="submit">{% icone "refresh-cw" %}Pedir outra</button></form>{% endif %}{% endif %}
   </div>
 </section>

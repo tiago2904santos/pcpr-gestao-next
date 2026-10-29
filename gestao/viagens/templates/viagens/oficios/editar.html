@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load viagens %}
+{% load viagens assistencia %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% if abrir_resumo %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endif %}{% endblock %}
 {% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {# Preparação operacional: mesmos campos, ações e contratos do ofício; variante compartilhada do Design System. #}
@@ -71,6 +71,8 @@ confirmação — e é ele que escreve no histórico.
       </div>
       {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
       {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
+      {# Assistência só como link (nenhuma consulta): a folha tem orçamento de consultas; a tela do pedido confere a permissão e mostra a última sugestão. #}
+      <p>{% link_ia "viagens.oficio_textos" oficio.pk %}</p>
     </div>
 
 
@@ -133,6 +135,7 @@ confirmação — e é ele que escreve no histórico.
     </div>
     <div class="secao__conteudo">
     {% include "componentes/selecao_roteiro.html" with form_id="form-oficio" compacto=True %}
+    <p>{% link_ia "viagens.leitura_programacao" oficio.pk %}</p>
     {% include "viagens/_itinerario.html" with operacional=True %}
     {# Diárias: só leitura, refeitas ao salvar ou ao mudar a equipe (o HTMX troca o miolo). #}
     <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body, pcpr:dados-salvos from:document delay:200ms" hx-swap="innerHTML">
@@ -148,7 +151,6 @@ confirmação — e é ele que escreve no histórico.
   decide é `_mostrar_justificativa` em views.py.
   {% endcomment %}
   {% include "viagens/oficios/_justificativa.html" %}
-  {% load assistencia %}{% painel_ia "viagens.oficio_textos" oficio.pk "viagens.leitura_programacao" %}
 
   {% comment %}
   4. Documentos — o fim da folha conclui, com as peças da janela de resumo: o aviso de

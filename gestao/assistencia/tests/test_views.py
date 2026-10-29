@@ -113,8 +113,14 @@ def test_cartoes_no_oficio_plano_e_viagem(c):
     cliente = _cliente(op)
     pagina = cliente.get(reverse("viagens:editar", args=[c.ids["oficio_rascunho"]]))
     texto = pagina.content.decode()
-    assert "Motivo do ofício e justificativa de antecedência" in texto
+    # A folha do ofício tem orçamento de consultas: os usos entram como link (`link_ia`, sem
+    # consulta) para a tela do pedido, não como cartão completo.
+    oficio_id = c.ids["oficio_rascunho"]
+    assert "Pedir rascunho do motivo e da justificativa" in texto
+    assert reverse("assistencia:pedir", args=["viagens.oficio_textos", oficio_id]) in texto
     assert "Ler a programação" in texto
+    assert reverse("assistencia:pedir", args=["viagens.leitura_programacao", oficio_id]) in texto
+    assert "Motivo do ofício e justificativa de antecedência" not in texto  # sem o cartão
     plano, _ = planos.salvar(op, oficios=[Oficio.objects.get(pk=c.ids["oficio_emitido"])])
     texto = cliente.get(reverse("viagens:editar_plano", args=[plano.pk])).content.decode()
     assert "Contextualização e considerações do plano de trabalho" in texto

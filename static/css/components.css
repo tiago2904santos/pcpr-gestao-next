@@ -1272,6 +1272,15 @@ a.resumo__documento:hover {
 
 .selo--sem-ponto::before { display: none; }
 
+/* Rótulo longo em coluna estreita (ex.: as fontes de uma sugestão de IA, "Programação
+   (texto colado no pedido)"): quebra a linha em vez de ser cortado; o canto arredondado
+   menor fica certo em duas linhas. */
+.selo--quebra {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-radius: var(--raio-sm);
+}
+
 /* Neutro: o tom de base, declarado. Quem monta o selo por um "tom" vindo do domínio
    (rascunho, encerrado, "Previsto", "Avulso"…) pede `selo--neutro` — antes a classe não
    existia e o selo caía no padrão por sorte. */
