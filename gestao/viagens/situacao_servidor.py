@@ -30,6 +30,7 @@ from .models import Oficio, PrestacaoServidor, Trecho, Viajante
 from .viagem import periodo_curto
 
 EQUIPE, VOCE = "a equipe", "você"
+LIMITE = 10  # prestações e viagens na "minha situação"
 #: (início do texto do operador, código, texto para o servidor, quem resolve)
 PENDENCIAS = (
     ("Informe o número da solicitação", "PREST_SEM_SOLICITACAO",
@@ -70,11 +71,16 @@ def _destinos_periodo(oficio: Oficio) -> tuple[str, str]:
 
 
 def situacao(servidor_id: int) -> SituacaoDoServidor | None:
-    linhas = list(prestacao.ativos(PrestacaoServidor.objects.filter(
+    base = (prestacao.ativos(PrestacaoServidor.objects.filter(
         servidor_id=servidor_id, prestacao__oficio__situacao=Oficio.Situacao.EMITIDO))
         .select_related("prestacao__oficio__sede")
         .prefetch_related(_trechos_em_ordem("prestacao__oficio__trechos"))
-        .order_by("-prestacao__oficio__ano", "-prestacao__oficio__numero")[:10])
+        .order_by("-prestacao__oficio__ano", "-prestacao__oficio__numero"))
+    # As em aberto primeiro, antes do limite: uma pendência antiga não pode sumir atrás de
+    # dez prestações finalizadas mais novas. O histórico finalizado só completa a lista.
+    linhas = list(base.filter(finalizada_em__isnull=True)[:LIMITE])
+    if len(linhas) < LIMITE:
+        linhas += base.filter(finalizada_em__isnull=False)[:LIMITE - len(linhas)]
     # A situação dos anexos de todas as prestações numa leitura só (não uma por prestação).
     anexados = anexos.situacao([ps.prestacao_id for ps in linhas]) if linhas else None
     prestacoes = []
@@ -96,7 +102,7 @@ def situacao(servidor_id: int) -> SituacaoDoServidor | None:
                                       oficio__situacao=Oficio.Situacao.EMITIDO)
               .select_related("oficio__sede")
               .prefetch_related(_trechos_em_ordem("oficio__trechos"))
-              .order_by("-oficio__ano", "-oficio__numero")[:10]):
+              .order_by("-oficio__ano", "-oficio__numero")[:LIMITE]):
         trechos = list(v.oficio.trechos.all())
         destinos, _ = _destinos_periodo(v.oficio)
         viagens.append(ViagemDoServidor(

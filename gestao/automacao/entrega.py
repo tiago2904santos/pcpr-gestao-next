@@ -36,6 +36,7 @@ from gestao.integracoes.whatsapp import servico as whatsapp
 from gestao.integracoes.whatsapp.porta import Envio, MensagemSaida, ModeloSaida
 
 from . import chaves, dominio, excecoes, ganchos
+from .comunicacoes import abrir_janela_de_resposta
 from .models import (
     ChaveAutomacao,
     Comunicacao,
@@ -520,7 +521,12 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         t.resultado = R.ACEITA
         t.save()
         mais_nova = outras.filter(numero__gt=t.numero, resultado=R.ACEITA).exists()
-        ja_saiu = outras.filter(numero__lt=t.numero, resultado=R.ACEITA).exists()
+        # A anterior saiu, mas a Meta avisou falha na entrega dela e uma pessoa autorizou
+        # tentar de novo: a anterior não chegou, então esta não é um duplicado.
+        anterior_falhou = bool(c.entrega == "falhou" and c.mensagem_id
+                               and c.mensagem_id != envio.mensagem_id)
+        ja_saiu = not anterior_falhou and outras.filter(
+            numero__lt=t.numero, resultado=R.ACEITA).exists()
         if mais_nova or ja_saiu:
             # A pessoa já tinha tentado de novo e a nova saiu: a velha também saiu (resultado
             # tardio). Não troca o id do provedor da comunicação; avisa do provável duplicado.
@@ -615,6 +621,11 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
 
 def _aceita(c: Comunicacao, envio: Envio, origem: str, agora) -> None:
     era_incerta = c.situacao == S.INCERTA
+    if c.mensagem_id and c.mensagem_id != envio.mensagem_id:
+        # Nova tentativa autorizada depois de uma mensagem que saiu e falhou na entrega: o
+        # estado de entrega guardado (e a hora do envio) é o da mensagem ANTERIOR e não vale
+        # para esta.
+        c.entrega, c.entregue_em, c.lida_em, c.enviada_em = "", None, None, None
     falha_confirmada = c.entrega == "falhou"  # o status "failed" chegou antes deste aceite
     c.situacao, c.reservada_ate, c.motivo, c.simular = S.ENVIADA, None, "", ""
     if falha_confirmada:
@@ -624,9 +635,7 @@ def _aceita(c: Comunicacao, envio: Envio, origem: str, agora) -> None:
     c.enviada_em = c.enviada_em or agora
     if not c.entrega:
         c.entrega = Comunicacao.Entrega.ACEITA
-    if c.aceita_resposta:
-        definicao = ganchos.tipo(c.tipo)
-        c.resposta_ate = agora + (definicao.janela_resposta if definicao else timedelta(days=15))
+    abrir_janela_de_resposta(c, agora)
     c.save()
     if c.contato_id and (envio.wa_id or envio.usuario_id) and c.contato is not None:
         ContatoVerificado.objects.filter(pk=c.contato_id).update(

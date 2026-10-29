@@ -62,6 +62,17 @@ def test_leitura_confere_que_o_dado_esta_no_texto():
                                                                                       texto)
 
 
+def test_data_com_ano_explicito_no_texto_exige_o_mesmo_ano():
+    """Com o ano escrito no texto, a data inteira tem de bater; sem ano, vale o da proposta."""
+    assert leitura.data_no_texto("2026-11-21", "21/11/2026")
+    assert not leitura.data_no_texto("2027-11-21", "21/11/2026")
+    assert not leitura.data_no_texto("2025-11-21", "21 de novembro de 2026")
+    assert leitura.data_no_texto("2026-11-21", "21 de novembro de 2026")
+    assert not leitura.data_no_texto("2027-11-21", "21/11/26")
+    assert leitura.data_no_texto("2027-11-21", "21/11")  # sem ano: o da data proposta
+    assert leitura.data_no_texto("2025-11-21", "dia 21 de novembro")
+
+
 def test_contexto_versao_ignora_o_que_quem_pediu_escreveu():
     a = ganchos.Contexto("x", (ganchos.Fato("d", "D", "Arapongas"),
                                ganchos.Fato("o", "O", "texto 1", do_pedido=True)))

@@ -1191,3 +1191,125 @@ def test_resposta_de_numero_que_nao_vale_mais_nao_entra_na_unidade(c):
     r = Recebimento.objects.get()
     assert r.contato_id is None and r.situacao == Recebimento.Situacao.QUARENTENA
     assert r.comunicacao_id is None and r.unidade_id is None
+
+
+# ------------------------------------------------------------------ 16ª revisão (Codex)
+def test_status_antes_do_resultado_abre_a_janela_de_resposta(c):
+    """O status da Meta chega antes do resultado do envio: a tentativa termina aceita pelo
+    status e o prazo de resposta abre ali — o resultado tardio é ignorado e a resposta
+    citando a mensagem entra na prestação."""
+    from django.db import transaction as tx
+
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import Envio, Origem, StatusRecebido
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    reserva = entrega.reservar()
+    aviso = _aviso(c)
+    assert reserva is not None and reserva.comunicacao_id == aviso.pk
+    with tx.atomic():
+        entrada_mod.registrar_status(StatusRecebido(
+            mensagem_id="wamid.ANTES", status="delivered", ocorrido_em=timezone.now(),
+            referencia=f"com:{aviso.pk}:t{aviso.tentativas}"))
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.ENVIADA and aviso.mensagem_id == "wamid.ANTES"
+    assert aviso.resposta_ate and aviso.resposta_ate > timezone.now() + timedelta(days=29)
+    entrega.registrar_resultado(reserva.tentativa_id, envio=Envio(
+        mensagem_id="wamid.ANTES", origem=Origem.CLOUD_API))  # tardio: já terminada
+    simulador.simular_resposta(c.usuarios["operador"], aviso.pk, conteudo=PDF, nome="c.pdf")
+    _processar_entradas()
+    assert recebimentos.processar_um()
+    r = Recebimento.objects.get()
+    assert r.comunicacao_id == aviso.pk
+    assert r.situacao == Recebimento.Situacao.ASSOCIADO, r.motivo
+
+
+def test_nova_tentativa_depois_de_falha_na_entrega_nao_herda_a_falha(c):
+    """A mensagem saiu e a Meta avisou falha na entrega; uma pessoa autorizou tentar de novo
+    e a nova saiu: a falha guardada era da mensagem anterior e não derruba a nova."""
+    from django.db import transaction as tx
+
+    from gestao.automacao import comunicacoes
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.porta import StatusRecebido
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    primeira = aviso.mensagem_id
+    with tx.atomic():
+        entrada_mod.registrar_status(StatusRecebido(
+            mensagem_id=primeira, status="failed", ocorrido_em=timezone.now(),
+            erro_codigo="131026"))
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.FALHOU and aviso.entrega == "falhou"
+    comunicacoes.tentar_de_novo(c.usuarios["operador"], aviso.pk)
+    assert entrega.processar_uma(porta=Espiao())
+    aviso.refresh_from_db()
+    assert aviso.mensagem_id and aviso.mensagem_id != primeira, (aviso.situacao, aviso.motivo)
+    assert aviso.situacao == S.ENVIADA, aviso.motivo
+    assert aviso.entrega == Comunicacao.Entrega.ACEITA
+
+
+def test_recebimento_descartado_durante_o_download_nao_entra(c):
+    """Uma pessoa descarta o recebimento enquanto a mídia baixa: o worker não grava o
+    arquivo, não associa nem manda confirmação — e o motivo do descarte fica."""
+    from gestao.integracoes.whatsapp.adaptadores import AdaptadorSimulado
+
+    r = _arquivo_recebido(c)
+    operador = c.usuarios["operador"]
+
+    class DescartaNoMeio(AdaptadorSimulado):
+        def baixar_midia(self, anexo, limite):
+            midia = super().baixar_midia(anexo, limite)
+            recebimentos.descartar(operador, r.pk, "Arquivo errado, descartado.")
+            return midia
+
+    assert recebimentos.processar_um(DescartaNoMeio())
+    r.refresh_from_db()
+    assert r.situacao == Recebimento.Situacao.DESCARTADO and not r.arquivo
+    assert r.motivo == "Arquivo errado, descartado."
+    assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()
+    assert not Comunicacao.objects.filter(tipo="automacao.confirmacao").exists()
+
+
+def test_arquivo_sem_citacao_nao_entra_em_pedido_mandado_depois(c):
+    """Um arquivo chega sem citar mensagem e sem pedido aberto; a entrada e o download
+    atrasam e, nesse meio-tempo, sai um pedido de comprovante. O arquivo, mais velho que o
+    pedido, não se liga a ele nem entra sozinho na prestação."""
+    import base64
+
+    from django.core.files.base import ContentFile
+    from django.core.files.storage import default_storage
+
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.integracoes.whatsapp.adaptadores import PREFIXO_SIMULADO
+    from gestao.integracoes.whatsapp.porta import Anexo
+
+    _ligar(c, *TODOS)
+    contato = _contato_ativo(c)
+    midia_id = "SIMANTIGO" + hashlib.sha256(PDF).hexdigest()[:12].upper()
+    default_storage.save(PREFIXO_SIMULADO + midia_id, ContentFile(PDF))
+    sha = base64.b64encode(hashlib.sha256(PDF).digest()).decode()
+    corpo = webhook.montar_mensagem(
+        mensagem_id="wamid.ANTIGO", remetente=contato.endereco,
+        anexo=Anexo(midia_id=midia_id, tipo="document", mime="application/pdf", sha256=sha,
+                    nome="c.pdf"),
+        quando=timezone.now() - timedelta(minutes=10))
+    entrada_mod.registrar_entrada(corpo, origem="simulador")
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    assert aviso.situacao == S.ENVIADA and aviso.resposta_ate > timezone.now()
+    _processar_entradas()
+    r = Recebimento.objects.get()
+    assert r.comunicacao_id is None  # a entrada não liga ao pedido que saiu depois
+    assert recebimentos.processar_um()
+    r.refresh_from_db()
+    assert r.arquivo and r.situacao != Recebimento.Situacao.ASSOCIADO
+    assert r.comunicacao_id is None
+    assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()

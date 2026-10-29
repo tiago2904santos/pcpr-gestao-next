@@ -582,6 +582,33 @@ def test_situacao_e_resposta_do_servidor_so_com_os_dados_dele(c):
     assert r2.categoria == "lacuna" and "sem_registro" in r2.lacunas
 
 
+def test_situacao_nao_perde_a_prestacao_aberta_atras_das_finalizadas(c, monkeypatch):
+    """Uma prestação antiga em aberto e outras mais novas já finalizadas: o limite da lista
+    vale depois de separar as abertas — o assistente fala da pendência, não da finalizada."""
+    from gestao.viagens import prestacao as prestacao_mod
+    from gestao.viagens import situacao_servidor
+
+    p = _p(c)
+    antiga = PrestacaoServidor.objects.filter(prestacao=p).select_related("servidor").first()
+    nova = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    assert (nova.ano, nova.numero) > (p.oficio.ano, p.oficio.numero)
+    services.adicionar_viajante(nova, c.usuarios["operador"], antiga.servidor)
+    Oficio.objects.filter(pk=nova.pk).update(situacao=Oficio.Situacao.EMITIDO,
+                                             emitido_em=timezone.now())
+    nova.refresh_from_db()
+    prestacao_mod.sincronizar(nova)
+    PrestacaoServidor.objects.filter(prestacao__oficio=nova, servidor=antiga.servidor).update(
+        finalizada_em=timezone.now())
+    monkeypatch.setattr(situacao_servidor, "LIMITE", 1)  # = dez finalizadas mais novas
+
+    sit = assistente.situacao_do_servidor(antiga.servidor_id)
+    assert [x.chave for x in sit.prestacoes] == [f"ps:{antiga.pk}"]
+    assert not sit.prestacoes[0].finalizada
+    r = assistente.responder("O que falta na minha prestação?", antiga.servidor_id)
+    assert any(f.referencia == f"ps:{antiga.pk}" for f in r.fontes)
+    assert "finalizada" not in r.texto.lower()
+
+
 # ------------------------------------------------------------------ retenção e trilha
 def test_retencao_apaga_o_conteudo_e_mantem_o_registro(c):
     p = _p(c)

@@ -236,12 +236,17 @@ function iniciar(raiz) {
     pintarRede();
   }
 
-  /** @param {number} linha @param {Valores} valores */
-  function mostrarValores(linha, valores) {
+  /**
+   * @param {number} linha @param {Valores} valores
+   * @param {Valores} [enviados] o que a pessoa tinha no trecho ao salvar: o campo que ela
+   *   mudou depois (ex.: digitou a chegada enquanto a saída ia para o sistema) fica como está.
+   */
+  function mostrarValores(linha, valores, enviados) {
     const form = formularios.get(linha);
     if (!form) return;
     for (const campo of CAMPOS) {
       const el = entrada(form, campo);
+      if (enviados && el && numero(el.value) !== (enviados[campo] ?? null)) continue;
       if (el && campo in valores) {
         const v = valores[campo];
         el.value = v === null || v === undefined ? "" : String(v);
@@ -352,7 +357,7 @@ function iniciar(raiz) {
       if (!item || item.id !== r.id) continue; // editado de novo enquanto voava
       if (r.situacao === "gravado") {
         gravar(r.linha, null);
-        mostrarValores(r.linha, r.servidor);
+        mostrarValores(r.linha, r.servidor, { ...item.base, ...item.campos });
       } else if (r.situacao === "conflito") {
         gravar(r.linha, { ...item, estado: "conflito", servidor: { ...r.servidor } });
       } else {

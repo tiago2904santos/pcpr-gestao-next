@@ -182,3 +182,31 @@ def test_km_403_que_persiste_avisa_e_guarda_o_que_foi_salvo(navegador, live_serv
         assert linha.km_inicial is None and linha.km_final is None
     finally:
         contexto.close()
+
+
+def test_km_digitado_durante_o_envio_nao_e_apagado(navegador, live_server, dados_e2e):
+    """A pessoa salva a saída e, enquanto o envio está em voo, digita a chegada: a resposta
+    do sistema atualiza só o campo enviado — a chegada digitada continua no campo."""
+    from gestao.viagens.models import DiarioBordoTrecho
+
+    caminho, linhas = _link(dados_e2e)
+    contexto, pg = _sem_service_worker(navegador, live_server)
+    try:
+        pg.goto(caminho)
+        presas: list = []
+        pg.route("**/salvar/", lambda rota: presas.append(rota))  # segura o envio
+        form = _trecho(pg, linhas[0])
+        form.get_by_label("Km na saída").fill("45210")
+        form.get_by_role("button", name="Salvar este trecho").click()
+        expect(form.locator("[data-km-estado]")).to_have_text("Enviando…")
+        form.get_by_label("Km na chegada").fill("45590")
+        while not presas:
+            pg.wait_for_timeout(50)
+        presas[0].continue_()
+        expect(form.locator("[data-km-estado]")).to_have_text(SALVO_NO_SISTEMA)
+        expect(form.get_by_label("Km na saída")).to_have_value("45210")
+        expect(form.get_by_label("Km na chegada")).to_have_value("45590")
+        linha = DiarioBordoTrecho.objects.get(pk=linhas[0].pk)
+        assert (linha.km_inicial, linha.km_final) == (45210, None)
+    finally:
+        contexto.close()

@@ -105,21 +105,27 @@ def baixar(pk: int, porta=None) -> Recebimento:
         r = Recebimento.objects.select_for_update().get(pk=pk)
         if r.arquivo:
             return r  # outro worker já gravou
-        extensao = EXTENSOES[midia.mime]
-        r.arquivo.save(f"receb-{r.pk}{extensao}", ContentFile(midia.conteudo), save=False)
-        gravado = r.arquivo.name
-        try:
-            r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
-            r.nome_arquivo = f"recebido-{r.pk}{extensao}"
-            r.reservado_ate, r.motivo = None, ""
-            r.save()
-            tentar_associar(r)
-        except Exception:
-            # A transação vai desfazer o registro: o arquivo pessoal não pode ficar no storage
-            # sem ninguém que o aponte (a limpeza por retenção só enxerga o que tem registro).
-            if gravado:
-                r.arquivo.storage.delete(gravado)
-            raise
+        if r.situacao != RS.IDENTIFICADO:
+            # Descartado (ou recusado) por uma pessoa enquanto o download corria: os bytes
+            # baixados ficam de fora — nada é gravado, associado nem confirmado.
+            log.info("recebimento %s saiu da espera durante o download; arquivo ignorado", pk)
+        else:
+            extensao = EXTENSOES[midia.mime]
+            r.arquivo.save(f"receb-{r.pk}{extensao}", ContentFile(midia.conteudo), save=False)
+            gravado = r.arquivo.name
+            try:
+                r.mime, r.tamanho, r.sha256 = midia.mime, len(midia.conteudo), midia.sha256_hex
+                r.nome_arquivo = f"recebido-{r.pk}{extensao}"
+                r.reservado_ate, r.motivo = None, ""
+                r.save()
+                tentar_associar(r)
+            except Exception:
+                # A transação vai desfazer o registro: o arquivo pessoal não pode ficar no
+                # storage sem ninguém que o aponte (a limpeza por retenção só enxerga o que
+                # tem registro).
+                if gravado:
+                    r.arquivo.storage.delete(gravado)
+                raise
     _descartar_origem(porta, anexo)
     return r
 
@@ -192,10 +198,13 @@ def _comunicacao(r: Recebimento) -> Comunicacao | None:
         return None  # citou um pedido de arquivo vencido: uma pessoa decide
     if not r.contato_id:
         return None
+    # Só um pedido que já tinha saído quando o arquivo chegou: com o download atrasado, um
+    # pedido mandado depois não pode receber um arquivo mais velho que ele.
     return (Comunicacao.objects.filter(contato_id=r.contato_id,
                                        situacao__in=(Comunicacao.Situacao.ENVIADA,
                                                      Comunicacao.Situacao.MANUAL))
-            .exclude(aceita_resposta="").filter(resposta_ate__gt=quando)
+            .exclude(aceita_resposta="")
+            .filter(resposta_ate__gt=quando, enviada_em__lte=quando + dominio.FOLGA_DO_HORARIO)
             .order_by("-enviada_em", "-id").first())
 
 

@@ -70,8 +70,9 @@ def data_no_texto(valor: str, texto: str) -> bool:
         d = date.fromisoformat(valor)
     except ValueError:
         return False
-    return any(date.fromisoformat(a.valor).replace(year=d.year) == d
-               or a.valor == valor for a in datas(texto, d.year))
+    # Sem ano no texto ("21/11"), vale o ano da data proposta (é o `ano_base`); com ano
+    # explícito ("21/11/2026"), a data inteira tem de bater — outro ano não passa.
+    return any(a.valor == valor for a in datas(texto, d.year))
 
 
 def hora_no_texto(valor: str, texto: str) -> bool:

@@ -13,6 +13,10 @@ DDI_BRASIL = "55"
 JANELA_DE_ATENDIMENTO = timedelta(hours=24)
 MAX_RODADAS = 3                      # envio: no máximo 3 rodadas automáticas
 ESPERA_BASE = timedelta(minutes=2)   # 2, 8, 32 min (4^n)
+#: Um pedido só recebe o que chegou depois de ele sair. A hora da Meta vem em segundos
+#: inteiros e os relógios não batem ao milissegundo: esta folga evita recusar a resposta
+#: rápida a um pedido que acabou de sair.
+FOLGA_DO_HORARIO = timedelta(minutes=1)
 
 # ---------------------------------------------------------------- telefone
 

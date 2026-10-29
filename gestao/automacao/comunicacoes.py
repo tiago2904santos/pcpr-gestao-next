@@ -157,7 +157,7 @@ def confirmar_chegada(usuario, pk: int) -> Comunicacao:
         raise ComunicacaoInvalida("Só se confirma a chegada de um resultado desconhecido.")
     c.situacao, c.motivo = S.ENVIADA, f"Chegada confirmada por {usuario}."[:255]
     c.enviada_em = c.enviada_em or timezone.now()
-    _abrir_janela_de_resposta(c, timezone.now())
+    abrir_janela_de_resposta(c, timezone.now())
     c.save()
     excecoes.encerrar_do_assunto(comunicacao=c, usuario=usuario,
                                  resolucao="Chegada confirmada com o destinatário.")
@@ -177,14 +177,14 @@ def registrar_envio_manual(usuario, pk: int) -> Comunicacao:
     c.enviada_em = timezone.now()
     # Como no aceite do provedor (`entrega._aceita`): sem o prazo, o arquivo que a pessoa
     # mandar em resposta não acharia o pedido e iria para uma pessoa escolher o destino.
-    _abrir_janela_de_resposta(c, c.enviada_em)
+    abrir_janela_de_resposta(c, c.enviada_em)
     c.save()
     excecoes.encerrar_do_assunto(comunicacao=c, usuario=usuario,
                                  resolucao="Enviada à mão (contingência).")
     return c
 
 
-def _abrir_janela_de_resposta(c: Comunicacao, agora: datetime) -> None:
+def abrir_janela_de_resposta(c: Comunicacao, agora: datetime) -> None:
     if c.aceita_resposta:
         definicao = ganchos.tipo(c.tipo)
         c.resposta_ate = agora + (definicao.janela_resposta if definicao

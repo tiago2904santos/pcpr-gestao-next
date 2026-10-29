@@ -27,6 +27,7 @@ from gestao.integracoes.whatsapp.erros import BLOQUEIO_DE_CONTA, PayloadInvalido
 from gestao.integracoes.whatsapp.porta import MensagemRecebida, StatusRecebido
 
 from . import chaves, dominio, excecoes
+from .comunicacoes import abrir_janela_de_resposta
 from .models import (
     CANAL_WHATSAPP,
     Comunicacao,
@@ -195,6 +196,10 @@ def aplicar_status(c: Comunicacao, s: StatusEntrega, *, tentativa: int | None = 
         c.mensagem_id, c.situacao, c.reservada_ate = s.mensagem_id, S.ENVIADA, None
         c.enviada_em = c.enviada_em or quando
         c.motivo = "Envio confirmado pela Meta depois do resultado desconhecido."
+        # O prazo de resposta abre aqui como no aceite (`entrega._aceita`): o resultado do
+        # envio, se ainda chegar, é ignorado (a tentativa já terminou abaixo) e, sem o prazo,
+        # a resposta da pessoa ficaria "fora da janela".
+        abrir_janela_de_resposta(c, timezone.now())
         excecoes.encerrar_do_assunto(comunicacao=c, resolucao="A Meta confirmou o envio.")
         # A tentativa que saiu também termina (o resultado dela se perdeu): aceita, como
         # `registrar_resultado` faria. Repetir não muda nada (só a em curso ou incerta).
@@ -263,8 +268,13 @@ def _comunicacao_respondida(m: MensagemRecebida, contato: ContatoVerificado | No
         c = Comunicacao.objects.filter(canal=CANAL_WHATSAPP, mensagem_id=m.em_resposta_a).first()
         if c and c.contato_id == contato.pk:
             return c
+    # Sem citação: só um pedido que já tinha saído quando a mensagem chegou (com a entrada
+    # processada atrasada, um pedido mandado depois não pode ser o que ela responde).
+    chegada = m.recebida_em or timezone.now()
     return (Comunicacao.objects.filter(contato=contato, situacao__in=(S.ENVIADA, S.MANUAL))
-            .exclude(aceita_resposta="").filter(resposta_ate__gt=timezone.now())
+            .exclude(aceita_resposta="")
+            .filter(resposta_ate__gt=timezone.now(),
+                    enviada_em__lte=chegada + dominio.FOLGA_DO_HORARIO)
             .order_by("-enviada_em", "-id").first())
 
 
