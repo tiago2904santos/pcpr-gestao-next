@@ -253,8 +253,13 @@ def test_coffee_pedido_a_partir_de_um_evento_de_exemplo(dataset):
     assert OrdemCoffee.objects.filter(origem_tipo="evento", origem_id__isnull=False).exists()
 
 
-def test_automacao_e_assistencia_de_exemplo(dataset):
-    """O PREVIEW mostra o WhatsApp simulado de ponta a ponta e a IA simulada."""
+def test_automacao_e_assistencia_de_exemplo():
+    """O PREVIEW mostra o WhatsApp simulado de ponta a ponta e a IA simulada.
+
+    Semeado com o dia de HOJE de verdade, como o PREVIEW faz: o envio (link de km, prazos,
+    validade do link) usa o relógio real, e um dataset de uma data fixa deixa de ter viagem
+    elegível conforme o calendário anda."""
+    demonstracao.semear(escala=ESCALA)
     from gestao.automacao.models import (
         Comunicacao,
         ContatoVerificado,

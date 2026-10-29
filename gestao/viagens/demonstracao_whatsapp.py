@@ -60,14 +60,17 @@ def _contato(demo, servidor: Servidor) -> ContatoVerificado | None:
 
 def _diario_com_link():
     """O primeiro ofício emitido, de viatura, que ainda vai sair e tem motorista com
-    cadastro — o diário dele recebe o link."""
-    candidatos = (Oficio.objects.filter(situacao=Oficio.Situacao.EMITIDO,
-                                        tipo_transporte=Oficio.TipoTransporte.VIATURA,
-                                        prestacao__isnull=False)
-                  .annotate(_saida=Min("trechos__saida_em"))
-                  .filter(_saida__gte=timezone.now())
-                  .select_related("prestacao").order_by("_saida", "pk"))
-    for oficio in candidatos[:30]:
+    cadastro — o diário dele recebe o link. Sem viagem futura (o dataset é do dia `hoje` do
+    seed, e o relógio já andou), a que saiu por último e cujo link ainda vale."""
+    agora = timezone.now()
+    candidatos = list(Oficio.objects.filter(situacao=Oficio.Situacao.EMITIDO,
+                                            tipo_transporte=Oficio.TipoTransporte.VIATURA,
+                                            prestacao__isnull=False)
+                      .annotate(_saida=Min("trechos__saida_em")).filter(_saida__isnull=False)
+                      .select_related("prestacao").order_by("_saida", "pk"))
+    futuros = [o for o in candidatos if o._saida >= agora]
+    ja_sairam = [o for o in reversed(candidatos) if o._saida < agora]
+    for oficio in (futuros + ja_sairam)[:30]:
         d = servico_diario.obter(oficio.prestacao)
         if km_link.responsavel(d) is not None and not km_link.motivo_inelegivel(d):
             return d
