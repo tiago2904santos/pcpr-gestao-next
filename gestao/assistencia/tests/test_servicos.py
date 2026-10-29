@@ -623,6 +623,29 @@ def test_retencao_apaga_o_conteudo_e_mantem_o_registro(c):
         servicos.aceitar(c.usuarios["operador"], s.pk)
 
 
+def test_mesmo_pedido_depois_da_retencao_gera_sugestao_nova(c):
+    """A sugestão pronta (sem decisão) perde o texto na retenção: fica obsoleta, e pedir de
+    novo o mesmo cria outro pedido — em vez de voltar à sugestão vazia que não dá para
+    aceitar. Sem o texto, a pronta também não é reaproveitada."""
+    p = _p(c)
+    relatorio.obter(p)
+    op = c.usuarios["operador"]
+    pedido = servicos.pedir(op, RT, p.pk, {"relato": "x"})
+    s = _sugestao(pedido)
+    assert s.estado == S.PRONTA
+    passado = timezone.now() - timedelta(days=1)
+    ConteudoSugestao.objects.update(expira_em=passado)
+    manutencao.purgar()
+    s.refresh_from_db()
+    assert s.estado == S.OBSOLETA
+    novo = servicos.pedir(op, RT, p.pk, {"relato": "x"})
+    assert novo.pk != pedido.pk and _sugestao(novo).estado == S.PRONTA
+    ConteudoSugestao.objects.filter(sugestao__pedido=novo).delete()  # texto sumiu de outro jeito
+    terceiro = servicos.pedir(op, RT, p.pk, {"relato": "x"})
+    assert terceiro.pk not in (pedido.pk, novo.pk)
+    servicos.aceitar(op, _sugestao(terceiro).pk)
+
+
 def test_trilha_audita_estado_e_nunca_o_conteudo(c):
     p = _p(c)
     relatorio.obter(p)

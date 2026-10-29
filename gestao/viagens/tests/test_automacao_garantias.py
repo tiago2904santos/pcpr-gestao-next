@@ -1313,3 +1313,62 @@ def test_arquivo_sem_citacao_nao_entra_em_pedido_mandado_depois(c):
     assert r.arquivo and r.situacao != Recebimento.Situacao.ASSOCIADO
     assert r.comunicacao_id is None
     assert not AnexoPrestacao.objects.filter(servidor=c.ps, tipo="comprovante").exists()
+
+
+# ------------------------------------------------------------------ 17ª revisão (Codex)
+def test_nova_tentativa_depois_de_falha_na_entrega_com_erro_no_envio(c):
+    """Depois da falha na entrega e da nova tentativa autorizada, o envio novo dá erro: a
+    tentativa anterior (aceita, mas que não chegou) não impede o caminho normal — a
+    temporária reagenda e a definitiva encerra como falha."""
+    from django.db import transaction as tx
+
+    from gestao.automacao import comunicacoes
+    from gestao.automacao import entrada as entrada_mod
+    from gestao.automacao.models import TentativaEntrega
+    from gestao.integracoes.whatsapp.porta import StatusRecebido
+
+    op = c.usuarios["operador"]
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    entrega.processar_uma(porta=Espiao())
+    aviso = _aviso(c)
+    with tx.atomic():
+        entrada_mod.registrar_status(StatusRecebido(
+            mensagem_id=aviso.mensagem_id, status="failed", ocorrido_em=timezone.now(),
+            erro_codigo="131026"))
+    comunicacoes.tentar_de_novo(op, aviso.pk)
+    comunicacoes.simular_proxima(op, aviso.pk, "temporaria")
+    assert entrega.processar_uma(porta=Espiao())
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.AGENDADA, aviso.motivo
+    assert aviso.reservada_ate is None and aviso.proxima_tentativa_em > timezone.now()
+    assert TentativaEntrega.objects.get(comunicacao=aviso, numero=2).resultado == "temporaria"
+    comunicacoes.simular_proxima(op, aviso.pk, "definitiva")
+    Comunicacao.objects.filter(pk=aviso.pk).update(proxima_tentativa_em=timezone.now())
+    assert entrega.processar_uma(porta=Espiao())
+    aviso.refresh_from_db()
+    assert aviso.situacao == S.FALHOU and aviso.reservada_ate is None, aviso.motivo
+    assert TentativaEntrega.objects.get(comunicacao=aviso, numero=3).resultado == "definitiva"
+
+
+def test_resultado_do_envio_trava_a_comunicacao_antes_da_tentativa(c):
+    """A mesma ordem de travas do status da Meta e do vencimento das reservas (comunicação,
+    depois tentativa): a ordem invertida em caminhos simultâneos daria deadlock."""
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    from gestao.integracoes.whatsapp.porta import Envio, Origem
+
+    _ligar(c, *TODOS)
+    _contato_ativo(c)
+    _liberar(c)
+    reserva = entrega.reservar()
+    assert reserva is not None
+    with CaptureQueriesContext(connection) as consultas:
+        entrega.registrar_resultado(reserva.tentativa_id, envio=Envio(
+            mensagem_id="wamid.ORDEM", origem=Origem.CLOUD_API))
+    travas = [q["sql"] for q in consultas.captured_queries if "FOR UPDATE" in q["sql"]]
+    assert 'FROM "automacao_comunicacao"' in travas[0], travas[:2]
+    assert 'FROM "automacao_tentativaentrega"' in travas[1], travas[:2]
+    assert _aviso(c).situacao == S.ENVIADA

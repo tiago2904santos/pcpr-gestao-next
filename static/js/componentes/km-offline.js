@@ -273,9 +273,11 @@ function iniciar(raiz) {
     }
     const atual = ler(linha);
     const voando = atual && emVoo?.has(atual.id);
-    /** @type {Valores} o que a pessoa via antes desta edição */
-    const base = voando && atual ? { ...confirmados.get(linha), ...atual.campos }
-      : atual && atual.estado === "pendente" ? atual.base : { ...confirmados.get(linha) };
+    // Ainda sem confirmação do sistema (pendente ou em voo), a edição nova junta-se à
+    // anterior, contra a mesma base: se o envio em voo falhar, o próximo leva as duas. Se
+    // ele gravar, `aplicar` move a base desta para o que o sistema confirmou.
+    /** @type {Valores} o último valor confirmado que a pessoa via antes de editar */
+    const base = atual && atual.estado === "pendente" ? atual.base : { ...confirmados.get(linha) };
     /** @type {Valores} */
     const campos = {};
     for (const campo of CAMPOS) {
@@ -345,8 +347,30 @@ function iniciar(raiz) {
     if (alvo instanceof HTMLElement) alvo.focus();
   }
 
-  /** @param {Resultado[]} resultados */
-  function aplicar(resultados) {
+  /**
+   * Editado de novo enquanto o envio voava e o envio gravou: a edição nova (que já inclui a
+   * enviada) passa a ter como base o que o sistema confirmou nos campos enviados — e some se
+   * não sobrar diferença.
+   * @param {Lancamento} item @param {Lancamento} enviado @param {Valores} servidor
+   */
+  function rebasear(item, enviado, servidor) {
+    /** @type {Valores} */
+    const base = { ...item.base };
+    for (const campo of CAMPOS) {
+      if (campo in enviado.campos) base[campo] = servidor[campo] ?? null;
+    }
+    /** @type {Valores} */
+    const campos = {};
+    for (const campo of CAMPOS) {
+      if (campo in item.campos && (item.campos[campo] ?? null) !== (base[campo] ?? null)) {
+        campos[campo] = item.campos[campo];
+      }
+    }
+    gravar(item.linha, Object.keys(campos).length ? { ...item, base, campos } : null);
+  }
+
+  /** @param {Resultado[]} resultados @param {Lancamento[]} lote o que foi enviado */
+  function aplicar(resultados, lote) {
     for (const r of resultados) {
       if (r.linha === null) continue;
       const item = ler(r.linha);
@@ -354,7 +378,13 @@ function iniciar(raiz) {
         confirmados.set(r.linha, { ...r.servidor });
         if (r.salvo) salvoEm.set(r.linha, r.salvo);
       }
-      if (!item || item.id !== r.id) continue; // editado de novo enquanto voava
+      if (!item || item.id !== r.id) { // editado de novo enquanto voava
+        const enviado = lote.find((i) => i.id === r.id);
+        if (item && enviado && item.estado === "pendente" && r.situacao === "gravado") {
+          rebasear(item, enviado, r.servidor);
+        }
+        continue;
+      }
       if (r.situacao === "gravado") {
         gravar(r.linha, null);
         mostrarValores(r.linha, r.servidor, { ...item.base, ...item.campos });
@@ -431,7 +461,7 @@ function iniciar(raiz) {
       }
       const corpo = await resposta.json().catch(() => null);
       if (resposta.ok && corpo && Array.isArray(corpo.resultados)) {
-        aplicar(/** @type {Resultado[]} */ (corpo.resultados));
+        aplicar(/** @type {Resultado[]} */ (corpo.resultados), lote);
       } else if (corpo && typeof corpo.mensagem === "string") {
         // Travado, suspenso ou link indisponível: fica tudo guardado aqui.
         avisarRede(corpo.mensagem);

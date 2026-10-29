@@ -9,14 +9,20 @@ from __future__ import annotations
 from django.db import transaction
 from django.utils import timezone
 
-from .models import ConteudoPedido, ConteudoSugestao
+from .models import ConteudoPedido, ConteudoSugestao, Sugestao
 
 
 def purgar(agora=None) -> dict[str, int]:
     agora = agora or timezone.now()
     with transaction.atomic():
         pedidos = ConteudoPedido.objects.filter(expira_em__lte=agora).delete()[0]
-        sugestoes = ConteudoSugestao.objects.filter(expira_em__lte=agora).delete()[0]
+        vencidos = ConteudoSugestao.objects.filter(expira_em__lte=agora)
+        # A pronta (ainda sem decisão) que perde o texto não pode mais ser aceita: fica
+        # obsoleta, e o mesmo pedido de novo gera uma sugestão nova.
+        Sugestao.objects.filter(estado=Sugestao.Estado.PRONTA,
+                                pk__in=vencidos.values("sugestao_id")).update(
+            estado=Sugestao.Estado.OBSOLETA, atualizada_em=agora)
+        sugestoes = vencidos.delete()[0]
     return {"orientacoes": pedidos, "sugestoes": sugestoes}
 
 

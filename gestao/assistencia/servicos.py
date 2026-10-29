@@ -131,8 +131,11 @@ def pedir(usuario, uso_chave: str, recurso_id: str, opcoes: dict | None = None
         for p in anteriores:
             if p.estado in (E.PENDENTE, E.PROCESSANDO):
                 return p
+            # A pronta só serve se o texto dela ainda existe (a retenção pode tê-lo apagado):
+            # senão a pessoa voltaria a uma sugestão vazia que não dá para aceitar.
             if (p.estado == E.CONCLUIDO
-                    and Sugestao.objects.filter(pedido=p, estado=S.PRONTA).exists()):
+                    and Sugestao.objects.filter(pedido=p, estado=S.PRONTA,
+                                                conteudo__isnull=False).exists()):
                 return p
         hoje = PedidoSugestao.objects.filter(uso=uso.chave, usuario=usuario,
                                              criado_em__gte=_inicio_do_dia()).count()

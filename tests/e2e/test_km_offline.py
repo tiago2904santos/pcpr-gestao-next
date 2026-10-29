@@ -210,3 +210,66 @@ def test_km_digitado_durante_o_envio_nao_e_apagado(navegador, live_server, dados
         assert (linha.km_inicial, linha.km_final) == (45210, None)
     finally:
         contexto.close()
+
+
+def test_km_salvo_de_novo_com_envio_em_voo_que_falha_nao_perde_a_saida(navegador, live_server,
+                                                                       dados_e2e):
+    """Salva a saída; com esse envio em voo, salva a chegada; o primeiro envio falha antes de
+    chegar ao sistema. O próximo envio leva as duas leituras — a saída não se perde."""
+    from gestao.viagens.models import DiarioBordoTrecho
+
+    caminho, linhas = _link(dados_e2e)
+    contexto, pg = _sem_service_worker(navegador, live_server)
+    try:
+        pg.goto(caminho)
+        presas: list = []
+        pg.route("**/salvar/", lambda rota: presas.append(rota))
+        form = _trecho(pg, linhas[0])
+        form.get_by_label("Km na saída").fill("45210")
+        form.get_by_role("button", name="Salvar este trecho").click()
+        expect(form.locator("[data-km-estado]")).to_have_text("Enviando…")
+        form.get_by_label("Km na chegada").fill("45590")
+        form.get_by_role("button", name="Salvar este trecho").click()
+        while not presas:
+            pg.wait_for_timeout(50)
+        presas[0].abort()  # o 1º envio cai antes de chegar ao sistema
+        expect(form.locator("[data-km-estado]")).to_have_text(SALVO_AQUI)
+        pg.unroute("**/salvar/")
+        # A rede "volta" (se o evento chegar com o 1º ainda em voo, a varredura de 30 s envia).
+        pg.evaluate("() => window.dispatchEvent(new Event('online'))")
+        expect(form.locator("[data-km-estado]")).to_have_text(SALVO_NO_SISTEMA, timeout=45_000)
+        linha = DiarioBordoTrecho.objects.get(pk=linhas[0].pk)
+        assert (linha.km_inicial, linha.km_final) == (45210, 45590)
+    finally:
+        contexto.close()
+
+
+def test_km_salvo_de_novo_com_envio_em_voo_que_grava_nao_vira_conflito(navegador,
+                                                                       live_server, dados_e2e):
+    """O mesmo, mas o 1º envio grava: o 2º sai com a base nova e grava a chegada, sem
+    conflito."""
+    from gestao.viagens.models import DiarioBordoTrecho
+
+    caminho, linhas = _link(dados_e2e)
+    contexto, pg = _sem_service_worker(navegador, live_server)
+    try:
+        pg.goto(caminho)
+        presas: list = []
+        pg.route("**/salvar/", lambda rota: presas.append(rota))
+        form = _trecho(pg, linhas[0])
+        form.get_by_label("Km na saída").fill("45210")
+        form.get_by_role("button", name="Salvar este trecho").click()
+        expect(form.locator("[data-km-estado]")).to_have_text("Enviando…")
+        form.get_by_label("Km na chegada").fill("45590")
+        form.get_by_role("button", name="Salvar este trecho").click()
+        while not presas:
+            pg.wait_for_timeout(50)
+        with pg.expect_response("**/salvar/"):
+            presas[0].continue_()
+        pg.unroute("**/salvar/")
+        pg.evaluate("() => window.dispatchEvent(new Event('online'))")
+        expect(form.locator("[data-km-estado]")).to_have_text(SALVO_NO_SISTEMA, timeout=45_000)
+        linha = DiarioBordoTrecho.objects.get(pk=linhas[0].pk)
+        assert (linha.km_inicial, linha.km_final) == (45210, 45590)
+    finally:
+        contexto.close()

@@ -385,15 +385,33 @@ def reservar_pela_api(pk: int, *, versao_esperada: int | None, execucao: str
     return ResultadoReserva(reserva=reserva, token=token)
 
 
+def _travar(tentativa_id: int) -> tuple[TentativaEntrega, Comunicacao]:
+    """Trava a comunicação e DEPOIS a tentativa — a mesma ordem da reserva, do vencimento das
+    reservas (`_expirar_reservas`) e do status da Meta (`entrada.aplicar_status`): a ordem
+    invertida em dois caminhos simultâneos daria impasse (deadlock) no banco. A comunicação
+    da tentativa nunca muda, então lê-la antes, sem trava, é seguro."""
+    comunicacao_id = (TentativaEntrega.objects.values_list("comunicacao_id", flat=True)
+                      .get(pk=tentativa_id))
+    c = (Comunicacao.objects.select_for_update(of=("self",)).select_related("contato")
+         .get(pk=comunicacao_id))
+    t = TentativaEntrega.objects.select_for_update().get(pk=tentativa_id)
+    return t, c
+
+
+def _anterior_falhou_na_entrega(c: Comunicacao, mensagem_id: str = "") -> bool:
+    """A mensagem guardada na comunicação (de uma tentativa anterior) saiu, mas a Meta avisou
+    falha na entrega e uma pessoa autorizou tentar de novo: aquela tentativa aceita não
+    chegou — não conta como "outra já saiu" (nem duplicado nem bloqueio da nova)."""
+    return bool(c.entrega == "falhou" and c.mensagem_id and c.mensagem_id != mensagem_id)
+
+
 @transaction.atomic
 def repetir_reserva(tentativa_id: int) -> ResultadoReserva:
     """Repetição da MESMA chave de reserva (o n8n não recebeu a resposta): a mesma
     tentativa, com token de reserva novo e a mensagem montada de novo. Nada de segredo fica
     guardado para a repetição (o link pessoal e o token só existem na resposta)."""
     agora = timezone.now()
-    t = TentativaEntrega.objects.select_for_update().get(pk=tentativa_id)
-    c = (Comunicacao.objects.select_for_update(of=("self",)).select_related("contato")
-         .get(pk=t.comunicacao_id))
+    t, c = _travar(tentativa_id)
     if (t.resultado != R.EM_CURSO or c.situacao != S.RESERVADA or c.contato is None
             or not c.reservada_ate or c.reservada_ate <= agora):
         return ResultadoReserva(recusa="ja_processada", estado_atual=c.situacao,
@@ -507,11 +525,9 @@ def enviar(reserva: Reserva, porta=None) -> None:
 def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
                         erro: Exception | None = None, duracao_ms: int | None = None,
                         origem: str = "") -> TentativaEntrega:
-    t = TentativaEntrega.objects.select_for_update().get(pk=tentativa_id)
+    t, c = _travar(tentativa_id)
     if t.resultado and t.resultado != R.INCERTA:
         return t  # já registrado: repetir não muda nada
-    c = Comunicacao.objects.select_for_update(of=("self",)).select_related("contato").get(
-        pk=t.comunicacao_id)
     agora = timezone.now()
     t.terminada_em, t.duracao_ms = agora, duracao_ms
     # Cancelada (opt-out) ou obsoleta (o assunto se resolveu) com o envio já reservado.
@@ -521,11 +537,7 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
         t.resultado = R.ACEITA
         t.save()
         mais_nova = outras.filter(numero__gt=t.numero, resultado=R.ACEITA).exists()
-        # A anterior saiu, mas a Meta avisou falha na entrega dela e uma pessoa autorizou
-        # tentar de novo: a anterior não chegou, então esta não é um duplicado.
-        anterior_falhou = bool(c.entrega == "falhou" and c.mensagem_id
-                               and c.mensagem_id != envio.mensagem_id)
-        ja_saiu = not anterior_falhou and outras.filter(
+        ja_saiu = not _anterior_falhou_na_entrega(c, envio.mensagem_id) and outras.filter(
             numero__lt=t.numero, resultado=R.ACEITA).exists()
         if mais_nova or ja_saiu:
             # A pessoa já tinha tentado de novo e a nova saiu: a velha também saiu (resultado
@@ -560,9 +572,10 @@ def registrar_resultado(tentativa_id: int, *, envio: Envio | None = None,
     if t.resultado == R.INCERTA:  # o prazo já tinha vencido e agora veio uma falha: fica
         t.save()
         return t
-    if outras.filter(resultado=R.ACEITA).exists():
+    if not _anterior_falhou_na_entrega(c) and outras.filter(resultado=R.ACEITA).exists():
         # Outra tentativa já saiu (o resultado tardio dela chegou antes): a falha desta fica
-        # registrada, mas não reagenda nem muda a comunicação.
+        # registrada, mas não reagenda nem muda a comunicação. A anterior que saiu e falhou na
+        # entrega não conta: a nova tentativa autorizada segue o caminho normal da falha.
         t.resultado = (R.TEMPORARIA if isinstance(erro, erros_canal.FalhaTemporaria)
                        else R.DEFINITIVA if isinstance(erro, erros_canal.FalhaDefinitiva)
                        else R.INCERTA)
