@@ -29,6 +29,11 @@ MSG_VERSAO = ("Esta solicitação foi alterada por outra pessoa depois que você
 
 MSG_CEP = "Informe o CEP com 8 dígitos (00000-000)."
 
+# Quem pode ser o motorista (como na referência): cargo de motorista (ou condutor) ou quem
+# dirige alguma viatura. Vale para a lista do formulário e para a busca da seleção.
+QUEM_DIRIGE = (Q(cargo__nome__icontains="motorista") | Q(cargo__nome__icontains="condutor")
+               | Q(viaturas_que_dirige__isnull=False))
+
 
 def _attrs(**extra: Any) -> dict[str, Any]:
     return {"class": "entrada", **extra}
@@ -107,17 +112,11 @@ class FormularioSolicitacao(forms.ModelForm):
             campo.queryset = _ativos(modelo, atual)
             campo.empty_label = vazio
         motorista = cast(forms.ModelChoiceField, self.fields["motorista"])
-<<<<<<< HEAD
+        # Como na referência: quem tem cargo de motorista ou dirige alguma viatura — mais o
+        # atual, mesmo inativo. A busca da seleção (views_motoristas) usa o mesmo critério.
         motorista.queryset = fonte_local.consultar(
-            "servidor", incluir=[inst.motorista_id] if inst.motorista_id else ()).order_by(
-                "nome", "pk")
-=======
-        # Como na referência: quem tem cargo de motorista ou dirige alguma viatura.
-        motorista.queryset = Servidor.objects.filter(
-            Q(ativo=True, cargo__nome__icontains="motorista")
-            | Q(ativo=True, viaturas_que_dirige__isnull=False)
-            | Q(pk=inst.motorista_id or 0)).distinct().order_by("nome")
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
+            "servidor", incluir=[inst.motorista_id] if inst.motorista_id else ()).filter(
+                QUEM_DIRIGE | Q(pk=inst.motorista_id or 0)).distinct().order_by("nome", "pk")
         motorista.empty_label = "Sem motorista definido"
         parametros = f"?solicitacao={inst.pk}&q=" if inst.pk else "?q="
         motorista.widget = SelecaoRemota(

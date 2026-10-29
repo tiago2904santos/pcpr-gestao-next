@@ -14,6 +14,34 @@ from email.policy import HTTP
 from http.server import BaseHTTPRequestHandler
 from typing import Any
 
+# ---------------------------------------------------------------- chave do recebimento
+
+LIMITE_CHAVE = 200  # Idempotency-Key: 16 a 200 caracteres (contrato)
+
+
+MINIMO_CHAVE = 16  # Idempotency-Key: 16 a 200 caracteres (contrato)
+
+
+def bruta_cabe(chave: str) -> bool:
+    """A chave bruta serve: de 16 a 200 e só ASCII imprimível (0x20–0x7E, o `[ -~]` do JS)."""
+    return MINIMO_CHAVE <= len(chave) <= LIMITE_CHAVE and chave.isascii() and chave.isprintable()
+
+
+def chave_recebimento(canal: str, mensagem_id: str, anexo_indice: int | str) -> str:
+    """`receb:<canal>:<mensagem_id_canal>:<anexo_indice>`; se passar de 200 caracteres (o id do
+    canal pode ter até 300), `receb#sha256:<canal>:<hex do id>:<anexo_indice>`. O `#` no 1º
+    segmento separa as duas formas: toda chave bruta começa por `receb:`, então nenhum id curto
+    (nem um que pareça `sha256:<hex>`) reproduz a forma com hash. A forma bruta só vale se for
+    ASCII imprimível: assim "caracteres" contam igual em Python (`len`) e no JS do n8n
+    (`.length`, UTF-16 — um emoji vale 2) e nada fora do ASCII vai no cabeçalho HTTP. É a MESMA
+    regra no PCPR, no simulador e nos workflows (`construir_workflows.chave_recebimento_js`)."""
+    bruta = f"receb:{canal}:{mensagem_id}:{anexo_indice}"
+    if bruta_cabe(bruta):
+        return bruta
+    digest = hashlib.sha256(str(mensagem_id).encode()).hexdigest()
+    return f"receb#sha256:{canal}:{digest}:{anexo_indice}"
+
+
 # ---------------------------------------------------------------- assinatura de eventos
 
 CABECALHO_ASSINATURA = "X-PCPR-Assinatura"

@@ -1,4 +1,4 @@
-"""Frente WA-3: WhatsApp oficial (Cloud API) PRONTO E DESLIGADO — testes TW0–TW13.
+"""Frente WA-3: WhatsApp oficial (Cloud API) PRONTO E DESLIGADO — testes TW0–TW16.
 
     .venv/Scripts/python.exe docs/automacao/prototipo/testar_whatsapp.py
         [--manter]          não remove contêiner/simuladores no fim (depuração)
@@ -706,6 +706,84 @@ def tw15() -> dict:
     }
 
 
+def tw16() -> dict:
+    """2ª verificação (C5 no W6): 5xx com erro GENÉRICO da Graph API não prova que a Meta recusou
+    → resultado_desconhecido + exceção, 0 reenvio. Limite de taxa (429 / 130429) é recusa antes do
+    aceite → falha_temporaria → o PCPR reagenda → 1 mensagem aceita, sem exceção."""
+    resetar()
+    sim("/_sim/config", {"backoff_s": [1], "max_rodadas": 3})
+    # (a) a Meta ACEITA e responde 500 com código 131000 ("Something went wrong")
+    graph(
+        "/_sim/config", {"erros_estruturados": [{"status": 500, "code": 131000, "aceitar": True}]}
+    )
+    destino = telefone(GRUPOS["OUT"])
+    cid = com_wa(destino, tipo="link_km", forma="modelo")["comunicacao_id"]
+    esperar(lambda: com(est(), cid).get("rodadas"), 30, "(a) W6 não registrou resultado")
+    assentar(2)
+    st, corpo = reconciliar()
+    checar(st == 200 and corpo.get("devidas") == 0, f"(a) reconciliação: {st} {corpo}")
+    assentar(2)
+    e, g = est(), gst()
+    c = com(e, cid)
+    m = msgs(g, destino)
+    ex = [x for x in e["excecoes"] if (x.get("recurso") or {}).get("id") == cid]
+    checar(
+        len(m) == 1 and m[0]["aceita"] and m[0].get("resposta_erro_apos_aceite") == [500, 131000],
+        f"(a) graph: {m}",
+    )
+    checar(
+        [r["resultado"] for r in c["rodadas"]] == ["resultado_desconhecido"],
+        f"(a) rodadas: {c['rodadas']}",
+    )
+    checar(c["estado"] == "falhou", f"(a) estado {c['estado']}")
+    checar([x["motivo"] for x in ex] == ["resultado_desconhecido"], f"(a) exceções: {ex}")
+    # (b) limite de taxa: 429 com código 130429, a Meta NÃO aceitou → temporária → nova rodada
+    graph(
+        "/_sim/config", {"erros_estruturados": [{"status": 429, "code": 130429, "aceitar": False}]}
+    )
+    destino_b = telefone(GRUPOS["OUT"])
+    cid_b = com_wa(destino_b, tipo="link_km", forma="modelo")["comunicacao_id"]
+    esperar(
+        lambda: (
+            [r["resultado"] for r in (com(est(), cid_b).get("rodadas") or [])]
+            == ["falha_temporaria"]
+        ),
+        30,
+        "(b) 1ª rodada não terminou em falha_temporaria",
+    )
+    time.sleep(1.5)  # backoff de 1 s no PCPR
+    st_b, corpo_b = reconciliar()
+    checar(st_b == 200 and corpo_b.get("devidas") == 1, f"(b) reconciliação: {st_b} {corpo_b}")
+    esperar_estado(cid_b, ("enviada",))
+    assentar(2)
+    e, g = est(), gst()
+    c_b = com(e, cid_b)
+    m_b = msgs(g, destino_b)
+    ex_b = [x for x in e["excecoes"] if (x.get("recurso") or {}).get("id") == cid_b]
+    checar([x["aceita"] for x in m_b] == [False, True], f"(b) graph: {m_b}")
+    checar(
+        [r["resultado"] for r in c_b["rodadas"]] == ["falha_temporaria", "enviada"],
+        f"(b) rodadas: {c_b['rodadas']}",
+    )
+    checar(not ex_b, f"(b) exceções: {ex_b}")
+    return {
+        "a_500_131000_apos_aceite": {
+            "mensagens_na_graph_api": 1,
+            "resultado": "resultado_desconhecido",
+            "estado": c["estado"],
+            "excecao": "resultado_desconhecido",
+            "reconciliacao_depois": corpo,
+            "reenvios": 0,
+        },
+        "b_429_130429_recusa": {
+            "tentativas_na_graph_api": [x["aceita"] for x in m_b],
+            "rodadas": [r["resultado"] for r in c_b["rodadas"]],
+            "reconciliacao": corpo_b,
+            "excecoes": 0,
+        },
+    }
+
+
 # ===================================================================== cenários: recebimento
 
 
@@ -864,6 +942,76 @@ def tw14(variante: str) -> dict:
     checar(est()["marcas"].get(wamid_b, {}).get("entregue_em"), "(b) marca não guardada")
     registrar_resultado(cid_b, token_b, wamid_b)
     checar(com(est(), cid_b)["entrega"] == "entregue", "(b) marca não aplicada ao registrar")
+    # (c) status ÓRFÃO antigo: wamid que o PCPR nunca vai conhecer (ex.: resultado perdido numa
+    # queda; a reserva venceu e virou resultado_desconhecido), sem biz_opaque_callback_data e de
+    # 2 h atrás → não é adiado (a Meta reentregaria o lote por até 7 dias): exceção + 200
+    wamid_c = "wamid.SIMORFAO" + secrets.token_hex(8)
+    corpo_c = {
+        "wamid": wamid_c,
+        "status": "delivered",
+        "para": re.sub(r"\D", "", telefone(GRUPOS["OUT"])),
+        "timestamp": int(time.time()) - 2 * 3600,
+        "sem_callback_data": True,
+    }
+    sc = graph("/_sim/status", corpo_c)
+    stc = sc["entregas"][0]["status"]
+    assentar(1)
+    rc = graph("/_sim/reentregar", {"entrega_id": sc["entrega_id"]})
+    e = est()
+    ex_c = [x for x in e["excecoes"] if wamid_c[-12:] in str(x.get("correlacao_id"))]
+    checar(stc == 200, f"(c) status órfão antigo deveria ser confirmado (200): {stc}")
+    checar(rc["entregas"][0]["status"] == 200, f"(c) reentrega: {rc['entregas']}")
+    checar(
+        len(ex_c) == 1 and ex_c[0]["origem"] == "n8n" and ex_c[0]["motivo"] == "outro",
+        f"(c) exceções: {ex_c}",
+    )
+    checar(wamid_c not in e["marcas"], "(c) status órfão gravado como marca")
+    # controle: o mesmo status RECENTE continua adiado (a regra do (a) não foi afrouxada)
+    wamid_d = "wamid.SIMRECENTE" + secrets.token_hex(8)
+    sd = graph("/_sim/status", {**corpo_c, "wamid": wamid_d, "timestamp": int(time.time())})
+    std = sd["entregas"][0]["status"]
+    checar(std is not None and not 200 <= std < 300, f"(c) status recente deveria adiar: {std}")
+    # (f) comunicação CONHECIDA com id do provedor longo (190 caracteres; o contrato aceita 300):
+    # a chave de /entrega passaria de 200 → entrega#sha256:<hex>, e o status é gravado
+    destino_f = telefone(GRUPOS["OUT"])
+    cid_f = com_wa(destino_f, tipo="link_km", entregar=False)["comunicacao_id"]
+    token_f, _ = enviar_como_w6(destino_f, cid_f, com_callback=False)
+    wamid_f = "wamid.SIMLONGOCONHECIDO" + secrets.token_hex(8) + "K" * 151
+    registrar_resultado(cid_f, token_f, wamid_f)
+    sf = graph(
+        "/_sim/status",
+        {
+            **corpo_c,
+            "wamid": wamid_f,
+            "timestamp": int(time.time()),
+            "para": re.sub(r"\D", "", destino_f),
+        },
+    )
+    stf = sf["entregas"][0]["status"]
+    esperar(lambda: com(est(), cid_f)["entrega"] == "entregue", 15, "(f) status não gravado")
+    chaves_f = [
+        str(p["chave"])
+        for p in chamadas(est(), r"/comunicacoes/\d+/entrega", cid_f)
+        if str(p["chave"]).startswith("entrega#sha256:")
+    ]
+    checar(stf == 200, f"(f) status de wamid longo deveria ser 200: {stf}")
+    checar(chaves_f and all(len(k) <= 200 for k in chaves_f), f"(f) chaves {chaves_f}")
+    # (e) órfão antigo com wamid LONGO (190 caracteres; a consulta aceita até 300): a chave da
+    # exceção passaria de 200 → o cabeçalho usa sha256 e o status é confirmado (Codex 4306152916)
+    wamid_e = "wamid.SIMLONGO" + secrets.token_hex(8) + "Q" * 160
+    se_ = graph("/_sim/status", {**corpo_c, "wamid": wamid_e})
+    ste = se_["entregas"][0]["status"]
+    assentar(1)
+    e = est()
+    chaves_e = [
+        str(p["chave"])
+        for p in chamadas(e, r"/excecoes")
+        if str(p["chave"]).startswith("excecao#sha256:whatsapp-status:")
+    ]
+    ex_e = [x for x in e["excecoes"] if wamid_e[-12:] in str(x.get("correlacao_id"))]
+    checar(ste == 200, f"(e) órfão com wamid longo deveria ser confirmado (200): {ste}")
+    checar(len(chaves_e) == 1 and len(chaves_e[0]) <= 200, f"(e) chaves {chaves_e}")
+    checar(len(ex_e) == 1, f"(e) exceções: {ex_e}")
     return {
         "a_sem_callback_data": {
             "primeira_entrega": st1,
@@ -874,6 +1022,26 @@ def tw14(variante: str) -> dict:
         "b_com_callback_data": {
             "primeira_entrega": stb,
             "entrega_apos_registrar_o_resultado": "entregue",
+        },
+        "c_status_orfao_antigo": {
+            "idade_s": 7200,
+            "limite_para_adiar_s": cw.ADIAR_STATUS_MAX_S,
+            "primeira_entrega": stc,
+            "reentrega": rc["entregas"][0]["status"],
+            "excecoes": 1,
+            "status_recente_de_controle": std,
+        },
+        "f_conhecida_com_wamid_longo": {
+            "tamanho_do_wamid": len(wamid_f),
+            "primeira_entrega": stf,
+            "tamanho_da_chave_de_entrega": len(chaves_f[0]),
+            "entrega_final": "entregue",
+        },
+        "e_orfao_com_wamid_longo": {
+            "tamanho_do_wamid": len(wamid_e),
+            "primeira_entrega": ste,
+            "tamanho_da_chave_da_excecao": len(chaves_e[0]),
+            "excecoes": 1,
         },
     }
 
@@ -996,17 +1164,37 @@ def tw8(variante: str) -> dict:
     checar(recs[0]["em_resposta_a_comunicacao"] == cid, "resposta não ligada à comunicação")
     checar(downs and all(x["bearer"] for x in downs) and downs[-1]["status"] == 200, f"{downs}")
     checar(len(metas) >= 1, "não pediu a URL da mídia (passo 1)")
-    # (b) mídia corrompida no caminho → SHA-256 não confere → nada importado, exceção
-    graph("/_sim/config", {"corromper_proximos_downloads": 1})
-    rb = _receber_documento(variante, de)
+    # (b) mídia corrompida no caminho → SHA-256 não confere → nada importado, exceção. A Meta
+    # entrega o MESMO webhook 3× (duplicar=2) e a mídia vem corrompida nas 3: no V1 o W7 repete o
+    # POST /excecoes com a mesma chave e o MESMO corpo (sem id da execução) → 201, 201 repetição,
+    # 201 repetição; 1 exceção só e nenhuma resposta não-2xx (3ª verificação, C7)
+    graph("/_sim/config", {"corromper_proximos_downloads": 3})
+    rb = _receber_documento(variante, de, duplicar=2)
     esperar(
         lambda: any("SHA-256" in (x.get("detalhe") or "") for x in est()["excecoes"]),
         30,
         "SHA-256 divergente não virou exceção",
     )
     assentar(2)
+    graph("/_sim/config", {"corromper_proximos_downloads": 0})
     e = est()
     checar(not recebimentos_de(e, rb["wamid"]), "arquivo corrompido foi importado")
+    resp_b = [x["status"] for x in rb["entregas"]]
+    checar(resp_b == [200, 200, 200], f"(b) reentregas do webhook: {resp_b}")
+    excs_sha = [x for x in e["excecoes"] if "SHA-256" in (x.get("detalhe") or "")]
+    checar(len(excs_sha) == 1, f"(b) exceções de SHA-256: {excs_sha}")
+    posts_sha: list[tuple[int, bool]] = []
+    if variante == "V1":
+        chave_sha = f"excecao:whatsapp-sha256:{rb['wamid']}"
+        posts_sha = [
+            (p["status"], bool(p.get("replay")))
+            for p in chamadas(e, r"/excecoes")
+            if p["chave"] == chave_sha
+        ]
+        checar(
+            posts_sha == [(201, False), (201, True), (201, True)],
+            f"(b) POST /excecoes do W7: {posts_sha}",
+        )
     # (c) lote misto: documento + status no MESMO POST da Meta
     cid3, wamid3, _ = enviada_para_status(variante)
     lote = graph(
@@ -1040,7 +1228,13 @@ def tw8(variante: str) -> dict:
         "midia_baixada_com_bearer": True,
         "passos": {"metadados": len(metas), "downloads": [x["status"] for x in downs]},
         "resposta_ligada_a_comunicacao": True,
-        "b_sha256_divergente": {"recebimentos": 0, "excecao": True},
+        "b_sha256_divergente": {
+            "entregas_do_mesmo_webhook": resp_b,
+            "recebimentos": 0,
+            "excecoes": 1,
+            "post_excecoes_w7": [f"{st}{' (repetição)' if rp else ''}" for st, rp in posts_sha]
+            or "aberta pelo PCPR (V2)",
+        },
         "c_lote_misto_documento_e_status": {
             "resposta": 200,
             "concluido_antes_do_200": variante == "V1",
@@ -1340,9 +1534,27 @@ def tw13() -> dict:
     ev["m1_subida_s"] = round(reiniciar_n8n({"EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL": "1"}), 1)
     ev["m1_rodada"] = rodada_minima("M1", "OUTM")
     m1_ja = varrer("m1_imediato")
-    # 1º hard-delete: ~1 min depois que o serviço de poda inicia (após migrações/subida)
-    time.sleep(max(0.0, 100 - (time.time() - T["subida_n8n"])))
-    m1_depois = varrer("m1_apos_hard_delete")
+    # O hard-delete roda a cada 1 min contado de quando o serviço de poda inicia, e só remove o
+    # que já estava apagado (soft delete) naquele ciclo. Uma janela fixa contada da subida do n8n
+    # não basta: se a rodada M1 demora (task runner lento: "Offer expired"), a 2ª varredura caía
+    # logo depois da 1ª, antes de qualquer ciclo posterior à rodada (TW13 reprovou 2× assim).
+    # Agora: espera pelo menos 1 ciclo inteiro + folga depois do fim da rodada e, se ainda
+    # sobrar, varre de novo a cada 20 s até 3 ciclos (180 s) — o limite é o que o TW13 garante.
+    fim_rodada = time.time()
+    tentativas_m1: list[dict[str, Any]] = []
+    time.sleep(75)
+    while True:
+        m1_depois = varrer("m1_apos_hard_delete")
+        tentativas_m1.append(
+            {
+                "s_apos_fim_da_rodada": round(time.time() - fim_rodada, 1),
+                "sobra": m1_depois["por_grupo"],
+            }
+        )
+        if not m1_depois["por_grupo"] or time.time() - fim_rodada > 180:
+            break
+        time.sleep(20)
+    ev["m1_varreduras_apos_a_rodada"] = tentativas_m1
     ev["m1_imediato"] = m1_ja["por_grupo"]
     ev["m1_apos_hard_delete"] = m1_depois["por_grupo"]
     ev["m1_segundos_desde_subida_na_2a_varredura"] = m1_depois["segundos_desde_subida_do_n8n"]
@@ -1378,7 +1590,11 @@ def tw13() -> dict:
         "nem antes do hard-delete (varredura insensível?)",
     )
     sobra_m1 = dict(m1_depois["por_grupo"])
-    checar(not sobra_m1, f"após o hard-delete de 1 min ainda sobrou: {sobra_m1}")
+    checar(
+        not sobra_m1,
+        f"até 180 s depois da rodada M1 (3 ciclos de hard-delete de 1 min) ainda sobrou: "
+        f"{sobra_m1}; varreduras: {[x['s_apos_fim_da_rodada'] for x in tentativas_m1]}",
+    )
     sobra_m2 = {k: x for k, x in m2["por_grupo"].items() if k.split(" ")[0] in ("M2", "envioM")}
     checar(not sobra_m2, f"PRUNE=false: sobrou {m2['por_grupo']}")
     return ev
@@ -1395,6 +1611,12 @@ CENARIOS: list[tuple[str, str, str, Callable[..., dict]]] = [
     ("TW11", "-", "canal bloqueado → 0 chamada à Graph API, aguardando envio manual (WA-1)", tw11),
     ("TW12", "-", "contato sem opt-in → não envia, exceção contato_nao_verificado", tw12),
     ("TW15", "-", "W6: resposta ambígua (502 após aceitar) → resultado_desconhecido", tw15),
+    (
+        "TW16",
+        "-",
+        "W6: 5xx genérico da Graph (aceite incerto) → desconhecido; 429/130429 → reagenda → 1",
+        tw16,
+    ),
     ("VARRER", "apos_envio", "", varrer),
     ("TW5", "V1", "status fora de ordem e duplicado → lida, sem regressão", tw5),
     ("TW6", "V1", "assinatura inválida → 401, nada gravado", tw6),
@@ -1402,7 +1624,13 @@ CENARIOS: list[tuple[str, str, str, Callable[..., dict]]] = [
     ("TW8", "V1", "documento recebido → 1 recebimento, SHA-256, Bearer", tw8),
     ("TW9", "V1", "reentrega do mesmo webhook → 1 recebimento", tw9),
     ("TW10", "V1", "URL de mídia vencida → pede nova e conclui", tw10),
-    ("TW14", "V1", "status antes do resultado → não-2xx; reentrega após registro → gravado", tw14),
+    (
+        "TW14",
+        "V1",
+        "status antes do resultado → não-2xx; reentrega após registro → gravado; "
+        "órfão antigo → exceção e 200",
+        tw14,
+    ),
     ("VARRER", "apos_v1", "", varrer),
     ("TW5", "V2", "status fora de ordem e duplicado → lida, sem regressão", tw5),
     ("TW6", "V2", "assinatura inválida → 401, nada gravado", tw6),
@@ -1531,7 +1759,9 @@ def exportar_workflows(tmp: Path) -> dict:
 
 
 def portas_abertas() -> list[str]:
-    r = subprocess.run(["netstat", "-ano"], capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        ["netstat", "-ano"], capture_output=True, text=True, errors="replace", check=False
+    )
     return [
         linha.strip()
         for linha in r.stdout.splitlines()

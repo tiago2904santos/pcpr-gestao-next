@@ -303,7 +303,9 @@ sem conversão e sem resposta automática. `canal=portal`
 25 MiB (o n8n sabe o tamanho antes de baixar), mensagem sem anexo, anexo que o canal não deixou baixar.
 Corpo JSON: `canal`, `mensagem_id_canal`, `anexo_indice`, `total_anexos`, `remetente`, `recebido_em`,
 `nome_arquivo`, `tamanho`, `motivo` ∈ {`acima_do_limite`, `sem_anexo`, `nao_baixado`}. Mesma chave de
-idempotência de E1. Efeito: `Recebimento` em `rejeitado` (ou exceção em `nao_baixado`) e resposta
+idempotência de E1: a chave é do anexo, e o 1º desfecho gravado por E1 ou E2 é o `Recebimento` dele —
+a outra rota com a mesma chave devolve esse `Recebimento` (repetição, sem 422; ex.: reentrega depois
+de 413 → E2 repete o upload e recebe o `rejeitado`). Efeito: `Recebimento` em `rejeitado` (ou exceção em `nao_baixado`) e resposta
 orientando — sem gravar arquivo.
 
 **E3 — Esquema `Recebimento` (resposta).** O contrato tem `assinatura` e `destino` **por arquivo**, mas um

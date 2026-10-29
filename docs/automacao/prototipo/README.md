@@ -13,7 +13,7 @@ real foi tocado: nenhum e-mail/WhatsApp, nenhum serviço externo, nenhuma VPS, n
 sistema. Tudo roda em `127.0.0.1` e é removido no fim.
 
 A frente **WA-3 (WhatsApp oficial pronto e desligado)** tem simulador da Graph API, workflows
-W6–W8 e suíte próprios (`testar_whatsapp.py`, TW0–TW15), na seção
+W6–W8 e suíte próprios (`testar_whatsapp.py`, TW0–TW16), na seção
 [WhatsApp oficial (WA-3)](#whatsapp-oficial-wa-3--pronto-e-desligado) no fim deste arquivo.
 
 **Revisão do PR #23 (Codex, 18/10/2026).** Os dez apontamentos C2–C11 foram conferidos no código:
@@ -23,20 +23,71 @@ repete recusa comprovada (C5), recusa esgotada vira `falha_temporaria` e o PCPR 
 status antes do resultado é adiado com não-2xx (C7) e o recebimento só confirma ao canal depois do
 PCPR (C9). Detalhe e evidência: [Revisão do PR #23](#revisão-do-pr-23-codex--o-que-mudou).
 
+**Segunda verificação (18/10/2026, madrugada).** A conferência das correções achou uma regressão
+bloqueante no C9 — o W4 respondia 503 também a recusa **permanente** do PCPR, sem exceção, e o
+canal reentregava até desistir — e o T13 falhando no W5. Corrigidos: o W4 agora dá a cada anexo um
+desfecho final (aceito, registro sem arquivo ou exceção humana) e só pede reentrega para falha
+transitória (T19, T16d); o W5 deixou de guardar execuções. Mais: validador com igualdade JSON
+(`true ≠ 1`), unitários versionados do validador e do código de saída (T20), prazo da 1ª entrega
+no T16, W6 sem reenvio para 5xx genérico da Graph API (TW16) e status órfão antigo no W8 vira
+exceção (TW14c). Ver [Segunda verificação](#segunda-verificação--o-que-mudou).
+
+**Terceira verificação (18/10/2026, 03h).** Reprovou pelo TW13: a 2ª varredura da mitigação M1
+esperava uma janela fixa contada da subida do n8n e, com a rodada M1 lenta, caía antes de
+qualquer ciclo de *hard-delete* posterior a ela (falhou 2 de 2). Corrigido no teste (espera ciclo
+inteiro depois da rodada e repete até 3 ciclos). Também tratados dois pontos não bloqueantes do
+C9 no W4: a chave da exceção de recusa permanente passou a incluir a classe da recusa (recusa que
+muda entre entregas não cai mais em 503 em laço, T19f) e falha **transitória** persistente numa
+mensagem com mais de 4 h abre exceção `fila_parada` sem largar a mensagem (T19g). O W7 ganhou
+teste de reentrega da exceção de SHA-256 divergente (TW8b). Ver
+[Terceira verificação](#terceira-verificação--o-que-mudou).
+
+**Quarta verificação (18/10/2026, manhã).** Dois apontamentos novos do Codex: a
+`Idempotency-Key` das exceções passava de 200 caracteres quando o id do canal era longo (o
+contrato aceita ids de até 300), o `/excecoes` respondia 400 e o W4 (recusa permanente) e o W8
+(status órfão) ficavam presos em não-2xx. As três chaves de exceção (W4 recusa permanente, W7
+SHA-256 divergente, W8 status órfão) agora saem como sempre até 200 caracteres e, acima disso,
+como `<1º segmento>#sha256:<resto do prefixo><hex>` (ex.: `excecao#sha256:whatsapp-status:<hex>`;
+`chave_limitada` em `construir_workflows.py`). Testes
+novos: T19h (id de 150 caracteres) e TW14e (wamid de 190); as duas baterias passaram inteiras.
+Na rodada seguinte, o mesmo limite na **chave do recebimento**: o contrato passou a dizer que,
+acima de 200 caracteres, ela é `receb#sha256:<canal>:<hex do id>:<anexo_indice>` — o `#` no 1º
+segmento garante que nenhum id curto (nem um que imite `sha256:<hex>`) gere a mesma chave. A
+exceção do status órfão deixou de citar o prazo configurável no corpo (mesma chave → mesmo corpo,
+mesmo depois de reconfigurar). O validador aceita inteiros maiores que o `float`. A chave bruta só vale se for ASCII
+imprimível (`[ -~]`): `len` do Python e `.length` do JS (UTF-16) passam a medir igual, e nada
+fora do ASCII vai no cabeçalho HTTP (T19k, id com emoji); o contrato diz isso com todas as
+letras. No W4, download do anexo com 4xx estável (400, 405, 415, 422…) também é definitivo
+(sem-arquivo `nao_baixado`, resposta final ao canal); só rede, 5xx, 401/403, 408, 425 e 429
+voltam para reentrega (T19 e2/e3). A regra é única
+(`comum.chave_recebimento`, usada pelo simulador e pelos testes; `chave_recebimento_js` nos
+workflows) e também vale para a exceção `fila_parada`. Testes T19i (id de 290 caracteres, 413 →
+recebimento rejeitado com orientação) e T19j (id de 160, exceção `fila_parada`).
+
+**Quinta verificação (29/10/2026).** O Codex achou que, depois de 413 → `/recebimentos/sem-arquivo`,
+a reentrega da mensagem (outro anexo com falha transitória) repetia o upload com a mesma chave e o
+simulador respondia 422 "chave reutilizada" (a impressão inclui a rota) — o W4 abria uma falsa
+exceção de recusa permanente. Procedia (reproduzido: 413 → 202 → 422). Como o contrato diz que as
+duas rotas usam a **mesma chave**, que identifica o anexo, o simulador passou a devolver o
+`Recebimento` já gravado pela outra rota (mesmo status e corpo, `Idempotency-Replayed`), e o W4
+classifica o 2xx pelo `estado` gravado (`rejeitado` → registrado sem arquivo). O contrato e o
+fluxo 10-6 dizem isso explicitamente. Teste novo **T21** (anexos mistos: 413 + 503 noutro anexo →
+reentrega → `[413, 202 repetição]`, 1 só sem-arquivo, 0 exceção).
+
 ## Executado de fato × só desenhado
 
 | Item | Situação |
 |---|---|
-| Simulador do PCPR (API v1 em memória: `/estado`, `/comunicacoes/devidas`, `GET /comunicacoes?provedor_mensagem_id=`, `reservar`, `resultado`, `entrega`, `/recebimentos`, `/recebimentos/{id}`, `/excecoes`; Bearer; `Idempotency-Key` real; 423; 409; lease com varredura; `falha_temporaria` reagendada com backoff e limite de rodadas; `/recebimentos` com `anexo_indice`/`total_anexos` e chave por anexo como o contrato (422); deduplicação por servidor + SHA-256) | **Executado** (`simulador_pcpr.py`) |
-| Emissor de eventos assinados (HMAC-SHA256 de `t + "." + corpo_bruto`, `X-PCPR-Assinatura: t=…,v1=…`, `X-PCPR-Evento-Id`) e envelopes validados contra o schema com um validador stdlib que implementa `allOf`, `if`/`then`/`else` e `$ref` locais (e recusa palavra-chave desconhecida) | **Executado** (`validar_esquema.py`) |
+| Simulador do PCPR (API v1 em memória: `/estado`, `/comunicacoes/devidas`, `GET /comunicacoes?provedor_mensagem_id=`, `reservar`, `resultado`, `entrega`, `/recebimentos`, `/recebimentos/{id}`, `/excecoes`; Bearer; `Idempotency-Key` real; 423; 409; lease com varredura; `falha_temporaria` reagendada com backoff e limite de rodadas; `/recebimentos` com `anexo_indice`/`total_anexos` e chave por anexo como o contrato (422); deduplicação por servidor + SHA-256; recusa permanente 422 injetável, 413 com limite configurável, canal de entrada de e-mail bloqueável, `/recebimentos/sem-arquivo` com `nao_baixado` abrindo `arquivo_nao_baixado`) | **Executado** (`simulador_pcpr.py`) |
+| Emissor de eventos assinados (HMAC-SHA256 de `t + "." + corpo_bruto`, `X-PCPR-Assinatura: t=…,v1=…`, `X-PCPR-Evento-Id`) e envelopes validados contra o schema com um validador stdlib que implementa `allOf`, `if`/`then`/`else` e `$ref` locais, compara `const`/`enum` com igualdade JSON (`true` ≠ `1`, `1` = `1.0`) e recusa palavra-chave desconhecida; testes unitários próprios | **Executado** (`validar_esquema.py`, `test_validar_esquema.py`) |
 | Regra da véspera (função pura + 19 testes) e uso dela no simulador (confirmação, reagendamento, cancelamento; cancelamento obsoleto ignorado) | **Executado** (`regra_vespera.py`, `test_regra_vespera.py`) |
-| Simulador de canal (caixa de saída com recusa 503, resposta 500 ambígua, tempo esgotado e desconexão **depois de aceitar**, porta fechada por N s; `provedor_mensagem_id`; inbound com 1..N PDFs sintéticos, falha de download e reentrega até 2xx) | **Executado** (`simulador_canal.py`; desde o WA-3 as comunicações e o T9 levam o rótulo `email`) |
+| Simulador de canal (caixa de saída com recusa 503, resposta 500 ambígua, tempo esgotado e desconexão **depois de aceitar**, porta fechada por N s; `provedor_mensagem_id`; inbound com 1..N PDFs sintéticos, anexo anunciado e removido (404), tamanho anunciado, falha de download e reentrega até 2xx) | **Executado** (`simulador_canal.py`; desde o WA-3 as comunicações e o T9 levam o rótulo `email`) |
 | n8n 2.43.7 em contêiner descartável, credenciais e workflows importados e publicados pela CLI, W1–W5 | **Executado** (`n8n_local.py`, `construir_workflows.py`) |
-| Testes T1–T18 com asserções no estado dos simuladores e no banco do n8n + métricas | **Executado** (`testar_prototipo.py` → `resultados/resultados.json`) |
+| Testes T1–T21 com asserções no estado dos simuladores e no banco do n8n + métricas (T11 e T20 são unitários, sem Docker) | **Executado** (`testar_prototipo.py` → `resultados/resultados.json`) |
 | Export dos workflows com `"active": false` e reimportação num n8n limpo sem ativar nada | **Executado** (`docs/automacao/n8n/`) |
 | API real no PCPR, emissor real a partir da outbox, modelo de comunicação, fila de exceções, chave geral | **Só desenhado** — não existe no sistema |
 | Canal real (e-mail institucional: envio SMTP e recebimento por caixa IMAP com dedup por Message-ID), PWA do link de KM, importação documental real | **Só desenhado** — o T9 usou um canal fictício em formato de webhook (rótulo `whatsapp` até o WA-3, `email` depois; o WhatsApp está **bloqueado**, ver `../whatsapp-viabilidade.md`) |
-| WhatsApp oficial contra **simulador** da Graph API (W6–W8, TW0–TW13, retenção V1 × V2) | **Executado** — seção WA-3 abaixo; contra a Meta, **nada** (proibido até o portão) |
+| WhatsApp oficial contra **simulador** da Graph API (W6–W8, TW0–TW16, retenção V1 × V2) | **Executado** — seção WA-3 abaixo; contra a Meta, **nada** (proibido até o portão) |
 | n8n com PostgreSQL, task runner externo, TLS, proxy, backup e restauração | **Só desenhado** (o protótipo usa SQLite e runner interno) |
 
 ## Como reproduzir
@@ -48,6 +99,7 @@ usam mais nada fora da biblioteca padrão); portas 5678, 8765 e 8766 livres.
 ```sh
 # a partir da raiz do repositório
 .venv/Scripts/python.exe -m unittest docs/automacao/prototipo/test_regra_vespera.py -v   # T11 sozinho
+(cd docs/automacao/prototipo && ../../../.venv/Scripts/python.exe -m unittest -v test_validar_esquema test_saida_suite)  # T20 sozinho
 .venv/Scripts/python.exe docs/automacao/prototipo/testar_prototipo.py                    # tudo (~6 min)
 #   --sem-exportar   não sobrescreve docs/automacao/n8n/*.json
 #   --manter         deixa contêiner e simuladores no ar para inspeção (limpar à mão depois)
@@ -70,6 +122,8 @@ Arquivos:
 |---|---|
 | `regra_vespera.py` / `test_regra_vespera.py` | regra pura + T11 |
 | `validar_esquema.py` | validador JSON Schema mínimo (stdlib) para o envelope de eventos (T1, T3, T4) |
+| `test_validar_esquema.py` | T20: esquema real × envelopes gerados pelo simulador (válidos) e negativos (inclusive `versao_contrato: true`) |
+| `test_saida_suite.py` | T20: roda o `main()` da suíte com dublês (sem Docker) e afirma o código de saída — export com erro → 1 |
 | `comum.py` | assinatura HMAC, leitura e montagem de multipart sem `cgi`, base HTTP |
 | `simulador_pcpr.py` | API v1 + emissor de eventos + controles `/_sim/*` |
 | `simulador_canal.py` | caixa de saída, falhas injetáveis (recusa, ambígua, pós-aceite, fora do ar), inbound com N anexos e arquivos |
@@ -77,16 +131,22 @@ Arquivos:
 | `construir_workflows.py` | **fonte** dos workflows W1–W8 (JSON do n8n gerado por código; W6–W8 com `--whatsapp`) |
 | `n8n_local.py` | contêiner, variáveis de ambiente, import/publish/export, `docker stats`, cópia de `~/.n8n` |
 | `testar_prototipo.py` | orquestração, cenários, métricas, export e limpeza (suíte principal) |
-| `testar_whatsapp.py` | **WA-3**: TW0–TW15, varredura de retenção, export de W2/W6–W8 → `resultados/resultados-whatsapp.json` |
+| `testar_whatsapp.py` | **WA-3**: TW0–TW16, varredura de retenção, export de W2/W6–W8 → `resultados/resultados-whatsapp.json` |
 | `ruff.toml` | herda o `pyproject.toml`; libera `print`/`subprocess`/`urllib` só nesta pasta |
 
 ## Resultados da suíte principal
 
-**Rodada final: 18/10/2026, 00:46–00:52 (horário de Brasília) — T11 + 17 cenários, todos
-passaram, saída 0** (`resultados/resultados.json`; export de W1–W5 com `"active": false`, sem
-segredo no relatório, contêiner removido e portas 5678/8765/8766 livres no fim). É a rodada com as
-correções da [revisão do PR #23](#revisão-do-pr-23-codex--o-que-mudou): T6/T7 com a nova
-semântica de retentativa, T9 com a chave por anexo e os cenários novos T14–T18.
+**Rodada final: 29/10/2026, 13:51–14:02 (horário de Brasília) — T1–T21, todos passaram, saída
+0** (é a registrada em `resultados/resultados.json`, campos `inicio`/`fim`; export de W1–W5 com
+`"active": false`, sem segredo no relatório, contêiner removido e portas livres no fim). Inclui
+as verificações seguintes do Codex: chaves de exceção e de recebimento limitadas a 200 e só
+ASCII (T19h–T19k), 4xx definitivo no download do W4 (T19 e2/e3) e corpos de exceção sem valor
+configurável (`fila_parada` e status órfão). No W8, a chave de `/entrega` também é limitada
+(`entrega#sha256:<hex>` acima de 200 ou fora do ASCII; TW14f, wamid de 190 caracteres de uma
+comunicação conhecida), e o contrato documenta a forma. O parágrafo abaixo descreve a
+rodada da [terceira verificação](#terceira-verificação--o-que-mudou): T19 com os casos (f) recusa que muda
+entre entregas e (g) falha transitória persistente → `fila_parada`. A máquina continuava
+carregada (preparação pela CLI 254 s, 1ª subida do n8n 85 s, latências abaixo).
 
 | Rodada (−03:00) | Resultado | O que mudou |
 |---|---|---|
@@ -96,13 +156,27 @@ semântica de retentativa, T9 com a chave por anexo e os cenários novos T14–T
 | 17/10 23:10–23:15 | T1–T12 passaram; T13 falhou | regressão depois da WA-3; causa achada no código do n8n (ver WA-3) |
 | 17/10 23:31–23:36 | 13/13 | mitigação `EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=1` |
 | 18/10 00:28–00:36 | 17/18; **T16 falhou**, saída 1 (o export saiu, e o C8 fez a saída ser 1) | revisão do PR #23. No T16, o 1º webhook do canal (mensagem com 2 anexos) passou de 30 s sem resposta e o teste desistiu (`TimeoutError`); o traceback guardado não dizia qual chamada, e o log do n8n não tinha nada do W4. Causa **não confirmada**. Não se repetiu nas duas rodadas seguintes (parcial T9/T14–T18 e a final). Mudanças: o teste espera o W4 até o tempo-limite dos nós dele, deixa o canal reentregar como um canal real e afirma "1 efeito por anexo, o resto repetição". O relatório de falha passou a guardar a linha do cenário, o log do n8n e as entregas do canal |
-| **18/10 00:46–00:52** | **T11 + 17/17** | rodada final |
+| 18/10 00:46–00:52 | T11 + 17/17 | rodada final da 1ª rodada da revisão; a 2ª verificação reprovou o C9 (recusa permanente → 503 sem exceção) e, numa repetição dela, o T13 falhou no W5 (token de reserva retido) |
+| 18/10 01:52–02:01 | T11, T20 + 18/18, saída 0 | 2ª verificação. Antes, numa rodada parcial (T9, T12, T16, T17, T19), o **T19 falhou**: a 2ª entrega da mesma mensagem com recusa permanente voltava a dar 503 (corpo de `/excecoes` com o id da execução sob chave estável → 422 "chave reutilizada"); corrigido e repetido. Nesta rodada a medição de latência não fechou: 1 envio da série ficou sem resposta do canal em 10 s (`timeout of 10000ms exceeded`) → `resultado_desconhecido` + exceção, sem reenvio — o desenho funcionou, mas a métrica ficou sem número; por isso a rodada foi repetida |
+| 18/10 02:13–02:28 | T11, T20 + 18/18, saída 0 | rodada final da 2ª verificação (métricas completas) |
+| 18/10 03:17–03:33 | T11, T20 + 18/18, saída 0 | 3ª verificação: W4 com chave de exceção por classe de recusa e exceção `fila_parada` (T19f, T19g) |
+| 18/10, manhã (rodadas intermediárias) | T1–T20 passaram (uma rodada intermediária teve T15 e outra T19(g) falhando por tempo, com a máquina carregada por outra bateria; ambos passaram isolados e na rodada seguinte) | chaves ≤ 200 e só ASCII (`#sha256`), corpo estável do órfão, inteiros grandes no validador |
+| 18/10 10:28–10:34 | T1–T20, saída 0 | W4: 4xx estável no download é definitivo (T19 e2/e3); contrato com a regra ASCII da chave |
+| 18/10 11:06–11:13 | T1–T20, saída 0 | corpo da exceção `fila_parada` sem o prazo configurável (mesma chave → mesmo corpo depois de reconfigurar) |
+| 18/10 11:42–11:49 | T1–T20, saída 0 | chave bruta só de 16 a 200 caracteres: id de 1 caractere vai para a forma com hash (T19l) |
+| **29/10 13:51–14:02** | **T1–T21, saída 0** (`resultados.json`) | 5ª verificação: upload repetido depois de 413 → sem-arquivo devolve o `Recebimento` gravado (T21) |
 
-**T13 nesta rodada:** a 1ª varredura, logo depois dos cenários, achou **13** ocorrências do
+**T13 nesta rodada:** a 1ª varredura, logo depois dos cenários, achou **21** ocorrências do
 telefone sintético (`destino`) em execuções de webhook do W4 com status `running` (marcadas como
-apagadas, à espera da remoção física). Às 21,4 s, depois do ciclo de *hard-delete*, não havia
-**nenhuma**: zero destino, link-credencial (`example.invalid/km/`) e token de reserva nas 13
-linhas de execução restantes. Sem a
+apagadas, à espera da remoção física). Às 45,1 s, depois do ciclo de *hard-delete*, não havia
+**nenhuma**: zero destino, link-credencial (`example.invalid/km/`) e token de reserva nas 4
+linhas de execução restantes. Nas rodadas de 02:13 e 01:52 foram 13 e 19 ocorrências, zeradas
+em 67,1 s e 21,9 s. O W5
+(*PCPR · Erros*) passou a sair com `saveData…="none"`: numa repetição da 2ª verificação ele tinha
+guardado 2 vezes o token de reserva (`rsvSIM…`) que vinha na mensagem de erro do fluxo que
+falhou — falha intermitente, porque depende de algum fluxo falhar com o token na mensagem. Além
+de não guardar, o W5 mascara sequências de 24+ caracteres de token no `detalhe` antes de enviar
+ao PCPR. Sem a
 mitigação, o n8n grava a execução com a entrada ao iniciar e, com "não salvar", só a marca como
 apagada; a remoção física roda a cada 15 min por padrão — durante esse tempo a entrada fica no
 banco e nos backups. Por isso a recomendação para produção é a mitigação **mais** receber
@@ -125,12 +199,15 @@ webhooks com dado pessoal direto no PCPR (variante V2 da WA-3).
 | T10 | Reinício do n8n no meio → nada duplicado, reconciliação completa | **Passou** | lease 15 s, canal lento (8 s); `docker kill` com 4 comunicações (A) em `enviando`; 2 eventos (B) perdidos com o n8n fora; n8n voltou em 20,1 s; reentrega de um evento A → 202 sem novo envio; reconciliação `{"devidas": 2}` → as 2 B enviadas 1x; as 4 A: reserva venceu → `falhou/resultado_desconhecido` + 1 exceção cada (o canal tinha recebido 1 vez cada); **0 duplicados** |
 | T11 | Regra da véspera (unitário) | **Passou** | 19 testes: os 18 anteriores (caso normal, meia-noite, 00:30 confirmado às 23:50, data local × UTC, em cima da hora, fronteira 09:00, já iniciada, fuso de SP, horário de verão de 2018, datetime sem fuso, reagendamento, cancelamento, fora de ordem, mesma versão) + **cancelamento obsoleto não cancela a comunicação atual** (C4) |
 | T12 (extra) | Erro inesperado → W5 abre exceção | **Passou** | `/estado` devolvendo 500 → W2 falha no nó *Consultar estado* (após 2 tentativas) → W5 abre **1** exceção (`fluxo: n8n:PCPR · Entregar comunicação`, execução 77); 0 envio; normalizado, reconciliação `{"devidas": 1}` → 1 envio |
-| T13 | Nada sensível retido no n8n | **Passou** | ver acima: 13 ocorrências do telefone logo depois dos cenários, 0 às 21,4 s; link e token de reserva 0 sempre |
+| T13 | Nada sensível retido no n8n | **Passou** | ver acima: 13 ocorrências do telefone logo depois dos cenários (só no W4 `running`), 0 às 67,1 s; link e token de reserva 0 sempre; W5 agora sem retenção |
 | T14 (C5) | Resultado ambíguo no canal → nunca reenvia | **Passou** | tempo esgotado depois de aceitar (canal responde em 15 s; o nó desiste em 10 s), conexão derrubada depois de aceitar (`socket hang up`) e HTTP 500 sem corpo de recusa → **1 tentativa** cada (o canal **aceitou** nas duas primeiras); `resultado_desconhecido` + 1 exceção `resultado_desconhecido` cada; reconciliação depois → `{"devidas": 0}` |
 | T15 (C6) | Canal fora do ar e volta → 1 envio | **Passou** | porta do canal fechada 10 s: rodada 1 com **3 conexões recusadas** → `falha_temporaria` → `agendada` (backoff 3 s no PCPR); canal de volta → reconciliação `{"devidas": 1}` → rodada 2 → `enviada`; **1** envio efetivo, 0 exceção, reconciliação final `{"devidas": 0}` |
-| T16 (C3) | Mensagem com 2 anexos → 2 recebimentos; reenvio → 0 novos | **Passou** | chaves `receb:email:<id>:0` e `:1`, `anexo_indice` 0/1 e `total_anexos` 2 no multipart, 2 recebimentos distintos com o SHA-256 de cada anexo (entregas do canal `[200]`); reenvio da mesma mensagem → 2 POSTs repetidos (202, `Idempotency-Replayed`), **0 novos**; POST direto sem os campos, com a chave antiga ou com `anexo_indice` ≥ `total_anexos` → **422**; mensagem sem anexo → W4 **422** sem chamar o PCPR |
+| T16 (C3) | Mensagem com 2 anexos → 2 recebimentos; reenvio → 0 novos | **Passou** | chaves `receb:email:<id>:0` e `:1`, `anexo_indice` 0/1 e `total_anexos` 2 no multipart, 2 recebimentos distintos com o SHA-256 de cada anexo (entregas do canal `[200]`); reenvio da mesma mensagem → 2 POSTs repetidos (202, `Idempotency-Replayed`), **0 novos**; POST direto sem os campos, com a chave antiga ou com `anexo_indice` ≥ `total_anexos` → **422**. **1ª entrega no prazo** (2ª verificação): a 1ª entrega tem de ser 200 em até 20 s — foi 200 em 1,35 s (0,56 s às 01:52). (d) mensagem sem anexo → `POST /recebimentos/sem-arquivo` (`sem_anexo`) 202 → recebimento `rejeitado` com orientação ao remetente → W4 **200** já na 1ª entrega (antes: 422 sem chamar o PCPR) |
 | T17 (C9) | Falha antes da confirmação → canal reentrega → 1 | **Passou** | (a) `POST /recebimentos` falha 1× (503 não guardado) → W4 responde ao canal `[503, 200]`, POSTs `[503, 202]` (o 2º não é repetição), 1 recebimento; (b) download do anexo falha 1× → `[503, 200]`, downloads `[500, 200]`, o PCPR só viu 1 POST, 1 recebimento |
 | T18 (C11) | Dedup por (servidor, SHA-256) | **Passou** | mesmo PDF em 4 mensagens: servidor 9001 → aceito; servidor 9002 → **aceito** (2º recebimento); servidor 9001 de novo → `duplicado`; outro contato do servidor 9001 → `duplicado` |
+| T19 (C9, 2ª e 3ª verificações) | Recusa permanente / anexo sem bytes → desfecho final, sem laço; falha transitória persistente → exceção | **Passou** | o canal pede até 3 reentregas e recebeu **200 já na 1ª** em todos: (a) `POST /recebimentos` 422 permanente → 1 exceção do n8n (`recebimento-canais`, `outro`, sem remetente no detalhe), 0 recebimento; a mesma mensagem de novo → 200, `POST /excecoes` repetido (201 + `Idempotency-Replayed`), continua 1 exceção; (b) canal de entrada bloqueado → 409 `canal_bloqueado` → exceção `canal_indisponivel`; (c) 413 do PCPR → `/recebimentos/sem-arquivo` `acima_do_limite` 202, recebimento `rejeitado`, 0 exceção; (d) anexo anunciado com 30 MiB → **nem é baixado**, sem-arquivo `acima_do_limite`; (e) anexo que não existe mais no canal (download 404) → sem-arquivo `nao_baixado` → exceção `arquivo_nao_baixado` aberta pelo PCPR; (f) recusa que **muda** entre entregas (422 na 1ª, 409 `canal_bloqueado` na 2ª e na 3ª) → 200 nas três, `POST /recebimentos` `[422, 409, 409]`, `POST /excecoes` `[201, 201, 201 repetição]`, 2 exceções (`outro`, `canal_indisponivel`), nenhum 422 de chave reutilizada; (g) entrada de e-mail desligada (423): mensagem recente → `[503, 503]` e 0 exceção; mensagem recebida há 2 dias → `[503, 503, 503]`, `POST /excecoes` `fila_parada` `[201, 201 repetição, 201 repetição]`, 1 exceção; religada a entrada, a reentrega → 200 e 1 recebimento |
+| T20 (unitário) | Validador do esquema e código de saída | **Passou** | 18 testes sem Docker, em processo separado: os envelopes que o simulador gera (confirmada, agendada, reagendada, cancelada, avulsa) válidos no esquema real; negativos reprovados, inclusive `versao_contrato: true` (no Python `True == 1`), `"1"`, `imediato: 1`, `recurso.id` booleano ou 1,5; `1.0` aceito como inteiro; palavra-chave desconhecida e `$ref` não local recusados. `main()` com dublês: export com erro → **1**, export ok → 0, cenário que falha → 1. Mutação conferida: com `valor != const` o teste do booleano falha; sem a regra do C8 o teste do export falha |
+| T21 (5ª verificação) | Anexos mistos: 413 → sem-arquivo num anexo, falha transitória no outro, reentrega | **Passou** | anexo 0 acima do limite do PCPR (4 KiB no simulador), anexo 1 com 503 injetado 1×: entregas do canal `[503, 200]`; anexo 0: `POST /recebimentos` `[413, 202 repetição]` (o `rejeitado` já gravado, antes 422) e sem-arquivo `[202]` uma vez; anexo 1: `[503, 202]`; 1 `rejeitado` (`acima_do_limite`) + 1 aceito; 0 exceção; resposta final do W4 `{total: 2, aceitos: 1, sem_arquivo: 1, excecoes: 0}` |
 
 Rodadas anteriores (desenvolvimento) que falharam e o que mudou: T9 falhou na 1ª rodada (422
 por *boundary* do multipart — ver "Descobertas"); a medição de latência falhou uma vez com um
@@ -143,11 +220,21 @@ A coluna "Execução final" é da primeira rodada completa (03:53–03:59); a co
 rodadas completas feitas na mesma máquina (notebook Windows + Docker Desktop, compartilhado com
 outra sessão de trabalho — os números variam e não representam a VPS). **Rodada de
 17/10 23:31–23:36 (13/13):** evento → envio em série p50 189 ms · p95 238 ms; 20 simultâneos p50
-2,9 s · p95 3,3 s; n8n em repouso 396 MiB, pico 856 MiB. **Rodada final de 18/10 00:46–00:52
+2,9 s · p95 3,3 s; n8n em repouso 396 MiB, pico 856 MiB. **Rodada de 18/10 00:46–00:52
 (com o W2 de tentativas controladas):** em série p50 177 ms · p95 202 ms; 20 simultâneos p50
 2,5 s · p95 3,1 s; repouso 397 MiB antes e 383 MiB depois, pico 740 MiB (na rajada); import +
 publicação pela CLI 47 s; banco ≈ 7,6 MiB — dentro das faixas abaixo (o Code node de
-classificação no caminho do envio não piorou a latência).
+classificação no caminho do envio não piorou a latência). **Rodada final de 18/10 02:13–02:28
+(2ª verificação), com a máquina muito carregada:** em série p50 887 ms · p95 997 ms; 20
+simultâneos p50 13,9 s · p95 18,7 s (o 202 já levou p50 3,5 s); repouso 386 MiB antes e 514 MiB
+depois, pico 889 MiB; import + publicação pela CLI 234 s; banco ≈ 7,7 MiB. Os números de
+latência ficaram fora da faixa, junto com tudo o que não mudou de código (CLI, volta após
+`docker kill` em 64 s): a leitura é carga da máquina, não regressão — mas **não** foi provado
+com uma rodada em máquina ociosa. Na rodada de 01:52 um envio da série ficou 10 s sem resposta
+do canal (ver a tabela de rodadas). **Rodada de 18/10 03:17–03:33 (3ª verificação), máquina ainda
+carregada:** em série p50 859 ms · p95 2,4 s; 20 simultâneos p50 12,2 s · p95 16,6 s (202 p50
+3,4 s); repouso 393 MiB antes e 460 MiB depois, pico 886 MiB (na rajada); CLI 254 s; banco
+≈ 8,3 MiB. Mesma leitura (carga da máquina; a mudança do W4 não está no caminho do envio).
 
 | Métrica | Execução final | Faixa nas rodadas |
 |---|---|---|
@@ -231,8 +318,11 @@ do n8n e exige zero ocorrências desses dados.
 11. **Webhook em `responseNode` que termina sem nó *Responder* devolve 200 vazio**
     (`webhook-helpers.js`: execução concluída sem resposta → `respondWith({ data: undefined,
     responseCode })`); só erro na execução dá 500 "Error in workflow". No W4 e no W7 todo caminho
-    termina num *Responder* explícito (200, 503 ou 422) — senão um ramo esquecido confirmaria ao
-    canal algo que o PCPR não recebeu.
+    termina num *Responder* explícito (W4: 200 ou 503) — senão um ramo esquecido confirmaria ao
+    canal algo que o PCPR não recebeu. No W4, que percorre os anexos com *Loop Over Items*, isso
+    vale também dentro do laço: um item que sumisse num ramo sem saída encerraria o laço sem
+    chegar ao *Responder*; por isso o *Switch* do próximo passo tem saída "inesperado" ligada a
+    um desfecho `reentregar`.
 12. **Esperas curtas sem gravar a execução**: o Code node (runner JS) tem `setTimeout`
     (`js-task-runner.js`), usado para a espera de 1 s entre tentativas no W2. O nó *Wait* com
     intervalo abaixo de `MAX_IN_PROCESS_WAIT_MS` também dorme no processo
@@ -241,6 +331,11 @@ do n8n e exige zero ocorrências desses dados.
     contêiner por `host.docker.internal` dá `ECONNREFUSED` em ~10 ms (medido com `node` na imagem),
     não uma conexão aceita e derrubada — é o que deixa o T15 distinguir "fora do ar" (nada saiu) de
     "caiu no meio" (ambíguo).
+14. **A saída "done" do *Loop Over Items* (v3) traz todos os itens devolvidos ao laço**
+    (`SplitInBatchesV3.node.js`: `processedItems`), o que permite ao W4 decidir a resposta ao canal
+    com o desfecho de cada anexo. A saída de erro do HTTP Request traz o motivo da falha em
+    `json.error` (o W4 lê o código HTTP em `statusCode`/`httpCode`/`status` ou na mensagem para
+    separar 404/410 do download — permanente — de falha transitória; T19e).
 
 ## Descobertas sobre o desenho (viraram ajustes)
 
@@ -266,8 +361,18 @@ do n8n e exige zero ocorrências desses dados.
   reagenda com backoff e só no fim das rodadas marca `falhou` e abre `limite_tentativas`. Antes,
   três 5xx viravam `falha_definitiva` no n8n (sem reagendamento possível).
 - **Confirmação ao canal depois do registro durável** (C9): W4 deixou de responder ao receber;
-  responde 200 só se o PCPR aceitou todos os anexos, 503 em qualquer falha. O mesmo vale para
-  status de WhatsApp que chega antes do `resultado` (C7): 503 e reentrega, em vez de 200 e perda.
+  responde 200 só quando cada anexo teve **desfecho final** no PCPR e 503 só para falha
+  **transitória**. O mesmo vale para status de WhatsApp que chega antes do `resultado` (C7): 503 e
+  reentrega, em vez de 200 e perda — enquanto o status for recente (até 1 h); órfão antigo vira
+  exceção e 200.
+- **Recusa permanente não é reentrega** (2ª verificação do C9): 409, 422 e outros 4xx do PCPR
+  viram exceção humana com chave estável e resposta final ao canal; 413 e anexo sem bytes vão a
+  `/recebimentos/sem-arquivo`. Pedir reentrega para algo que repetir não resolve criava um laço
+  (com IMAP, reprocessamento sem fim) e, quando o canal desistia, perda silenciosa.
+- **Chave estável exige corpo estável**: `POST /excecoes` com chave por anexo (ou por wamid) não
+  pode levar o id da execução no corpo — a reentrega mandaria outro corpo com a mesma chave e o
+  PCPR responderia 422 "chave reutilizada" (o T19 achou isso: a 2ª entrega da mesma mensagem
+  voltou a dar 503 em laço). Corrigido no W4, no W7 (SHA-256 divergente) e no W8.
 - **Chave de recebimento por anexo** (C3): `receb:<canal>:<mensagem_id_canal>:<anexo_indice>`;
   com a chave antiga uma mensagem com 2 anexos guardaria a resposta do 1º e "repetiria" o 2º.
 - **Duplicado é por servidor** (C11): o mesmo arquivo de dois servidores (ex.: formulário em
@@ -316,6 +421,45 @@ Consequência no W6 (mesma regra do C5/C6, não apontada pelo revisor): resposta
 erro estruturado (ex.: 502 de um proxy depois de a Meta aceitar) virava `falha_temporaria` — que
 o PCPR agora reagenda e reenviaria. Passou a `resultado_desconhecido` + exceção (TW15).
 
+## Segunda verificação — o que mudou
+
+A verificação das correções acima (18/10/2026, madrugada) reprovou a rodada por um problema
+bloqueante e apontou outros não bloqueantes. Conferido no código, um a um; rodadas completas com
+export depois das correções: suíte principal **02:13–02:28** (e 01:52–02:01), suíte WA-3
+**02:02–02:13**, saída 0 nas três.
+
+| Apontamento | Procedia? (evidência) | O que mudou | Teste |
+|---|---|---|---|
+| C9 · 4305469399 · W4 (**bloqueante**) | Sim: com `responseNode` + `continueErrorOutput`, toda recusa permanente do PCPR (422, 409 `canal_bloqueado`, 413) e a mensagem sem anexo viravam não-2xx ao canal **sem exceção** (o fluxo não falhava, o W5 não disparava); o canal reentregava até desistir e o arquivo se perdia em silêncio. Contraria a arquitetura §3.7 ("Depois, exceção. Nunca laço infinito") e §3.12 | W4 percorre os anexos com *Loop Over Items* e dá a cada um um **desfecho**: aceito (2xx); transitório (rede, 5xx, 408, 423, 425, 429, 401/403) → `reentregar` → **503**; 413 → `/recebimentos/sem-arquivo` `acima_do_limite`; anexo anunciado acima de 25 MiB → sem-arquivo sem baixar; download 404/410 → sem-arquivo `nao_baixado` (o PCPR abre `arquivo_nao_baixado`); sem anexo → sem-arquivo `sem_anexo`; recusa permanente (409, 422, outro 4xx) → `POST /excecoes` com chave estável `excecao:recebimento-canais:receb:<canal>:<mensagem>:<anexo>` e corpo estável → resposta final. 200 só se todos os desfechos são finais. Simuladores: recusa 422 injetável, limite 413 configurável, canal de entrada de e-mail bloqueável, anexo removido e tamanho anunciado | **T19** (a–e, acima): 200 na 1ª entrega em todos, 1 exceção por anexo recusado mesmo com a mensagem entregue de novo; **T16d**: sem anexo → sem-arquivo → 200; T17 continua: falha transitória → `[503, 200]` |
+| C3 · 4305469378 · T16 | Sim: com `reentregar: 2` e limite de 100 s por entrega, um W4 que travasse na 1ª entrega passaria | A 1ª entrega da mensagem com 2 anexos tem de ser 200 em até 20 s (o canal simulado agora devolve o tempo de cada entrega) | T16: 1ª entrega 200 em 1,35 s (0,56 s às 01:52) |
+| C2 · 4305469373 · `validar_esquema.py` | Sim: `const`/`enum` com `==` do Python (`True == 1`; `versao_contrato: true` passava) e `integer` recusava `1.0`; os negativos só rodavam com Docker | Igualdade JSON (`_igual`: booleano ≠ número, `1` = `1.0`, listas/objetos elemento a elemento); `integer` aceita número com parte fracionária zero; `test_validar_esquema.py` sem Docker | **T20**: 15 testes do validador (envelopes do simulador válidos; `versao_contrato: true`/`"1"`, `imediato: 1`, `recurso.id` `true`/1,5 reprovados; `1.0` aceito); mutação `valor != const` → o teste do booleano falha |
+| C8 · 4305469395 · saída da suíte | Sim: a prova era um dublê fora do repositório | `test_saida_suite.py`: roda o `main()` real com a infraestrutura trocada por dublês | **T20**: export com erro → 1, ok → 0, cenário que falha → 1; sem a regra do C8 o teste falha (mutação conferida) |
+| C5 · 4305469386 · W6 (fora do apontamento) | Sim: 5xx com código genérico da Graph API (1, 2, 131000, 131016) virava `falha_temporaria`; com o C6 o PCPR reagenda e o W6 reenviaria sem prova de que a Meta recusou | `falha_temporaria` só para limite de taxa (HTTP 429 ou códigos 4, 80007, 130429, 131048, 131056); 5xx com outro código → `resultado_desconhecido` + exceção. Simulador da Graph com erro estruturado injetável, com ou sem aceite | **TW16**: (a) 500/131000 depois de aceitar → 1 mensagem, `resultado_desconhecido`, 0 reenvio; (b) 429/130429 → `falha_temporaria` → reconciliação `{"devidas": 1}` → `enviada`, mensagens `[recusada, aceita]`, 0 exceção |
+| C7 · 4305469392 · W8 | Sim: status órfão (wamid que nunca terá resultado) sem `biz_opaque_callback_data` recebia 503 até a Meta desistir (7 dias), sem exceção | Adia só enquanto o status tem até `cfg_adiar_max_s` = 3600 s; mais velho → `POST /excecoes` (chave `excecao:whatsapp-status:<wamid>:<status>`, corpo estável) e 200 | **TW14c**: status de 2 h atrás → 200, reentrega → 200, 1 exceção, nada gravado; controle: o mesmo status recente → 503 |
+| C11 · 4305469404 · YAML | Sim, só no texto: o YAML ainda diz "mesmo SHA-256 no mesmo destino" | **Não alterado**: a regra desta revisão só permite editar o YAML pelo C10. O simulador segue a regra nova (T18); pendência registrada em Limitações | — |
+| T13 · W5 | Sim: o W5 terminava com `f.json({})`, sem `saveData…="none"`; a execução do Error Trigger guardava a mensagem de erro do fluxo que falhou, que pode trazer o token de reserva (2 ocorrências numa repetição da verificação; intermitente) | W5 com `SEM_RETENCAO`; `detalhe` com sequências de 24+ caracteres de token mascaradas antes de ir ao PCPR. W1 e W3 continuam guardando só erros | T13 nas duas rodadas completas: 0 token e 0 link sempre; telefone (W4 `running`) zerado em 21,9 s e 67,1 s; `w5-erros.json` exportado com os dois `saveData…="none"` |
+
+Achado do caminho: o 1º T19 (rodada parcial) falhou na 2ª entrega da mesma mensagem — o corpo do
+`POST /excecoes` levava o id da execução sob uma chave estável, e o PCPR responde 422 "chave
+reutilizada com outra requisição"; a exceção "não abria" e o W4 voltava ao 503 em laço. Corrigido
+no W4 e, pelo mesmo motivo, nas exceções de chave estável do W7 (SHA-256 divergente) e do W8.
+
+## Terceira verificação — o que mudou
+
+A verificação da segunda rodada (18/10/2026, ~03h) reprovou pelo TW13 e listou pontos não
+bloqueantes. Conferidos no código; rodadas completas com export depois das correções: suíte
+principal **03:17–03:33** e suíte WA-3 **03:33–03:44**, saída 0 nas duas.
+
+| Apontamento | Procedia? (evidência) | O que mudou | Teste |
+|---|---|---|---|
+| TW13 (**bloqueante**) | Sim, defeito do **teste**: a 2ª varredura da mitigação M1 esperava até 100 s contados da subida do n8n; com a rodada M1 lenta (task runner com `Offer expired`), ela vinha 3–21 s depois da 1ª, antes de qualquer ciclo de *hard-delete* posterior à rodada, com as linhas ainda `soft-deleted` | `testar_whatsapp.py` (TW13): espera 75 s a partir do **fim da rodada M1** e, se sobrar algo, varre de novo a cada 20 s até 180 s (3 ciclos); o relatório guarda cada varredura (`m1_varreduras_apos_a_rodada`). A asserção não afrouxou: no fim, nada pode sobrar | TW13 passou na rodada de 03:33 (zerado na 1ª varredura de conferência, 76,6 s após a rodada) |
+| C9 · chave da exceção de recusa | Sim: chave estável por anexo, mas o corpo levava o `detalhe` daquela entrega; recusa que muda entre entregas (422 → 409) dava 422 "chave reutilizada" e virava 503 em laço. A chave também não seguia o formato do contrato (`excecao:<fluxo>:<recebimento>:<motivo>`) | Chave `excecao:recebimento-canais:receb:<canal>:<mensagem>:<anexo>:<classe>:<motivo>`, com classe = operação + HTTP + código (+ motivo do sem-arquivo); o corpo é função só da chave (a `mensagem` livre do PCPR saiu do `detalhe`) | **T19f**: 422 e depois 409 ×2 → `[200]` nas três entregas, `POST /excecoes` `[201, 201, 201 repetição]`, 2 exceções (`outro`, `canal_indisponivel`) |
+| C9 · falha transitória persistente | Sim (§3.7 "depois, exceção"): PCPR fora do ar/423/5xx/401 dava 503 sem fim e sem aviso humano | W4: se algum anexo ficou em `reentregar` e a mensagem chegou ao canal há mais de `cfg_fila_parada_s` (4 h, proposto) → `POST /excecoes` `fila_parada` (chave e corpo estáveis por mensagem) **e** continua 503 (o canal segue reentregando; nada se perde). Simulador do canal: `recebido_ha_s` | **T19g**: mensagem recente → `[503, 503]`, 0 exceção; de 2 dias → `[503, 503, 503]`, `fila_parada` `[201, 201 rep., 201 rep.]`, 1 exceção; religada → 200, 1 recebimento |
+| C7 · W7 SHA-256 divergente sem teste de reentrega | Sim | Teste novo, sem mudança no fluxo | **TW8b** (V1 e V2): o mesmo webhook 3× com a mídia corrompida → `[200, 200, 200]`, 1 exceção; V1: `POST /excecoes` `[201, 201 rep., 201 rep.]` |
+| C7 · limite de 1 h e reentrega da Meta após 503 | Procede como ressalva, não como defeito corrigível aqui: só a Meta real mede | Nada (proibido tocar a Meta antes do portão de ativação); mantido em Limitações (WA-3) | — |
+| C5 · classificação "recusa provada" (W2 429/503 + `aceita:false`; W6 códigos de limite de taxa) | Idem: segue a documentação; só o provedor real confirma | Nada; mantido em Limitações | T6, T14, TW16 continuam passando |
+| C11 · texto do YAML | Procede (texto desatualizado), mas fora do que esta tarefa pode editar: o YAML só pode mudar pelo C10 | Nada; pendência com o dono do contrato | T18 (simulador já segue a regra) |
+
 ## Limitações
 
 - **Simuladores em memória**, não o PCPR: a API v1 ainda não existe. Nada foi testado contra o
@@ -337,9 +481,16 @@ o PCPR agora reagenda e reenviaria. Passou a `resultado_desconhecido` + exceçã
   mapeamento equivalente (ex.: 4xx de SMTP = não aceito; queda depois do `DATA` = ambíguo) — não
   feito. A reentrega do canal real (IMAP/provedor) também não foi exercitada: o simulador reentrega
   até N vezes a cada 0,5 s.
-- O W4 responde **503 para qualquer falha**, inclusive recusa permanente do PCPR (422, 409
-  `canal_bloqueado`): o canal reentrega até desistir, sem exceção no n8n. Distinguir recusa
-  permanente (abrir exceção e responder 2xx/4xx) fica para quando o canal real for definido.
+- Falha **transitória** persistente no recebimento (PCPR fora do ar, 5xx, 423, credencial
+  inválida): desde a 3ª verificação o W4 abre a exceção `fila_parada` quando a mensagem tem mais
+  de `cfg_fila_parada_s` (4 h, valor proposto) e continua respondendo 503 (T19g). Usa a idade da
+  mensagem (`recebido_em` do canal), não um contador de tentativas; se o PCPR inteiro estiver
+  fora do ar, o `POST /excecoes` também falha e o aviso depende de monitoramento externo do PCPR
+  (fora do protótipo). A reentrega do canal real (até quando, com que intervalo) não foi medida.
+- **C11 no YAML**: o simulador deduplica por (servidor remetente resolvido, SHA-256), mas o texto
+  de `/recebimentos` no contrato ainda diz "Mesmo SHA-256 no mesmo destino com outra chave =
+  `duplicado`". Esta revisão só podia mexer no YAML pelo C10: o ajuste do texto fica pendente com
+  o dono do contrato.
 - Numa rodada completa (18/10 00:28) o 1º webhook do T16 passou de 30 s sem resposta; causa **não
   confirmada** (o relatório não guardava onde nem o log do W4) e não se repetiu. O relatório de
   falha agora guarda a linha do cenário, o log do n8n e as entregas do canal.
@@ -347,8 +498,10 @@ o PCPR agora reagenda e reenviaria. Passou a `resultado_desconhecido` + exceçã
 ## WhatsApp oficial (WA-3) — pronto e desligado
 
 Frente WA-3 do [plano de implantação](../plano-implantacao.md), executada em 17/10/2026
-(rodada de 23:21–23:27) e refeita com a revisão do PR #23 em 18/10/2026 (**rodada final
-00:52–00:57, TW0–TW15 passaram**, `resultados/resultados-whatsapp.json`, saída 0). A política oficial
+(rodada de 23:21–23:27), refeita com a revisão do PR #23 em 18/10/2026 (00:52–00:57) e com a
+segunda verificação (02:02–02:13), com a terceira (03:33–03:44) e com as verificações
+seguintes do Codex (**rodada final 11:49–11:55, TW0–TW16 passaram**, a registrada em
+`resultados/resultados-whatsapp.json`, saída 0). A política oficial
 proíbe órgãos policiais na WhatsApp Business Platform ([viabilidade](../whatsapp-viabilidade.md),
 seção 1): o objetivo foi deixar a integração **pronta e comprovada contra um simulador**, exportada
 **desligada**. Nenhuma chamada à Meta (Graph API simulada em `127.0.0.1:8767`; dentro do contêiner,
@@ -364,7 +517,7 @@ biblioteca não oficial. Segredos sintéticos gerados a cada execução e ausent
 | Simulador da Graph API: `POST /v21.0/{id}/messages` (template, text, document), Bearer obrigatório (190), modelo só `APPROVED` (132001/132000), janela de 24 h (131047 **síncrono ou assíncrono**, configurável), `POST /{id}/media`, `GET /{media_id}` com URL que expira (300 s, configurável) e download só com Bearer (404 vencida), webhooks oficiais assinados `X-Hub-Signature-256`, reentrega idêntica, status fora de ordem, lote misto, verificação GET | **Executado** (`simulador_graph.py`; conferido pelo TW0) |
 | PCPR simulado: canal `whatsapp` ligado/desligado/**bloqueado (padrão)** em `/estado` e `canais_entrada`; `aguardando_envio_manual` + "enviado por outro meio" (WA-1); contato verificado com opt-in; `mensagem.whatsapp` na reserva; URL assinada do anexo; wamid → comunicação; `/entrega` idempotente sem regressão; `GET /comunicacoes?provedor_mensagem_id=`; `/recebimentos/sem-arquivo`; webhook direto (V2) com HMAC, fila de download e dedup | **Executado** (`simulador_pcpr.py`) |
 | W2 com desvio por canal; W6 (envio), W7 (webhook, V1), W8 (status), gerados por código, importados e publicados num n8n 2.43.7 descartável | **Executado** (`construir_workflows.py --whatsapp`) |
-| TW0–TW13 com asserções no estado dos simuladores e varredura do banco/disco do n8n | **Executado** (`testar_whatsapp.py`) |
+| TW0–TW16 com asserções no estado dos simuladores e varredura do banco/disco do n8n | **Executado** (`testar_whatsapp.py`) |
 | Export de W2, W6, W7 e W8 com `"active": false`, sem segredo e sem `facebook.com` | **Executado** (`docs/automacao/n8n/`) |
 | Meta real: app, WABA, número, verificação de empresa, modelos aprovados, preços, limites (*tiers*), qualidade, mTLS, tempo-limite real do webhook | **Não feito** — proibido até o portão de ativação |
 | Porta `gestao/integracoes/whatsapp`, `ContatoVerificado` com opt-in, renderizador `para_whatsapp` no PCPR | **Só desenhado** (o simulador do PCPR é a referência executável) |
@@ -378,7 +531,7 @@ Portas 5678, 8765 e 8767 livres; o script recusa rodar se o contêiner `pcpr-pro
 existir. Mesmos contêiner, volume e ambiente do n8n da suíte principal, mais `--add-host` para o
 sumidouro dos domínios da Meta.
 
-### Resultados TW0–TW15 (rodada final)
+### Resultados TW0–TW16 (rodada final)
 
 "Mensagem" = registro na Graph API simulada (aceita ou recusada). V1 = webhook da Meta no n8n
 (W7); V2 = webhook da Meta direto no PCPR.
@@ -393,20 +546,24 @@ sumidouro dos domínios da Meta.
 | TW5 | Status fora de ordem e duplicado → lida | **Passou** V1 e V2 | V1: `read`, `delivered`, `read` repetido, `sent` atrasado, reentrega idêntica do `delivered` → 6 webhooks 200; final **`lida`**, `entregue_em` e `lida_em` registrados, sem `falhou`; 4 `POST /entrega` = 2 novos + 2 repetições idempotentes; status **sem** `biz_opaque_callback_data` resolvido pelo wamid (`GET /comunicacoes?provedor_mensagem_id=`). V2: final `lida`; duplicatas contadas no PCPR (`read` 2×, `delivered` 2×) e ignoradas |
 | TW6 | Assinatura inválida → 401, nada gravado | **Passou** V1 e V2 | segredo errado, sem assinatura, corpo alterado depois de assinado, formato `sha1=` → 401 nos 4; 0 recebimento, janela não aberta, 0 chamada ao PCPR (V1), 0 pedido de URL/download; controle positivo assinado certo → 200 e 1 recebimento. Ressalva V1: o n8n **gravou** os 4 corpos recusados no banco (ver TW13) |
 | TW7 | Verificação GET | **Passou** V1 e V2 | token certo → 200, desafio ecoado em `text/plain`; token errado, `hub.mode` errado e desafio não alfanumérico → 403 |
-| TW8 | Documento recebido → 1 recebimento | **Passou** V1 e V2 | 1 recebimento `aceito_para_processamento`, SHA-256 = o da mídia, 1 pedido de URL + 1 download, todos com Bearer; resposta ligada à comunicação pelo `context.id` (wamid); (b) mídia corrompida → SHA-256 diverge → 0 recebimento + exceção; (c) lote misto (documento + status no mesmo POST) → 200; no V1 os dois já estavam registrados quando o 200 voltou |
+| TW8 | Documento recebido → 1 recebimento | **Passou** V1 e V2 | 1 recebimento `aceito_para_processamento`, SHA-256 = o da mídia, 1 pedido de URL + 1 download, todos com Bearer; resposta ligada à comunicação pelo `context.id` (wamid); (b) mídia corrompida → SHA-256 diverge → 0 recebimento + exceção; a Meta entrega o mesmo webhook 3× com a mídia corrompida nas 3 → `[200, 200, 200]`, 1 exceção só; no V1 o `POST /excecoes` do W7 dá `[201, 201 repetição, 201 repetição]` (corpo estável sob a chave por wamid; 3ª verificação); (c) lote misto (documento + status no mesmo POST) → 200; no V1 os dois já estavam registrados quando o 200 voltou |
 | TW9 | Reentrega do mesmo webhook → 1 recebimento | **Passou** V1 e V2 | 3 entregas idênticas → 200/200/200, **1** recebimento. V1: 3 `POST /recebimentos` (2 repetições idempotentes) e **3 downloads**; V2: o PCPR barrou na entrada → **1 download** |
 | TW10 | URL de mídia vencida → pede nova | **Passou** V1 e V2 | 2 pedidos de URL, downloads `[404, 200]`, 1 recebimento |
 | TW11 | Canal bloqueado → 0 chamada à Graph API (WA-1) | **Passou** | (a) padrão do simulador `whatsapp: bloqueado` (saída e entrada) → comunicação nasce `aguardando_envio_manual`, 0 evento, reconciliação `{"devidas": 0}`; tela WA-1 devolve texto + link `wa.me`; "enviado por outro meio" → `feita_a_mao`, `origem: outro_meio`; (b) bloqueado depois do evento → reservar **409 `canal_bloqueado`** → `aguardando_envio_manual`, sem resultado; (c) entrada bloqueada → webhook V2 403 e API 409, nada gravado; (d) `desligado` ≠ bloqueado → 423, segue `agendada`; religado → reconciliação `{"devidas": 1}` → 1 mensagem. Total de mensagens com o canal bloqueado: **0** |
 | TW12 | Contato sem opt-in → não envia | **Passou** | sem opt-in, opt-in revogado, não verificado → reservar 409 `regra_violada` (`motivo: contato_nao_verificado`), estado `sem_contato`, 1 exceção `contato_nao_verificado` cada, 0 mensagem |
 | TW13 | Retenção no n8n: V1 × V2 | **Passou** (as asserções abaixo) | ver a próxima tabela |
-| TW14 (C7) | Status antes do resultado → adiado, não engolido | **Passou** (V1) | o teste faz o papel do W6 (reserva no PCPR e envio direto na Graph API simulada) para controlar a ordem: (a) sem `biz_opaque_callback_data`, `delivered` antes do `resultado` → W8 consulta o wamid (`itens: []`) → 1ª entrega **503**, nenhum `POST /entrega`, nenhuma marca; resultado registrado → reentrega idêntica → **200** → `entregue`; (b) com `biz_opaque_callback_data` → 200 já na 1ª entrega, marca guardada pelo wamid e aplicada ao registrar o resultado → `entregue` |
+| TW14 (C7) | Status antes do resultado → adiado, não engolido | **Passou** (V1) | o teste faz o papel do W6 (reserva no PCPR e envio direto na Graph API simulada) para controlar a ordem: (a) sem `biz_opaque_callback_data`, `delivered` antes do `resultado` → W8 consulta o wamid (`itens: []`) → 1ª entrega **503**, nenhum `POST /entrega`, nenhuma marca; resultado registrado → reentrega idêntica → **200** → `entregue`; (b) com `biz_opaque_callback_data` → 200 já na 1ª entrega, marca guardada pelo wamid e aplicada ao registrar o resultado → `entregue`; (c) (2ª verificação) status **órfão antigo** — wamid que nunca terá resultado, de 2 h atrás, sem callback → **200**, reentrega → 200, **1** exceção (`outro`, origem n8n), nada gravado; controle: o mesmo status com horário atual → **503** (continua adiado) |
 | TW15 (C5/C6) | Resposta ambígua da Graph API → nunca temporária | **Passou** | a Graph API simulada **aceita** o modelo (1 mensagem) e responde 502 sem corpo da Graph → W6 registra `resultado_desconhecido` + exceção `resultado_desconhecido`, estado `falhou`; reconciliação depois `{"devidas": 0}`, 0 reenvio (antes viraria `falha_temporaria` e o PCPR reagendaria) |
+| TW16 (C5, 2ª verificação) | 5xx genérico da Graph → desconhecido; limite de taxa → reagenda | **Passou** | (a) a Graph API simulada **aceita** e responde 500 com `error.code` 131000 → 1 mensagem, `resultado_desconhecido` + exceção, `falhou`, reconciliação `{"devidas": 0}`, 0 reenvio (antes: `falha_temporaria`, o PCPR reagendaria e o W6 reenviaria); (b) 429 com código 130429 (recusa antes do aceite) → `falha_temporaria` → backoff de 1 s no PCPR → reconciliação `{"devidas": 1}` → `enviada`; na Graph API: 1 recusada + 1 aceita; 0 exceção |
 
 **Asserções do TW13**: (1) nenhuma credencial que o n8n usa para falar com alguém (token da API,
 segredo HMAC dos eventos, chave do n8n, chave do canal, token da Graph API, App Secret, chave do
 verify token) em execução ou disco, em nenhuma varredura; (2) **0** ocorrência de dado de entrada
 V2 no n8n; (3) controle positivo: a rodada M1 deixou rastro antes do *hard-delete* (a varredura
-enxerga o que procura); (4) depois do *hard-delete* de 1 min, **nada** sobrou; (5) com
+enxerga o que procura); (4) depois do *hard-delete* de 1 min, **nada** sobrou — a 1ª varredura de
+conferência vem 75 s depois do **fim da rodada M1** (um ciclo inteiro + folga) e, se ainda sobrar,
+repete a cada 20 s até 180 s (3 ciclos); antes contava 100 s da subida do n8n e, com a rodada M1
+lenta, caía antes de qualquer ciclo posterior a ela (3ª verificação: falhou 2 de 2 assim); (5) com
 `EXECUTIONS_DATA_PRUNE=false`, nada da rodada M2 ficou.
 
 ### V1 × V2: o que ficou no n8n
@@ -454,7 +611,7 @@ tem apenas ids; o destino nasce dentro da execução e não é gravado com `save
 
 | Configuração | Logo após uma rodada V1 + 1 envio | Depois |
 |---|---|---|
-| `EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=1` (M1) | presente (22 s após subir: tudo dos blocos anteriores + a rodada M1, 5 + 7 em base64 no banco e 2 no disco) | **0 em tudo, banco, base64 e disco** (varredura a 101 s) |
+| `EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=1` (M1) | presente (22 s após subir: tudo dos blocos anteriores + a rodada M1, 5 + 7 em base64 no banco e 2 no disco) | **0 em tudo, banco, base64 e disco** (varredura a 101 s; na rodada de 03:33, 76,6 s depois do fim da rodada M1, já na 1ª varredura de conferência) |
 | `EXECUTIONS_DATA_PRUNE=false` (M2) | **0** (varredura a 21 s) | — |
 
 ### Recomendação
@@ -492,8 +649,12 @@ tem apenas ids; o destino nasce dentro da execução e não é gravado com `save
   do PR #23, status de mensagem cujo resultado ainda não foi registrado é **adiado**: o W8 devolve
   `adiar` e o W7 responde 503 (TW14); antes, o W8 ignorava o wamid desconhecido e o W7 dava 200.
 - **Resposta sem erro estruturado da Graph API é ambígua** (TW15): 5xx/3xx sem `error.code` ou 2xx
-  sem wamid → `resultado_desconhecido` + exceção. Só erro estruturado (ou 429) vira
-  `falha_temporaria` — que o PCPR reagenda e reenvia.
+  sem wamid → `resultado_desconhecido` + exceção. Desde a 2ª verificação, **5xx com erro genérico**
+  (1, 2, 131000, 131016…) também é ambíguo (TW16a: a Meta aceitou e respondeu 500/131000 → 1
+  mensagem, 0 reenvio). Só limite de taxa — HTTP 429 ou códigos 4, 80007, 130429, 131048,
+  131056, aplicados antes do aceite — vira `falha_temporaria`, que o PCPR reagenda e reenvia
+  (TW16b: 429/130429 → rodada 2 → 1 mensagem aceita). Que esses códigos provem "não aceito" é
+  leitura da documentação, conferida só no simulador.
 - **Remove Duplicates antes do passo durável perde mensagem** (grava a chave ao passar): a dedup
   da entrada é a `Idempotency-Key` por wamid no PCPR.
 - **Sem retentativa no `POST /messages`** (a Cloud API não tem chave de idempotência); upload de
@@ -518,9 +679,15 @@ a 20 s × 3 tentativas (a Meta não espera 60 s por um webhook) e o simulador es
 da varredura** — a busca por base64 via "núcleos" de codificação confundiu `SINTETICA-V2` com
 `SINTETICA-V1` (os núcleos cortam o último caractere); trocada por decodificação dos trechos
 base64. Rodada de 23:21–23:27: TW0–TW13 passaram. Revisão do PR #23 (18/10): rodada parcial
-(TW1, TW3, TW5, TW8–TW10, TW14, TW15) passou; **rodada final 00:52–00:57: TW0–TW15 passaram**,
-export de W2/W6–W8 com `"active": false`, sem segredo e sem `facebook.com`, contêiner, volume e
-portas limpos.
+(TW1, TW3, TW5, TW8–TW10, TW14, TW15) passou; rodada completa 00:52–00:57: TW0–TW15 passaram.
+Segunda verificação: **rodada final 02:02–02:13: TW0–TW16 passaram** (TW14 com o caso (c), TW16
+novo), export de W2/W6–W8 com `"active": false`, sem segredo e sem `facebook.com`, contêiner,
+volume e portas limpos. Terceira verificação: duas rodadas completas do verificador falharam no
+**TW13** (só ele; "ainda sobrou" na varredura pós-*hard-delete*, com as linhas ainda `soft-deleted`)
+— a 2ª varredura veio 3 s e 21 s depois da 1ª, porque a espera era uma janela fixa contada da
+subida do n8n e a rodada M1 tinha sido lenta (log do n8n: `Offer expired - not accepted within
+validity window` do task runner). Corrigida a espera (acima); **rodada final 03:33–03:44:
+TW0–TW16 passaram**, saída 0, TW8b com reentrega da exceção de SHA-256, export limpo.
 
 ### Suíte principal depois do WA-3
 
@@ -572,3 +739,6 @@ rodada completa de 23:31–23:36 deu **13/13** (ver "Resultados da suíte princi
   fictício já trata N anexos, T16), mídia acima de 25 MiB (`/recebimentos/sem-arquivo`
   `acima_do_limite`), mídia vencida (> 7 dias) e áudio/vídeo/localização não foram exercitados.
 - Execução cortada por queda do n8n no meio de um W6/W7 não foi medida no TW13.
+- Status de wamid desconhecido é adiado por até `cfg_adiar_max_s` = 3600 s (pela idade do status);
+  depois vira exceção e 200 (TW14c). O valor supõe que o `resultado` chega em segundos e que a
+  reserva vence em 10 min; a política real de reentrega da Meta não foi medida.

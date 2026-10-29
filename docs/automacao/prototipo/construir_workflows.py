@@ -50,6 +50,7 @@ W1, W2, W3, W4, W5 = (
     "pcprErros0000001",
 )
 W6, W7, W8 = "pcprWhatsEnvio01", "pcprWhatsWebhk01", "pcprWhatsStatus1"
+ADIAR_STATUS_MAX_S = 3600  # W8: até quando um status de wamid desconhecido é adiado (C7)
 NOMES = {
     W1: "PCPR · Entrada de eventos",
     W2: "PCPR · Entregar comunicação",
@@ -158,6 +159,39 @@ def _cond(expr: str, cid: str) -> dict:
         ],
         "combinator": "and",
     }
+
+
+def chave_recebimento_js(canal_js: str, mensagem_js: str, indice_js: str) -> str:
+    """Expressão n8n da chave do recebimento — a mesma regra de `comum.chave_recebimento`:
+    `receb:<canal>:<id>:<anexo>` se tiver de 16 a 200 e for só ASCII imprimível (`[ -~]`, que mede
+    igual em JS e em Python); senão, `receb#sha256:<canal>:<hex>:<anexo>`."""
+    c, m, i = f"String({canal_js})", f"String({mensagem_js})", f"String({indice_js})"
+    bruta = f"('receb:' + {c} + ':' + {m} + ':' + {i})"
+    return (
+        f"={{{{ {bruta}.length >= 16 && {bruta}.length <= 200 && /^[ -~]*$/.test({bruta}) "
+        f"? {bruta} : "
+        f"'receb#sha256:' + {c} + ':' + {m}.hash('sha256') + ':' + {i} }}}}"
+    )
+
+
+def chave_limitada(prefixo: str, logica_js: str) -> str:
+    """Expressão n8n de uma Idempotency-Key que cabe no limite do contrato (16 a 200 caracteres).
+
+    `logica_js` é a expressão JS da parte variável (ids do canal podem ter até 300 caracteres).
+    Chave curta sai como sempre foi (legível, igual às já gravadas); se passar de 200, vira
+    `<1º segmento>#sha256:<resto do prefixo><hex>` (ex.: `excecao#sha256:whatsapp-status:<hex>`),
+    estável entre reentregas. O `#` no 1º segmento impede que um valor curto que pareça
+    `sha256:<hex>` reproduza a forma com hash (a bruta sempre começa pelo prefixo intacto).
+    """
+    v = f"(String({logica_js}))"
+    cabeca, _, resto = prefixo.partition(":")
+    com_hash = f"{cabeca}#sha256:{resto}"
+    return (
+        f"={{{{ ('{prefixo}' + {v}).length >= 16 && ('{prefixo}' + {v}).length <= 200 "
+        f"&& /^[ -~]*$/.test('{prefixo}' + {v}) "
+        f"? '{prefixo}' + {v} : "
+        f"'{com_hash}' + {v}.hash('sha256') }}}}"
+    )
 
 
 def se(f: Fluxo, nome: str, expr: str, pos: tuple[int, int]) -> str:
@@ -901,43 +935,190 @@ def w3() -> dict:
 
 # ------------------------------------------------------------------ W4
 
+LIMITE_ARQUIVO_BYTES = 25 * 1024 * 1024  # limite da importação documental (contrato)
+# W4: falha temporária persistente numa mensagem mais velha que isto → exceção fila_parada
+# (arquitetura §3.7; o canal continua reentregando). Valor proposto, a calibrar.
+FILA_PARADA_APOS_S = 4 * 3600
+
 JS_SEPARAR_ANEXOS = r"""
 // Um item por anexo: a chave do recebimento é receb:<canal>:<mensagem_id_canal>:<anexo_indice>
 // (contrato 10-6 E1; C3 do PR #23) e o PCPR consolida a mensagem por total_anexos.
+// O que não terá bytes vai para /recebimentos/sem-arquivo (contrato 10-6 E2): mensagem sem
+// anexo (anexo_indice 0, total_anexos 1) e anexo declarado acima do limite (nem é baixado).
 const cfg = $('Configuração').first().json;
 const b = cfg.body || {};
 const anexos = Array.isArray(b.anexos) ? b.anexos : [];
-if (!anexos.length) return [{ json: { tem_anexo: false } }];
-return anexos.map((a, i) => ({ json: {
-  tem_anexo: true,
-  cfg_pcpr: cfg.cfg_pcpr,
-  cfg_canal: cfg.cfg_canal,
+const LIMITE = Number(cfg.cfg_limite_bytes);
+const base = {
   canal: String(b.canal || ''),
   mensagem_id: String(b.mensagem_id || ''),
   remetente: String(b.remetente || ''),
   recebido_em: String(b.recebido_em || ''),
   em_resposta_a_comunicacao: b.em_resposta_a_comunicacao ?? '',
-  arquivo_id: String(a.id || ''),
-  nome_arquivo: String(a.nome || ('anexo-' + i)),
-  anexo_indice: i,
-  total_anexos: anexos.length,
-} }));
+};
+if (!anexos.length) {
+  return [{ json: { ...base, arquivo_id: '', nome_arquivo: '', tamanho: 0, anexo_indice: 0,
+    total_anexos: 1, acao: 'sem_arquivo', motivo: 'sem_anexo' } }];
+}
+return anexos.map((a, i) => {
+  const tamanho = Number(a.tamanho || 0);
+  const grande = tamanho > LIMITE;
+  return { json: { ...base,
+    arquivo_id: String(a.id || ''),
+    nome_arquivo: String(a.nome || ('anexo-' + i)),
+    tamanho,
+    anexo_indice: i,
+    total_anexos: anexos.length,
+    acao: grande ? 'sem_arquivo' : 'baixar',
+    motivo: grande ? 'acima_do_limite' : '',
+  } };
+});
+"""
+
+JS_CLASSIFICAR_PCPR_W4 = r"""
+// Resposta do PCPR a __OPERACAO__ → próximo passo do anexo (arquitetura §3.7/§3.12):
+// - aceito (2xx) → fim;
+// - transitório (rede, 5xx, 408, 423 desligada, 425, 429; 401/403 = credencial a corrigir) →
+//   reentregar: o W4 responde 503 e a mensagem continua no canal (nada se perde);
+// - 413 em /recebimentos → /recebimentos/sem-arquivo (motivo acima_do_limite, contrato);
+// - recusa permanente (409 canal_bloqueado ou conflito_de_versao, 422, outro 4xx): repetir não
+//   resolve → exceção humana com chave estável e resposta FINAL ao canal (sem laço de reentrega).
+const OP = '__OPERACAO__';
+const ctx = $('Anexo atual').first().json;
+const it = $input.first().json;
+let sc = 0;
+let corpo = {};
+let rede = '';
+if (it.error !== undefined) {  // saída de erro do nó HTTP: falha de rede/tempo esgotado
+  const e = it.error || {};
+  rede = String(e.message || e.code || e || 'erro de rede').slice(0, 200);
+} else {
+  sc = Number(it.statusCode || 0);
+  corpo = (it.body && typeof it.body === 'object') ? it.body : {};
+}
+const codigo = String(corpo.codigo || '');
+const descr = rede ? ('rede: ' + rede) : ('HTTP ' + sc + (codigo ? ' ' + codigo : ''));
+const base = { ...ctx, ultima_resposta: (OP + ': ' + descr).slice(0, 300) };
+if (rede || sc === 0 || sc >= 500 || [401, 403, 408, 423, 425, 429].includes(sc)) {
+  return [{ json: { ...base, passo: 'fim', desfecho: 'reentregar' } }];
+}
+if (sc >= 200 && sc < 300) {
+  // A chave é do anexo nas duas rotas: numa reentrega, o upload de um anexo que já foi
+  // registrado sem arquivo (413 → sem-arquivo) devolve esse mesmo Recebimento `rejeitado`
+  // (202, Idempotency-Replayed). O desfecho segue o estado gravado, não a rota chamada.
+  const estado = String(corpo.estado || '');
+  const sem = estado === 'rejeitado' || (OP === 'sem_arquivo' && !estado);
+  return [{ json: { ...base, passo: 'fim',
+    desfecho: sem ? 'registrado_sem_arquivo' : 'aceito',
+    recebimento_id: corpo.id ?? null, estado } }];
+}
+if (sc === 413 && OP === 'recebimento') {
+  return [{ json: { ...base, passo: 'sem_arquivo', motivo: 'acima_do_limite' } }];
+}
+// Chave e corpo da exceção são função SÓ da classe da recusa (operação, HTTP, código, motivo do
+// sem-arquivo): a mesma recusa reentregue repete a chave com o MESMO corpo (201 repetição); uma
+// recusa diferente na entrega seguinte (ex.: 422 e depois 409 canal_bloqueado) abre OUTRA exceção
+// em vez de reusar a chave com outro corpo (422 "chave reutilizada" → 503 em laço; 3ª verificação).
+// Por isso a `mensagem` livre do PCPR não entra no corpo (pode variar entre entregas).
+const motivoSem = OP === 'sem_arquivo' ? $('Pedido sem arquivo').first().json.motivo : '';
+const classe = [OP, 'http' + sc, codigo, motivoSem].filter(Boolean).join('-');
+const motivo_excecao = codigo === 'canal_bloqueado' ? 'canal_indisponivel' : 'outro';
+return [{ json: { ...base, passo: 'excecao', motivo_excecao,
+  // contrato: excecao:<fluxo>:<recebimento>:<motivo>; o prefixo excecao:recebimento-canais: vem no
+  // cabeçalho, que troca o resto por sha256 quando passaria de 200 caracteres (id longo do canal)
+  chave_excecao: 'receb:' + ctx.canal + ':' + ctx.mensagem_id + ':' +
+    ctx.anexo_indice + ':' + classe + ':' + motivo_excecao,
+  detalhe: ('PCPR recusou ' + OP + ' de forma permanente (' + descr + '); canal ' + ctx.canal +
+    ', anexo ' + (Number(ctx.anexo_indice) + 1) + ' de ' + ctx.total_anexos +
+    (motivoSem ? ', motivo ' + motivoSem : '') +
+    '. O canal recebeu resposta final e não reentrega: conferir a mensagem na caixa.')
+    .slice(0, 2000) } }];
+"""
+
+JS_CLASSIFICAR_DOWNLOAD_W4 = r"""
+// Falha no download do anexo no canal. 4xx estável (404/410 o anexo não existe mais; 400, 405,
+// 415, 422… id malformado ou anexo não suportado) = permanente → /recebimentos/sem-arquivo com
+// motivo nao_baixado (o PCPR abre a exceção arquivo_nao_baixado, contrato) e resposta final ao
+// canal. Só o que pode passar sozinho volta para reentrega (503): rede, 5xx, 408, 425, 429 e
+// 401/403 (credencial do canal: problema de configuração; se persistir, vira fila_parada).
+const ctx = $('Anexo atual').first().json;
+const e = $input.first().json.error || {};
+const texto = JSON.stringify(e) + ' ' + String(e.message || '');
+let sc = Number(e.statusCode || e.status || e.httpCode || 0);
+if (!sc) {
+  const m = /"(?:httpCode|statusCode|status)":"?(\d{3})/.exec(texto) ||
+    /^(\d{3})\b/.exec(String(e.message || ''));
+  if (m) sc = Number(m[1]);
+}
+const descr = 'download: ' + (sc ? 'HTTP ' + sc : String(e.message || e.code || 'erro de rede'))
+  .slice(0, 200);
+const transitorio = [401, 403, 408, 425, 429].includes(sc);
+if (sc >= 400 && sc < 500 && !transitorio) {
+  return [{ json: { ...ctx, passo: 'sem_arquivo', motivo: 'nao_baixado',
+    ultima_resposta: descr } }];
+}
+return [{ json: { ...ctx, passo: 'fim', desfecho: 'reentregar', ultima_resposta: descr } }];
 """
 
 JS_DECIDIR_RESPOSTA_W4 = r"""
-// 2xx ao canal SÓ se o PCPR aceitou todos os anexos (C9). Qualquer falha (download ou POST)
-// → 503: o canal reentrega a mensagem inteira; os anexos já aceitos repetem a mesma
-// Idempotency-Key e o PCPR devolve a resposta guardada, sem efeito novo.
-const itens = $input.all();
-const total = $('Separar anexos').all().length;
-const falhas = itens.filter((i) => i.json.error !== undefined).length;
-const aceitos = itens.length - falhas;
-return [{ json: { todos_aceitos: falhas === 0 && aceitos === total, aceitos, falhas, total } }];
+// 2xx ao canal SÓ quando todo anexo teve desfecho final no PCPR (C9): aceito, registrado sem
+// arquivo ou exceção aberta (recusa permanente). Qualquer 'reentregar' → 503: o canal reentrega
+// a mensagem inteira; o que já foi registrado repete a mesma Idempotency-Key, sem efeito novo.
+const itens = $input.all().map((i) => i.json);
+const esperados = $('Separar anexos').all().length;
+const conta = (d) => itens.filter((i) => i.desfecho === d).length;
+const resumo = {
+  total: esperados,
+  aceitos: conta('aceito'),
+  sem_arquivo: conta('registrado_sem_arquivo'),
+  excecoes: conta('excecao_aberta'),
+  reentregar: conta('reentregar'),
+};
+const finais = resumo.aceitos + resumo.sem_arquivo + resumo.excecoes;
+const confirmar = itens.length === esperados && finais === esperados;
+// §3.7 "depois, exceção; nunca laço infinito": falha temporária que persiste (PCPR fora do ar,
+// 5xx, 423, credencial inválida) numa mensagem recebida pelo canal há mais de cfg_fila_parada_s
+// → exceção fila_parada (chave e corpo estáveis por mensagem) E continua 503: o canal segue
+// reentregando até o próprio limite e o arquivo não se perde; a pessoa já foi avisada.
+const msg = $('Separar anexos').first().json;
+const idade_s = (Date.now() - Date.parse(String(msg.recebido_em || ''))) / 1000;
+const limite_s = Number($('Configuração').first().json.cfg_fila_parada_s);
+return [{ json: { ...resumo, confirmar, canal: msg.canal, mensagem_id: msg.mensagem_id,
+  fila_parada: !confirmar && Number.isFinite(idade_s) && idade_s > limite_s } }];
 """
 
 
+def _regra_campo(wid: str, campo: str, valor: str) -> dict:
+    return {
+        "conditions": {
+            "options": {
+                "caseSensitive": True,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 2,
+            },
+            "conditions": [
+                {
+                    "id": _uid(wid, campo, valor),
+                    "leftValue": f"={{{{ $json.{campo} }}}}",
+                    "rightValue": valor,
+                    "operator": {"type": "string", "operation": "equals"},
+                }
+            ],
+            "combinator": "and",
+        },
+        "renameOutput": True,
+        "outputKey": valor,
+    }
+
+
 def w4() -> dict:
+    """Recebimento de arquivo: um anexo por vez (Loop Over Items); cada anexo termina num
+    desfecho FINAL (aceito, registrado sem arquivo, exceção) ou em 'reentregar'. Só responde
+    ao canal no fim — 200 se todos são finais, 503 se algum deve ser reentregue."""
     f = Fluxo(W4)
+    cfg = "$('Configuração').first().json"
+    ctx = "$('Anexo atual').first().json"
     f.no(
         "Webhook do canal",
         "n8n-nodes-base.webhook",
@@ -960,31 +1141,30 @@ def w4() -> dict:
         [
             ("cfg_pcpr", PCPR_PADRAO, "string"),
             ("cfg_canal", CANAL_PADRAO, "string"),
+            ("cfg_limite_bytes", LIMITE_ARQUIVO_BYTES, "number"),
+            ("cfg_fila_parada_s", FILA_PARADA_APOS_S, "number"),
         ],
         (220, 300),
         manter=True,
     )
     codigo(f, "Separar anexos", JS_SEPARAR_ANEXOS, (440, 300))
-    se(f, "Tem anexo?", "={{ $json.tem_anexo === true }}", (660, 300))
     f.no(
-        "Responder 422 (sem anexo)",
-        "n8n-nodes-base.respondToWebhook",
-        1.1,
-        {
-            "respondWith": "json",
-            "responseBody": '{"erro":"mensagem_sem_anexo"}',
-            "options": {"responseCode": 422},
-        },
-        (880, 480),
+        "Cada anexo",
+        "n8n-nodes-base.splitInBatches",
+        3,
+        {"batchSize": 1, "options": {}},
+        (660, 300),
     )
+    nada(f, "Anexo atual", (880, 400))
+    se(f, "Baixar?", "={{ $json.acao === 'baixar' }}", (1100, 400))
     # Sem retentativa interna: a reentrega do canal é a retentativa (o arquivo continua no canal
-    # até um 2xx). Falha vai para a saída de erro e vira 503 no fim.
+    # até um 2xx). Falha vai para a saída de erro e é classificada.
     http(
         f,
         "Baixar arquivo",
         "GET",
-        "={{ $json.cfg_canal }}/arquivos/{{ $json.arquivo_id }}",
-        (880, 200),
+        f"={{{{ {cfg}.cfg_canal }}}}/arquivos/{{{{ $json.arquivo_id }}}}",
+        (1320, 200),
         cred=CRED_CANAL_API,
         saida_erro=True,
         extra_params={
@@ -996,6 +1176,7 @@ def w4() -> dict:
             }
         },
     )
+    codigo(f, "Classificar download", JS_CLASSIFICAR_DOWNLOAD_W4, (1540, 360))
     f.no(
         "Calcular SHA-256",
         "n8n-nodes-base.crypto",
@@ -1008,30 +1189,31 @@ def w4() -> dict:
             "dataPropertyName": "sha256",
             "encoding": "hex",
         },
-        (1100, 100),
+        (1540, 100),
     )
     # O nó Crypto v2 DESCARTA o binário que acabou de resumir (CryptoV2.node.js: só repassa
-    # `item.binary` quando não processou binário). Reanexa o arquivo baixado (item pareado).
+    # `item.binary` quando não processou binário). Reanexa o arquivo baixado.
     codigo(
         f,
         "Reanexar arquivo",
-        "return { json: { ...$('Separar anexos').item.json, sha256: $json.sha256 }, "
-        "binary: $('Baixar arquivo').item.binary };",
-        (1320, 100),
-        por_item=True,
+        f"return [{{ json: {{ ...{ctx}, sha256: $json.sha256 }}, "
+        "binary: $('Baixar arquivo').first().binary }];",
+        (1760, 100),
     )
+    # resposta completa como dado (neverError): o status decide o passo; rede → saída de erro
     http(
         f,
         "Entregar ao PCPR",
         "POST",
-        "={{ $json.cfg_pcpr }}/recebimentos",
-        (1540, 100),
+        f"={{{{ {cfg}.cfg_pcpr }}}}/recebimentos",
+        (1980, 100),
         timeout=60000,
+        completo=True,
         saida_erro=True,
         cabecalhos=[
             (
                 "Idempotency-Key",
-                "=receb:{{ $json.canal }}:{{ $json.mensagem_id }}:{{ $json.anexo_indice }}",
+                chave_recebimento_js("$json.canal", "$json.mensagem_id", "$json.anexo_indice"),
             ),
         ],
         extra_params={
@@ -1085,25 +1267,114 @@ def w4() -> dict:
             },
         },
     )
-    f.no(
-        "Juntar",
-        "n8n-nodes-base.merge",
-        3.2,
-        {"mode": "append", "numberInputs": 3},
-        (1760, 300),
+    codigo(
+        f,
+        "Classificar entrega",
+        JS_CLASSIFICAR_PCPR_W4.replace("__OPERACAO__", "recebimento"),
+        (2200, 100),
     )
-    codigo(f, "Decidir resposta", JS_DECIDIR_RESPOSTA_W4, (1980, 300))
-    se(f, "Todos aceitos pelo PCPR?", "={{ $json.todos_aceitos === true }}", (2200, 300))
+    # Sem bytes (sem anexo, acima do limite, anexo que não existe mais): registro no PCPR, que
+    # orienta o remetente (contrato /recebimentos/sem-arquivo; mesma chave de idempotência).
+    nada(f, "Pedido sem arquivo", (1100, 600))
+    http(
+        f,
+        "Registrar sem arquivo",
+        "POST",
+        f"={{{{ {cfg}.cfg_pcpr }}}}/recebimentos/sem-arquivo",
+        (1320, 640),
+        completo=True,
+        saida_erro=True,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                chave_recebimento_js(f"{ctx}.canal", f"{ctx}.mensagem_id", f"{ctx}.anexo_indice"),
+            ),
+        ],
+        corpo_json=f"={{{{ JSON.stringify({{ canal: {ctx}.canal, "
+        f"mensagem_id_canal: {ctx}.mensagem_id, anexo_indice: {ctx}.anexo_indice, "
+        f"total_anexos: {ctx}.total_anexos, remetente: {ctx}.remetente, "
+        f"recebido_em: {ctx}.recebido_em, nome_arquivo: {ctx}.nome_arquivo || undefined, "
+        f"tamanho: {ctx}.tamanho || undefined, motivo: $json.motivo }}) }}}}",
+    )
+    codigo(
+        f,
+        "Classificar registro sem arquivo",
+        JS_CLASSIFICAR_PCPR_W4.replace("__OPERACAO__", "sem_arquivo"),
+        (1540, 600),
+    )
+    f.no(
+        "Próximo passo",
+        "n8n-nodes-base.switch",
+        3.2,
+        {
+            "rules": {
+                "values": [
+                    _regra_campo(W4, "passo", "fim"),
+                    _regra_campo(W4, "passo", "sem_arquivo"),
+                    _regra_campo(W4, "passo", "excecao"),
+                ]
+            },
+            "options": {"fallbackOutput": "extra", "renameFallbackOutput": "inesperado"},
+        },
+        (2420, 400),
+    )
+    # Recusa permanente: exceção humana com chave estável (reentrega do canal → mesma exceção) e
+    # resposta final ao canal. Repetir este POST é seguro (Idempotency-Key estável).
+    http(
+        f,
+        "Abrir exceção (recusa permanente)",
+        "POST",
+        f"={{{{ {cfg}.cfg_pcpr }}}}/excecoes",
+        (2640, 600),
+        tentativas=3,
+        espera_ms=1000,
+        saida_erro=True,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                chave_limitada("excecao:recebimento-canais:", "$json.chave_excecao"),
+            )
+        ],
+        # corpo idêntico em toda reentrega da MESMA recusa: sem id da execução nem texto livre do
+        # PCPR (mesma chave com outro corpo = 422 "chave reutilizada" → 503 em laço; T19a e T19f)
+        corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
+        "correlacao_id: 'recebimento:' + $json.canal + ':' + $json.mensagem_id, "
+        "motivo: $json.motivo_excecao, detalhe: $json.detalhe }) }}",
+    )
+    codigo(
+        f,
+        "Exceção aberta",
+        f"return [{{ json: {{ ...{ctx}, desfecho: 'excecao_aberta', "
+        "excecao_id: $json.id ?? null } }];",
+        (2860, 520),
+    )
+    codigo(
+        f,
+        "Exceção não aberta",
+        f"return [{{ json: {{ ...{ctx}, desfecho: 'reentregar', "
+        "ultima_resposta: 'exceção não registrada no PCPR' } }];",
+        (2860, 700),
+    )
+    codigo(
+        f,
+        "Passo inesperado",
+        f"return [{{ json: {{ ...{ctx}, desfecho: 'reentregar', "
+        "ultima_resposta: 'passo inesperado: ' + String($json.passo) } }];",
+        (2640, 800),
+    )
+    codigo(f, "Decidir resposta", JS_DECIDIR_RESPOSTA_W4, (880, 100))
+    se(f, "Confirmar ao canal?", "={{ $json.confirmar === true }}", (1100, 0))
     f.no(
         "Responder 200",
         "n8n-nodes-base.respondToWebhook",
         1.1,
         {
             "respondWith": "json",
-            "responseBody": "={{ JSON.stringify({ aceitos: $json.aceitos, total: $json.total }) }}",
+            "responseBody": "={{ JSON.stringify({ total: $json.total, aceitos: $json.aceitos, "
+            "sem_arquivo: $json.sem_arquivo, excecoes: $json.excecoes }) }}",
             "options": {"responseCode": 200},
         },
-        (2420, 200),
+        (1320, -100),
     )
     f.no(
         "Responder 503 (reentregar)",
@@ -1112,29 +1383,82 @@ def w4() -> dict:
         {
             "respondWith": "json",
             "responseBody": "={{ JSON.stringify({ erro: 'recebimento_nao_confirmado', "
-            "aceitos: $json.aceitos, falhas: $json.falhas, total: $json.total }) }}",
+            "total: $('Decidir resposta').first().json.total, "
+            "aceitos: $('Decidir resposta').first().json.aceitos, "
+            "sem_arquivo: $('Decidir resposta').first().json.sem_arquivo, "
+            "excecoes: $('Decidir resposta').first().json.excecoes, "
+            "reentregar: $('Decidir resposta').first().json.reentregar, "
+            "fila_parada: $('Decidir resposta').first().json.fila_parada }) }}",
             "options": {"responseCode": 503},
         },
-        (2420, 400),
+        (1760, 60),
+    )
+    se(f, "Fila parada?", "={{ $json.fila_parada === true }}", (1320, 160))
+    # Exceção humana (§3.7) sem largar a mensagem: chave e corpo estáveis por mensagem (cada
+    # reentrega repete sem efeito); se nem o /excecoes responder, a resposta continua 503.
+    http(
+        f,
+        "Exceção: fila parada",
+        "POST",
+        f"={{{{ {cfg}.cfg_pcpr }}}}/excecoes",
+        (1540, 260),
+        saida_erro=True,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                chave_limitada(
+                    "excecao:recebimento-canais:",
+                    "'receb:' + $json.canal + ':' + $json.mensagem_id + ':fila_parada'",
+                ),
+            ),
+        ],
+        corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
+        "correlacao_id: 'recebimento:' + $json.canal + ':' + $json.mensagem_id, "
+        # corpo = função só da chave: sem o limite configurável (cfg_fila_parada_s), que mudaria o
+        # corpo numa reentrega depois de reconfigurar (422 "chave reutilizada" → 503 em laço)
+        "motivo: 'fila_parada', detalhe: 'O PCPR não confirma o recebimento desta mensagem há mais "
+        "que o prazo configurado (falha temporária persistente: PCPR fora do ar, automação "
+        "desligada ou credencial). O canal continua reentregando até o próprio limite; conferir "
+        "a mensagem na caixa.' }) }}",
     )
     for a, c in [
         ("Webhook do canal", "Configuração"),
         ("Configuração", "Separar anexos"),
-        ("Separar anexos", "Tem anexo?"),
+        ("Separar anexos", "Cada anexo"),
+        ("Anexo atual", "Baixar?"),
         ("Calcular SHA-256", "Reanexar arquivo"),
         ("Reanexar arquivo", "Entregar ao PCPR"),
-        ("Juntar", "Decidir resposta"),
-        ("Decidir resposta", "Todos aceitos pelo PCPR?"),
+        ("Classificar entrega", "Próximo passo"),
+        ("Classificar download", "Próximo passo"),
+        ("Pedido sem arquivo", "Registrar sem arquivo"),
+        ("Registrar sem arquivo", "Classificar registro sem arquivo"),
+        ("Classificar registro sem arquivo", "Próximo passo"),
+        ("Decidir resposta", "Confirmar ao canal?"),
     ]:
         f.liga(a, c)
-    f.liga("Tem anexo?", "Baixar arquivo", 0)
-    f.liga("Tem anexo?", "Responder 422 (sem anexo)", 1)
+    f.liga("Cada anexo", "Decidir resposta", 0)  # done: todos os desfechos
+    f.liga("Cada anexo", "Anexo atual", 1)  # loop: um anexo
+    f.liga("Baixar?", "Baixar arquivo", 0)
+    f.liga("Baixar?", "Pedido sem arquivo", 1)
     f.liga("Baixar arquivo", "Calcular SHA-256", 0)
-    f.liga("Baixar arquivo", "Juntar", 1, 1)  # falha no download
-    f.liga("Entregar ao PCPR", "Juntar", 0, 0)  # aceitos pelo PCPR (202)
-    f.liga("Entregar ao PCPR", "Juntar", 1, 2)  # recusa/erro do PCPR
-    f.liga("Todos aceitos pelo PCPR?", "Responder 200", 0)
-    f.liga("Todos aceitos pelo PCPR?", "Responder 503 (reentregar)", 1)
+    f.liga("Baixar arquivo", "Classificar download", 1)
+    f.liga("Entregar ao PCPR", "Classificar entrega", 0)
+    f.liga("Entregar ao PCPR", "Classificar entrega", 1)  # rede também é classificada
+    f.liga("Registrar sem arquivo", "Classificar registro sem arquivo", 1)
+    f.liga("Próximo passo", "Cada anexo", 0)  # fim: desfecho já decidido
+    f.liga("Próximo passo", "Pedido sem arquivo", 1)
+    f.liga("Próximo passo", "Abrir exceção (recusa permanente)", 2)
+    f.liga("Próximo passo", "Passo inesperado", 3)
+    f.liga("Abrir exceção (recusa permanente)", "Exceção aberta", 0)
+    f.liga("Abrir exceção (recusa permanente)", "Exceção não aberta", 1)
+    for fim in ("Exceção aberta", "Exceção não aberta", "Passo inesperado"):
+        f.liga(fim, "Cada anexo")
+    f.liga("Confirmar ao canal?", "Responder 200", 0)
+    f.liga("Confirmar ao canal?", "Fila parada?", 1)
+    f.liga("Fila parada?", "Exceção: fila parada", 0)
+    f.liga("Fila parada?", "Responder 503 (reentregar)", 1)
+    f.liga("Exceção: fila parada", "Responder 503 (reentregar)", 0)
+    f.liga("Exceção: fila parada", "Responder 503 (reentregar)", 1)
     # arquivo e remetente: nada fica guardado no n8n
     return f.json({"errorWorkflow": W5, **SEM_RETENCAO})
 
@@ -1162,13 +1486,18 @@ def w5() -> dict:
         ],
         corpo_json="={{ JSON.stringify({ fluxo: 'n8n:' + $json.workflow.name, "
         "correlacao_id: 'n8n:execucao:' + ($json.execution.id ?? 'sem-id'), motivo: 'outro', "
-        "detalhe: (String(($json.execution.error || {}).message || 'erro sem mensagem') + "
+        # mensagem de erro pode citar corpo de resposta (ex.: token de reserva): sequências longas
+        # de caracteres de token são mascaradas antes de sair do n8n (o PCPR mascara de novo)
+        "detalhe: (String(($json.execution.error || {}).message || 'erro sem mensagem')"
+        ".replace(/[A-Za-z0-9_-]{24,}/g, '***') + "
         "' (nó: ' + ($json.execution.lastNodeExecuted || '?') + ')').slice(0, 2000), "
         "execucao_orquestrador: String($json.execution.id ?? '') }) }}",
     )
     f.liga("Quando um fluxo falhar", "Configuração")
     f.liga("Configuração", "Abrir exceção")
-    return f.json({})
+    # O Error Trigger recebe a mensagem de erro e dados da execução que falhou (W2/W4: destino,
+    # token de reserva): a execução do W5 também não fica guardada (T13 achou o token aqui).
+    return f.json(SEM_RETENCAO)
 
 
 # ------------------------------------------------------------------ W6 · WhatsApp oficial: envio
@@ -1276,8 +1605,18 @@ if (!erroGraph && sc !== 429) {
     erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),
     motivo_excecao: 'resultado_desconhecido' } }];
 }
-const temporario = sc === 429 || sc >= 500 ||
-  [130429, 131056, 131048, 131000, 131016, 2, 4, 80007].includes(codigo);
+// Temporária (o PCPR reagenda e o W6 REENVIA) só com prova de que a Meta NÃO aceitou: limite de
+// taxa (HTTP 429 ou códigos de throttling 4, 80007, 130429, 131048, 131056), que a Graph API
+// aplica antes de aceitar a mensagem. 5xx com erro genérico (1, 2, 131000, 131016...) não prova
+// nada: pode ter falhado depois do aceite → resultado desconhecido + exceção, sem reenvio
+// (2ª verificação do PR #23; a mesma regra do W2/C5).
+const LIMITE_DE_TAXA = [4, 80007, 130429, 131048, 131056];
+if (sc >= 500 && !LIMITE_DE_TAXA.includes(codigo)) {
+  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',
+    erro: ('erro do servidor da Graph API, aceite incerto: ' + descr).slice(0, 300),
+    motivo_excecao: 'resultado_desconhecido' } }];
+}
+const temporario = sc === 429 || LIMITE_DE_TAXA.includes(codigo);
 const motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';
 return [{ json: { fallback: false,
   resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',
@@ -1867,7 +2206,7 @@ def w7() -> dict:
         tentativas=3,
         espera_ms=1000,
         timeout=20000,
-        cabecalhos=[("Idempotency-Key", "=receb:whatsapp:{{ $json.wamid }}:0")],
+        cabecalhos=[("Idempotency-Key", chave_recebimento_js("'whatsapp'", "$json.wamid", "0"))],
         extra_params={
             "sendBody": True,
             "contentType": "multipart-form-data",
@@ -1919,11 +2258,11 @@ def w7() -> dict:
         (3300, 400),
         tentativas=3,
         espera_ms=1000,
-        cabecalhos=[("Idempotency-Key", "=excecao:whatsapp-sha256:{{ $json.wamid }}")],
+        cabecalhos=[("Idempotency-Key", chave_limitada("excecao:whatsapp-sha256:", "$json.wamid"))],
         corpo_json="={{ JSON.stringify({ fluxo: 'recebimento-canais', "
         "correlacao_id: 'whatsapp:' + String($json.wamid).slice(-12), motivo: 'outro', "
-        "detalhe: 'SHA-256 da mídia baixada diverge do informado pela Meta; nada importado.', "
-        "execucao_orquestrador: String($execution.id) }) }}",
+        "detalhe: 'SHA-256 da mídia baixada diverge do informado pela Meta; nada importado.' "
+        "}) }}",  # corpo estável sob a chave por wamid (sem id da execução)
     )
     http(
         f,
@@ -1933,7 +2272,7 @@ def w7() -> dict:
         (1540, 560),
         tentativas=3,
         espera_ms=1000,
-        cabecalhos=[("Idempotency-Key", "=receb:whatsapp:{{ $json.wamid }}:0")],
+        cabecalhos=[("Idempotency-Key", chave_recebimento_js("'whatsapp'", "$json.wamid", "0"))],
         corpo_json="={{ JSON.stringify({ canal: 'whatsapp', mensagem_id_canal: $json.wamid, "
         "anexo_indice: 0, total_anexos: 1, remetente: $json.remetente, "
         "recebido_em: $json.recebido_em, motivo: 'sem_anexo' }) }}",
@@ -2073,7 +2412,17 @@ def w8() -> dict:
         {"inputSource": "passthrough"},
         (0, 300),
     )
-    definir(f, "Configuração", [("cfg_pcpr", PCPR_PADRAO, "string")], (220, 300))
+    definir(
+        f,
+        "Configuração",
+        [
+            ("cfg_pcpr", PCPR_PADRAO, "string"),
+            # status de wamid desconhecido mais velho que isto não é mais adiado: o resultado não
+            # vai chegar (a reserva vence em 10 min) → exceção e 200 (a Meta reentregaria 7 dias)
+            ("cfg_adiar_max_s", ADIAR_STATUS_MAX_S, "number"),
+        ],
+        (220, 300),
+    )
     codigo(f, "Mapear status", JS_MAPEAR_STATUS, (440, 300))
     se(f, "Tem comunicação?", "={{ $json.comunicacao_id !== null }}", (660, 300))
     http(
@@ -2095,40 +2444,68 @@ def w8() -> dict:
         (1320, 300),
     )
     # Status que chegou ANTES do /resultado (wamid ainda sem comunicação no PCPR): não é
-    # descartado — o W7 responde não-2xx e a Meta reentrega depois (C7 do PR #23).
+    # descartado — o W7 responde não-2xx e a Meta reentrega depois (C7 do PR #23). Só enquanto
+    # for recente: um status órfão antigo vira exceção e é confirmado (sem 7 dias de reentrega).
     se(
         f,
         "Adiar? (resultado ainda não registrado)",
-        "={{ $json.comunicacao_id === null }}",
+        "={{ $json.comunicacao_id === null && (Date.now() - Date.parse($json.ocorrido_em)) <= "
+        "$('Configuração').first().json.cfg_adiar_max_s * 1000 }}",
         (1540, 300),
     )
-    definir(f, "Marcar adiado", [("adiar", True, "boolean")], (1760, 420))
+    se(f, "Comunicação conhecida?", "={{ $json.comunicacao_id !== null }}", (1760, 300))
     http(
         f,
-        "Registrar entrega",
+        "Exceção: status sem comunicação",
         "POST",
-        "={{ $json.cfg_pcpr }}/comunicacoes/{{ $json.comunicacao_id }}/entrega",
-        (1760, 200),
+        "={{ $json.cfg_pcpr }}/excecoes",
+        (1980, 420),
         tentativas=3,
         espera_ms=1000,
         cabecalhos=[
             (
                 "Idempotency-Key",
-                "=entrega:{{ $json.comunicacao_id }}:{{ $json.wamid }}:{{ $json.status }}",
+                chave_limitada("excecao:whatsapp-status:", "$json.wamid + ':' + $json.status"),
+            ),
+        ],
+        corpo_json="={{ JSON.stringify({ fluxo: 'whatsapp', "
+        "correlacao_id: 'whatsapp:status:' + $json.wamid.slice(-12), motivo: 'outro', "
+        # corpo = função só da chave (wamid + status): sem o limite configurável, que mudaria o
+        # corpo numa reentrega depois de reconfigurar (422 "chave reutilizada" → W7 em não-2xx)
+        "detalhe: 'Status ' + $json.status + ' de uma mensagem que o PCPR não conhece (nenhum "
+        "resultado com este id do provedor depois do prazo de espera): confirmado à Meta sem "
+        "gravar. Conferir se houve envio sem registro.' }) }}",
+    )
+    definir(f, "Marcar órfão", [("adiar", False, "boolean")], (2200, 420))
+    definir(f, "Marcar adiado", [("adiar", True, "boolean")], (1760, 560))
+    http(
+        f,
+        "Registrar entrega",
+        "POST",
+        "={{ $json.cfg_pcpr }}/comunicacoes/{{ $json.comunicacao_id }}/entrega",
+        (1980, 200),
+        tentativas=3,
+        espera_ms=1000,
+        cabecalhos=[
+            (
+                "Idempotency-Key",
+                chave_limitada(
+                    "entrega:", "$json.comunicacao_id + ':' + $json.wamid + ':' + $json.status"
+                ),
             )
         ],
         corpo_json="={{ JSON.stringify({ provedor_mensagem_id: $json.wamid, status: $json.status, "
         "ocorrido_em: $json.ocorrido_em, erro: $json.erro || undefined }) }}",
     )
-    definir(f, "Marcar registrado", [("adiar", False, "boolean")], (1980, 200))
+    definir(f, "Marcar registrado", [("adiar", False, "boolean")], (2200, 200))
     f.no(
         "Juntar resultado",
         "n8n-nodes-base.merge",
         3.2,
-        {"mode": "append", "numberInputs": 2},
-        (2200, 300),
+        {"mode": "append", "numberInputs": 3},
+        (2420, 300),
     )
-    codigo(f, "Resumo", JS_RESUMO_W8, (2420, 300))
+    codigo(f, "Resumo", JS_RESUMO_W8, (2640, 300))
     for a, b in [
         ("Quando chamado pelo W7", "Configuração"),
         ("Configuração", "Mapear status"),
@@ -2143,7 +2520,11 @@ def w8() -> dict:
     f.liga("Tem comunicação?", "Buscar pelo wamid", 1)
     f.liga("Usar id encontrado", "Juntar ids", 0, 1)
     f.liga("Adiar? (resultado ainda não registrado)", "Marcar adiado", 0)
-    f.liga("Adiar? (resultado ainda não registrado)", "Registrar entrega", 1)
+    f.liga("Adiar? (resultado ainda não registrado)", "Comunicação conhecida?", 1)
+    f.liga("Comunicação conhecida?", "Registrar entrega", 0)
+    f.liga("Comunicação conhecida?", "Exceção: status sem comunicação", 1)
+    f.liga("Exceção: status sem comunicação", "Marcar órfão")
+    f.liga("Marcar órfão", "Juntar resultado", 0, 2)
     f.liga("Marcar registrado", "Juntar resultado", 0, 0)
     f.liga("Marcar adiado", "Juntar resultado", 0, 1)
     return f.json({"errorWorkflow": W5, "callerPolicy": "workflowsFromSameOwner", **SEM_RETENCAO})

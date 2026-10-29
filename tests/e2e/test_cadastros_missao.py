@@ -4,6 +4,7 @@ import json
 import os
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote
 
 import pytest
 from playwright.sync_api import expect
@@ -123,9 +124,11 @@ def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
     pg.set_viewport_size({"width": largura, "height": 900})
     nome = f"Atendimento compartilhado da missão {largura}"
     pg.goto("/eventos/cadastros/servicos/")
-    pg.locator("#novo-nome").fill(nome)
-    pg.get_by_role("button", name="Incluir", exact=True).click()
-    item = AtividadePlano.objects.get(nome=nome)
+    pg.locator("main [data-abrir-dialogo=dialogo-cadastro]").first.click()
+    pg.locator("#cadastro-nome").fill(nome)
+    pg.locator("#dialogo-cadastro button[type=submit]").click()
+    expect(pg.locator(".registros")).to_contain_text(nome, ignore_case=True)
+    item = AtividadePlano.objects.get(nome__iexact=nome)
     quantidade = AtividadePlano.objects.count()
     plano = PlanoTrabalho.objects.create(unidade=usuario.lotacao.unidade, ano=2026,
                                           numero=9001, criado_por=usuario)
@@ -150,8 +153,12 @@ def test_catalogo_unico_em_planos_e_eventos(pagina, dados_e2e, largura):
     expect(pg.locator(".registros")).to_contain_text(revisado, ignore_case=True)
     item.refresh_from_db()
     revisado = item.nome
-    pg.goto("/eventos/cadastros/servicos/")
-    pg.get_by_role("button", name=f"Inativar {revisado}", exact=True).click()
+    pg.goto(f"/eventos/cadastros/servicos/?q={quote(revisado)}")
+    pg.locator(".registro").filter(has_text=revisado).locator("[data-menu-botao]").click()
+    pg.get_by_role("menuitem", name="Desativar", exact=True).click()
+    expect(pg.get_by_role("heading", name="Nenhum registro encontrado")).to_be_visible()
+    item.refresh_from_db()
+    assert not item.ativo
     assert plano.atividades.get().pk == pedido.servicos.get().servico_id == item.pk
     assert str(pedido.servicos.get()) == nome
     assert AtividadePlano.objects.count() == quantidade
@@ -210,42 +217,56 @@ def test_seis_catalogos_eventos_fluxos_completos(pagina, dados_e2e, largura):
     pg.set_viewport_size({"width": largura, "height": 900})
     for slug, catalogo in CATALOGOS.items():
         pg.goto(f"/eventos/cadastros/{slug}/")
-        criar = pg.locator("section[aria-labelledby=t-novo] form")
-        criar.get_by_role("button", name="Incluir", exact=True).click()
-        expect(pg.locator("#novo-nome")).to_have_attribute("aria-invalid", "true")
+        janela = pg.locator("#dialogo-cadastro")
+        pg.locator("main [data-abrir-dialogo=dialogo-cadastro]").first.click()
+        expect(janela).to_be_visible()
+        janela.locator("button[type=submit]").click()  # vazio: volta com o erro no campo
+        expect(janela).to_be_visible()
+        expect(pg.locator("#cadastro-nome")).to_have_attribute("aria-invalid", "true")
         nome = f"Registro sintético com nome representativo {slug} {largura}"
-        criar.locator("[name=nome]").fill(nome)
+        pg.locator("#cadastro-nome").fill(nome)
         if catalogo.com_texto:
-            criar.locator("[name=texto]").fill("Texto do despacho preservado após a validação.")
-        criar.get_by_role("button", name="Incluir", exact=True).click()
+            janela.locator("[name=texto]").fill("Texto do despacho preservado após a validação.")
+        janela.locator("button[type=submit]").click()
+        linha = pg.locator(".registro").filter(has_text=nome)
+        expect(linha).to_be_visible()
         objeto = catalogo.modelo.objects.get(nome=nome)
-        linha = pg.locator(".registro").filter(has=pg.get_by_text(nome, exact=True))
-        linha.locator("summary").click()
-        linha.locator("[name=nome]").fill("Alteração cancelada")
-        linha.get_by_role("link", name="Cancelar", exact=True).click()
+        linha.locator(".registro__link").click()  # editar e desistir não altera nada
+        expect(janela).to_be_visible()
+        pg.locator("#cadastro-nome").fill("Alteração cancelada")
+        janela.get_by_role("link", name="Cancelar", exact=True).click()
+        expect(janela).to_be_hidden()
         objeto.refresh_from_db()
         assert objeto.nome == nome
-        linha = pg.locator(".registro").filter(has=pg.get_by_text(nome, exact=True))
-        linha.locator("summary").click()
-        linha.locator("[name=nome]").fill("")
-        linha.get_by_role("button", name="Salvar", exact=True).click()
-        linha = pg.locator(".registro").filter(has=pg.get_by_text(nome, exact=True))
-        expect(linha.locator("[name=nome]")).to_have_attribute("aria-invalid", "true")
+        linha.locator(".registro__link").click()
+        pg.locator("#cadastro-nome").fill("")
+        janela.get_by_role("button", name="Salvar alterações", exact=True).click()
+        expect(pg.locator("#cadastro-nome")).to_have_attribute("aria-invalid", "true")
         revisado = nome + " revisado"
-        linha.locator("[name=nome]").fill(revisado)
-        linha.get_by_role("button", name="Salvar", exact=True).click()
+        pg.locator("#cadastro-nome").fill(revisado)
+        janela.get_by_role("button", name="Salvar alterações", exact=True).click()
+        linha = pg.locator(".registro").filter(has_text=revisado)
+        expect(linha).to_be_visible()
         objeto.refresh_from_db()
         assert objeto.nome == revisado
-        pg.get_by_role("button", name=f"Inativar {revisado}", exact=True).click()
+        linha.locator("[data-menu-botao]").click()
+        pg.get_by_role("menuitem", name="Desativar", exact=True).click()
+        expect(linha).to_have_count(0)
         objeto.refresh_from_db()
         assert not objeto.ativo
-        pg.get_by_role("button", name=f"Ativar {revisado}", exact=True).click()
+        pg.goto(f"/eventos/cadastros/{slug}/?aba=inativos&q={quote(revisado)}")
+        linha.locator("[data-menu-botao]").click()
+        pg.get_by_role("menuitem", name="Reativar", exact=True).click()
+        expect(pg.get_by_role("heading", name="Nenhum registro encontrado")).to_be_visible()
         objeto.refresh_from_db()
         assert objeto.ativo
         assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
         pg.evaluate("window.scrollTo(0, 0)")
         assert rodar_axe(pg) == []
-    assert not pg.erros_console
+    # Os dois envios vazios de cada catálogo (criar e editar) provocam de propósito um
+    # HTTP 422 cada; nenhum outro erro no console.
+    assert len(pg.erros_console) == 2 * len(CATALOGOS)  # type: ignore[attr-defined]
+    assert all("422" in e for e in pg.erros_console)  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:57:26.000Z",
-  "createdAt": "2026-10-18T03:52:34.183Z",
+  "updatedAt": "2026-10-18T14:55:30.000Z",
+  "createdAt": "2026-10-18T14:50:25.087Z",
   "id": "pcprWhatsEnvio01",
   "name": "PCPR · Enviar por WhatsApp (oficial)",
   "description": null,
@@ -404,7 +404,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Resposta da Graph API → resultado para o PCPR. Sem retentativa automática do POST /messages:\n// a Cloud API não tem chave de idempotência, então repetir após tempo esgotado duplicaria.\nconst PERMITE_FALLBACK = true;\nconst r = $input.first().json;\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst forma = PERMITE_FALLBACK ? $('Decidir forma').first().json.forma : 'modelo';\nconst temModelo = Boolean((((ctx.mensagem || {}).whatsapp || {}).modelo || {}).nome);\nconst sc = Number(r.statusCode || 0);\nconst corpo = (r.body && typeof r.body === 'object') ? r.body : {};\nconst e = corpo.error || {};\nconst codigo = Number(e.code || 0);\nconst wamid = ((corpo.messages || [])[0] || {}).id || '';\nconst descr = ('HTTP ' + sc + (codigo ? ' código ' + codigo : '') +\n  (e.message ? ': ' + String(e.message) : '')).slice(0, 300);\nif (sc === 200 && wamid) {\n  return [{ json: { fallback: false, resultado: 'enviada', provedor_mensagem_id: wamid,\n    erro: '', motivo_excecao: '' } }];\n}\n// 131047 (fora da janela) numa mensagem livre: troca UMA vez por modelo; nunca repete o livre.\nif (codigo === 131047 && PERMITE_FALLBACK && forma !== 'modelo' && temModelo) {\n  return [{ json: { fallback: true, erro_primeira_tentativa: descr } }];\n}\n// Sem erro estruturado da Graph API (ex.: 502/504 de um proxy, 2xx sem wamid) não se sabe se a\n// Meta aceitou → resultado desconhecido + exceção. Nunca falha_temporaria aqui: o PCPR reagenda\n// a temporária e reenviaria às cegas (mesma regra do W2; C5/C6 do PR #23).\nconst erroGraph = Boolean(e.code);\nif (!erroGraph && sc !== 429) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\nconst temporario = sc === 429 || sc >= 500 ||\n  [130429, 131056, 131048, 131000, 131016, 2, 4, 80007].includes(codigo);\nconst motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { fallback: false,\n  resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',\n  erro: descr, motivo_excecao: temporario ? '' : motivo } }];"
+        "jsCode": "// Resposta da Graph API → resultado para o PCPR. Sem retentativa automática do POST /messages:\n// a Cloud API não tem chave de idempotência, então repetir após tempo esgotado duplicaria.\nconst PERMITE_FALLBACK = true;\nconst r = $input.first().json;\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst forma = PERMITE_FALLBACK ? $('Decidir forma').first().json.forma : 'modelo';\nconst temModelo = Boolean((((ctx.mensagem || {}).whatsapp || {}).modelo || {}).nome);\nconst sc = Number(r.statusCode || 0);\nconst corpo = (r.body && typeof r.body === 'object') ? r.body : {};\nconst e = corpo.error || {};\nconst codigo = Number(e.code || 0);\nconst wamid = ((corpo.messages || [])[0] || {}).id || '';\nconst descr = ('HTTP ' + sc + (codigo ? ' código ' + codigo : '') +\n  (e.message ? ': ' + String(e.message) : '')).slice(0, 300);\nif (sc === 200 && wamid) {\n  return [{ json: { fallback: false, resultado: 'enviada', provedor_mensagem_id: wamid,\n    erro: '', motivo_excecao: '' } }];\n}\n// 131047 (fora da janela) numa mensagem livre: troca UMA vez por modelo; nunca repete o livre.\nif (codigo === 131047 && PERMITE_FALLBACK && forma !== 'modelo' && temModelo) {\n  return [{ json: { fallback: true, erro_primeira_tentativa: descr } }];\n}\n// Sem erro estruturado da Graph API (ex.: 502/504 de um proxy, 2xx sem wamid) não se sabe se a\n// Meta aceitou → resultado desconhecido + exceção. Nunca falha_temporaria aqui: o PCPR reagenda\n// a temporária e reenviaria às cegas (mesma regra do W2; C5/C6 do PR #23).\nconst erroGraph = Boolean(e.code);\nif (!erroGraph && sc !== 429) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\n// Temporária (o PCPR reagenda e o W6 REENVIA) só com prova de que a Meta NÃO aceitou: limite de\n// taxa (HTTP 429 ou códigos de throttling 4, 80007, 130429, 131048, 131056), que a Graph API\n// aplica antes de aceitar a mensagem. 5xx com erro genérico (1, 2, 131000, 131016...) não prova\n// nada: pode ter falhado depois do aceite → resultado desconhecido + exceção, sem reenvio\n// (2ª verificação do PR #23; a mesma regra do W2/C5).\nconst LIMITE_DE_TAXA = [4, 80007, 130429, 131048, 131056];\nif (sc >= 500 && !LIMITE_DE_TAXA.includes(codigo)) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('erro do servidor da Graph API, aceite incerto: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\nconst temporario = sc === 429 || LIMITE_DE_TAXA.includes(codigo);\nconst motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { fallback: false,\n  resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',\n  erro: descr, motivo_excecao: temporario ? '' : motivo } }];"
       },
       "id": "98576c40-864b-5eee-b70b-7e6b75c60fa9",
       "name": "Classificar resposta",
@@ -512,7 +512,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Resposta da Graph API → resultado para o PCPR. Sem retentativa automática do POST /messages:\n// a Cloud API não tem chave de idempotência, então repetir após tempo esgotado duplicaria.\nconst PERMITE_FALLBACK = false;\nconst r = $input.first().json;\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst forma = PERMITE_FALLBACK ? $('Decidir forma').first().json.forma : 'modelo';\nconst temModelo = Boolean((((ctx.mensagem || {}).whatsapp || {}).modelo || {}).nome);\nconst sc = Number(r.statusCode || 0);\nconst corpo = (r.body && typeof r.body === 'object') ? r.body : {};\nconst e = corpo.error || {};\nconst codigo = Number(e.code || 0);\nconst wamid = ((corpo.messages || [])[0] || {}).id || '';\nconst descr = ('HTTP ' + sc + (codigo ? ' código ' + codigo : '') +\n  (e.message ? ': ' + String(e.message) : '')).slice(0, 300);\nif (sc === 200 && wamid) {\n  return [{ json: { fallback: false, resultado: 'enviada', provedor_mensagem_id: wamid,\n    erro: '', motivo_excecao: '' } }];\n}\n// 131047 (fora da janela) numa mensagem livre: troca UMA vez por modelo; nunca repete o livre.\nif (codigo === 131047 && PERMITE_FALLBACK && forma !== 'modelo' && temModelo) {\n  return [{ json: { fallback: true, erro_primeira_tentativa: descr } }];\n}\n// Sem erro estruturado da Graph API (ex.: 502/504 de um proxy, 2xx sem wamid) não se sabe se a\n// Meta aceitou → resultado desconhecido + exceção. Nunca falha_temporaria aqui: o PCPR reagenda\n// a temporária e reenviaria às cegas (mesma regra do W2; C5/C6 do PR #23).\nconst erroGraph = Boolean(e.code);\nif (!erroGraph && sc !== 429) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\nconst temporario = sc === 429 || sc >= 500 ||\n  [130429, 131056, 131048, 131000, 131016, 2, 4, 80007].includes(codigo);\nconst motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { fallback: false,\n  resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',\n  erro: descr, motivo_excecao: temporario ? '' : motivo } }];"
+        "jsCode": "// Resposta da Graph API → resultado para o PCPR. Sem retentativa automática do POST /messages:\n// a Cloud API não tem chave de idempotência, então repetir após tempo esgotado duplicaria.\nconst PERMITE_FALLBACK = false;\nconst r = $input.first().json;\nconst ctx = $('Quando chamado pelo W2').first().json;\nconst forma = PERMITE_FALLBACK ? $('Decidir forma').first().json.forma : 'modelo';\nconst temModelo = Boolean((((ctx.mensagem || {}).whatsapp || {}).modelo || {}).nome);\nconst sc = Number(r.statusCode || 0);\nconst corpo = (r.body && typeof r.body === 'object') ? r.body : {};\nconst e = corpo.error || {};\nconst codigo = Number(e.code || 0);\nconst wamid = ((corpo.messages || [])[0] || {}).id || '';\nconst descr = ('HTTP ' + sc + (codigo ? ' código ' + codigo : '') +\n  (e.message ? ': ' + String(e.message) : '')).slice(0, 300);\nif (sc === 200 && wamid) {\n  return [{ json: { fallback: false, resultado: 'enviada', provedor_mensagem_id: wamid,\n    erro: '', motivo_excecao: '' } }];\n}\n// 131047 (fora da janela) numa mensagem livre: troca UMA vez por modelo; nunca repete o livre.\nif (codigo === 131047 && PERMITE_FALLBACK && forma !== 'modelo' && temModelo) {\n  return [{ json: { fallback: true, erro_primeira_tentativa: descr } }];\n}\n// Sem erro estruturado da Graph API (ex.: 502/504 de um proxy, 2xx sem wamid) não se sabe se a\n// Meta aceitou → resultado desconhecido + exceção. Nunca falha_temporaria aqui: o PCPR reagenda\n// a temporária e reenviaria às cegas (mesma regra do W2; C5/C6 do PR #23).\nconst erroGraph = Boolean(e.code);\nif (!erroGraph && sc !== 429) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('resposta ambígua da Graph API: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\n// Temporária (o PCPR reagenda e o W6 REENVIA) só com prova de que a Meta NÃO aceitou: limite de\n// taxa (HTTP 429 ou códigos de throttling 4, 80007, 130429, 131048, 131056), que a Graph API\n// aplica antes de aceitar a mensagem. 5xx com erro genérico (1, 2, 131000, 131016...) não prova\n// nada: pode ter falhado depois do aceite → resultado desconhecido + exceção, sem reenvio\n// (2ª verificação do PR #23; a mesma regra do W2/C5).\nconst LIMITE_DE_TAXA = [4, 80007, 130429, 131048, 131056];\nif (sc >= 500 && !LIMITE_DE_TAXA.includes(codigo)) {\n  return [{ json: { fallback: false, resultado: 'resultado_desconhecido', provedor_mensagem_id: '',\n    erro: ('erro do servidor da Graph API, aceite incerto: ' + descr).slice(0, 300),\n    motivo_excecao: 'resultado_desconhecido' } }];\n}\nconst temporario = sc === 429 || LIMITE_DE_TAXA.includes(codigo);\nconst motivo = (codigo === 190 || sc === 401) ? 'canal_indisponivel' : 'outro';\nreturn [{ json: { fallback: false,\n  resultado: temporario ? 'falha_temporaria' : 'falha_definitiva', provedor_mensagem_id: '',\n  erro: descr, motivo_excecao: temporario ? '' : motivo } }];"
       },
       "id": "a2086c11-2bb5-51b9-89cd-d337d829e0bc",
       "name": "Classificar resposta (após 131047)",
@@ -1033,7 +1033,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "6f434708-e29d-4854-9e11-dda43b6deccc",
+  "versionId": "b9905d56-c846-484a-a171-43a0acdb2324",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -1041,21 +1041,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:52:34.186Z",
-      "createdAt": "2026-10-18T03:52:34.186Z",
+      "updatedAt": "2026-10-18T14:50:25.089Z",
+      "createdAt": "2026-10-18T14:50:25.089Z",
       "role": "workflow:owner",
       "workflowId": "pcprWhatsEnvio01",
-      "projectId": "KDapCLFoTUNmEURa",
+      "projectId": "Uwv3h6JLl3pj4sya",
       "project": {
-        "updatedAt": "2026-10-18T03:52:26.631Z",
-        "createdAt": "2026-10-18T03:52:26.631Z",
-        "id": "KDapCLFoTUNmEURa",
+        "updatedAt": "2026-10-18T14:50:11.212Z",
+        "createdAt": "2026-10-18T14:50:11.212Z",
+        "id": "Uwv3h6JLl3pj4sya",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "0cfa4536-0049-4bd6-9216-7796ac88de7d"
+        "creatorId": "9c332fcf-6fd4-4318-9aed-e9ac25e3c562"
       }
     }
   ],

@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-18T03:51:58.000Z",
-  "createdAt": "2026-10-18T03:46:18.099Z",
+  "updatedAt": "2026-10-29T17:01:44.000Z",
+  "createdAt": "2026-10-29T16:52:25.902Z",
   "id": "pcprErros0000001",
   "name": "PCPR · Erros",
   "description": null,
@@ -60,7 +60,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ fluxo: 'n8n:' + $json.workflow.name, correlacao_id: 'n8n:execucao:' + ($json.execution.id ?? 'sem-id'), motivo: 'outro', detalhe: (String(($json.execution.error || {}).message || 'erro sem mensagem') + ' (nó: ' + ($json.execution.lastNodeExecuted || '?') + ')').slice(0, 2000), execucao_orquestrador: String($json.execution.id ?? '') }) }}",
+        "jsonBody": "={{ JSON.stringify({ fluxo: 'n8n:' + $json.workflow.name, correlacao_id: 'n8n:execucao:' + ($json.execution.id ?? 'sem-id'), motivo: 'outro', detalhe: (String(($json.execution.error || {}).message || 'erro sem mensagem').replace(/[A-Za-z0-9_-]{24,}/g, '***') + ' (nó: ' + ($json.execution.lastNodeExecuted || '?') + ')').slice(0, 2000), execucao_orquestrador: String($json.execution.id ?? '') }) }}",
         "options": {
           "timeout": 10000
         }
@@ -109,7 +109,11 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
   },
   "staticData": null,
   "meta": {
@@ -117,7 +121,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "dfd561b8-7c4d-4e65-9825-a028e1db114b",
+  "versionId": "903cec93-2eb0-4b2b-93e2-75d95a0e1482",
   "activeVersionId": null,
   "versionCounter": 1,
   "triggerCount": 0,
@@ -125,21 +129,21 @@
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-10-18T03:46:18.106Z",
-      "createdAt": "2026-10-18T03:46:18.106Z",
+      "updatedAt": "2026-10-29T16:52:25.906Z",
+      "createdAt": "2026-10-29T16:52:25.906Z",
       "role": "workflow:owner",
       "workflowId": "pcprErros0000001",
-      "projectId": "Ivrpx1fsWEVS1XJN",
+      "projectId": "9fq7IJnDXiFX0rt2",
       "project": {
-        "updatedAt": "2026-10-18T03:46:09.768Z",
-        "createdAt": "2026-10-18T03:46:09.768Z",
-        "id": "Ivrpx1fsWEVS1XJN",
+        "updatedAt": "2026-10-29T16:52:10.679Z",
+        "createdAt": "2026-10-29T16:52:10.679Z",
+        "id": "9fq7IJnDXiFX0rt2",
         "name": "Unnamed Project",
         "type": "personal",
         "icon": null,
         "description": null,
         "customTelemetryTags": [],
-        "creatorId": "e728cecd-6a3b-4aeb-a8df-5c31a79cdd38"
+        "creatorId": "8d5871a5-c5dd-469d-9fdd-6a07bee9b69b"
       }
     }
   ],
