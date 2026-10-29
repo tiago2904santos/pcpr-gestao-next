@@ -21,9 +21,16 @@ def ana():
     return _usuario("ana")
 
 
+def _servico(nome):
+    # A CIN é a atividade do catálogo compartilhado (código CIN), não mais "Emissão de CIN".
+    if nome == "Emissão de CIN":
+        return Servico.objects.get(codigo="CIN")
+    return Servico.objects.get(nome=nome)
+
+
 def _pedido(usuario, tipo, servicos, equipes, **extra):
     s = solicitacoes.criar(usuario, _completa(tipo_evento=tipo, **extra), solicitacoes.Estrutura(
-        servicos={Servico.objects.get(nome=n).pk: "" for n in servicos},
+        servicos={_servico(n).pk: "" for n in servicos},
         equipes={Equipe.objects.get(nome=n).pk: q for n, q in equipes.items()}))
     solicitacoes.enviar(usuario, s.pk)
     return s
@@ -39,14 +46,15 @@ def test_tipo_sem_modelo_sugere_o_que_se_repete(ana):
     _pedido(ana, tipo, ["Coleta de digitais"], {"Alfa": 3})
     s = sugestoes.do_tipo(ana, tipo)
     assert s.fonte == "as últimas 4 solicitações deste tipo"
-    assert [x["nome"] for x in s.servicos] == ["Emissão de CIN"]  # 3 de 4; o social, 1 de 4
+    # 3 de 4; o social, 1 de 4
+    assert [x["nome"] for x in s.servicos] == [_servico("Emissão de CIN").nome]
     assert s.equipes == [{"id": Equipe.objects.get(nome="Alfa").pk, "nome": "Alfa",
                           "quantidade": 5}]  # 3 e 5 empatam: vale a maior
 
 
 def test_modelo_do_tipo_vem_primeiro_e_pela_tela(ana):
     tipo = TipoEvento.objects.get(nome="Feira")
-    tipo.servicos_sugeridos.set([Servico.objects.get(nome="Emissão de CIN")])
+    tipo.servicos_sugeridos.set([_servico("Emissão de CIN")])
     tipo.solicitante_padrao = "Coordenação"
     tipo.save()
     c = Client()
@@ -54,7 +62,7 @@ def test_modelo_do_tipo_vem_primeiro_e_pela_tela(ana):
     r = c.get(reverse("eventos:sugestao_do_tipo"), {"tipo": tipo.pk})
     dados = r.json()
     assert dados["fonte"] == "o modelo do tipo" and dados["solicitante"] == "Coordenação"
-    assert [x["nome"] for x in dados["servicos"]] == ["Emissão de CIN"]
+    assert [x["nome"] for x in dados["servicos"]] == [_servico("Emissão de CIN").nome]
     assert c.get(reverse("eventos:sugestao_do_tipo"), {"tipo": "x"}).status_code == 404
 
 
