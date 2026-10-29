@@ -1,0 +1,15 @@
+{% comment %}Uma linha da fila de exceções. Requer `e`.{% endcomment %}
+<li class="registro{% if e.situacao != 'aberta' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Exc</span><span class="placa__numero">#{{ e.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'automacao:excecao' e.pk %}"><span class="sr-only">Exceção #{{ e.pk }} · </span>{{ e.get_tipo_display }}</a>
+      <span class="selo selo--{% if e.situacao == 'aberta' %}aviso{% else %}neutro{% endif %} selo--sem-ponto">{{ e.get_situacao_display }}</span>
+    </div>
+    <p class="registro__texto">{{ e.resumo }}</p>
+    <div class="registro__meta">
+      <span class="registro__meta-item"><span class="sr-only">Aberta em: </span>{% icone "clock" classe="icone--sm" %}{{ e.criada_em|date:"d/m H:i" }}</span>
+      <span class="registro__meta-item"><span class="sr-only">Responsável: </span>{% icone "user" classe="icone--sm" %}{% if e.responsavel %}{{ e.responsavel }}{% else %}<span class="vazio-inline">Ninguém assumiu</span>{% endif %}</span>
+    </div>
+  </div>
+</li>

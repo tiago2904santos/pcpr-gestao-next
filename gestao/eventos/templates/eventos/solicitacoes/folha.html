@@ -146,14 +146,10 @@ histórico.
     </div>
     <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
       <legend class="sr-only">Serviços e estrutura</legend>
-<<<<<<< HEAD
-      <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Serviços</legend>
+      <fieldset class="secao__bloco grupo-campos--livre"><legend class="secao__bloco-titulo">{% icone "list-checks" classe="icone--sm" %}Serviços oferecidos</legend>
         {% if not editavel %}
         <ul class="pilha">{% for uso in servicos_registrados %}<li>{{ uso }}{% if uso.observacao %} — {{ uso.observacao }}{% endif %}</li>{% empty %}<li class="vazio-inline">Nenhum serviço registrado.</li>{% endfor %}</ul>
         {% else %}
-=======
-      <fieldset class="secao__bloco grupo-campos--livre"><legend class="secao__bloco-titulo">{% icone "list-checks" classe="icone--sm" %}Serviços oferecidos</legend>
->>>>>>> b45492916990701a9dd8164386c741bfbd57c1cf
         <div class="caixas">{% for sv, marcado in servicos %}<label class="escolha caixas__item"><input type="checkbox" name="servico_{{ sv.pk }}" value="1" form="{{ form_id }}"{% if marcado %} checked{% endif %}><span>{{ sv.nome }}{% if not sv.ativo %} (inativo){% endif %}</span></label>{% empty %}<p class="vazio-inline">Nenhum serviço cadastrado.</p>{% endfor %}</div>
         {% endif %}
       </fieldset>

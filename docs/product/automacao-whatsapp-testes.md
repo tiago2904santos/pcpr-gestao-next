@@ -1,7 +1,9 @@
 # WhatsApp Business como canal principal do sistema de testes
 
 - **Decisão do usuário:** 18/10/2026.
-- **Situação:** regra de produto e plano; integração real ainda não implementada nem ativada.
+- **Situação (18/10/2026):** implementado e testado com o simulador; integração real pronta,
+  mas não ativada nem validada com a Meta — ver [implementação do piloto](../automacao/implementacao-piloto.md)
+  e o [roteiro do LAB](../ops/lab-whatsapp-ia.md).
 - **Decisão estrutural:** [ADR 0046](../adr/0046-whatsapp-principal-no-sistema-de-testes.md).
 
 ## Contexto e público

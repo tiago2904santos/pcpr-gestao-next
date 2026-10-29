@@ -1,0 +1,8 @@
+{% comment %}Uma resposta automática ou da equipe a um recebimento. Requer `c` (Comunicacao).{% endcomment %}
+<li class="registro">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Msg</span><span class="placa__numero">#{{ c.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo"><a class="registro__link" href="{% url 'automacao:comunicacao' c.pk %}"><span class="sr-only">Comunicação #{{ c.pk }} · </span>{{ c.get_situacao_display }}</a>{% if c.entrega %}<span class="selo selo--info selo--sem-ponto">{{ c.get_entrega_display }}</span>{% endif %}</div>
+    <div class="registro__meta"><span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ c.criada_em|date:"d/m H:i" }}</span></div>
+  </div>
+</li>

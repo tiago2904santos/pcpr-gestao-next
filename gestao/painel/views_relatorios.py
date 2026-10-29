@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 
 from . import consolidado
+from .ia_usos import recurso_do_mes
 
 
 def _ano(request: HttpRequest, hoje) -> int | None:
@@ -28,6 +29,8 @@ def relatorios(request: HttpRequest) -> HttpResponse:
     r = consolidado.montar(request.user, ano, hoje)
     return render(request, "painel/relatorios.html", {
         "r": r, "ano_valor": str(ano) if ano else "todos",
+        # AUT-94: a nota executiva é do mês corrente, então só no ano corrente.
+        "recurso_nota": recurso_do_mes(request.user, hoje) if ano == hoje.year else "",
         "opcoes_ano": [(str(a), str(a)) for a in consolidado.anos_disponiveis(hoje)]
         + [("todos", "Todos os anos")],
         "gerado_em": timezone.localtime(),

@@ -26,4 +26,5 @@
   <button class="botao botao--sutil" type="submit" name="acao" value="ignorar" formnovalidate>Ignorar este documento</button>
 </form>{% else %}<p class="selo selo--sucesso">{{ parte.estado }} · {{ parte.rotulo }}</p>{% endif %}
 </div></section>
+{% if parte.estado == 'revisao' %}{% load assistencia %}{% painel_ia "viagens.importacao_tipo" parte.pk %}{% endif %}
 {% endblock %}

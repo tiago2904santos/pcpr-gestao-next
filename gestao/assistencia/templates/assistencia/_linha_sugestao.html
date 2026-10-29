@@ -1,0 +1,17 @@
+{% comment %}Uma linha de sugestão (painel e lista): só metadados, nunca o texto. Requer `s` e `rotulos`.{% endcomment %}
+<li class="registro{% if s.estado == 'descartada' or s.estado == 'obsoleta' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Sug</span><span class="placa__numero">#{{ s.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'assistencia:sugestao' s.pk %}"><span class="sr-only">Sugestão #{{ s.pk }} · </span>{% for chave, rotulo in rotulos.items %}{% if chave == s.uso %}{{ rotulo }}{% endif %}{% endfor %}</a>
+      <span class="selo selo--{{ s.tom }} selo--sem-ponto">{{ s.get_estado_display }}</span>
+      <span class="selo selo--neutro selo--sem-ponto">{% if s.fallback %}Regra (alternativa){% else %}{{ s.get_origem_display }}{% endif %}</span>
+    </div>
+    <div class="registro__meta">
+      <span class="registro__meta-item"><span class="sr-only">Criada em: </span>{% icone "clock" classe="icone--sm" %}{{ s.criada_em|date:"d/m H:i" }}</span>
+      {% if s.tokens_entrada or s.tokens_saida %}<span class="registro__meta-item">{{ s.tokens_entrada }}+{{ s.tokens_saida }} tokens{% if s.tokens_estimados %} (contagem local){% endif %}</span>{% endif %}
+      <span class="registro__meta-item">US$ {{ s.custo_estimado_usd|floatformat:4 }} estimado</span>
+      {% if s.decidida_por %}<span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ s.decidida_por }}</span>{% endif %}
+    </div>
+  </div>
+</li>

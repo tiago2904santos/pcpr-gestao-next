@@ -37,3 +37,8 @@ artifacts/
 
 # Anexos recebidos pelo chat; não são fontes do projeto
 .codex-remote-attachments/
+
+# Caches do Windows gravados por engano (pasta %SystemDrive% literal)
+/%SystemDrive%/
+*.ver0x*.db
+cversions.*.db

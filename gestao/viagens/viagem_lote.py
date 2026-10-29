@@ -17,6 +17,7 @@ from .models import Oficio, Viagem
 from .viagem import _situacao_pelos_documentos, documentos
 
 MAX_OFICIOS = 20
+MAX_SERVIDORES_POR_OFICIO = 40  # contando o motorista que entra na equipe
 
 
 class LoteInvalido(Exception):
@@ -48,6 +49,11 @@ def validar(viagem: Viagem, equipes: list[Equipe]) -> list[str]:
         return ["Monte ao menos um ofício com a equipe."]
     if len(equipes) > MAX_OFICIOS:
         erros.append(f"No máximo {MAX_OFICIOS} ofícios de uma vez.")
+    for i, e in enumerate(equipes, 1):
+        pessoas = {s.pk for s in e.servidores} | ({e.motorista.pk} if e.motorista else set())
+        if len(pessoas) > MAX_SERVIDORES_POR_OFICIO:
+            erros.append(f"Ofício {i}: no máximo {MAX_SERVIDORES_POR_OFICIO} servidores, "
+                         "contando o motorista.")
     onde: dict[int, int] = {}
     for i, e in enumerate(equipes, 1):
         if not e.servidores:

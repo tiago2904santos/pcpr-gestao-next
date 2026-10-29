@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Histórico da automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Histórico da automação</h1>
+    <p class="pagina-cabecalho__descricao">Cada ferramenta executada: quem foi representado, por qual credencial e delegação, e o resultado.</p>
+  </div>
+</header>
+<section class="cartao mt-4" aria-labelledby="t-lista">
+  <form class="filtros" method="get" role="search">
+    <div class="campo"><label class="campo__rotulo" for="filtro-ferramenta">Ferramenta</label><pc-select class="seletor"><select class="selecao" id="filtro-ferramenta" name="ferramenta"><option value="">Todas</option>{% for f in ferramentas %}<option value="{{ f.nome }}"{% if filtro == f.nome %} selected{% endif %}>{{ f.nome }}</option>{% endfor %}</select></pc-select></div>
+    <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button></div>
+  </form>
+  <h2 class="sr-only" id="t-lista">Execuções</h2>
+  {% if page_obj %}
+  <ul class="registros">
+    {% for e in page_obj %}
+    <li class="registro">
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__link">{{ e.ferramenta }} v{{ e.versao }}</span><span class="selo selo--{% if e.resultado == 'ok' %}sucesso{% elif e.resultado == 'pendente' or e.resultado == 'sombra' %}info{% else %}perigo{% endif %} selo--sem-ponto">{{ e.get_resultado_display }}</span><span class="selo selo--neutro selo--sem-ponto">{{ e.risco }}</span></div>
+        {% if e.detalhe %}<p class="registro__texto">{{ e.detalhe }}</p>{% endif %}
+        <div class="registro__meta">
+          <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ e.criada_em|date:"d/m H:i:s" }}</span>
+          <span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ e.usuario|default:"—" }}</span>
+          <span class="registro__meta-item">{% icone "lock" classe="icone--sm" %}{{ e.credencial|default:e.origem }}{% if e.delegacao_id %} · delegação #{{ e.delegacao_id }}{% endif %}</span>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}{% include "componentes/vazio.html" with icone="history" titulo="Nenhuma execução" texto="Quando a automação usar uma ferramenta, o registro aparece aqui." %}{% endif %}
+</section>
+{% include "componentes/barra_paginacao.html" %}
+{% endblock %}

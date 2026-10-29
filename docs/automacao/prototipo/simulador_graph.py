@@ -148,6 +148,11 @@ class EstadoGraph:
             # próximas N mensagens ACEITAS respondem 502 sem corpo da Graph API (proxy no meio):
             # o cliente não tem como saber que a Meta aceitou (resposta ambígua)
             self.respostas_ambiguas = 0
+            # próximas N mensagens recusadas com erro estruturado temporário (503, código
+            # 131000), sem aceitar; e atraso da resposta de uma mensagem já aceita (suíte do
+            # PCPR real: T7 e T10)
+            self.recusas_temporarias = 0
+            self.atraso_envio_s = 0.0
 
     # ---------------------------------------------------------------- utilidades
     def novo_wamid(self, prefixo: str = "OUT") -> str:
@@ -521,6 +526,12 @@ class Manipulador(ManipuladorBase):
                 )
         else:
             return recusar(400, 100, "(#100) Invalid parameter", f"type {tipo!r} não simulado")
+        with est.trava:
+            temporaria = est.recusas_temporarias > 0
+            if temporaria:
+                est.recusas_temporarias -= 1
+        if temporaria:  # erro ESTRUTURADO e temporário: a Meta não aceitou (nada a duplicar)
+            return recusar(503, 131000, "(#131000) Something went wrong", "falha temporária")
         wamid = est.novo_wamid("OUT")
         reg.update(aceita=True, status=200, wamid=wamid, janela_aberta=janela)
         with est.trava:
@@ -538,6 +549,8 @@ class Manipulador(ManipuladorBase):
                 est.entregar(e["id"])
 
             threading.Thread(target=falhar_depois, daemon=True).start()
+        if est.atraso_envio_s:  # já ACEITA e registrada; a resposta demora (queda no meio: T10)
+            time.sleep(float(est.atraso_envio_s))
         with est.trava:
             ambigua = est.respostas_ambiguas > 0
             if ambigua:
@@ -668,6 +681,8 @@ class Manipulador(ManipuladorBase):
                     "modo_131047",
                     "atraso_status_assincrono_s",
                     "respostas_ambiguas",
+                    "recusas_temporarias",
+                    "atraso_envio_s",
                 ):
                     if k in b:
                         setattr(est, k, b[k])

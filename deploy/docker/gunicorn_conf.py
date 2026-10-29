@@ -1,5 +1,6 @@
 """Configuração do Gunicorn na implantação: o log de acesso não pode registrar o token do
-feed ICS da agenda (`/agenda/ics/<token>.ics` — a única credencial do feed). Mesma regra do
+feed ICS da agenda (`/agenda/ics/<token>.ics` — a única credencial do feed) nem o dos
+links pessoais da automação (`/p/<token>/`, o link de km por WhatsApp). Mesma regra do
 filtro da aplicação (gestao/plataforma/logs.py), aplicada à linha de acesso do Gunicorn."""
 
 from __future__ import annotations
@@ -8,7 +9,7 @@ import re
 
 from gunicorn.glogging import Logger
 
-PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/)[^/\s'\"?]+")
+PADRAO = re.compile(r"(/agenda/ics/|/fornecedor/|/p/)[^/\s'\"?]+")
 
 
 class LoggerMascarado(Logger):

@@ -166,3 +166,9 @@
   width: 100%;
   max-width: 60rem;
 }
+
+/* Link de km: a situação do trecho é uma frase — o selo quebra linha em vez de vazar a 360 px. */
+.km-estado {
+  white-space: normal;
+  border-radius: var(--raio-sm);
+}

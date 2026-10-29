@@ -61,6 +61,8 @@ PAPEIS: dict[str, Papel] = {
             "cadastros.view_tabeladiaria", "cadastros.view_configuracaoinstitucional",
             "cadastros.view_modelotexto", "cadastros.add_modelotexto",
             "cadastros.change_modelotexto",
+            # WhatsApp do sistema de testes (ADR 0047): ver e operar o que é da unidade.
+            "automacao.view_comunicacao", "automacao.operar_automacao",
         ],
     },
     "GESTOR_VIAGENS": {
@@ -89,6 +91,9 @@ PAPEIS: dict[str, Papel] = {
             "cadastros.change_tabeladiaria", "cadastros.delete_tabeladiaria",
             "cadastros.view_configuracaoinstitucional",
             "cadastros.change_configuracaoinstitucional",
+            "automacao.view_comunicacao", "automacao.operar_automacao",
+            "automacao.ver_todas_unidades_automacao",
+            "assistencia.ver_painel_ia",
         ],
     },
     "CONSULTA": {
@@ -161,6 +166,11 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "identidade.view_usuario", "identidade.add_usuario", "identidade.change_usuario",
             "plataforma.view_eventoauditoria",
+            # Automação: canal, chaves de liga/desliga e lista de testadores (ADR 0047).
+            "automacao.view_comunicacao", "automacao.operar_automacao",
+            "automacao.administrar_automacao", "automacao.ver_todas_unidades_automacao",
+            # Assistência por IA: usos, limites e orçamento (ADR 0048).
+            "assistencia.administrar_ia", "assistencia.ver_painel_ia",
             # Cadastros de apoio da imprensa (equipe e veículos), como na referência.
             *(f"imprensa.{acao}_{modelo}" for modelo in ("integrante", "veiculo")
               for acao in ("view", "add", "change", "delete")),

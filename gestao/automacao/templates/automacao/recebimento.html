@@ -1,0 +1,89 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}Recebimento #{{ r.pk }} · Automação{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block cabecalho_detalhe %}{% include "componentes/registro_hero.html" with pagina=True contexto=contexto_hero titulo=r.get_tipo_display complemento=quem situacao_template="automacao/_selos_recebimento.html" %}{% endblock %}
+{% block principal %}
+{% if r.motivo %}<p class="alerta alerta--{% if r.tom == 'perigo' %}perigo{% else %}aviso{% endif %}" role="status">{% icone "info" classe="icone--sm" %}<span>{{ r.motivo }}</span></p>{% endif %}
+<section class="cartao" aria-labelledby="t-passos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-passos">Passos</h2></div>
+  <div class="cartao__corpo">
+    <ol class="linha-tempo">
+      <li class="linha-tempo__item linha-tempo__item--marca"><span class="linha-tempo__marcador">{% icone "inbox" %}</span><div><p class="linha-tempo__titulo">Recebido</p><p class="linha-tempo__meta">{{ r.recebido_em|default:r.registrado_em|date:"d/m H:i" }}</p></div></li>
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "user-round" %}</span><div><p class="linha-tempo__titulo">Remetente identificado</p><p class="linha-tempo__meta">{% if r.identificado_em %}{{ r.identificado_em|date:"d/m H:i" }} · {{ r.servidor }}{% else %}Não — número sem contato verificado{% endif %}</p></div></li>
+      {% if r.tipo == 'documento' or r.tipo == 'imagem' %}
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "file-check-2" %}</span><div><p class="linha-tempo__titulo">Arquivo conferido pelo sistema</p><p class="linha-tempo__meta">{% if r.sha256 and r.tamanho %}{{ r.mime }} · {{ r.tamanho|filesizeformat }} · sha256 {{ r.sha256|slice:":12" }}…{% elif r.situacao == 'quarentena' %}Não baixado (quarentena){% else %}Ainda não baixado{% endif %}</p></div></li>
+      {% endif %}
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "layers" %}</span><div><p class="linha-tempo__titulo">Associado ao registro</p><p class="linha-tempo__meta">{% if r.associado_em %}{{ r.associado_em|date:"d/m H:i" }} · em nome de {{ r.associado_por }}{% else %}Não{% endif %}</p></div></li>
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "badge-check" %}</span><div><p class="linha-tempo__titulo">Conferido por uma pessoa</p><p class="linha-tempo__meta">{% if r.conferido_em %}{{ r.conferido_em|date:"d/m H:i" }} · {{ r.conferido_por }}{% else %}Não{% endif %}</p></div></li>
+    </ol>
+    <p class="texto-secundario texto-sm mt-4">Finalizar a prestação continua sendo um ato da equipe em Viagens.</p>
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-conteudo">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-conteudo">Conteúdo</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if conteudo %}
+      {% if conteudo.texto %}<p class="texto-pre">{{ conteudo.texto }}</p>{% else %}<p class="vazio-inline">Sem texto.</p>{% endif %}
+      <p class="texto-secundario texto-sm">Guardado até {{ conteudo.expira_em|date:"d/m/Y" }} (retenção).</p>
+    {% else %}<p class="vazio-inline">O texto não está mais guardado (passou a retenção).</p>{% endif %}
+    {% if r.arquivo and pode_operar %}<a class="botao botao--sm" href="{% url 'automacao:arquivo_recebido' r.pk %}">{% icone "download" %}Baixar o arquivo recebido</a>{% endif %}
+  </div>
+</section>
+{% if candidatos %}
+<section class="cartao" aria-labelledby="t-destino">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-destino">Onde este arquivo entra</h2></div>
+  <form method="post" action="{% url 'automacao:acao_recebimento' r.pk 'associar' %}" class="cartao__corpo pilha">{% csrf_token %}
+    <fieldset class="pilha"><legend class="campo__rotulo">Escolha o registro (abra o arquivo antes para conferir)</legend>
+      {% for d, cand in candidatos %}<label class="escolha"><input type="radio" name="candidato" value="{{ d.chave }}|{{ cand.recurso }}" required{% if forloop.first and candidatos|length == 1 %} checked{% endif %}><span>{{ d.rotulo }}: {{ cand.rotulo }}</span></label>{% endfor %}
+    </fieldset>
+    <div><button class="botao botao--primario" type="submit">{% icone "check" %}Associar</button></div>
+  </form>
+</section>
+{% endif %}
+{% if respostas %}
+<section class="cartao" aria-labelledby="t-respostas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-respostas">Respostas enviadas</h2></div>
+  <ul class="registros">{% for c in respostas %}{% include "automacao/_resposta.html" %}{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}
+{% block contexto %}
+<section class="cartao" aria-labelledby="t-dados">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados">Dados</h2></div>
+  <div class="cartao__corpo pilha">
+    <dl class="definicoes">
+      {% include "componentes/metadado.html" with rotulo="Responde a" valor=r.comunicacao ausente="Nenhuma comunicação" %}
+      {% include "componentes/metadado.html" with rotulo="Entrou em" valor=referencia.rotulo ausente="Ainda em nenhum registro" %}
+      {% include "componentes/metadado.html" with rotulo="Palavra-chave" valor=r.intencao|upper ausente="—" %}
+    </dl>
+    {% if r.comunicacao %}<a class="botao botao--sm" href="{% url 'automacao:comunicacao' r.comunicacao_id %}">{% icone "send" %}Ver a comunicação</a>{% endif %}
+    {% if referencia.url %}<a class="botao botao--sm" href="{{ referencia.url }}">{% icone "external-link" %}Abrir o registro</a>{% endif %}
+  </div>
+</section>
+{% if pode_operar %}
+<section class="cartao" aria-labelledby="t-acoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-acoes">Ações</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if r.situacao == 'associado' %}<form method="post" action="{% url 'automacao:acao_recebimento' r.pk 'conferir' %}">{% csrf_token %}<button class="botao botao--primario" type="submit">{% icone "badge-check" %}Conferi o arquivo</button></form>{% endif %}
+    {% if r.contato_id %}
+    <form method="post" action="{% url 'automacao:acao_recebimento' r.pk 'responder' %}" class="pilha">{% csrf_token %}
+      {% include "componentes/campo.html" with campo=form_resposta.texto %}
+      <div><button class="botao" type="submit">{% icone "send" %}Responder pelo WhatsApp</button></div>
+    </form>
+    {% endif %}
+    {% if r.situacao != 'associado' and r.situacao != 'conferido' and r.situacao != 'descartado' %}
+    <form method="post" action="{% url 'automacao:acao_recebimento' r.pk 'descartar' %}" class="pilha">{% csrf_token %}
+      <div class="campo"><label class="campo__rotulo" for="motivo-descarte">Motivo do descarte<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" id="motivo-descarte" name="motivo" maxlength="255" required></div>
+      <div><button class="botao botao--perigo-sutil" type="submit">{% icone "trash-2" %}Descartar</button></div>
+    </form>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+{% if excecoes %}
+<section class="cartao" aria-labelledby="t-excecoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-excecoes">Exceções</h2></div>
+  <ul class="registros">{% for e in excecoes %}{% include "automacao/_excecao.html" %}{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

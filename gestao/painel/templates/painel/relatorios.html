@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}Relatório consolidado · {{ r.periodo.rotulo }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% if recurso_nota %}<link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endif %}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Relatório consolidado (paridade com o painel de relatórios da referência — a planilha
@@ -27,6 +27,7 @@ seção por módulo, cada uma só para quem tem o módulo. A planilha traz os me
 <section aria-label="Indicadores" class="grade grade--kpi">
   {% for k in r.indicadores %}<div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone k.icone classe="icone--sm" %}{{ k.titulo }}</span><span class="indicador__valor">{{ k.valor }}</span><span class="indicador__nota">{{ k.detalhe }}</span></div>{% endfor %}
 </section>
+{% if recurso_nota %}{% load assistencia %}<div class="mt-6">{% painel_ia "painel.nota_executiva" recurso_nota %}</div>{% endif %}
 
 {% with s=r.quadro %}
 <section class="cartao mt-6" aria-labelledby="t-{{ s.slug }}">

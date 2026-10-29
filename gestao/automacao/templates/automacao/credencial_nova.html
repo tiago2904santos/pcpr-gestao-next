@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Nova credencial · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho"><div class="pagina-cabecalho__texto"><h1 class="pagina-cabecalho__titulo">Credencial rotacionada</h1><p class="pagina-cabecalho__descricao">A anterior continua valendo por 24 horas, para trocar sem parar a integração.</p></div></header>
+<section class="alerta alerta--sucesso mt-4" role="alert">
+  {% icone "lock" %}
+  <div class="alerta__corpo">
+    <p class="alerta__titulo">Copie agora: este valor não aparece de novo</p>
+    <p class="texto-pre texto-sm quebra-palavras">{{ token_novo }}</p>
+  </div>
+</section>
+<p class="mt-4"><a class="botao" href="{% url 'automacao:credenciais' %}">{% icone "arrow-left" %}Voltar às credenciais</a></p>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}Links pessoais · Automação{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Links pessoais</h1>
+    <p class="pagina-cabecalho__descricao">Links sem login que foram por mensagem (km na véspera, documentos…). Cada um vale para uma pessoa, um assunto e um prazo; o link em si nunca é guardado.</p>
+  </div>
+</header>
+<div class="layout-detalhe mt-4">
+  <section class="cartao" aria-labelledby="t-lista">
+    <nav class="abas" aria-label="Recortes"><a class="aba" href="{% url 'automacao:links' %}"{% if not todos %} aria-current="page"{% endif %}>Vigentes</a><a class="aba" href="?todos=1"{% if todos %} aria-current="page"{% endif %}>Todos</a></nav>
+    <h2 class="sr-only" id="t-lista">Links</h2>
+    {% if page_obj %}
+    <ul class="registros">
+      {% for l in page_obj %}
+      <li class="registro{% if not l.vigente %} registro--inativo{% endif %}">
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__link">{{ l.get_escopo_display }} · {{ l.servidor }}</span>{% if l.revogado_em %}<span class="selo selo--neutro selo--sem-ponto">Revogado: {{ l.get_motivo_revogacao_display|lower }}</span>{% elif not l.vigente %}<span class="selo selo--neutro selo--sem-ponto">Vencido</span>{% else %}<span class="selo selo--sucesso selo--sem-ponto">Vigente</span>{% endif %}</div>
+          <p class="registro__texto">{{ l.recurso }}</p>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}criado {{ l.criado_em|date:"d/m H:i" }} · vale até {{ l.expira_em|date:"d/m H:i" }}</span>
+            <span class="registro__meta-item">{% icone "eye" classe="icone--sm" %}{% if l.exibido_em %}aberto em {{ l.exibido_em|date:"d/m H:i" }}{% else %}<span class="vazio-inline">nunca aberto</span>{% endif %}</span>
+          </div>
+        </div>
+        {% if l.vigente %}<div class="registro__acoes registro__acoes--fixas"><form method="post" action="{% url 'automacao:revogar_link' l.pk %}" data-confirmar="O link de {{ l.servidor }} para de valer agora; se ainda precisar, um novo sai na próxima mensagem." data-confirmar-titulo="Revogar o link?" data-confirmar-rotulo="Revogar" data-confirmar-perigo>{% csrf_token %}<button class="botao botao--sm botao--perigo-sutil" type="submit" aria-label="Revogar o link de {{ l.servidor }}">{% icone "ban" %}Revogar</button></form></div>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}{% include "componentes/vazio.html" with icone="lock" titulo="Nenhum link" texto="Os links pessoais nascem quando uma mensagem com link sai pelo WhatsApp." %}{% endif %}
+  </section>
+  {% if pode_administrar %}
+  <aside class="layout-detalhe__lateral" aria-label="Incidente">
+    <section class="cartao" aria-labelledby="t-incidente">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-incidente">Incidente</h2></div>
+      <form method="post" action="{% url 'automacao:revogar_links_em_massa' %}" class="cartao__corpo pilha" data-confirmar="Todos os links vigentes emitidos no período escolhido (nas últimas 24 h são {{ vigentes_24h }}) param de valer agora: quem abrir verá “link indisponível” e precisará de um novo. Não dá para desfazer." data-confirmar-titulo="Revogar os links do período?" data-confirmar-rotulo="Revogar links" data-confirmar-perigo>{% csrf_token %}
+        <p class="texto-secundario">Suspeita de vazamento (mensagem encaminhada, aparelho perdido, log exposto): revogue todos os links emitidos no período.</p>
+        <p class="texto-sm"><strong>{{ vigentes_24h }}</strong> link{{ vigentes_24h|pluralize }} vigente{{ vigentes_24h|pluralize }} emitido{{ vigentes_24h|pluralize }} nas últimas 24 h.</p>
+        <div class="campo"><label class="campo__rotulo" for="horas">Emitidos nas últimas (horas)</label><input class="entrada" id="horas" name="horas" type="number" min="1" max="720" value="24" inputmode="numeric"></div>
+        <div class="campo"><label class="campo__rotulo" for="motivo-massa">Motivo<span class="campo__obrigatorio" aria-hidden="true">*</span></label><select class="entrada" id="motivo-massa" name="motivo" required><option value="">Escolha</option>{% for valor, rotulo in motivos_massa %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}</select></div>
+        <div><button class="botao botao--perigo" type="submit">{% icone "ban" %}Revogar os links do período</button></div>
+      </form>
+    </section>
+  </aside>
+  {% endif %}
+</div>
+{% include "componentes/barra_paginacao.html" %}
+{% endblock %}

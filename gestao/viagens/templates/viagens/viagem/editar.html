@@ -104,6 +104,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
 {% endif %}
 
 {% if quadro %}{% include "viagens/viagem/_conferencia.html" %}{% endif %}
+{% load assistencia %}{% painel_ia "viagens.explicar_pendencias" v.pk %}
 
 <section class="secao" id="historico" aria-labelledby="t-hist">
   <div class="secao__cabecalho">

@@ -1,0 +1,18 @@
+{% comment %}Uma linha de comunicação (lista e painel). Requer `l` (views._linha).{% endcomment %}
+{% with c=l.c %}
+<li class="registro{% if c.situacao == 'cancelada' or c.situacao == 'obsoleta' or c.situacao == 'expirada' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Msg</span><span class="placa__numero">#{{ c.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'automacao:comunicacao' c.pk %}"><span class="sr-only">Comunicação #{{ c.pk }} · </span>{{ l.rotulo }} · {{ l.quem }}</a>
+      <span class="selo selo--{{ c.tom }} selo--sem-ponto">{{ c.get_situacao_display }}</span>
+      {% if c.entrega %}<span class="selo selo--{% if c.entrega == 'falhou' %}perigo{% elif c.entrega == 'lida' or c.entrega == 'entregue' %}sucesso{% else %}info{% endif %} selo--sem-ponto">{{ c.get_entrega_display }}</span>{% endif %}
+    </div>
+    {% if c.motivo %}<p class="registro__texto">{{ c.motivo }}</p>{% endif %}
+    <div class="registro__meta">
+      <span class="registro__meta-item"><span class="sr-only">Criada em: </span>{% icone "clock" classe="icone--sm" %}{{ c.criada_em|date:"d/m H:i" }}</span>
+      {% if c.enviada_em %}<span class="registro__meta-item"><span class="sr-only">Enviada em: </span>{% icone "send" classe="icone--sm" %}{{ c.enviada_em|date:"d/m H:i" }}{% if c.origem_envio == 'simulado' %} (simulado){% endif %}</span>{% endif %}
+    </div>
+  </div>
+</li>
+{% endwith %}

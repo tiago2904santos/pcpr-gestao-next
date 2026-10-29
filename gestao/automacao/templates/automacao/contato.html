@@ -1,0 +1,55 @@
+{% extends "arquetipos/detalhe.html" %}
+{% block titulo %}{{ ct.servidor }} · Contatos · Automação{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block cabecalho_detalhe %}
+{% with s=ct.situacao %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="registro-hero__rotulo">Contato de WhatsApp</p>
+    <h1 class="pagina-cabecalho__titulo">{{ ct.servidor }}</h1>
+    <p class="pagina-cabecalho__descricao"><span class="selo selo--{{ s.1 }} selo--sem-ponto">{{ s.0 }}</span> {{ mascarado }}</p>
+  </div>
+</header>
+{% endwith %}
+{% endblock %}
+{% block principal %}
+{% if lista_fechada and not na_lista and not ct.revogado_em %}<p class="alerta alerta--aviso" role="status">{% icone "shield-alert" classe="icone--sm" %}<span>Este número não está na lista de testadores autorizados: mesmo ativo, nada sai para ele neste ambiente.</span></p>{% endif %}
+<section class="cartao" aria-labelledby="t-situacao">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-situacao">Verificação e opt-in</h2></div>
+  <div class="cartao__corpo pilha">
+    <ol class="linha-tempo">
+      <li class="linha-tempo__item linha-tempo__item--marca"><span class="linha-tempo__marcador">{% icone "phone" %}</span><div><p class="linha-tempo__titulo">Cadastrado</p><p class="linha-tempo__meta">{{ ct.criado_em|date:"d/m/Y H:i" }}{% if ct.criado_por %} · {{ ct.criado_por }}{% endif %}</p></div></li>
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "shield-check" %}</span><div><p class="linha-tempo__titulo">Número verificado</p><p class="linha-tempo__meta">{% if ct.verificado_em %}{{ ct.verificado_em|date:"d/m/Y H:i" }} · {{ ct.get_metodo_display }}{% if ct.verificado_por %} ({{ ct.verificado_por }}){% endif %}{% else %}Ainda não{% endif %}</p></div></li>
+      <li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "badge-check" %}</span><div><p class="linha-tempo__titulo">Opt-in</p><p class="linha-tempo__meta">{% if ct.optin_em %}{{ ct.optin_em|date:"d/m/Y H:i" }} · {{ ct.get_optin_origem_display }} · termo {{ ct.optin_versao }}{% else %}Ainda não{% endif %}</p></div></li>
+      {% if ct.revogado_em %}<li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "ban" %}</span><div><p class="linha-tempo__titulo">Revogado</p><p class="linha-tempo__meta">{{ ct.revogado_em|date:"d/m/Y H:i" }} · {{ ct.revogado_motivo }}</p></div></li>{% endif %}
+    </ol>
+    {% if not ct.revogado_em and not ct.optin_em %}<p class="texto-secundario">O jeito mais simples: a pessoa manda <strong>ACEITO</strong> para o número do teste. Isso verifica o número e registra o opt-in de uma vez.</p>{% endif %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-comunicacoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-comunicacoes">Comunicações recentes</h2></div>
+  {% if comunicacoes %}<ul class="registros">{% for l in comunicacoes %}{% include "automacao/_comunicacao.html" %}{% endfor %}</ul>
+  {% else %}<div class="cartao__corpo"><p class="vazio-inline">Nenhuma mensagem para este contato ainda.</p></div>{% endif %}
+</section>
+{% endblock %}
+{% block contexto %}
+{% if not ct.revogado_em %}
+<section class="cartao" aria-labelledby="t-acoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-acoes">Ações</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if not ct.verificado_em %}<form method="post" action="{% url 'automacao:acao_contato' ct.pk 'verificar' %}">{% csrf_token %}<button class="botao" type="submit">{% icone "shield-check" %}Confirmei o número com a pessoa</button></form>{% endif %}
+    {% if not ct.optin_em %}
+    <form method="post" action="{% url 'automacao:acao_contato' ct.pk 'optin' %}" class="pilha">{% csrf_token %}
+      {% include "componentes/campo.html" with campo=form_optin.origem %}
+      {% include "componentes/campo.html" with campo=form_optin.confirmo %}
+      <div><button class="botao botao--primario" type="submit">{% icone "badge-check" %}Registrar opt-in</button></div>
+    </form>
+    {% endif %}
+    <form method="post" action="{% url 'automacao:acao_contato' ct.pk 'revogar' %}" class="pilha" data-confirmar="O número deixa de receber mensagens deste sistema. Para voltar, é preciso um novo opt-in." data-confirmar-titulo="Revogar o contato?" data-confirmar-rotulo="Revogar" data-confirmar-perigo>{% csrf_token %}
+      {% include "componentes/campo.html" with campo=form_revogar.motivo %}
+      <div><button class="botao botao--perigo-sutil" type="submit">{% icone "ban" %}Revogar</button></div>
+    </form>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
