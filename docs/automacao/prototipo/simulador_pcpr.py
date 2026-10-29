@@ -82,6 +82,8 @@ from regra_vespera import FUSO, ComunicacaoRef, ViagemRef, planejar
 from simulador_canal import pdf_sintetico
 
 PREFIXO = "/api/automacao/v1"
+# as duas rotas que registram o Recebimento de um anexo sob a mesma Idempotency-Key (contrato)
+ROTAS_RECEBIMENTO = ("/recebimentos", "/recebimentos/sem-arquivo")
 ESTADOS_CANAL = {"ligado", "desligado", "bloqueado"}
 JANELA_WHATSAPP = timedelta(hours=24)
 # tipo de comunicação → modelo utility aprovado na Meta (cópia do texto versionado no PCPR)
@@ -840,7 +842,17 @@ class Manipulador(ManipuladorBase):
         with est.trava:  # a trava cobre efeito + gravação da resposta: repetição é atômica
             salvo = est.idem.get(chave)
             if salvo:
-                if salvo["impressao"] != impressao:
+                # Contrato: /recebimentos e /recebimentos/sem-arquivo usam a MESMA chave, que
+                # identifica o anexo; o 1º desfecho gravado (arquivo aceito ou registro sem
+                # arquivo) é "o" Recebimento dele. A outra rota com essa chave devolve o mesmo
+                # Recebimento — sem isto, a reentrega depois de 413 → sem-arquivo tentava o
+                # upload de novo e levava 422 "chave reutilizada" (falsa recusa permanente).
+                outra_rota_do_anexo = (
+                    rota in ROTAS_RECEBIMENTO
+                    and salvo.get("rota") in ROTAS_RECEBIMENTO
+                    and salvo.get("rota") != rota
+                )
+                if salvo["impressao"] != impressao and not outra_rota_do_anexo:
                     return self._resp(
                         422,
                         {
@@ -854,6 +866,7 @@ class Manipulador(ManipuladorBase):
             status, resposta, guardar = self._post(rota, corpo)
             if guardar:
                 est.idem[chave] = {
+                    "rota": rota,
                     "impressao": impressao,
                     "status": status,
                     "corpo": resposta,

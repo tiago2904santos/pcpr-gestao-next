@@ -383,7 +383,8 @@ paths:
         mensagem_id_canal>:<anexo_indice>`. O `#` no 1º segmento impede que um id curto reproduza a
         forma com hash; a regra ASCII faz o tamanho medir igual em qualquer linguagem e mantém o
         cabeçalho em ASCII. Repetir a
-        mesma chave devolve o mesmo `Recebimento` sem efeito; **mesma chave com SHA-256 diferente →
+        mesma chave devolve o mesmo `Recebimento` sem efeito — inclusive o que foi gravado por
+        `/recebimentos/sem-arquivo` com essa chave (ver essa operação); **mesma chave com SHA-256 diferente →
         409 `conflito_de_versao`** (o canal mudou o anexo; vira exceção), em vez do 422 genérico. Mesmo
         SHA-256 no mesmo destino com outra chave = `duplicado`. O PCPR recalcula o SHA-256 e recusa com
         422 `entrada_invalida` se divergir do informado.
@@ -463,7 +464,11 @@ paths:
       description: |
         Efeito: `Recebimento` em `rejeitado` (ou exceção `arquivo_nao_baixado` em `nao_baixado`) e
         comunicação de resposta orientando o remetente — sem gravar arquivo. Mesma chave de
-        idempotência de `/recebimentos`.
+        idempotência de `/recebimentos`: a chave identifica o **anexo**, e o primeiro desfecho
+        gravado sob ela, por qualquer das duas rotas, é o `Recebimento` dele. Chamar a outra rota
+        com a mesma chave devolve esse `Recebimento` (mesmo status e corpo,
+        `Idempotency-Replayed: true`), sem efeito e sem 422 — ex.: depois de 413 → sem-arquivo, a
+        reentrega da mensagem que repete o upload recebe o `rejeitado` já gravado.
       operationId: criarRecebimentoSemArquivo
       x-origem: 10-6 E2
       x-escopos: [recebimentos:criar]

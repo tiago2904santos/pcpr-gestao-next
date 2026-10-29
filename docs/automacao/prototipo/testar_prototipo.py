@@ -1,4 +1,4 @@
-"""Orquestra o protótipo inteiro e faz as asserções T1–T20 + métricas.
+"""Orquestra o protótipo inteiro e faz as asserções T1–T21 + métricas.
 
     .venv/Scripts/python.exe docs/automacao/prototipo/testar_prototipo.py
         [--manter]        não remove contêiner/simuladores no fim (depuração)
@@ -1673,6 +1673,75 @@ def t13() -> dict:
     }
 
 
+def t21() -> dict:
+    """Revisão do Codex (PR #23): mensagem com anexos mistos — o anexo 0 leva 413 e é registrado
+    sem arquivo; o anexo 1 falha de forma transitória (503) e o W4 pede reentrega. Na reentrega o
+    W4 repete o upload do anexo 0 com a mesma chave: o PCPR devolve o Recebimento `rejeitado` já
+    gravado (202, repetição), e não 422 "chave reutilizada" (que virava falsa exceção de recusa
+    permanente). Fim: 1 rejeitado + 1 aceito, 0 exceção, 1 só sem-arquivo."""
+    resetar()
+    # o anexo 0 passa do limite do PCPR (corpo multipart > 4 KiB), o anexo 1 não; o 413 vem antes
+    # da falha injetada, então o 503 único cai no anexo 1
+    sim("/_sim/config", {"limite_recebimento_bytes": 4096, "falhar_recebimentos": 1})
+    mid = f"msg.sim.T21.{secrets.token_hex(4)}"
+    r = canal(
+        "/_sim/inbound",
+        {
+            "mensagem_id": mid,
+            "remetente": "+5500000000211",
+            "canal": "email",
+            "reentregar": 3,
+            "anexos": [
+                {"texto": "T21 anexo grande " + "x" * 6000, "nome": "grande.pdf"},
+                {"texto": "T21 anexo pequeno", "nome": "pequeno.pdf"},
+            ],
+        },
+    )
+    e = est()
+    k0, k1 = chave_recebimento("email", mid, 0), chave_recebimento("email", mid, 1)
+
+    def por_chave(rota: str, k: str) -> list[tuple[int, bool]]:
+        return [(p["status"], bool(p.get("replay"))) for p in chamadas(e, rota) if p["chave"] == k]
+
+    posts0, posts1 = por_chave(r"/recebimentos", k0), por_chave(r"/recebimentos", k1)
+    sem0 = por_chave(r"/recebimentos/sem-arquivo", k0)
+    recs = {
+        x["campos"]["anexo_indice"]: x
+        for x in e["recebimentos"]
+        if x["campos"].get("mensagem_id_canal") == mid
+    }
+    excecoes = [x for x in e["excecoes"] if mid in str(x.get("correlacao_id"))]
+    resposta = json.loads(r.get("resposta") or "{}")
+    checar(r["entregas"] == [503, 200], f"entregas do canal {r['entregas']} {r.get('resposta')}")
+    checar(posts0 == [(413, False), (202, True)], f"anexo 0, POST /recebimentos: {posts0}")
+    checar(sem0 == [(202, False)], f"anexo 0, sem-arquivo: {sem0}")
+    checar(posts1 == [(503, False), (202, False)], f"anexo 1, POST /recebimentos: {posts1}")
+    checar(
+        sorted(recs) == ["0", "1"]
+        and (recs["0"]["estado"], recs["0"].get("motivo")) == ("rejeitado", "acima_do_limite")
+        and recs["1"]["estado"] == "aceito_para_processamento"
+        and len(e["recebimentos"]) == 2,
+        f"recebimentos: {e['recebimentos']}",
+    )
+    checar(not excecoes and not chamadas(e, r"/excecoes"), f"exceções: {excecoes}")
+    checar(
+        {k: resposta.get(k) for k in ("total", "aceitos", "sem_arquivo", "excecoes")}
+        == {"total": 2, "aceitos": 1, "sem_arquivo": 1, "excecoes": 0},
+        f"resposta do W4 na entrega final: {resposta}",
+    )
+    return {
+        "entregas_do_canal": r["entregas"],
+        "anexo_0": {
+            "post_recebimentos": ["413", "202 (repetição do rejeitado)"],
+            "sem_arquivo": [s for s, _ in sem0],
+            "recebimento": "rejeitado (acima_do_limite)",
+        },
+        "anexo_1": {"post_recebimentos": [s for s, _ in posts1], "recebimento": "aceito"},
+        "resposta_final_do_w4": resposta,
+        "excecoes": 0,
+    }
+
+
 CENARIOS: list[tuple[str, str, Callable[[], dict]]] = [
     ("T1", "evento válido → exatamente 1 envio e 1 resultado", t1),
     ("T2", "mesmo evento reenviado (em série e 5x em paralelo) → continua 1 envio", t2),
@@ -1701,6 +1770,12 @@ CENARIOS: list[tuple[str, str, Callable[[], dict]]] = [
         "resposta final ao canal, sem laço de reentrega; recusa que muda entre entregas → "
         "2 exceções; falha temporária persistente → 503 + exceção fila_parada",
         t19,
+    ),
+    (
+        "T21",
+        "anexos mistos: 413 → sem-arquivo + falha transitória noutro anexo → reentrega repete o "
+        "upload e recebe o rejeitado já gravado (sem 422, sem exceção)",
+        t21,
     ),
     ("T13", "nenhum destino, link-credencial ou token de reserva retido nas execuções do n8n", t13),
 ]

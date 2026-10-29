@@ -1003,9 +1003,14 @@ if (rede || sc === 0 || sc >= 500 || [401, 403, 408, 423, 425, 429].includes(sc)
   return [{ json: { ...base, passo: 'fim', desfecho: 'reentregar' } }];
 }
 if (sc >= 200 && sc < 300) {
+  // A chave é do anexo nas duas rotas: numa reentrega, o upload de um anexo que já foi
+  // registrado sem arquivo (413 → sem-arquivo) devolve esse mesmo Recebimento `rejeitado`
+  // (202, Idempotency-Replayed). O desfecho segue o estado gravado, não a rota chamada.
+  const estado = String(corpo.estado || '');
+  const sem = estado === 'rejeitado' || (OP === 'sem_arquivo' && !estado);
   return [{ json: { ...base, passo: 'fim',
-    desfecho: OP === 'recebimento' ? 'aceito' : 'registrado_sem_arquivo',
-    recebimento_id: corpo.id ?? null, estado: String(corpo.estado || '') } }];
+    desfecho: sem ? 'registrado_sem_arquivo' : 'aceito',
+    recebimento_id: corpo.id ?? null, estado } }];
 }
 if (sc === 413 && OP === 'recebimento') {
   return [{ json: { ...base, passo: 'sem_arquivo', motivo: 'acima_do_limite' } }];
